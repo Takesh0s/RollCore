@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RPG Skill Checker</title>
+
+  <link rel="stylesheet" href="./frontend/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<div class="proto-shell">
+
+  <div class="screen-nav">
+    <button class="nav-btn active" data-nav="login">Login</button>
+    <button class="nav-btn" data-nav="dashboard">Dashboard</button>
+    <button class="nav-btn" data-nav="ficha">Ficha</button>
+    <button class="nav-btn" data-nav="dados">Dados</button>
+  </div>
+
+  <div class="screen active" id="s-login">
+    <div class="device login-device">
+
+      <div class="login-header">
+        <div class="logo-box">🎲</div>
+        <h1>RPG Skill Checker</h1>
+        <p>Acesse sua conta</p>
+      </div>
+
+      <div class="page-body narrow">
+
+        <div class="form-group">
+          <label>E-mail</label>
+          <input class="form-input" placeholder="Digite seu e-mail">
+        </div>
+
+        <div class="form-group">
+          <label>Senha</label>
+          <input type="password" class="form-input">
+        </div>
+
+        <button class="btn-primary" data-nav="dashboard">Entrar</button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <div class="screen" id="s-dashboard">
+    <div class="device">
+
+      <div class="topbar">
+        <div>
+          <div class="top-title">RPG Skill Checker</div>
+          <div class="top-sub">Bem-vindo, jogador</div>
+        </div>
+      </div>
+
+      <div class="page-body">
+
+        <h2 class="section-title">Acesso rápido</h2>
+
+        <div class="cards-grid">
+
+          <div class="dash-card" data-nav="ficha">
+            <div class="card-icon">👤</div>
+            <h3>Personagens</h3>
+            <p>Gerenciar fichas</p>
+          </div>
+
+          <div class="dash-card" data-nav="dados">
+            <div class="card-icon">🎲</div>
+            <h3>Dados</h3>
+            <p>Rolar dados</p>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="s-ficha">
+    <div class="device">
+
+      <div class="topbar">
+        <button data-nav="dashboard">←</button>
+        <div>
+          <div class="top-title">Thorin</div>
+          <div class="top-sub">Guerreiro • Nível 5</div>
+        </div>
+      </div>
+
+      <div class="page-body">
+
+        <h2 class="section-title">Atributos</h2>
+
+        <div class="attr-grid">
+          <div class="attr-box">
+            <span>FOR</span>
+            <strong>18</strong>
+            <small>+4</small>
+          </div>
+          <div class="attr-box">
+            <span>DES</span>
+            <strong>12</strong>
+            <small>+1</small>
+          </div>
+          <div class="attr-box">
+            <span>CON</span>
+            <strong>16</strong>
+            <small>+3</small>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="s-dados">
+    <div class="device">
+
+      <div class="topbar">
+        <button data-nav="dashboard">←</button>
+        <div class="top-title">Rolagem de Dados</div>
+      </div>
+
+      <div class="page-body">
+
+        <div class="dice-area">
+          <h2 id="result">0</h2>
+          <p id="result-break"></p>
+        </div>
+
+        <div class="dice-buttons">
+          <button data-roll="6">d6</button>
+          <button class="highlight" data-roll="20">d20</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module" src="./js/app.js"></script>
+
+</body>
+</html>
