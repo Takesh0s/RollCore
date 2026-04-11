@@ -1,7 +1,8 @@
 import { useAppStore } from '@/store/useAppStore'
 import { Toast } from '@/components/ui/Toast'
-import { LoginScreen }          from '@/components/auth/LoginScreen'
-import { RegisterScreen }       from '@/components/auth/RegisterScreen'
+import { LoginScreen }           from '@/components/auth/LoginScreen'
+import { RegisterScreen }        from '@/components/auth/RegisterScreen'
+import { ForgotPasswordScreen }  from '@/components/auth/ForgotPasswordScreen'
 import { DashboardScreen }      from '@/components/dashboard/DashboardScreen'
 import { CharacterListScreen }  from '@/components/characters/CharacterListScreen'
 import { CharacterFormScreen }  from '@/components/characters/CharacterFormScreen'
@@ -21,6 +22,7 @@ export default function App() {
     <div className="app-shell">
       {screen === 'login'             && <LoginScreen />}
       {screen === 'cadastro'          && <RegisterScreen />}
+      {screen === 'esqueci-senha'     && <ForgotPasswordScreen />}
       {screen === 'dashboard'         && <DashboardScreen />}
       {screen === 'personagens'       && <CharacterListScreen />}
       {screen === 'novo-personagem'   && <CharacterFormScreen mode="new" />}
