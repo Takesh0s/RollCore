@@ -17,6 +17,8 @@
   --success:       #4ade80;
   --error-border:  #e05555;
   --input-bg:      #0e1524;
+  --danger:        #c0392b;
+  --danger-hover:  #e74c3c;
 }
 
 /* ═══════════════════════════════════════════════
@@ -53,13 +55,13 @@ body {
   letter-spacing: 0.5px;
   transition: all 0.2s;
 }
-.nav-btn:hover { border-color: var(--primary); color: var(--text); }
+.nav-btn:hover  { border-color: var(--primary); color: var(--text); }
 .nav-btn.active { background: var(--primary); color: #0c0f1a; border-color: var(--primary); font-weight: 600; }
 
 /* ═══════════════════════════════════════════════
    SCREENS
 ══════════════════════════════════════════════════ */
-.screen       { display: none; }
+.screen        { display: none; }
 .screen.active { display: block; }
 
 /* ═══════════════════════════════════════════════
@@ -72,12 +74,7 @@ body {
   box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px var(--border);
 }
 
-.login-device {
-  max-width: 440px;
-  margin: auto;
-  padding: 40px 30px 36px;
-  text-align: center;
-}
+.login-device { max-width: 440px; margin: auto; padding: 40px 30px 36px; text-align: center; }
 
 /* ═══════════════════════════════════════════════
    TOPBAR
@@ -90,7 +87,7 @@ body {
   align-items: center;
   gap: 12px;
 }
-.topbar button {
+.topbar > button {
   background: none;
   border: none;
   color: var(--primary);
@@ -100,9 +97,25 @@ body {
   border-radius: 4px;
   transition: background 0.15s;
 }
-.topbar button:hover { background: rgba(200,151,58,0.15); }
+.topbar > button:hover { background: rgba(200,151,58,0.15); }
 .top-title { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 600; color: var(--text); letter-spacing: 0.5px; }
 .top-sub   { font-size: 13px; color: var(--text-muted); }
+
+/* Botão editar na topbar da ficha */
+.btn-edit-ficha {
+  margin-left: auto;
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.btn-edit-ficha:hover { border-color: var(--primary); color: var(--primary); }
 
 /* ═══════════════════════════════════════════════
    PAGE BODY
@@ -114,48 +127,27 @@ body {
    LOGIN HEADER
 ══════════════════════════════════════════════════ */
 .login-header { margin-bottom: 28px; }
-.logo-box {
-  font-size: 44px;
-  margin-bottom: 12px;
-  filter: drop-shadow(0 0 12px rgba(200,151,58,0.5));
-}
-.login-header h1 {
-  font-family: 'Cinzel', serif;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--primary);
-  letter-spacing: 1px;
-}
-.login-header p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+.logo-box { font-size: 44px; margin-bottom: 12px; filter: drop-shadow(0 0 12px rgba(200,151,58,0.5)); }
+.login-header h1 { font-family: 'Cinzel', serif; font-size: 20px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+.login-header p  { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
 
 /* ═══════════════════════════════════════════════
    FORM ELEMENTS
 ══════════════════════════════════════════════════ */
 .form-group { margin-bottom: 16px; text-align: left; }
 .form-group label {
-  font-size: 12px;
-  color: var(--text-muted);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  font-family: 'Cinzel', serif;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 12px; color: var(--text-muted); letter-spacing: 0.5px;
+  text-transform: uppercase; font-family: 'Cinzel', serif;
+  display: flex; align-items: center; gap: 6px;
 }
 .form-group label input[type=checkbox] { width: auto; }
 
 .form-input {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  margin-top: 6px;
-  background: var(--input-bg);
-  color: var(--text);
-  font-family: 'Crimson Pro', serif;
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.2s;
+  width: 100%; padding: 10px 12px; border-radius: 8px;
+  border: 1px solid var(--border); margin-top: 6px;
+  background: var(--input-bg); color: var(--text);
+  font-family: 'Crimson Pro', serif; font-size: 15px;
+  outline: none; transition: border-color 0.2s;
 }
 .form-input:focus       { border-color: var(--primary); }
 .form-input.input-error { border-color: var(--error-border) !important; }
@@ -164,15 +156,9 @@ body {
 .form-select { cursor: pointer; }
 .form-select option { background: var(--card2); }
 
-/* 2-column form grid */
-.form-grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 16px;
-}
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
 
-/* Password strength bar */
-.pass-strength-bar { height: 3px; border-radius: 2px; margin-top: 6px; background: var(--border); overflow: hidden; }
+.pass-strength-bar  { height: 3px; border-radius: 2px; margin-top: 6px; background: var(--border); overflow: hidden; }
 .pass-strength-fill { height: 100%; width: 0%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
 
 .error-msg { color: var(--fail); font-size: 12px; display: block; margin-top: 5px; min-height: 16px; }
@@ -181,121 +167,76 @@ body {
    BUTTONS
 ══════════════════════════════════════════════════ */
 .btn-primary {
-  width: 100%;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
+  width: 100%; padding: 12px; border: none; border-radius: 8px;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #0c0f1a;
-  cursor: pointer;
-  font-family: 'Cinzel', serif;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: opacity 0.2s, transform 0.1s;
-  margin-top: 6px;
+  color: #0c0f1a; cursor: pointer; font-family: 'Cinzel', serif;
+  font-size: 13px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; transition: opacity 0.2s, transform 0.1s; margin-top: 6px;
 }
 .btn-primary:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
 .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 .btn-cancel {
-  padding: 11px 20px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 0.5px;
+  padding: 11px 20px; border: 1px solid var(--border); border-radius: 8px;
+  background: transparent; color: var(--text-muted); cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.5px;
   transition: border-color 0.2s, color 0.2s;
 }
 .btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
 
-.btn-save { width: auto; flex: 1; margin-top: 0; }
+/* Sprint 3: botão de exclusão vermelho (RF0002.6) */
+.btn-danger {
+  padding: 11px 20px; border: 1px solid var(--danger); border-radius: 8px;
+  background: rgba(192,57,43,0.1); color: var(--danger); cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 0.5px;
+  transition: all 0.15s;
+}
+.btn-danger:hover { background: var(--danger); color: white; }
 
-/* Form actions row */
+.btn-save   { width: auto; flex: 1; margin-top: 0; }
+
 .form-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 20px;
-  align-items: center;
+  display: flex; gap: 12px; margin-top: 20px; align-items: center;
 }
 
-/* New character button in list header */
 .btn-new {
-  padding: 8px 16px;
-  border: 1px solid var(--primary);
-  border-radius: 8px;
-  background: rgba(200,151,58,0.08);
-  color: var(--primary);
-  cursor: pointer;
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: all 0.15s;
-  white-space: nowrap;
+  padding: 8px 16px; border: 1px solid var(--primary); border-radius: 8px;
+  background: rgba(200,151,58,0.08); color: var(--primary); cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.5px; transition: all 0.15s; white-space: nowrap;
 }
 .btn-new:hover { background: var(--primary); color: #0c0f1a; }
 
-/* View character button in list */
 .btn-view {
-  padding: 7px 14px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--card3);
-  color: var(--text-muted);
-  cursor: pointer;
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  white-space: nowrap;
+  padding: 7px 14px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--card3); color: var(--text-muted); cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 11px; white-space: nowrap;
   transition: all 0.15s;
-  flex-shrink: 0;
 }
 .btn-view:hover { border-color: var(--primary); color: var(--primary); }
 
-.link {
-  margin-top: 18px;
-  font-size: 13px;
-  color: var(--primary);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+/* Sprint 3: botão editar na lista de personagens */
+.btn-edit {
+  padding: 7px 14px; border: 1px solid var(--border); border-radius: 6px;
+  background: transparent; color: var(--text-muted); cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 11px; white-space: nowrap;
+  transition: all 0.15s;
 }
-.link:hover { color: var(--text); }
+.btn-edit:hover { border-color: var(--primary); color: var(--primary); }
 
-/* UC-01 I02 Cmd 3: link desabilitado (Fase 2) */
-.link-muted {
-  margin-top: 10px;
-  font-size: 12px;
-  color: var(--text-muted);
-  cursor: default;
-  text-decoration: none;
-  opacity: 0.5;
-}
+.link { margin-top: 18px; font-size: 13px; color: var(--primary); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.link:hover { color: var(--text); }
+.link-muted { margin-top: 10px; font-size: 12px; color: var(--text-muted); cursor: default; opacity: 0.5; }
 
 /* ═══════════════════════════════════════════════
    SECTION TITLE
 ══════════════════════════════════════════════════ */
 .section-title {
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--primary);
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border);
+  font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--primary);
+  margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
 }
-.history-subtitle {
-  font-family: 'Crimson Pro', serif;
-  font-size: 11px;
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--text-muted);
-}
+.history-subtitle { font-family: 'Crimson Pro', serif; font-size: 11px; text-transform: none; letter-spacing: 0; color: var(--text-muted); }
 
 /* ═══════════════════════════════════════════════
    DASHBOARD CARDS
@@ -303,127 +244,68 @@ body {
 .cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
 .dash-card {
-  padding: 22px 18px;
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  cursor: pointer;
+  padding: 22px 18px; background: var(--card2); border: 1px solid var(--border);
+  border-radius: 12px; cursor: pointer;
   transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
-.dash-card:hover {
-  border-color: var(--primary);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(200,151,58,0.15);
-}
-.card-icon { font-size: 26px; margin-bottom: 10px; }
+.dash-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(200,151,58,0.15); }
+.card-icon    { font-size: 26px; margin-bottom: 10px; }
 .dash-card h3 { font-family: 'Cinzel', serif; font-size: 14px; color: var(--text); }
 .dash-card p  { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
 
 /* ═══════════════════════════════════════════════
-   MEUS PERSONAGENS — LISTA (RF0002.5)
+   MEUS PERSONAGENS — LISTA
 ══════════════════════════════════════════════════ */
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
+.list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 
 .char-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 16px;
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  margin-bottom: 10px;
-  transition: border-color 0.2s;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px; background: var(--card2); border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 10px; transition: border-color 0.2s;
 }
 .char-card:hover { border-color: var(--primary); }
+.char-card-name  { font-family: 'Cinzel', serif; font-size: 14px; font-weight: 600; color: var(--text); }
+.char-card-meta  { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
 
-.char-card-name {
-  font-family: 'Cinzel', serif;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-}
-.char-card-meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+/* Sprint 3: ações na linha do card */
+.char-card-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--text-muted);
-  font-size: 15px;
-}
+.empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 15px; }
 
 /* ═══════════════════════════════════════════════
-   NOVO PERSONAGEM — ATRIBUTOS FORM
+   ATRIBUTOS — FORMULÁRIO (novo/editar)
 ══════════════════════════════════════════════════ */
-.attr-form-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 8px;
-}
+.attr-form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 8px; }
 
 .attr-form-item {
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px 10px;
-  text-align: center;
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 10px; text-align: center;
 }
-
 .attr-form-label {
-  display: block;
-  font-family: 'Cinzel', serif;
-  font-size: 10px;
-  color: var(--text-muted);
-  letter-spacing: 1px;
-  margin-bottom: 6px;
-  text-transform: uppercase;
+  display: block; font-family: 'Cinzel', serif; font-size: 10px;
+  color: var(--text-muted); letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase;
 }
-
 .attr-form-input {
-  text-align: center;
-  padding: 6px 8px !important;
-  font-size: 16px !important;
-  margin-top: 0 !important;
-  font-family: 'Cinzel', serif !important;
-  font-weight: 600 !important;
+  text-align: center !important; padding: 6px 8px !important;
+  font-size: 16px !important; margin-top: 0 !important;
+  font-family: 'Cinzel', serif !important; font-weight: 600 !important;
 }
+.attr-form-mod { font-size: 13px; color: var(--primary); font-weight: 600; margin-top: 4px; min-height: 18px; }
 
-.attr-form-mod {
-  font-size: 13px;
-  color: var(--primary);
-  font-weight: 600;
-  margin-top: 4px;
-  min-height: 18px;
-}
-
-/* HP / CA inputs inside attr-box */
 .attr-input {
-  padding: 4px 8px !important;
-  font-size: 18px !important;
-  text-align: center !important;
-  margin-top: 4px !important;
-  font-family: 'Cinzel', serif !important;
-  font-weight: 600 !important;
+  padding: 4px 8px !important; font-size: 18px !important;
+  text-align: center !important; margin-top: 4px !important;
+  font-family: 'Cinzel', serif !important; font-weight: 600 !important;
 }
 
 /* ═══════════════════════════════════════════════
-   ATTRIBUTES GRID (ficha visualização)
+   ATRIBUTOS — GRID (ficha visualização)
 ══════════════════════════════════════════════════ */
 .attr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
 
 .attr-box {
-  background: var(--card2);
-  border: 1px solid var(--border);
-  padding: 14px 10px;
-  text-align: center;
-  border-radius: 10px;
-  transition: border-color 0.2s;
+  background: var(--card2); border: 1px solid var(--border);
+  padding: 14px 10px; text-align: center; border-radius: 10px;
 }
 .attr-box span   { font-family: 'Cinzel', serif; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
 .attr-box strong { display: block; font-size: 24px; font-weight: 600; margin: 4px 0 2px; color: var(--text); }
@@ -434,50 +316,24 @@ body {
 ══════════════════════════════════════════════════ */
 .dice-area {
   background: linear-gradient(135deg, #0a1020, #111a2e);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 24px;
-  text-align: center;
-  margin: 18px 0;
-  position: relative;
-  overflow: hidden;
-  min-height: 110px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  border: 1px solid var(--border); border-radius: 14px;
+  padding: 24px; text-align: center; margin: 18px 0;
+  position: relative; overflow: hidden; min-height: 110px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .dice-area::before {
-  content: '';
-  position: absolute;
-  inset: 0;
+  content: ''; position: absolute; inset: 0;
   background: radial-gradient(ellipse at 50% 50%, rgba(200,151,58,0.05) 0%, transparent 70%);
 }
-
 .dice-result-num {
-  font-family: 'Cinzel', serif;
-  font-size: 58px;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1;
-  transition: color 0.3s;
-  position: relative;
+  font-family: 'Cinzel', serif; font-size: 58px; font-weight: 700;
+  color: var(--text); line-height: 1; transition: color 0.3s; position: relative;
 }
 .dice-result-num.crit { color: var(--crit); text-shadow: 0 0 20px rgba(255,215,0,0.6); }
 .dice-result-num.fail { color: var(--fail); }
-
-.dice-breakdown { font-size: 15px; color: var(--text-muted); margin-top: 6px; position: relative; }
-
-.crit-label {
-  font-family: 'Cinzel', serif;
-  font-size: 11px;
-  letter-spacing: 2px;
-  color: var(--crit);
-  text-transform: uppercase;
-  margin-top: 4px;
-  display: none;
-}
-.crit-label.visible { display: block; }
+.dice-breakdown       { font-size: 15px; color: var(--text-muted); margin-top: 6px; position: relative; }
+.crit-label           { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 2px; color: var(--crit); text-transform: uppercase; margin-top: 4px; display: none; }
+.crit-label.visible   { display: block; }
 
 @keyframes rollAnim {
   0%   { transform: scale(0.7) rotate(-10deg); opacity: 0; }
@@ -490,18 +346,10 @@ body {
    DICE QUICK BUTTONS
 ══════════════════════════════════════════════════ */
 .dice-buttons { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
-
 .dice-buttons button {
-  padding: 9px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--card2);
-  color: var(--text);
-  cursor: pointer;
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  font-weight: 600;
-  transition: all 0.15s;
+  padding: 9px 14px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--card2); color: var(--text); cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; transition: all 0.15s;
 }
 .dice-buttons button:hover { border-color: var(--primary); background: rgba(200,151,58,0.1); color: var(--primary); }
 .dice-buttons .highlight   { border-color: var(--primary); background: rgba(200,151,58,0.12); color: var(--primary); }
@@ -513,19 +361,10 @@ body {
 .formula-row .form-input { margin-top: 0; flex: 1; }
 
 .btn-roll {
-  padding: 10px 18px;
-  border: 1px solid var(--primary);
-  border-radius: 8px;
-  background: rgba(200,151,58,0.1);
-  color: var(--primary);
-  cursor: pointer;
-  font-family: 'Cinzel', serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  white-space: nowrap;
-  transition: all 0.15s;
-  flex-shrink: 0;
+  padding: 10px 18px; border: 1px solid var(--primary); border-radius: 8px;
+  background: rgba(200,151,58,0.1); color: var(--primary); cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; white-space: nowrap; transition: all 0.15s; flex-shrink: 0;
 }
 .btn-roll:hover:not(:disabled) { background: var(--primary); color: #0c0f1a; }
 .btn-roll:disabled { opacity: 0.3; cursor: not-allowed; }
@@ -533,45 +372,74 @@ body {
 /* ═══════════════════════════════════════════════
    HISTORY
 ══════════════════════════════════════════════════ */
-.history-list { display: flex; flex-direction: column; gap: 6px; max-height: 240px; overflow-y: auto; }
+.history-list { display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; }
 
 .history-entry {
-  padding: 9px 12px;
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 9px 12px; background: var(--card2); border: 1px solid var(--border);
+  border-radius: 8px; font-size: 14px; display: flex;
+  justify-content: space-between; align-items: center; gap: 8px;
 }
-.history-entry .h-formula { color: var(--text-muted); }
-.history-entry .h-total   { font-family: 'Cinzel', serif; font-weight: 700; color: var(--text); font-size: 16px; }
 .history-entry.crit-entry { border-color: rgba(255,215,0,0.35); }
 .history-entry.fail-entry { border-color: rgba(224,85,85,0.35); }
 
-.h-badge { font-size: 10px; font-family: 'Cinzel', serif; padding: 1px 6px; border-radius: 4px; letter-spacing: 1px; }
+/* Sprint 3: lado esquerdo com fórmula + data/hora */
+.h-left    { display: flex; flex-direction: column; gap: 2px; }
+.h-formula { color: var(--text-muted); }
+
+/* Sprint 3: data/hora da rolagem (UC-03 S02 passo 18) */
+.h-time    { font-size: 11px; color: var(--text-muted); opacity: 0.6; }
+
+.h-total   { font-family: 'Cinzel', serif; font-weight: 700; color: var(--text); font-size: 16px; }
+.h-badge   { font-size: 10px; font-family: 'Cinzel', serif; padding: 1px 6px; border-radius: 4px; letter-spacing: 1px; }
 .h-badge.crit { background: rgba(255,215,0,0.15); color: var(--crit); }
 .h-badge.fail { background: rgba(224,85,85,0.15); color: var(--fail); }
+
+/* ═══════════════════════════════════════════════
+   MODAL DE EXCLUSÃO (RF0002.6 / UC-02 S02)
+══════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.2s;
+}
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 28px 24px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+  transform: translateY(12px);
+  transition: transform 0.2s;
+}
+.modal-overlay.active .modal { transform: translateY(0); }
+
+.modal-title {
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  color: var(--fail);
+  margin-bottom: 10px;
+}
+.modal-body { font-size: 15px; color: var(--text-muted); margin-bottom: 22px; line-height: 1.5; }
+
+.modal-actions { display: flex; gap: 12px; justify-content: flex-end; }
 
 /* ═══════════════════════════════════════════════
    TOAST
 ══════════════════════════════════════════════════ */
 .toast {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
+  position: fixed; bottom: 24px; left: 50%;
   transform: translateX(-50%) translateY(80px);
-  background: var(--card3);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-size: 14px;
-  z-index: 999;
-  transition: transform 0.3s ease;
-  pointer-events: none;
-  white-space: nowrap;
+  background: var(--card3); border: 1px solid var(--border);
+  color: var(--text); padding: 12px 24px; border-radius: 10px;
+  font-size: 14px; z-index: 999; transition: transform 0.3s ease;
+  pointer-events: none; white-space: nowrap;
 }
 .toast.show          { transform: translateX(-50%) translateY(0); }
 .toast.toast-error   { border-color: var(--fail);    color: var(--fail); }
@@ -581,12 +449,14 @@ body {
    RESPONSIVE
 ══════════════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .cards-grid      { grid-template-columns: 1fr; }
-  .attr-grid       { grid-template-columns: repeat(2, 1fr); }
-  .attr-form-grid  { grid-template-columns: repeat(2, 1fr); }
-  .form-grid-2     { grid-template-columns: 1fr; }
-  .dice-buttons    { gap: 6px; }
+  .cards-grid         { grid-template-columns: 1fr; }
+  .attr-grid          { grid-template-columns: repeat(2, 1fr); }
+  .attr-form-grid     { grid-template-columns: repeat(2, 1fr); }
+  .form-grid-2        { grid-template-columns: 1fr; }
+  .dice-buttons       { gap: 6px; }
   .dice-buttons button { padding: 8px 10px; }
-  .form-actions    { flex-direction: column; }
-  .btn-save        { width: 100%; }
+  .form-actions       { flex-direction: column; }
+  .btn-save           { width: 100%; }
+  .char-card          { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .char-card-actions  { width: 100%; justify-content: flex-end; }
 }
