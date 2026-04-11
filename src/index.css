@@ -102,6 +102,16 @@ body {
 }
 .topbar-action:hover { border-color: var(--primary); color: var(--primary); }
 
+.topbar-logout {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.topbar-logout:hover { border-color: var(--fail); color: var(--fail); }
+
 /* ── Page body ────────────────────────────────── */
 .page-body { padding: 22px 20px; }
 .narrow    { max-width: 340px; margin: auto; }
@@ -280,9 +290,23 @@ select.form-input option { background: var(--card2); }
   margin-top: 10px;
   font-size: 12px;
   color: var(--text-muted);
-  opacity: 0.5;
-  cursor: default;
 }
+
+.link-btn-muted { color: var(--text-muted); }
+.link-btn-muted:hover { color: var(--primary); }
+
+.forgot-placeholder {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-align: left;
+}
+
 
 .form-actions { display: flex; align-items: center; gap: 12px; margin-top: 22px; }
 .form-actions-end { justify-content: flex-end; }

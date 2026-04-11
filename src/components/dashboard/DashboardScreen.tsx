@@ -23,8 +23,18 @@ function IconDice() {
   )
 }
 
+function IconLogout() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
+      <path d="M7 3H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h3" />
+      <polyline points="13 15 17 10 13 5" />
+      <line x1="17" y1="10" x2="7" y2="10" />
+    </svg>
+  )
+}
+
 export function DashboardScreen() {
-  const { navigate, user } = useAppStore()
+  const { navigate, logout, user } = useAppStore()
 
   return (
     <div className="device">
@@ -33,6 +43,10 @@ export function DashboardScreen() {
           <div className="top-title">RollCore</div>
           <div className="top-sub">Bem-vindo, {user.email.split('@')[0]}</div>
         </div>
+        <button className="topbar-action topbar-logout" onClick={logout} title="Sair da conta">
+          <IconLogout />
+          Sair
+        </button>
       </div>
 
       <div className="page-body">
