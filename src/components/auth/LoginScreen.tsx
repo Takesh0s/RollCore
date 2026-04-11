@@ -16,8 +16,11 @@ export function LoginScreen() {
   function handleLogin() {
     setErrors({})
 
-    // Generic error message — prevents user enumeration (OWASP / UC-01 RN-03)
-    if (email === 'errado@teste.com') {
+    const trimmed = email.trim().toLowerCase()
+
+    // Reject if e-mail is not registered — generic message prevents user
+    // enumeration (OWASP / UC-01 RN-03)
+    if (!registeredEmails.includes(trimmed)) {
       setErrors({ password: 'E-mail ou senha incorretos.' }) // MSG003
       return
     }
@@ -93,8 +96,10 @@ export function LoginScreen() {
           Criar conta
         </button>
 
-        {/* "Forgot password" is out of scope for Phase 1 — UC-01 NR-06 */}
-        <span className="link-muted">Esqueci minha senha</span>
+        {/* "Forgot password" — Phase 1 navigates to a placeholder screen (UC-01 NR-06) */}
+        <button className="link-btn link-btn-muted" onClick={() => navigate('esqueci-senha')}>
+          Esqueci minha senha
+        </button>
       </div>
     </div>
   )
