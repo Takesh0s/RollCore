@@ -1,77 +1,143 @@
-# 🎲 RPG Skill Checker & Companion
+# 🎲 RPG Skill Checker
 
-Uma plataforma digital multiplataforma para jogadores e mestres de RPG de mesa, focada em **gestão de fichas, rolagem de dados e sessões online em tempo real**.
+Aplicação web para **rolagem de dados e gerenciamento básico de personagens de RPG**, com foco em simplicidade, velocidade e uma experiência visual moderna.
 
 ---
 
 ## 📌 Sobre o Projeto
 
-O **RPG Skill Checker & Companion** tem como objetivo centralizar, simplificar e modernizar a experiência de RPG de mesa, oferecendo uma solução unificada em português.
+O **RPG Skill Checker** é uma ferramenta frontend desenvolvida para auxiliar jogadores de RPG de mesa, oferecendo:
+
+* Rolagem rápida de dados
+* Suporte a fórmulas (ex: `2d6+3`)
+* Visualização de atributos de personagens
+* Histórico de rolagens em tempo real
+
+Este projeto foi construído com **JavaScript puro (Vanilla JS)**, focando em arquitetura modular e boas práticas.
 
 ---
 
 ## 🚀 Funcionalidades
 
-### 🎭 Personagens
-- Criação e edição de fichas digitais (D&D 5e)
-- Cálculo automático de atributos, CA, HP e proficiências
+### 🔐 Autenticação (Mock)
 
-### 🎲 Rolagem de Dados
-- Suporte a fórmulas (ex: `2d6+3`)
-- Histórico de rolagens
-
-### 🌐 Sessões Online
-- Salas em tempo real
-- Código de acesso
-- Rolagens compartilhadas
+* Login e cadastro com validação de campos
+* Opção "manter conectado" com `localStorage`
+* Proteção de rotas no frontend
 
 ---
 
-## 🧩 Arquitetura
+### 🎲 Sistema de Dados
 
-O sistema segue uma arquitetura moderna, modular e escalável:
+* Rolagem rápida (`d4`, `d6`, `d8`, `d10`, `d12`, `d20`, `d100`)
+* Suporte a fórmulas:
+
+  * `2d6+3`
+  * `1d20-1`
+* Animação de rolagem
+* Detecção de:
+
+  * 🎉 Crítico (20)
+  * 💀 Falha crítica (1)
+
+---
+
+### 📜 Histórico
+
+* Exibição das últimas rolagens
+* Suporte para:
+
+  * Dados simples
+  * Fórmulas
+  * Testes de perícia
+* Limite de histórico para performance
+
+---
+
+### 🎭 Personagem
+
+* Exibição de ficha básica:
+
+  * Nome, classe, nível
+  * Atributos (FOR, DES, CON, etc.)
+  * Modificadores automáticos
+  * HP, CA e bônus de proficiência
+
+---
+
+## 🧩 Arquitetura do Projeto
+
+O projeto segue uma estrutura modular simples e organizada:
 
 ```
-Frontend (Web)        → React + TypeScript
-Frontend (Mobile)     → React Native (Expo)
-Backend (API/BFF)     → Spring Boot (Java 21)
-Banco de Dados        → PostgreSQL
-Cache / Sessões       → Redis
-Tempo Real            → WebSocket (STOMP)
-Containerização       → Docker
+frontend/
+ ├── js/
+ │   ├── app.js       # Lógica principal e controle de fluxo
+ │   ├── state.js     # Estado global da aplicação
+ │   ├── dice.js      # Engine de rolagem de dados
+ │   ├── engine.js    # Regras de RPG (modificadores, perícias)
+ │   └── ui.js        # Manipulação de UI
+ │
+ └── css/
+     └── style.css    # Estilização da aplicação
+
+index.html            # Estrutura principal da interface
 ```
 
 ---
 
-## ▶️ Como Executar o Projeto
+## ⚙️ Tecnologias Utilizadas
 
-### 1. Clonar o repositório
+* HTML5
+* CSS3 (com variáveis e responsividade)
+* JavaScript (ES Modules)
+* LocalStorage (persistência simples)
+
+---
+
+## ▶️ Como Executar
+
+1. Clone o repositório:
+
 ```bash
-git clone <url-do-repositorio>
-cd <nome-do-projeto>
+git clone https://github.com/Takesh0s/RollCore.git
+cd RollCore
 ```
 
-### 2. Subir serviços com Docker
-```bash
-docker-compose up -d
-```
+2. Abra o arquivo `index.html` no navegador
 
-### 3. Backend
-```bash
-cd backend
-./mvnw spring-boot:run
-```
+> Não é necessário backend ou instalação de dependências.
 
-### 4. Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
+---
 
-### 5. Mobile
-```bash
-cd mobile
-npm install
-npx expo start
-```
+## 📈 Próximos Passos (Roadmap)
+
+* [ ] Sistema real de autenticação (backend)
+* [ ] Criação e edição de personagens
+* [ ] Sistema de perícias completo (D&D 5e)
+* [ ] Persistência de dados (API + banco)
+* [ ] Sessões multiplayer em tempo real
+* [ ] Interface mobile (PWA ou React Native)
+
+---
+
+## 💡 Aprendizados
+
+Este projeto foi desenvolvido com foco em:
+
+* Organização de código em módulos
+* Separação de responsabilidades (UI / lógica / estado)
+* Manipulação de DOM com JavaScript puro
+* Boas práticas de versionamento com Git
+
+---
+
+## 👨‍💻 Autores
+
+Projeto desenvolvido pelo **Grupo 9**:
+
+* João Pedro Nunes Neto
+* Leonardo dos Santos Silva
+* Lucas Gabriel Pereira Guerra
+* Luis Felipe Nunes da Fonseca Figueiredo
+* Luiz Phillipe de Souza Santos
