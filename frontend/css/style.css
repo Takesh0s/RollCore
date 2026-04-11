@@ -229,3 +229,10 @@ body{
     grid-template-columns:repeat(2,1fr);
   }
 }
+
+.error-msg{
+  color:#f87171;
+  font-size:12px;
+  display:block;
+  margin-top:5px;
+}
