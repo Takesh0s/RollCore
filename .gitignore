@@ -32,3 +32,12 @@ Thumbs.db
 
 # Arquivos de trabalho interno
 texto.txt
+
+# Capacitor
+android/build/
+android/.gradle/
+android/local.properties
+
+ios/App/build/
+ios/Pods/
+ios/.symlinks/
