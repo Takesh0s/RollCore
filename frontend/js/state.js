@@ -1,21 +1,33 @@
 export const state = {
   currentScreen: 'login',
 
-  character: {
-    name: "Thorin Kettleback",
-    class: "Guerreiro",
-    level: 5,
-    profBonus: 3,
-    attributes: {
-      STR: 18,
-      DEX: 12,
-      CON: 16,
-      INT: 10,
-      WIS: 14,
-      CHA: 8
-    }
+  user: {
+    isLogged: false,
+    keepConnected: false
   },
 
+  characters: [
+    {
+      id: 1,
+      name: "Thorin Kettleback",
+      class: "Guerreiro",
+      race: "Anão",
+      level: 5,
+      profBonus: 3,
+      hp: 38,
+      ac: 16,
+      attributes: {
+        STR: 18,
+        DEX: 12,
+        CON: 16,
+        INT: 10,
+        WIS: 14,
+        CHA: 8
+      }
+    }
+  ],
+
+  selectedCharacterId: 1,
   history: []
 };
 
@@ -26,6 +38,6 @@ export function addHistory(entry){
   });
 
   if(state.history.length > 50){
-    state.history.pop();
+    state.history.length = 50;
   }
 }
