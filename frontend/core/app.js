@@ -1,7 +1,8 @@
 import { state, addHistory } from './state.js';
-import { rollD20, rollFormula } from './dice.js';
-import { getSkillBonus, calcMod } from './engine.js';
-import { updateDiceUI, showScreen } from './ui.js';
+import { rollD20, rollFormula } from '../modules/dice/dice.js';
+import { getSkillBonus, calcMod } from '../modules/character/engine.js';
+import { updateDiceUI } from './ui/components/dice.js';
+import { showScreen } from './ui/screens/navigation.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   bindNavigation();

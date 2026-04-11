@@ -75,7 +75,7 @@ frontend/
  │   ├── app.js       # Lógica principal e controle de fluxo
  │   ├── state.js     # Estado global da aplicação
  │   ├── dice.js      # Engine de rolagem de dados
- │   ├── engine.js    # Regras de RPG (modificadores, perícias)
+ │   ├── engine.js    # Regras de RPG (modificadores,perícias)
  │   └── ui.js        # Manipulação de UI
  │
  └── css/
