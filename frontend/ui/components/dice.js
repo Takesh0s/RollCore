@@ -1,16 +1,11 @@
-/* ═══════════════════════════════════════════════
-   ROLLCORE — Dice UI Component
-   Atualiza a área de resultado de rolagem.
-   Implementa:
-     - Animação de rolagem (roll-anim)
-     - Destaque crítico d20=20 com borda dourada
-       (UC-03 A01 / RAP002 — HU-03)
-     - Destaque de falha crítica d20=1
-     - Breakdown: fórmula → [individuais] = total
-══════════════════════════════════════════════════ */
+/**
+ * Dice result UI component.
+ * Handles the roll animation, breakdown string, and special visual states
+ * for critical hits (d20=20) and critical fails (d20=1) — UC-03 A01 / RAP002.
+ */
 
 /**
- * Atualiza a UI de dados com o resultado de uma rolagem.
+ * Updates the result area with a new roll result.
  * @param {object} result - { total, rolls, mod, sides, formula }
  */
 export function updateDiceUI(result) {
@@ -22,25 +17,22 @@ export function updateDiceUI(result) {
 
   const parsed = normalizeResult(result);
 
-  // Animação de rolagem
+  // Removing and re-adding the class forces the browser to restart the animation
   numEl.classList.remove('roll-anim', 'crit', 'fail');
-  void numEl.offsetWidth; // força reflow para reiniciar animação
+  void numEl.offsetWidth; // trigger reflow
   numEl.classList.add('roll-anim');
 
   numEl.textContent = parsed.total ?? '—';
 
-  if (breakEl) {
-    breakEl.textContent = buildBreakdown(parsed);
-  }
-
-  // Reseta label de crítico
-  if (critEl) critEl.className = 'crit-label';
+  if (breakEl) breakEl.textContent = buildBreakdown(parsed);
+  if (critEl)  critEl.className = 'crit-label';
 
   applySpecialEffects(parsed, numEl, critEl);
 }
 
-/* ── Helpers ─────────────────────────────────── */
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
+/** Normalises raw roll results to a consistent shape. */
 function normalizeResult(result) {
   if (typeof result === 'number') {
     return { total: result, rolls: null, mod: 0, sides: null };
@@ -49,45 +41,33 @@ function normalizeResult(result) {
     total: result.total ?? 0,
     rolls: result.rolls ?? null,
     mod:   result.mod ?? result.bonus ?? result.modifier ?? 0,
-    sides: result.sides ?? null
+    sides: result.sides ?? null,
   };
 }
 
 /**
- * Monta a string de breakdown.
- * Exemplo: [4, 2] + 3 = 9
+ * Builds a human-readable breakdown string from a roll result.
+ * Example: [4, 2] + 3 = 9
  */
 function buildBreakdown(result) {
   if (!result.rolls) return '';
 
   let text = `[${result.rolls.join(', ')}]`;
-
   if (result.mod > 0) text += ` + ${result.mod}`;
   if (result.mod < 0) text += ` - ${Math.abs(result.mod)}`;
-
-  if (result.rolls.length > 1 || result.mod !== 0) {
-    text += ` = ${result.total}`;
-  }
+  if (result.rolls.length > 1 || result.mod !== 0) text += ` = ${result.total}`;
 
   return text;
 }
 
 /**
- * Aplica estilos especiais para crítico e falha crítica.
- * UC-03 A01: resultado máximo d20=20 → borda dourada + "Crítico!"
- * README: falha crítica d20=1 → destaque vermelho
+ * Applies golden highlight for critical hits (d20=20) and red for critical
+ * fails (d20=1). Only triggered for single d20 rolls — UC-03 A01.
  */
 function applySpecialEffects(result, numEl, critEl) {
   if (!result.rolls || result.rolls.length !== 1 || result.sides !== 20) return;
 
   const roll = result.rolls[0];
-
-  if (roll === 20) {
-    numEl.classList.add('crit');
-    if (critEl) critEl.classList.add('visible');
-  }
-
-  if (roll === 1) {
-    numEl.classList.add('fail');
-  }
+  if (roll === 20) { numEl.classList.add('crit'); if (critEl) critEl.classList.add('visible'); }
+  if (roll === 1)  { numEl.classList.add('fail'); }
 }

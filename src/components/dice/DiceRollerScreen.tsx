@@ -17,11 +17,13 @@ export function DiceRollerScreen() {
 
   const [result,    setResult]    = useState<RollResult | null>(null)
   const [diceState, setDiceState] = useState<DiceState>('neutral')
-  const [animKey,   setAnimKey]   = useState(0) // triggers re-mount for CSS animation
+  // Incrementing this key forces React to re-mount the result element,
+  // restarting the CSS roll animation on every new roll.
+  const [animKey,   setAnimKey]   = useState(0)
 
   const resultRef = useRef<HTMLDivElement>(null)
 
-  // UC-03 E01: validação em tempo real (onChange) com MSG006
+  // Real-time formula validation with MSG006 — UC-03 E01
   const handleFormulaChange = useCallback((val: string) => {
     setFormula(val)
     if (!val) {
@@ -35,8 +37,13 @@ export function DiceRollerScreen() {
     }
   }, [])
 
+  /**
+   * Applies a roll result to the UI:
+   * - detects critical hit (d20=20) and critical fail (d20=1) — UC-03 A01
+   * - increments animKey to retrigger the roll animation
+   * - stores the entry in history
+   */
   function applyResult(r: RollResult, label: string) {
-    // UC-03 A01: crítico d20=20 → dourado; falha d20=1 → vermelho
     const state: DiceState =
       r.sides === 20 && r.rolls[0] === 20 ? 'crit' :
       r.sides === 20 && r.rolls[0] === 1  ? 'fail' : 'neutral'
@@ -51,11 +58,11 @@ export function DiceRollerScreen() {
     if (!validateFormula(formula)) return
     const r = rollFormulaString(formula)
     applyResult(r, formula)
-    showToast("Rolagem realizada!")
+    showToast('Rolagem realizada!')
     setFormula(''); setFormulaOk(false); setFormulaErr('')
   }
 
-  // UC-03 S01: atalho rápido d4–d100
+  // Quick-roll a single die without typing a formula — UC-03 S01
   function handleQuickRoll(sides: number) {
     const r = { ...quickRoll(sides), formula: `1d${sides}` }
     applyResult(r, `1d${sides}`)
@@ -85,7 +92,7 @@ export function DiceRollerScreen() {
             onChange={e => handleFormulaChange(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && formulaOk) handleRoll() }}
           />
-          {/* UC-03 E01: botão desabilitado enquanto fórmula inválida */}
+          {/* Roll button stays disabled while the formula is invalid — UC-03 E01 */}
           <button
             className="btn btn-roll"
             onClick={handleRoll}
@@ -110,7 +117,7 @@ export function DiceRollerScreen() {
               {breakdown && (
                 <div className="dice-breakdown">{breakdown}</div>
               )}
-              {/* UC-03 A01 / RAP002: borda dourada + label Crítico! */}
+              {/* Golden highlight + label on critical hit — UC-03 A01 / RAP002 */}
               {diceState === 'crit' && (
                 <div className="crit-badge">Crítico!</div>
               )}
@@ -120,7 +127,7 @@ export function DiceRollerScreen() {
           )}
         </div>
 
-        {/* UC-03 S01: atalhos rápidos d4–d100 */}
+        {/* ── Quick-roll shortcuts d4–d100 — UC-03 S01 ── */}
         <div className="dice-buttons">
           {VALID_SIDES.map(s => (
             <button
@@ -133,7 +140,7 @@ export function DiceRollerScreen() {
           ))}
         </div>
 
-        {/* ── History — UC-03 S02 ── */}
+        {/* ── Roll history — UC-03 S02 ── */}
         <h2 className="section-title">
           Histórico{' '}
           <span style={{ fontFamily: "'Crimson Pro', serif", fontSize: 11, textTransform: 'none', letterSpacing: 0, color: 'var(--text-muted)' }}>
@@ -165,7 +172,7 @@ export function DiceRollerScreen() {
                 >
                   <div className="h-left">
                     <span className="h-formula">{label} → {bd}</span>
-                    {/* UC-03 S02 passo 18: data/hora */}
+                    {/* Timestamp displayed per UC-03 S02 step 18 */}
                     <span className="h-time">{formatTimestamp(entry.timestamp)}</span>
                   </div>
                   <div className="h-right">

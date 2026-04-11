@@ -1,14 +1,13 @@
-/* ═══════════════════════════════════════════════
-   ROLLCORE — Dice Engine
-   Funções primitivas de rolagem.
-   No backend real, a rolagem usa SecureRandom
-   (UC-03 RE01). No frontend, Math.random() é
-   usado apenas para o protótipo.
-══════════════════════════════════════════════════ */
+/**
+ * Dice rolling engine — prototype implementation.
+ * In the production backend, rolls use java.security.SecureRandom
+ * to guarantee cryptographic unpredictability — UC-03 RE01.
+ * Math.random() is used here for the frontend prototype only.
+ */
 
 /**
- * Gera um inteiro aleatório entre 1 e max (inclusivo).
- * @param {number} max - Número de faces do dado
+ * Returns a random integer between 1 and max (inclusive).
+ * @param {number} max - Number of die faces
  * @returns {number}
  */
 export function roll(max) {
@@ -16,26 +15,21 @@ export function roll(max) {
 }
 
 /**
- * Rola um d20 com modificador.
- * @param {number} mod - Modificador (bônus/penalidade)
+ * Rolls a d20 with an optional modifier.
+ * @param {number} mod - Flat modifier (bonus or penalty)
  * @returns {{ total: number, rolls: number[], mod: number, type: string }}
  */
 export function rollD20(mod = 0) {
   const d20 = roll(20);
-  return {
-    total: d20 + mod,
-    rolls: [d20],
-    mod,
-    type: 'd20'
-  };
+  return { total: d20 + mod, rolls: [d20], mod, type: 'd20' };
 }
 
 /**
- * Rola N dados de X faces com modificador opcional.
- * Formato: NdX+M (UC-03 RN-01).
- * @param {number} n     - Quantidade de dados
- * @param {number} sides - Faces do dado
- * @param {number} mod   - Modificador
+ * Rolls N dice of X faces with an optional modifier — UC-03 RN-01.
+ * Accepted formula format: NdX+M
+ * @param {number} n     - Number of dice
+ * @param {number} sides - Die type (must be a valid side count)
+ * @param {number} mod   - Flat modifier added to the total
  * @returns {{ total: number, rolls: number[], mod: number, sides: number }}
  */
 export function rollFormula(n, sides, mod = 0) {

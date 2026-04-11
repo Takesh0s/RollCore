@@ -1,6 +1,7 @@
 import { useAppStore, useSelectedCharacter } from '@/store/useAppStore'
 import { calcMod, formatMod, profBonus, ATTR_KEYS, ATTR_LABELS } from '@/lib/engine'
 
+/** Read-only view of a character sheet — UC-02 / RF0002.5 */
 export function CharacterSheetScreen() {
   const { navigate } = useAppStore()
   const char = useSelectedCharacter()
@@ -18,7 +19,7 @@ export function CharacterSheetScreen() {
           <div className="top-title">{char.name}</div>
           <div className="top-sub">{char.class} · {char.race} · Nível {char.level}</div>
         </div>
-        {/* RF0002.4: botão de edição direto da ficha */}
+        {/* Edit shortcut from the sheet view — RF0002.4 */}
         <button
           className="topbar-action"
           onClick={() => navigate('editar-personagem')}
@@ -47,12 +48,12 @@ export function CharacterSheetScreen() {
         <div className="attr-grid">
           <div className="attr-box">
             <span className="attr-box-label">Proficiência</span>
-            {/* UC-02 RN-03 */}
+            {/* Derived from level — UC-02 RN-03 */}
             <strong className="attr-box-value">+{profBonus(char.level)}</strong>
             <span className="attr-box-mod">bônus</span>
           </div>
           <div className="attr-box">
-            {/* Sprint 3: max_hp separado de hp — Seção 9.2 */}
+            {/* max_hp stored separately from hp — Doc. de Visão §9.2 */}
             <span className="attr-box-label">HP Máx.</span>
             <strong className="attr-box-value">{char.max_hp ?? char.hp}</strong>
             <span className="attr-box-mod">pontos</span>

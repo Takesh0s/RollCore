@@ -1,5 +1,6 @@
 import { useAppStore } from '@/store/useAppStore'
 
+/** Displays all characters belonging to the authenticated user — RF0002.5 */
 export function CharacterListScreen() {
   const { navigate, characters, selectCharacter } = useAppStore()
 

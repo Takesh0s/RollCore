@@ -1,6 +1,6 @@
 import { useAppStore } from '@/store/useAppStore'
 
-// SVG icons replacing emojis (Sprint 4)
+// Inline SVG icons — replace the emojis used in the Vanilla JS prototype (Sprint 4)
 function IconUser() {
   return (
     <svg className="dash-card-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

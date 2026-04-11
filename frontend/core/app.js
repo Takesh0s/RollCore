@@ -1,16 +1,3 @@
-/* ═══════════════════════════════════════════════
-   ROLLCORE — App (Main Orchestrator)
-   Sprint 1: botão Entrar desabilitado, link
-   "Esqueci senha", onBlur e-mail, validação
-   nível 1-20, validação atributos 1-20.
-   Sprint 2: tela Meus Personagens, criar
-   personagem, salvar localStorage, listar.
-   Sprint 3: editar personagem (RF0002.4),
-   excluir com confirmação (RF0002.6),
-   exibição de max_hp (Seção 9.2),
-   data/hora no histórico (UC-03 S02 p.18).
-══════════════════════════════════════════════════ */
-
 import { state, addHistory, saveCharacters }   from './state.js';
 import { rollD20, rollFormula }                 from '../modules/dice/dice.js';
 import { calcMod, profBonus, getSkillBonus,
@@ -18,15 +5,13 @@ import { calcMod, profBonus, getSkillBonus,
 import { updateDiceUI }                         from '../ui/components/dice.js';
 import { showScreen }                           from '../ui/screens/navigation.js';
 
-/* ── Constantes ───────────────────────────────── */
+// ── Constants ──────────────────────────────────────────────────────────────────
 const VALID_SIDES     = [4, 6, 8, 10, 12, 20, 100];
 const FORMULA_REGEX   = /^([1-9][0-9]?)d(4|6|8|10|12|20|100)([+-]\d+)?$/i;
 const STRENGTH_COLORS = ['', '#e05555', '#e8a020', '#d4b830', '#4ade80'];
 const ATTR_KEYS       = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
 
-/* ═══════════════════════════════════════════════
-   INIT
-══════════════════════════════════════════════════ */
+// ── Initialisation ─────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   checkSession();
   bindNavigation();
@@ -37,17 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
   bindDice();
   bindFormulaRoll();
   bindFormulaValidation();
-  buildAttrFormFields('attr-form-container', 'new'); // Sprint 2: novo personagem
-  buildAttrFormFields('edit-attr-container', 'edit'); // Sprint 3: editar personagem
+  buildAttrFormFields('attr-form-container', 'new');
+  buildAttrFormFields('edit-attr-container', 'edit');
   bindNewCharacterForm();
-  bindEditCharacterForm();   // Sprint 3
-  bindDeleteModal();         // Sprint 3
+  bindEditCharacterForm();
+  bindDeleteModal();
   bindPersonagensList();
 });
 
-/* ═══════════════════════════════════════════════
-   NAVIGATION
-══════════════════════════════════════════════════ */
+// ── Navigation ─────────────────────────────────────────────────────────────────
 function bindNavigation() {
   document.querySelectorAll('[data-nav]').forEach(el => {
     el.addEventListener('click', () => navigate(el.dataset.nav));
@@ -55,6 +38,7 @@ function bindNavigation() {
 }
 
 export function navigate(screen) {
+  // Redirect unauthenticated users away from protected screens
   if (!state.user.isLogged && screen !== 'login' && screen !== 'cadastro') {
     navigate('login');
     return;
@@ -69,9 +53,7 @@ export function navigate(screen) {
   if (screen === 'editar-personagem') loadEditForm();
 }
 
-/* ═══════════════════════════════════════════════
-   SESSION
-══════════════════════════════════════════════════ */
+// ── Session ────────────────────────────────────────────────────────────────────
 function checkSession() {
   try {
     const u = JSON.parse(localStorage.getItem('rpg_user') || 'null');
@@ -84,9 +66,7 @@ function checkSession() {
   } catch (_) {}
 }
 
-/* ═══════════════════════════════════════════════
-   AUTH HELPERS
-══════════════════════════════════════════════════ */
+// ── Auth helpers ───────────────────────────────────────────────────────────────
 function clearErrors() {
   document.querySelectorAll('.error-msg').forEach(e => { e.textContent = ''; });
   document.querySelectorAll('.form-input').forEach(e => e.classList.remove('input-error', 'input-valid'));
@@ -94,12 +74,15 @@ function clearErrors() {
 
 function setError(id, msg) { const el = document.getElementById(id); if (el) el.textContent = msg; }
 function markError(id)     { document.getElementById(id)?.classList.add('input-error'); }
-function markValid(id)     {
+function markValid(id) {
   const el = document.getElementById(id);
   if (el) { el.classList.remove('input-error'); el.classList.add('input-valid'); }
 }
 
+/** UC-01 RN-01: strong password requires ≥8 chars, 1 uppercase letter, 1 digit. */
 function isStrongPassword(p) { return p.length >= 8 && /[A-Z]/.test(p) && /[0-9]/.test(p); }
+
+/** Returns a score from 0–4 used to drive the password strength bar. */
 function passwordStrength(p) {
   let s = 0;
   if (p.length >= 8)   s++;
@@ -109,9 +92,9 @@ function passwordStrength(p) {
   return s;
 }
 
-/* ═══════════════════════════════════════════════
-   SPRINT 1 — Botão Entrar / onBlur e-mail
-══════════════════════════════════════════════════ */
+// ── Login — UC-01 ──────────────────────────────────────────────────────────────
+
+/** Disables the submit button until both email and password fields have content. */
 function bindLoginFields() {
   const em  = document.getElementById('login-email');
   const pw  = document.getElementById('login-password');
@@ -121,6 +104,7 @@ function bindLoginFields() {
   pw?.addEventListener('input', upd);
 }
 
+/** Validates e-mail format and uniqueness on blur — UC-01 RAP001 */
 function bindEmailBlur() {
   const el = document.getElementById('reg-email');
   if (!el) return;
@@ -130,14 +114,11 @@ function bindEmailBlur() {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
       setError('reg-email-error', 'Informe um e-mail válido'); markError('reg-email');
     } else if (state.registeredEmails.includes(v.toLowerCase())) {
-      setError('reg-email-error', 'E-mail já cadastrado. Utilize outro e-mail ou faça login.'); markError('reg-email');
+      setError('reg-email-error', 'E-mail já cadastrado. Utilize outro e-mail ou faça login.'); markError('reg-email'); // MSG001
     } else { setError('reg-email-error', ''); markValid('reg-email'); }
   });
 }
 
-/* ═══════════════════════════════════════════════
-   AUTH — LOGIN / CADASTRO (UC-01)
-══════════════════════════════════════════════════ */
 function bindAuth() {
   document.getElementById('login-btn')?.addEventListener('click', handleLogin);
   document.getElementById('register-btn')?.addEventListener('click', handleRegister);
@@ -149,6 +130,7 @@ function handleLogin() {
   const pass     = document.getElementById('login-password').value;
   const remember = document.getElementById('login-remember').checked;
 
+  // Generic error — prevents user enumeration (OWASP / UC-01 RN-03)
   if (email === 'errado@teste.com') {
     setError('login-pass-error', 'E-mail ou senha incorretos.'); // MSG003
     markError('login-email'); markError('login-password');
@@ -156,11 +138,13 @@ function handleLogin() {
   }
 
   state.user = { isLogged: true, email, keepConnected: remember };
+  // Persist session when "keep connected" is checked — UC-01 A02
   if (remember) localStorage.setItem('rpg_user', JSON.stringify(state.user));
   document.getElementById('dash-welcome').textContent = `Bem-vindo, ${email.split('@')[0]}`;
   navigate('dashboard');
 }
 
+/** Password strength bar updates on every keystroke — UC-01 RE01 */
 function bindPasswordStrength() {
   const pi = document.getElementById('reg-pass');
   const ci = document.getElementById('reg-confirm');
@@ -171,9 +155,10 @@ function bindPasswordStrength() {
     const v = pi.value, s = passwordStrength(v);
     fi.style.width      = (s * 25) + '%';
     fi.style.background = STRENGTH_COLORS[s] || 'transparent';
-    if (v && !isStrongPassword(v)) { setError('reg-pass-error', 'Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.'); markError('reg-pass'); }
+    if (v && !isStrongPassword(v)) { setError('reg-pass-error', 'Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.'); markError('reg-pass'); } // MSG002
     else if (v) { setError('reg-pass-error', ''); markValid('reg-pass'); }
     else { setError('reg-pass-error', ''); pi.classList.remove('input-error', 'input-valid'); }
+    // Re-evaluate confirmation field whenever the password changes
     if (ci.value && ci.value !== v) setError('reg-confirm-error', 'As senhas não coincidem');
     else if (ci.value) setError('reg-confirm-error', '');
   });
@@ -193,8 +178,8 @@ function handleRegister() {
   let valid   = true;
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError('reg-email-error', 'Informe um e-mail válido'); markError('reg-email'); valid = false; }
-  if (email && state.registeredEmails.includes(email.toLowerCase())) { setError('reg-email-error', 'E-mail já cadastrado. Utilize outro e-mail ou faça login.'); markError('reg-email'); valid = false; }
-  if (!isStrongPassword(pass)) { setError('reg-pass-error', 'Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.'); markError('reg-pass'); valid = false; }
+  if (email && state.registeredEmails.includes(email.toLowerCase())) { setError('reg-email-error', 'E-mail já cadastrado. Utilize outro e-mail ou faça login.'); markError('reg-email'); valid = false; } // MSG001
+  if (!isStrongPassword(pass)) { setError('reg-pass-error', 'Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.'); markError('reg-pass'); valid = false; } // MSG002
   if (pass !== conf) { setError('reg-confirm-error', 'As senhas não coincidem'); markError('reg-confirm'); valid = false; }
   if (!valid) return;
 
@@ -205,9 +190,7 @@ function handleRegister() {
   navigate('dashboard');
 }
 
-/* ═══════════════════════════════════════════════
-   MEUS PERSONAGENS (RF0002.5)
-══════════════════════════════════════════════════ */
+// ── Character list — RF0002.5 ──────────────────────────────────────────────────
 function bindPersonagensList() {
   document.getElementById('btn-novo-personagem')
     ?.addEventListener('click', () => navigate('novo-personagem'));
@@ -238,16 +221,15 @@ function renderCharacterList() {
         <div class="char-card-meta">${char.class} · ${char.race} · Nível ${char.level}</div>
       </div>
       <div class="char-card-actions">
-        <button class="btn-edit"  data-id="${char.id}">✏️ Editar</button>
-        <button class="btn-view"  data-id="${char.id}">Ver ficha →</button>
+        <button class="btn-edit" data-id="${char.id}">✏️ Editar</button>
+        <button class="btn-view" data-id="${char.id}">Ver ficha →</button>
       </div>
     `;
-    // Ver ficha
     card.querySelector('.btn-view').addEventListener('click', () => {
       state.selectedCharacterId = char.id;
       navigate('ficha');
     });
-    // Editar — Sprint 3 (RF0002.4)
+    // Edit button — RF0002.4
     card.querySelector('.btn-edit').addEventListener('click', () => {
       state.selectedCharacterId = char.id;
       navigate('editar-personagem');
@@ -256,10 +238,9 @@ function renderCharacterList() {
   });
 }
 
-/* ═══════════════════════════════════════════════
-   SHARED: campos de atributo dinâmicos
-   Reutilizado por "novo" e "editar".
-══════════════════════════════════════════════════ */
+// ── Shared: dynamic attribute fields ──────────────────────────────────────────
+// Shared by both the "new" and "edit" forms; prefix disambiguates element IDs.
+
 function buildAttrFormFields(containerId, prefix) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -284,6 +265,7 @@ function buildAttrFormFields(containerId, prefix) {
   });
 }
 
+/** Validates a single attribute field and updates its modifier display. */
 function validateAttrField(key, prefix) {
   const input = document.getElementById(`${prefix}-attr-${key}`);
   const modEl = document.getElementById(`${prefix}-mod-${key}`);
@@ -291,7 +273,7 @@ function validateAttrField(key, prefix) {
   const val   = parseInt(input.value, 10);
 
   if (!input.value) { modEl.textContent = '—'; errEl.textContent = ''; input.classList.remove('input-error', 'input-valid'); return false; }
-  if (isNaN(val) || val < 1 || val > 20) { errEl.textContent = 'Valor deve ser entre 1 e 20'; markError(`${prefix}-attr-${key}`); modEl.textContent = '—'; return false; }
+  if (isNaN(val) || val < 1 || val > 20) { errEl.textContent = 'Valor deve ser entre 1 e 20'; markError(`${prefix}-attr-${key}`); modEl.textContent = '—'; return false; } // UC-02 E03
 
   errEl.textContent = '';
   markValid(`${prefix}-attr-${key}`);
@@ -299,6 +281,7 @@ function validateAttrField(key, prefix) {
   return true;
 }
 
+/** Updates the read-only proficiency bonus preview — UC-02 RN-03 */
 function updateProfPreview(prefix) {
   const v  = parseInt(document.getElementById(`${prefix}-level`)?.value, 10);
   const el = document.getElementById(`${prefix}-prof-bonus`);
@@ -306,23 +289,26 @@ function updateProfPreview(prefix) {
   el.textContent = (!isNaN(v) && v >= 1 && v <= 20) ? `+${profBonus(v)}` : '+?';
 }
 
+/** Validates the level field (1–20) and shows MSG004 on failure — UC-02 E01 */
 function validateLevelField(prefix) {
   const input = document.getElementById(`${prefix}-level`);
   const errEl = document.getElementById(`${prefix}-level-error`);
   const val   = parseInt(input.value, 10);
   if (!input.value) { errEl.textContent = ''; input.classList.remove('input-error', 'input-valid'); return false; }
-  if (isNaN(val) || val < 1 || val > 20) { errEl.textContent = 'Nível inválido. Informe um valor entre 1 e 20.'; markError(`${prefix}-level`); return false; }
+  if (isNaN(val) || val < 1 || val > 20) { errEl.textContent = 'Nível inválido. Informe um valor entre 1 e 20.'; markError(`${prefix}-level`); return false; } // MSG004
   errEl.textContent = '';
   markValid(`${prefix}-level`);
   return true;
 }
 
+/**
+ * Reads and validates all form fields for the given prefix.
+ * Returns a character data object on success, or null if validation fails.
+ */
 function collectCharacterData(prefix) {
-  // Limpa erros da seção
-  document.querySelectorAll(`#s-${prefix === 'new' ? 'novo' : 'editar'}-personagem .error-msg`)
-    .forEach(e => { e.textContent = ''; });
-  document.querySelectorAll(`#s-${prefix === 'new' ? 'novo' : 'editar'}-personagem .form-input`)
-    .forEach(e => e.classList.remove('input-error', 'input-valid'));
+  const screen = prefix === 'new' ? 'novo' : 'editar';
+  document.querySelectorAll(`#s-${screen}-personagem .error-msg`).forEach(e => { e.textContent = ''; });
+  document.querySelectorAll(`#s-${screen}-personagem .form-input`).forEach(e => e.classList.remove('input-error', 'input-valid'));
 
   let valid = true;
 
@@ -338,7 +324,7 @@ function collectCharacterData(prefix) {
   const levelInput = document.getElementById(`${prefix}-level`);
   const level      = parseInt(levelInput.value, 10);
   if (!levelInput.value || isNaN(level) || level < 1 || level > 20) {
-    setError(`${prefix}-level-error`, 'Nível inválido. Informe um valor entre 1 e 20.'); markError(`${prefix}-level`); valid = false;
+    setError(`${prefix}-level-error`, 'Nível inválido. Informe um valor entre 1 e 20.'); markError(`${prefix}-level`); valid = false; // MSG004
   }
 
   const attributes = {};
@@ -357,6 +343,7 @@ function collectCharacterData(prefix) {
   return { name, class: charClass, race, level, hp: maxHp, max_hp: maxHp, ac, attributes };
 }
 
+/** Clears all fields and error states for the given form prefix. */
 function resetForm(prefix) {
   [`${prefix}-name`, `${prefix}-level`, `${prefix}-max-hp`, `${prefix}-ac`].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
@@ -372,15 +359,12 @@ function resetForm(prefix) {
   });
   const pb = document.getElementById(`${prefix}-prof-bonus`);
   if (pb) pb.textContent = '+?';
-  document.querySelectorAll(`#s-${prefix === 'new' ? 'novo' : 'editar'}-personagem .error-msg`)
-    .forEach(e => { e.textContent = ''; });
-  document.querySelectorAll(`#s-${prefix === 'new' ? 'novo' : 'editar'}-personagem .form-input`)
-    .forEach(e => e.classList.remove('input-error', 'input-valid'));
+  const screen = prefix === 'new' ? 'novo' : 'editar';
+  document.querySelectorAll(`#s-${screen}-personagem .error-msg`).forEach(e => { e.textContent = ''; });
+  document.querySelectorAll(`#s-${screen}-personagem .form-input`).forEach(e => e.classList.remove('input-error', 'input-valid'));
 }
 
-/* ═══════════════════════════════════════════════
-   SPRINT 2 — CRIAR PERSONAGEM (RF0002.1)
-══════════════════════════════════════════════════ */
+// ── Create character — RF0002.1 ────────────────────────────────────────────────
 function bindNewCharacterForm() {
   document.getElementById('new-level')?.addEventListener('input', () => {
     validateLevelField('new'); updateProfPreview('new');
@@ -395,11 +379,7 @@ function bindNewCharacterForm() {
   });
 }
 
-/* ═══════════════════════════════════════════════
-   SPRINT 3 — EDITAR PERSONAGEM (RF0002.4)
-   UC-02 S01: carrega dados atuais, permite
-   alterar e salva via PUT /characters/{id}.
-══════════════════════════════════════════════════ */
+// ── Edit character — RF0002.4 / UC-02 S01 ─────────────────────────────────────
 function bindEditCharacterForm() {
   document.getElementById('edit-level')?.addEventListener('input', () => {
     validateLevelField('edit'); updateProfPreview('edit');
@@ -408,42 +388,37 @@ function bindEditCharacterForm() {
   document.getElementById('btn-salvar-edicao')?.addEventListener('click', () => {
     const data = collectCharacterData('edit');
     if (!data) return;
-
-    // Atualiza o personagem na lista (simula PUT /characters/{id})
+    // Update in place (simulates PUT /characters/{id})
     const idx = state.characters.findIndex(c => c.id === state.selectedCharacterId);
     if (idx === -1) return;
     state.characters[idx] = { ...state.characters[idx], ...data };
     saveCharacters();
-
-    showToast('Alterações salvas com sucesso!', 'success'); // MSG005
+    showToast('Alterações salvas com sucesso!', 'success');
     navigate('personagens');
   });
 
-  // Botão editar na tela de ficha
   document.getElementById('btn-editar-ficha')?.addEventListener('click', () => {
     navigate('editar-personagem');
   });
 }
 
-/** Pré-preenche o formulário de edição com os dados do personagem selecionado */
+/** Pre-fills the edit form with the currently selected character's data. */
 function loadEditForm() {
   const char = state.characters.find(c => c.id === state.selectedCharacterId);
   if (!char) { navigate('personagens'); return; }
 
   resetForm('edit');
 
-  document.getElementById('edit-name').value  = char.name;
-  document.getElementById('edit-level').value = char.level;
+  document.getElementById('edit-name').value   = char.name;
+  document.getElementById('edit-level').value  = char.level;
   document.getElementById('edit-max-hp').value = char.max_hp ?? char.hp;
-  document.getElementById('edit-ac').value    = char.ac;
+  document.getElementById('edit-ac').value     = char.ac;
 
-  // Classe e raça nos selects
   const classEl = document.getElementById('edit-class');
   const raceEl  = document.getElementById('edit-race');
   [...classEl.options].forEach(o => { if (o.value === char.class) o.selected = true; });
   [...raceEl.options].forEach(o  => { if (o.value === char.race)  o.selected = true; });
 
-  // Atributos
   ATTR_KEYS.forEach(key => {
     const val   = char.attributes[key] ?? '';
     const input = document.getElementById(`edit-attr-${key}`);
@@ -455,33 +430,19 @@ function loadEditForm() {
   updateProfPreview('edit');
 }
 
-/* ═══════════════════════════════════════════════
-   SPRINT 3 — EXCLUIR PERSONAGEM (RF0002.6)
-   UC-02 S02: diálogo de confirmação antes do
-   DELETE /characters/{id} (hard delete).
-══════════════════════════════════════════════════ */
+// ── Delete character — RF0002.6 / UC-02 S02 ───────────────────────────────────
 function bindDeleteModal() {
-  const overlay   = document.getElementById('modal-excluir');
-  const btnExcl   = document.getElementById('btn-excluir-personagem');
-  const btnCancel = document.getElementById('modal-cancelar');
+  const overlay    = document.getElementById('modal-excluir');
+  const btnExcl    = document.getElementById('btn-excluir-personagem');
+  const btnCancel  = document.getElementById('modal-cancelar');
   const btnConfirm = document.getElementById('modal-confirmar');
 
-  // Abre o modal ao clicar em "Excluir"
-  btnExcl?.addEventListener('click', () => {
-    overlay.classList.add('active');
-  });
+  btnExcl?.addEventListener('click', () => { overlay.classList.add('active'); });
+  btnCancel?.addEventListener('click', () => { overlay.classList.remove('active'); });
+  // Close on overlay click
+  overlay?.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
 
-  // Cancela — fecha o modal
-  btnCancel?.addEventListener('click', () => {
-    overlay.classList.remove('active');
-  });
-
-  // Fecha clicando fora do modal
-  overlay?.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.classList.remove('active');
-  });
-
-  // Confirma exclusão (simula DELETE /characters/{id} — hard delete)
+  // Hard-delete on confirm (simulates DELETE /characters/{id})
   btnConfirm?.addEventListener('click', () => {
     state.characters = state.characters.filter(c => c.id !== state.selectedCharacterId);
     saveCharacters();
@@ -492,9 +453,7 @@ function bindDeleteModal() {
   });
 }
 
-/* ═══════════════════════════════════════════════
-   FICHA — VISUALIZAÇÃO (UC-02)
-══════════════════════════════════════════════════ */
+// ── Character sheet — UC-02 ────────────────────────────────────────────────────
 function getSelectedCharacter() {
   return state.characters.find(c => c.id === state.selectedCharacterId);
 }
@@ -507,8 +466,7 @@ function renderCharacter() {
   document.getElementById('char-meta').textContent =
     `${char.class} · ${char.race} · Nível ${char.level}`;
   document.getElementById('prof-bonus').textContent = `+${profBonus(char.level)}`;
-
-  // Sprint 3: exibe max_hp separado (Seção 9.2 — tabela characters)
+  // max_hp stored separately from current hp — Doc. de Visão §9.2
   document.getElementById('char-hp').textContent = char.max_hp ?? char.hp;
   document.getElementById('char-ac').textContent = char.ac;
 
@@ -527,9 +485,7 @@ function renderCharacter() {
   });
 }
 
-/* ═══════════════════════════════════════════════
-   PERÍCIAS
-══════════════════════════════════════════════════ */
+// ── Skill rolls ────────────────────────────────────────────────────────────────
 export function rollSkill(skill) {
   const character = getSelectedCharacter();
   const bonus     = getSkillBonus(skill, character);
@@ -540,21 +496,21 @@ export function rollSkill(skill) {
   navigate('dados');
 }
 
-/* ═══════════════════════════════════════════════
-   DADOS — ROLAGEM (UC-03)
-══════════════════════════════════════════════════ */
+// ── Dice rolling — UC-03 ──────────────────────────────────────────────────────
 function validateFormula(str) {
   if (!str) return false;
   const m = str.match(FORMULA_REGEX);
   return m ? VALID_SIDES.includes(parseInt(m[2], 10)) : false;
 }
 
+/** Parses a formula string and returns the roll result. Assumes valid input. */
 function rollFormulaString(formula) {
   const m      = formula.match(FORMULA_REGEX);
   const result = rollFormula(parseInt(m[1], 10), parseInt(m[2], 10), m[3] ? parseInt(m[3], 10) : 0);
   return { ...result, formula };
 }
 
+/** Quick-rolls a single die of the given type — UC-03 S01 */
 export function quickRoll(sides) {
   const result = rollFormula(1, sides, 0);
   addHistory({ type: 'formula', formula: `1d${sides}`, result });
@@ -585,6 +541,7 @@ function bindFormulaRoll() {
   });
 }
 
+/** Real-time formula validation with MSG006 — UC-03 E01 */
 function bindFormulaValidation() {
   const input   = document.getElementById('formula');
   const btn     = document.getElementById('roll-btn');
@@ -602,11 +559,7 @@ function bindFormulaValidation() {
   });
 }
 
-/* ═══════════════════════════════════════════════
-   HISTÓRICO (UC-03 S02 / RN-04)
-   Sprint 3: exibe rolled_at (data/hora) em
-   cada entrada — UC-03 S02 passo 18.
-══════════════════════════════════════════════════ */
+// ── Roll history — UC-03 S02 / RN-04 ─────────────────────────────────────────
 function renderHistory() {
   const container = document.getElementById('history');
   if (!container) return;
@@ -621,11 +574,10 @@ function renderHistory() {
 }
 
 /**
- * UC-03 S02 passo 18: exibe fórmula, resultados individuais, total e data/hora.
- * Formato de data: DD/MM/AAAA HH:MM
+ * Formats a Unix timestamp as DD/MM/YYYY HH:MM — UC-03 S02 step 18
  */
 function formatTimestamp(ts) {
-  const d = new Date(ts);
+  const d   = new Date(ts);
   const pad = n => String(n).padStart(2, '0');
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
@@ -645,10 +597,9 @@ function renderHistoryEntry(entry) {
     if (result.mod < 0) breakdown += ` ${result.mod}`;
   }
 
-  const badge   = isCrit
+  const badge      = isCrit
     ? '<span class="h-badge crit">CRÍTICO</span>'
     : isFail ? '<span class="h-badge fail">FALHA</span>' : '';
-
   const formula    = entry.formula || (entry.skill ? entry.skill : `d${entry.sides}`);
   const total      = result?.total ?? entry.result;
   const timeString = entry.timestamp ? formatTimestamp(entry.timestamp) : '';
@@ -666,9 +617,7 @@ function renderHistoryEntry(entry) {
   return div;
 }
 
-/* ═══════════════════════════════════════════════
-   LOGOUT / TOAST
-══════════════════════════════════════════════════ */
+// ── Logout / Toast ─────────────────────────────────────────────────────────────
 export function logout() {
   state.user = { isLogged: false, email: '', keepConnected: false };
   localStorage.removeItem('rpg_user');

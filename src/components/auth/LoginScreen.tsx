@@ -5,24 +5,21 @@ import { DiceLogo } from '@/components/ui/DiceLogo'
 export function LoginScreen() {
   const { login, navigate, registeredEmails, showToast } = useAppStore()
 
-  const [email, setEmail]       = useState('')
+  const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(false)
-  const [errors, setErrors]     = useState<{ email?: string; password?: string }>({})
+  const [errors,   setErrors]   = useState<{ email?: string; password?: string }>({})
 
-  // UC-01 I02 Cmd 1: habilitado somente com ambos os campos preenchidos
+  // Submit button is disabled until both fields have content — UC-01 I02 Cmd 1
   const canSubmit = email.trim().length > 0 && password.trim().length > 0
 
   function handleLogin() {
     setErrors({})
 
-    // UC-01 E01 / RN-03: mensagem genérica — protege contra enumeração (OWASP)
-    if (email === 'errado@teste.com' || !registeredEmails.includes(email.toLowerCase())) {
-      // Para o protótipo aceitamos qualquer e-mail exceto o mock de falha
-      if (email === 'errado@teste.com') {
-        setErrors({ password: 'E-mail ou senha incorretos.' }) // MSG003
-        return
-      }
+    // Generic error message — prevents user enumeration (OWASP / UC-01 RN-03)
+    if (email === 'errado@teste.com') {
+      setErrors({ password: 'E-mail ou senha incorretos.' }) // MSG003
+      return
     }
 
     login(email.trim(), remember)
@@ -84,7 +81,6 @@ export function LoginScreen() {
           </label>
         </div>
 
-        {/* UC-01 I02 Cmd 1: desabilitado até e-mail + senha preenchidos */}
         <button
           className="btn btn-primary"
           onClick={handleLogin}
@@ -97,7 +93,7 @@ export function LoginScreen() {
           Criar conta
         </button>
 
-        {/* UC-01 I02 Cmd 3: sempre visível, desabilitado na Fase 1 (NR-06) */}
+        {/* "Forgot password" is out of scope for Phase 1 — UC-01 NR-06 */}
         <span className="link-muted">Esqueci minha senha</span>
       </div>
     </div>

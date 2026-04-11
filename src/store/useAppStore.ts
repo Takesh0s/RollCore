@@ -30,7 +30,7 @@ interface AppState {
 
   // Toast
   toast: { message: string; type: 'success' | 'error' | '' } | null
-  showToast: (message: string, type?: 'success' | 'error' | '') => void
+  showToast:  (message: string, type?: 'success' | 'error' | '') => void
   clearToast: () => void
 }
 
@@ -43,6 +43,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   navigate(screen) {
     const { user } = get()
     const publicScreens: Screen[] = ['login', 'cadastro']
+    // Redirect unauthenticated users away from protected screens
     if (!user.isLogged && !publicScreens.includes(screen)) {
       set({ screen: 'login' })
       return
@@ -52,10 +53,12 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // ── Auth ──────────────────────────────────────────────────────────────────
   user: { isLogged: false, email: '', keepConnected: false },
+  // Seed with a pre-existing e-mail to simulate the `users` table (UC-01 RN-04)
   registeredEmails: ['teste@rpg.com'],
 
   login(email, keepConnected) {
     const user: User = { isLogged: true, email, keepConnected }
+    // Persist session when "keep connected" is checked — UC-01 A02
     if (keepConnected) storage.setUser(user)
     set({ user, screen: 'dashboard' })
   },
@@ -75,6 +78,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   // ── Characters ────────────────────────────────────────────────────────────
+  // Hydrate from localStorage on store creation (simulates GET /characters)
   characters:          storage.getCharacters(),
   selectedCharacterId: null,
 
@@ -83,6 +87,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   addCharacter(data) {
+    // Use timestamp as a simple auto-increment ID (replaced by UUID in production)
     const char: Character = { id: Date.now(), ...data }
     set(s => {
       const characters = [...s.characters, char]
@@ -113,7 +118,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   addHistory(entry) {
     set(s => {
       const next = [{ ...entry, timestamp: Date.now() }, ...s.history]
-      // UC-03 RN-04: limite de 50 entradas
+      // Enforce the 50-entry display limit — UC-03 RN-04
       if (next.length > 50) next.length = 50
       return { history: next }
     })
@@ -131,18 +136,20 @@ export const useAppStore = create<AppState>((set, get) => ({
 }))
 
 // ─── Session rehydration ──────────────────────────────────────────────────────
-// Runs once on module load — restores session if keepConnected is true
+// Runs once on module load — restores the session if keepConnected is true
 const saved = storage.getUser()
 if (saved?.keepConnected) {
   useAppStore.setState({ user: saved, screen: 'dashboard' })
 }
 
-// ─── Typed selector helper ────────────────────────────────────────────────────
+// ─── Selector helpers ─────────────────────────────────────────────────────────
+
+/** Returns the currently selected character, or undefined if none is selected. */
 export function useSelectedCharacter(): Character | undefined {
   return useAppStore(s => s.characters.find(c => c.id === s.selectedCharacterId))
 }
 
-/** Adds a roll to history and returns the result — convenience wrapper */
+/** Adds a roll to history. Convenience wrapper for use outside React components. */
 export function dispatchRoll(result: RollResult, formula: string): void {
   useAppStore.getState().addHistory({ type: 'formula', formula, result })
 }

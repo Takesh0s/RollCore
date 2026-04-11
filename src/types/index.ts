@@ -11,7 +11,7 @@ export interface Attributes {
   CHA: number
 }
 
-/** Tabela characters — UC-02 / Seção 9.2 Doc. de Visão */
+/** Mirrors the `characters` table — UC-02 / Doc. de Visão §9.2 */
 export interface Character {
   id: number
   name: string
@@ -24,7 +24,7 @@ export interface Character {
   attributes: Attributes
 }
 
-/** Tabela dice_rolls — UC-03 / Seção 9.2 Doc. de Visão */
+/** Mirrors the `dice_rolls` table — UC-03 / Doc. de Visão §9.2 */
 export interface RollResult {
   total: number
   rolls: number[]

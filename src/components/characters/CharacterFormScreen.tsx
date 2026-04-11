@@ -9,6 +9,7 @@ type Mode = 'new' | 'edit'
 interface Props { mode: Mode }
 
 // ── Attribute field ────────────────────────────────────────────────────────────
+
 interface AttrFieldProps {
   attrKey: AttrKey
   value: string
@@ -16,6 +17,10 @@ interface AttrFieldProps {
   error?: string
 }
 
+/**
+ * Single attribute input that shows a live modifier preview.
+ * Modifier is displayed as '—' when the value is out of the valid range (1–20).
+ */
 function AttrField({ attrKey, value, onChange, error }: AttrFieldProps) {
   const num = parseInt(value, 10)
   const mod = !isNaN(num) && num >= 1 && num <= 20 ? formatMod(calcMod(num)) : '—'
@@ -39,6 +44,12 @@ function AttrField({ attrKey, value, onChange, error }: AttrFieldProps) {
 }
 
 // ── Main form ──────────────────────────────────────────────────────────────────
+
+/**
+ * Unified create/edit form for character sheets.
+ * Controlled by the `mode` prop — 'new' starts with blank fields,
+ * 'edit' pre-fills from the currently selected character.
+ */
 export function CharacterFormScreen({ mode }: Props) {
   const { navigate, addCharacter, updateCharacter, deleteCharacter, showToast } = useAppStore()
   const existing = useSelectedCharacter()
@@ -46,28 +57,23 @@ export function CharacterFormScreen({ mode }: Props) {
   const isEdit = mode === 'edit'
   const title  = isEdit ? 'Editar Personagem' : 'Novo Personagem'
 
-  // Identity fields
   const [name,  setName]  = useState('')
   const [level, setLevel] = useState('')
   const [cls,   setCls]   = useState('')
   const [race,  setRace]  = useState('')
 
-  // Attribute fields as strings for controlled inputs
+  // Attribute values are stored as strings so controlled inputs work naturally
   const [attrs, setAttrs] = useState<Record<AttrKey, string>>({
     STR: '', DEX: '', CON: '', INT: '', WIS: '', CHA: '',
   })
 
-  // Combat
   const [maxHp, setMaxHp] = useState('')
   const [ac,    setAc]    = useState('')
 
-  // Errors
-  const [errors, setErrors] = useState<Record<string, string>>({})
-
-  // Delete modal
+  const [errors,     setErrors]     = useState<Record<string, string>>({})
   const [showDelete, setShowDelete] = useState(false)
 
-  // Pre-fill on edit mode
+  // Pre-fill all fields when opening an existing character — UC-02 S01
   useEffect(() => {
     if (isEdit && existing) {
       setName(existing.name)
@@ -82,8 +88,8 @@ export function CharacterFormScreen({ mode }: Props) {
     }
   }, [isEdit, existing])
 
-  // Live proficiency bonus preview — UC-02 RN-03
-  const lvNum = parseInt(level, 10)
+  // Live proficiency bonus preview updates as the level field changes — UC-02 RN-03
+  const lvNum      = parseInt(level, 10)
   const profPreview = !isNaN(lvNum) && lvNum >= 1 && lvNum <= 20
     ? `+${profBonus(lvNum)}`
     : '+?'
@@ -95,25 +101,25 @@ export function CharacterFormScreen({ mode }: Props) {
   function validate(): boolean {
     const errs: Record<string, string> = {}
 
-    if (!name.trim()) errs.name = 'Informe o nome do personagem'
+    if (!name.trim()) errs.name  = 'Informe o nome do personagem'
     if (!cls)         errs.class = 'Selecione a classe'
-    if (!race)        errs.race = 'Selecione a raça'
+    if (!race)        errs.race  = 'Selecione a raça'
 
-    // UC-02 E01 — MSG004
+    // Level must be an integer between 1 and 20 — UC-02 E01 / MSG004
     const lvNum = parseInt(level, 10)
     if (!level || isNaN(lvNum) || lvNum < 1 || lvNum > 20)
       errs.level = 'Nível inválido. Informe um valor entre 1 e 20.'
 
-    // UC-02 E03
+    // Each attribute must be an integer between 1 and 20 — UC-02 E03
     ATTR_KEYS.forEach(k => {
       const v = parseInt(attrs[k], 10)
       if (!attrs[k] || isNaN(v) || v < 1 || v > 20)
         errs[`attr_${k}`] = 'Valor deve ser entre 1 e 20'
     })
 
-    const hp = parseInt(maxHp, 10)
+    const hp  = parseInt(maxHp, 10)
     const acN = parseInt(ac, 10)
-    if (!maxHp || isNaN(hp) || hp < 1) errs.combat = 'Informe HP Máximo e CA válidos'
+    if (!maxHp || isNaN(hp) || hp < 1)    errs.combat = 'Informe HP Máximo e CA válidos'
     if (ac === '' || isNaN(acN) || acN < 0) errs.combat = 'Informe HP Máximo e CA válidos'
 
     setErrors(errs)
@@ -133,9 +139,9 @@ export function CharacterFormScreen({ mode }: Props) {
       class: cls,
       race,
       level: parseInt(level, 10),
-      hp: parseInt(maxHp, 10),
+      hp:     parseInt(maxHp, 10),
       max_hp: parseInt(maxHp, 10),
-      ac: parseInt(ac, 10),
+      ac:     parseInt(ac, 10),
       attributes,
     }
 
@@ -153,7 +159,7 @@ export function CharacterFormScreen({ mode }: Props) {
   function handleDelete() {
     if (!existing) return
     deleteCharacter(existing.id)
-    showToast('Personagem excluído.', '')
+    showToast('Personagem excluído.')
     navigate('personagens')
   }
 
@@ -169,7 +175,7 @@ export function CharacterFormScreen({ mode }: Props) {
 
         <div className="page-body">
 
-          {/* ── Identidade ── */}
+          {/* ── Identity ── */}
           <h2 className="section-title">Identidade</h2>
           <div className="form-grid-2">
             <div className="form-group">
@@ -225,7 +231,7 @@ export function CharacterFormScreen({ mode }: Props) {
             </div>
           </div>
 
-          {/* ── Atributos — UC-02 E03 ── */}
+          {/* ── Attributes — UC-02 E03 ── */}
           <h2 className="section-title" style={{ marginTop: 6 }}>Atributos (1–20)</h2>
           <div className="attr-form-grid">
             {ATTR_KEYS.map(k => (
@@ -239,12 +245,12 @@ export function CharacterFormScreen({ mode }: Props) {
             ))}
           </div>
 
-          {/* ── Combate ── */}
+          {/* ── Combat ── */}
           <h2 className="section-title" style={{ marginTop: 6 }}>Combate</h2>
           <div className="attr-grid">
             <div className="attr-box">
               <span className="attr-box-label">Proficiência</span>
-              {/* UC-02 RN-03: somente leitura, calculado pelo nível */}
+              {/* Read-only — derived from level — UC-02 RN-03 */}
               <strong className="attr-box-value" style={{ fontSize: 22 }}>{profPreview}</strong>
               <span className="attr-box-mod">calculado</span>
             </div>
@@ -277,7 +283,7 @@ export function CharacterFormScreen({ mode }: Props) {
 
           {/* ── Actions ── */}
           <div className="form-actions">
-            {/* UC-02 I01 Cmd 3: Excluir — somente na edição (RF0002.6) */}
+            {/* Delete button only visible in edit mode — RF0002.6 / UC-02 I01 Cmd 3 */}
             {isEdit && (
               <button className="btn btn-danger" onClick={() => setShowDelete(true)}>
                 Excluir
@@ -295,7 +301,7 @@ export function CharacterFormScreen({ mode }: Props) {
         </div>
       </div>
 
-      {/* UC-02 S02: diálogo de confirmação antes do DELETE */}
+      {/* Confirmation dialog before hard-deleting the character — UC-02 S02 */}
       {showDelete && (
         <Modal
           title="Excluir Personagem"

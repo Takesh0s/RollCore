@@ -6,6 +6,11 @@ interface ModalProps {
   confirmLabel?: string
 }
 
+/**
+ * Generic confirmation modal.
+ * Clicking the overlay (outside the card) triggers onCancel,
+ * matching standard UX expectations.
+ */
 export function Modal({ title, body, onConfirm, onCancel, confirmLabel = 'Confirmar' }: ModalProps) {
   return (
     <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) onCancel() }}>

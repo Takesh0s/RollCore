@@ -2,11 +2,12 @@ import { useState, useCallback } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { DiceLogo } from '@/components/ui/DiceLogo'
 
-// UC-01 RN-01: mínimo 8 chars, 1 maiúscula, 1 número
+/** UC-01 RN-01: strong password requires ≥8 chars, 1 uppercase letter, 1 digit. */
 function isStrong(p: string) {
   return p.length >= 8 && /[A-Z]/.test(p) && /[0-9]/.test(p)
 }
 
+/** Returns a score from 0–4 used to drive the password strength bar. */
 function strengthScore(p: string): number {
   let s = 0
   if (p.length >= 8)   s++
@@ -33,7 +34,7 @@ export function RegisterScreen() {
 
   const score = strengthScore(pass)
 
-  // UC-01 RAP001: validação de e-mail no evento blur
+  // E-mail uniqueness and format are validated on blur — UC-01 RAP001
   const handleEmailBlur = useCallback(() => {
     const v = email.trim()
     if (!v) return
@@ -49,7 +50,7 @@ export function RegisterScreen() {
     }
   }, [email, registeredEmails])
 
-  // Força de senha em tempo real — UC-01 RE01
+  // Password strength feedback updates on every keystroke — UC-01 RE01
   const handlePassChange = useCallback((val: string) => {
     setPass(val)
     if (val && !isStrong(val)) {
@@ -62,7 +63,7 @@ export function RegisterScreen() {
       setPassErr('')
       setPassValid(false)
     }
-    // reavalia confirmação
+    // Re-evaluate confirmation field whenever the password changes
     if (confirm && confirm !== val) setConfirmErr('As senhas não coincidem')
     else if (confirm) setConfirmErr('')
   }, [confirm])

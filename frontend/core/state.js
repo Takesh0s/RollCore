@@ -1,14 +1,14 @@
-/* ═══════════════════════════════════════════════
-   ROLLCORE — State
-   Armazena o estado global da aplicação.
-   Personagens persistidos no localStorage
-   (RF0002.1 — Fase 1, sem backend).
-══════════════════════════════════════════════════ */
+/**
+ * Global application state for the Vanilla JS prototype.
+ * In the production backend this data lives in PostgreSQL (UC-01, UC-02, UC-03).
+ * Characters are persisted in localStorage to simulate the REST API between
+ * page reloads (Phase 1, no backend).
+ */
 
 const STORAGE_KEY_USER  = 'rpg_user';
 const STORAGE_KEY_CHARS = 'rpg_characters';
 
-/** Carrega personagens do localStorage ou retorna lista vazia */
+/** Loads characters from localStorage, returning an empty array on any error. */
 function loadCharacters() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY_CHARS);
@@ -24,41 +24,39 @@ export const state = {
   user: {
     isLogged: false,
     email: '',
-    keepConnected: false
+    keepConnected: false,
   },
 
-  // Mock de e-mails já cadastrados (UC-01 RN-04 — unicidade)
+  // Seed with a pre-existing e-mail to simulate the `users` table — UC-01 RN-04
   registeredEmails: ['teste@rpg.com'],
 
-  // Personagens persistidos no localStorage (tabela characters — UC-02)
+  // Characters hydrated from localStorage on load — mirrors `characters` table (UC-02)
   characters: loadCharacters(),
 
   selectedCharacterId: null,
 
-  // Histórico de rolagens em memória (tabela dice_rolls — UC-03)
-  history: []
+  // In-memory roll history — mirrors `dice_rolls` table (UC-03)
+  history: [],
 };
 
 /**
- * Persiste a lista de personagens no localStorage.
- * Simula o POST/PUT /characters do backend (UC-02 Fluxo Básico passos 8–9).
+ * Persists the character list to localStorage.
+ * Simulates POST/PUT /characters from the backend (UC-02 basic flow steps 8–9).
  */
 export function saveCharacters() {
   localStorage.setItem(STORAGE_KEY_CHARS, JSON.stringify(state.characters));
 }
 
 /**
- * Adiciona uma entrada ao histórico e mantém o limite de 50
- * registros (UC-03 RN-04).
- * @param {object} entry
+ * Prepends an entry to the roll history and enforces the 50-entry limit — UC-03 RN-04.
+ * @param {object} entry - Roll entry without a timestamp (added here).
  */
 export function addHistory(entry) {
   state.history.unshift({
     ...entry,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 
-  // UC-03 RN-04: exibir apenas últimas 50 rolagens
   if (state.history.length > 50) {
     state.history.length = 50;
   }

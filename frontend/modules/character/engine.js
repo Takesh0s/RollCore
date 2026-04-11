@@ -1,14 +1,13 @@
-/* ═══════════════════════════════════════════════
-   ROLLCORE — Character Engine (D&D 5e SRD)
-   Regras de cálculo conforme UC-02 e Seção 1.4.1
-   do Documento de Visão — Equipe 9.
-══════════════════════════════════════════════════ */
+/**
+ * D&D 5e character rules engine.
+ * All formulas follow the SRD (Doc. de Visão §1.4.1).
+ */
 
 /**
- * Calcula o modificador de atributo D&D 5e.
- * Fórmula: floor((valor – 10) / 2)  — UC-02 RN-02
- * Exemplos: 1→–5 | 10→0 | 11→0 | 16→+3 | 20→+5
- * @param {number} value - Valor do atributo (1–20)
+ * Calculates the D&D 5e attribute modifier — UC-02 RN-02.
+ * Formula: floor((value − 10) / 2)
+ * Examples: 1 → −5 | 10 → 0 | 16 → +3 | 20 → +5
+ * @param {number} value - Attribute score (1–20)
  * @returns {number}
  */
 export function calcMod(value) {
@@ -16,14 +15,10 @@ export function calcMod(value) {
 }
 
 /**
- * Calcula o Bônus de Proficiência por nível — UC-02 RN-03.
- * Tabela oficial D&D 5e SRD:
- *   Níveis  1– 4 → +2
- *   Níveis  5– 8 → +3
- *   Níveis  9–12 → +4
- *   Níveis 13–16 → +5
- *   Níveis 17–20 → +6
- * @param {number} level - Nível do personagem (1–20)
+ * Returns the Proficiency Bonus for a given level — UC-02 RN-03.
+ * Official D&D 5e SRD table:
+ *   Levels  1– 4 → +2 | 5– 8 → +3 | 9–12 → +4 | 13–16 → +5 | 17–20 → +6
+ * @param {number} level - Character level (1–20)
  * @returns {number}
  */
 export function profBonus(level) {
@@ -34,31 +29,29 @@ export function profBonus(level) {
   return 6;
 }
 
-// Mapa de perícias → atributo base (SRD D&D 5e)
+/** Maps skill names to their governing ability score (D&D 5e SRD). */
 const SKILL_MAP = {
   Atletismo:    'STR',
   Intimidacao:  'CHA',
   Percepcao:    'WIS',
   Furtividade:  'DEX',
-  Arcana:       'INT'
+  Arcana:       'INT',
 };
 
 /**
- * Retorna o bônus total de uma perícia (mod + proficiência).
- * @param {string} skill     - Nome da perícia
- * @param {object} character - Objeto personagem com attributes e profBonus
+ * Returns the total bonus for a skill check (ability modifier + proficiency bonus).
+ * @param {string} skill     - Skill name as defined in SKILL_MAP
+ * @param {object} character - Character object with `attributes` and `level`
  * @returns {number}
  */
 export function getSkillBonus(skill, character) {
   const attr = SKILL_MAP[skill];
   if (!attr) return 0;
-
-  const baseMod = calcMod(character.attributes[attr]);
-  return baseMod + profBonus(character.level);
+  return calcMod(character.attributes[attr]) + profBonus(character.level);
 }
 
 /**
- * Formata um modificador com sinal (+/-).
+ * Formats a modifier with an explicit +/− sign.
  * @param {number} mod
  * @returns {string}
  */
@@ -66,12 +59,12 @@ export function formatMod(mod) {
   return mod >= 0 ? `+${mod}` : `${mod}`;
 }
 
-// Tradução das chaves de atributo para exibição em PT-BR
+/** PT-BR display labels for each attribute key. */
 export const ATTR_LABELS = {
   STR: 'FOR',
   DEX: 'DES',
   CON: 'CON',
   INT: 'INT',
   WIS: 'SAB',
-  CHA: 'CAR'
+  CHA: 'CAR',
 };
