@@ -55,6 +55,7 @@ export interface User {
 export type Screen =
   | 'login'
   | 'cadastro'
+  | 'esqueci-senha'
   | 'dashboard'
   | 'personagens'
   | 'novo-personagem'

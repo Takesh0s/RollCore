@@ -42,7 +42,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   navigate(screen) {
     const { user } = get()
-    const publicScreens: Screen[] = ['login', 'cadastro']
+    const publicScreens: Screen[] = ['login', 'cadastro', 'esqueci-senha']
     // Redirect unauthenticated users away from protected screens
     if (!user.isLogged && !publicScreens.includes(screen)) {
       set({ screen: 'login' })
