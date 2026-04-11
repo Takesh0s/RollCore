@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RPG Skill Checker</title>
-
+  <title>RollCore</title>
   <link rel="stylesheet" href="./frontend/styles/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
 <div class="proto-shell">
 
+  <!-- ── Prototype Navigation Bar ── -->
   <div class="screen-nav">
     <button class="nav-btn active" data-nav="login">Login</button>
     <button class="nav-btn" data-nav="cadastro">Cadastro</button>
@@ -21,152 +20,146 @@
     <button class="nav-btn" data-nav="dados">Dados</button>
   </div>
 
+  <!-- ══════════════════════════════ LOGIN ══════════════════════════════ -->
   <div class="screen active" id="s-login">
     <div class="device login-device">
 
       <div class="login-header">
         <div class="logo-box">🎲</div>
-        <h1>RPG Skill Checker</h1>
+        <h1>RollCore</h1>
         <p>Acesse sua conta</p>
       </div>
 
-      <div class="page-body narrow">
-
+      <div class="narrow">
         <div class="form-group">
           <label>E-mail</label>
-          <input class="form-input" id="email">
+          <input class="form-input" id="login-email" type="email" placeholder="seu@email.com">
           <small class="error-msg" id="login-email-error"></small>
         </div>
 
         <div class="form-group">
           <label>Senha</label>
-          <input type="password" class="form-input" id="password">
+          <input type="password" class="form-input" id="login-password" placeholder="••••••••">
           <small class="error-msg" id="login-pass-error"></small>
         </div>
 
         <div class="form-group">
-          <label>
-            <input type="checkbox" id="remember">
-            Manter conectado
-          </label>
+          <label><input type="checkbox" id="login-remember"> Manter conectado</label>
         </div>
 
         <button class="btn-primary" id="login-btn">Entrar</button>
-
         <p class="link" data-nav="cadastro">Criar conta</p>
-
       </div>
+
     </div>
   </div>
 
+  <!-- ══════════════════════════════ CADASTRO ══════════════════════════ -->
   <div class="screen" id="s-cadastro">
     <div class="device login-device">
 
       <div class="login-header">
-        <h1>Criar conta</h1>
+        <h1>Criar Conta</h1>
+        <p>Junte-se à aventura</p>
       </div>
 
-      <div class="page-body narrow">
-
+      <div class="narrow">
         <div class="form-group">
           <label>E-mail</label>
-          <input class="form-input" id="reg-email">
+          <input class="form-input" id="reg-email" type="email" placeholder="seu@email.com">
           <small class="error-msg" id="reg-email-error"></small>
         </div>
 
         <div class="form-group">
           <label>Senha</label>
-          <input type="password" class="form-input" id="reg-pass">
+          <input type="password" class="form-input" id="reg-pass" placeholder="Mínimo 8 chars, 1 maiúscula, 1 número">
+          <div class="pass-strength-bar"><div class="pass-strength-fill" id="pass-strength-fill"></div></div>
           <small class="error-msg" id="reg-pass-error"></small>
         </div>
 
         <div class="form-group">
           <label>Confirmar Senha</label>
-          <input type="password" class="form-input" id="reg-confirm">
+          <input type="password" class="form-input" id="reg-confirm" placeholder="Repita a senha">
           <small class="error-msg" id="reg-confirm-error"></small>
         </div>
 
         <button class="btn-primary" id="register-btn">Criar Conta</button>
-
         <p class="link" data-nav="login">Já tenho conta</p>
-
       </div>
+
     </div>
   </div>
 
+  <!-- ══════════════════════════════ DASHBOARD ══════════════════════════ -->
   <div class="screen" id="s-dashboard">
     <div class="device">
 
       <div class="topbar">
         <div>
-          <div class="top-title">RPG Skill Checker</div>
-          <div class="top-sub">Bem-vindo, jogador</div>
+          <div class="top-title">RollCore</div>
+          <div class="top-sub" id="dash-welcome">Bem-vindo, aventureiro</div>
         </div>
       </div>
 
       <div class="page-body">
-
-        <h2 class="section-title">Acesso rápido</h2>
-
+        <h2 class="section-title">Acesso Rápido</h2>
         <div class="cards-grid">
-
           <div class="dash-card" data-nav="ficha">
             <div class="card-icon">👤</div>
             <h3>Personagens</h3>
             <p>Gerenciar fichas</p>
           </div>
-
           <div class="dash-card" data-nav="dados">
             <div class="card-icon">🎲</div>
             <h3>Dados</h3>
             <p>Rolar dados</p>
           </div>
-
         </div>
-
       </div>
+
     </div>
   </div>
 
+  <!-- ══════════════════════════════ FICHA ══════════════════════════════ -->
   <div class="screen" id="s-ficha">
     <div class="device">
 
       <div class="topbar">
         <button data-nav="dashboard">←</button>
         <div>
-          <div class="top-title" id="char-name">Nome</div>
-          <div class="top-sub" id="char-meta">Classe • Nível</div>
+          <div class="top-title" id="char-name">Thorin Kettleback</div>
+          <div class="top-sub" id="char-meta">Guerreiro • Nível 5</div>
         </div>
       </div>
 
       <div class="page-body">
-
         <h2 class="section-title">Atributos</h2>
-
-        <div class="attr-grid" id="attr-container">
-        </div>
+        <div class="attr-grid" id="attr-container"></div>
 
         <h2 class="section-title">Combate</h2>
-
         <div class="attr-grid">
           <div class="attr-box">
             <span>Proficiência</span>
-            <strong id="prof-bonus">+0</strong>
+            <strong id="prof-bonus">+3</strong>
+            <small>bônus</small>
           </div>
           <div class="attr-box">
             <span>HP</span>
-            <strong id="hp">0</strong>
+            <strong id="char-hp">38</strong>
+            <small>pontos</small>
           </div>
           <div class="attr-box">
             <span>CA</span>
-            <strong id="ac">0</strong>
+            <strong id="char-ac">16</strong>
+            <small>armadura</small>
           </div>
         </div>
-
       </div>
+
     </div>
   </div>
 
+  <!-- ══════════════════════════════ DADOS ══════════════════════════════ -->
   <div class="screen" id="s-dados">
     <div class="device">
 
@@ -177,16 +170,17 @@
 
       <div class="page-body">
 
-        <div class="form-group">
-          <label>Fórmula</label>
-          <input class="form-input" id="formula" placeholder="Ex: 2d6+3">
+        <h2 class="section-title">Fórmula</h2>
+        <div class="formula-row">
+          <input class="form-input" id="formula" placeholder="Ex: 2d6+3, 1d20-1">
+          <button class="btn-roll" id="roll-btn" disabled>Rolar</button>
         </div>
-
-        <button class="btn-primary" id="roll-btn">Rolar</button>
+        <small class="error-msg" id="formula-error"></small>
 
         <div class="dice-area">
-          <h2 id="result">0</h2>
-          <p id="result-break"></p>
+          <div class="dice-result-num" id="result">—</div>
+          <div class="dice-breakdown" id="result-break"></div>
+          <div class="crit-label" id="crit-label">⭐ Crítico!</div>
         </div>
 
         <div class="dice-buttons">
@@ -199,14 +193,20 @@
           <button data-roll="100">d100</button>
         </div>
 
-        <h3 class="section-title">Histórico</h3>
-        <div id="history"></div>
+        <h2 class="section-title">
+          Histórico
+          <span class="history-subtitle">(últimas 50)</span>
+        </h2>
+        <div class="history-list" id="history"></div>
 
       </div>
     </div>
   </div>
 
 </div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
 
 <script type="module" src="./frontend/core/app.js"></script>
 
