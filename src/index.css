@@ -573,3 +573,26 @@ select.form-input option { background: var(--card2); }
   .char-card-actions { width: 100%; justify-content: flex-end; }
   .form-actions  { flex-wrap: wrap; }
 }
+
+@media (max-width: 520px) {
+  .app-shell {
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .device {
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 100vh;
+  }
+
+  .login-device {
+    max-width: 100%;
+    border-radius: 0;
+    min-height: 100vh;
+    padding: 60px 28px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
