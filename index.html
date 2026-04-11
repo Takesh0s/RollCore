@@ -24,94 +24,74 @@
   <!-- ══════════════════════════════ LOGIN ══════════════════════════════ -->
   <div class="screen active" id="s-login">
     <div class="device login-device">
-
       <div class="login-header">
         <div class="logo-box">🎲</div>
         <h1>RollCore</h1>
         <p>Acesse sua conta</p>
       </div>
-
       <div class="narrow">
         <div class="form-group">
           <label>E-mail</label>
           <input class="form-input" id="login-email" type="email" placeholder="seu@email.com">
           <small class="error-msg" id="login-email-error"></small>
         </div>
-
         <div class="form-group">
           <label>Senha</label>
           <input type="password" class="form-input" id="login-password" placeholder="••••••••">
           <small class="error-msg" id="login-pass-error"></small>
         </div>
-
         <div class="form-group">
           <label><input type="checkbox" id="login-remember"> Manter conectado</label>
         </div>
-
-        <!-- UC-01 I02 Cmd 1: habilitado somente com ambos os campos preenchidos -->
         <button class="btn-primary" id="login-btn" disabled>Entrar</button>
-
         <p class="link" data-nav="cadastro">Criar conta</p>
-
-        <!-- UC-01 I02 Cmd 3: sempre visível, desabilitado (Fase 2 — NR-06) -->
         <p class="link link-muted">Esqueci minha senha</p>
       </div>
-
     </div>
   </div>
 
   <!-- ══════════════════════════════ CADASTRO ══════════════════════════ -->
   <div class="screen" id="s-cadastro">
     <div class="device login-device">
-
       <div class="login-header">
         <h1>Criar Conta</h1>
         <p>Junte-se à aventura</p>
       </div>
-
       <div class="narrow">
         <div class="form-group">
           <label>E-mail</label>
-          <!-- UC-01 RAP001: valida e-mail no evento onBlur -->
           <input class="form-input" id="reg-email" type="email" placeholder="seu@email.com">
           <small class="error-msg" id="reg-email-error"></small>
         </div>
-
         <div class="form-group">
           <label>Senha</label>
           <input type="password" class="form-input" id="reg-pass" placeholder="Mínimo 8 chars, 1 maiúscula, 1 número">
           <div class="pass-strength-bar"><div class="pass-strength-fill" id="pass-strength-fill"></div></div>
           <small class="error-msg" id="reg-pass-error"></small>
         </div>
-
         <div class="form-group">
           <label>Confirmar Senha</label>
           <input type="password" class="form-input" id="reg-confirm" placeholder="Repita a senha">
           <small class="error-msg" id="reg-confirm-error"></small>
         </div>
-
         <button class="btn-primary" id="register-btn">Criar Conta</button>
         <p class="link" data-nav="login">Já tenho conta</p>
       </div>
-
     </div>
   </div>
 
   <!-- ══════════════════════════════ DASHBOARD ══════════════════════════ -->
   <div class="screen" id="s-dashboard">
     <div class="device">
-
       <div class="topbar">
         <div>
           <div class="top-title">RollCore</div>
           <div class="top-sub" id="dash-welcome">Bem-vindo, aventureiro</div>
         </div>
       </div>
-
       <div class="page-body">
         <h2 class="section-title">Acesso Rápido</h2>
         <div class="cards-grid">
-          <!-- UC-02 RF0002.5: card navega para lista de personagens -->
           <div class="dash-card" data-nav="personagens">
             <div class="card-icon">👤</div>
             <h3>Personagens</h3>
@@ -124,63 +104,48 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
   <!-- ══════════════════════════════ MEUS PERSONAGENS (RF0002.5) ════════ -->
   <div class="screen" id="s-personagens">
     <div class="device">
-
       <div class="topbar">
         <button data-nav="dashboard">←</button>
         <div class="top-title">Meus Personagens</div>
       </div>
-
       <div class="page-body">
         <div class="list-header">
           <h2 class="section-title" style="margin-bottom:0;border:none;padding-bottom:0">Lista</h2>
           <button class="btn-new" id="btn-novo-personagem">+ Novo Personagem</button>
         </div>
-
-        <!-- RF0002.5: lista de personagens do usuário autenticado -->
         <div id="char-list" style="margin-top:16px"></div>
       </div>
-
     </div>
   </div>
 
   <!-- ══════════════════════════════ NOVO PERSONAGEM (UC-02 I01) ════════ -->
   <div class="screen" id="s-novo-personagem">
     <div class="device">
-
       <div class="topbar">
         <button data-nav="personagens">←</button>
         <div class="top-title">Novo Personagem</div>
       </div>
-
       <div class="page-body">
-
-        <!-- Identidade -->
         <h2 class="section-title">Identidade</h2>
         <div class="form-grid-2">
-
           <div class="form-group">
             <label>Nome</label>
             <input class="form-input" id="new-name" placeholder="Ex: Thorin Kettleback" maxlength="100">
             <small class="error-msg" id="new-name-error"></small>
           </div>
-
           <div class="form-group">
             <label>Nível (1–20)</label>
-            <!-- UC-02 E01: MSG004 para nível inválido — validação onChange -->
             <input class="form-input" id="new-level" type="number" min="1" max="20" placeholder="1–20">
             <small class="error-msg" id="new-level-error"></small>
           </div>
-
           <div class="form-group">
             <label>Classe</label>
-            <!-- UC-02 I01 Campo 2: combo SRD D&D 5e -->
             <select class="form-input form-select" id="new-class">
               <option value="">Selecione a classe</option>
               <option>Bárbaro</option><option>Bardo</option><option>Clérigo</option>
@@ -190,10 +155,8 @@
             </select>
             <small class="error-msg" id="new-class-error"></small>
           </div>
-
           <div class="form-group">
             <label>Raça</label>
-            <!-- UC-02 I01 Campo 3: combo SRD D&D 5e -->
             <select class="form-input form-select" id="new-race">
               <option value="">Selecione a raça</option>
               <option>Anão</option><option>Draconato</option><option>Elfo</option>
@@ -202,21 +165,16 @@
             </select>
             <small class="error-msg" id="new-race-error"></small>
           </div>
-
         </div>
 
-        <!-- Atributos -->
         <h2 class="section-title" style="margin-top:6px">Atributos (1–20)</h2>
-        <!-- UC-02 E03: validação de atributos gerada dinamicamente pelo app.js -->
         <div class="attr-form-grid" id="attr-form-container"></div>
 
-        <!-- Combate -->
         <h2 class="section-title" style="margin-top:6px">Combate</h2>
         <div class="attr-grid">
           <div class="attr-box">
             <span>Proficiência</span>
-            <!-- UC-02 RN-03: calculado automaticamente pelo nível — somente leitura -->
-            <strong id="new-prof-bonus">+2</strong>
+            <strong id="new-prof-bonus">+?</strong>
             <small>calculado</small>
           </div>
           <div class="attr-box">
@@ -231,12 +189,85 @@
         <small class="error-msg" id="new-combat-error"></small>
 
         <div class="form-actions">
-          <!-- UC-02 I01 Cmd 2: Cancelar — sempre habilitado -->
           <button class="btn-cancel" data-nav="personagens">Cancelar</button>
-          <!-- UC-02 I01 Cmd 1: Salvar — habilitado só se todos os campos válidos -->
           <button class="btn-primary btn-save" id="btn-salvar-personagem">Salvar Personagem</button>
         </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- ══════════════════════════════ EDITAR PERSONAGEM (RF0002.4) ═══════ -->
+  <div class="screen" id="s-editar-personagem">
+    <div class="device">
+      <div class="topbar">
+        <button data-nav="personagens">←</button>
+        <div class="top-title">Editar Personagem</div>
+      </div>
+      <div class="page-body">
+        <h2 class="section-title">Identidade</h2>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Nome</label>
+            <input class="form-input" id="edit-name" maxlength="100">
+            <small class="error-msg" id="edit-name-error"></small>
+          </div>
+          <div class="form-group">
+            <label>Nível (1–20)</label>
+            <input class="form-input" id="edit-level" type="number" min="1" max="20">
+            <small class="error-msg" id="edit-level-error"></small>
+          </div>
+          <div class="form-group">
+            <label>Classe</label>
+            <select class="form-input form-select" id="edit-class">
+              <option value="">Selecione a classe</option>
+              <option>Bárbaro</option><option>Bardo</option><option>Clérigo</option>
+              <option>Druida</option><option>Feiticeiro</option><option>Guerreiro</option>
+              <option>Ladino</option><option>Mago</option><option>Monge</option>
+              <option>Paladino</option><option>Patrulheiro</option><option>Warlock</option>
+            </select>
+            <small class="error-msg" id="edit-class-error"></small>
+          </div>
+          <div class="form-group">
+            <label>Raça</label>
+            <select class="form-input form-select" id="edit-race">
+              <option value="">Selecione a raça</option>
+              <option>Anão</option><option>Draconato</option><option>Elfo</option>
+              <option>Gnomo</option><option>Halfling</option><option>Humano</option>
+              <option>Meio-Elfo</option><option>Meio-Orc</option><option>Tiefling</option>
+            </select>
+            <small class="error-msg" id="edit-race-error"></small>
+          </div>
+        </div>
+
+        <h2 class="section-title" style="margin-top:6px">Atributos (1–20)</h2>
+        <div class="attr-form-grid" id="edit-attr-container"></div>
+
+        <h2 class="section-title" style="margin-top:6px">Combate</h2>
+        <div class="attr-grid">
+          <div class="attr-box">
+            <span>Proficiência</span>
+            <strong id="edit-prof-bonus">+?</strong>
+            <small>calculado</small>
+          </div>
+          <div class="attr-box">
+            <span>HP Máx.</span>
+            <input class="form-input attr-input" id="edit-max-hp" type="number" min="1">
+          </div>
+          <div class="attr-box">
+            <span>CA</span>
+            <input class="form-input attr-input" id="edit-ac" type="number" min="0">
+          </div>
+        </div>
+        <small class="error-msg" id="edit-combat-error"></small>
+
+        <div class="form-actions">
+          <!-- UC-02 I01 Cmd 3: Excluir — somente na edição -->
+          <button class="btn-danger" id="btn-excluir-personagem">Excluir</button>
+          <div style="display:flex;gap:12px;margin-left:auto">
+            <button class="btn-cancel" data-nav="personagens">Cancelar</button>
+            <button class="btn-primary btn-save" id="btn-salvar-edicao">Salvar Alterações</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -244,19 +275,18 @@
   <!-- ══════════════════════════════ FICHA (visualização) ══════════════ -->
   <div class="screen" id="s-ficha">
     <div class="device">
-
       <div class="topbar">
         <button data-nav="personagens">←</button>
-        <div>
+        <div style="flex:1">
           <div class="top-title" id="char-name">—</div>
           <div class="top-sub" id="char-meta">—</div>
         </div>
+        <!-- Botão de edição na ficha — RF0002.4 -->
+        <button class="btn-edit-ficha" id="btn-editar-ficha">✏️ Editar</button>
       </div>
-
       <div class="page-body">
         <h2 class="section-title">Atributos</h2>
         <div class="attr-grid" id="attr-container"></div>
-
         <h2 class="section-title">Combate</h2>
         <div class="attr-grid">
           <div class="attr-box">
@@ -265,6 +295,7 @@
             <small>bônus</small>
           </div>
           <div class="attr-box">
+            <!-- Sprint 3: exibe max_hp separado de hp (Seção 9.2) -->
             <span>HP Máx.</span>
             <strong id="char-hp">—</strong>
             <small>pontos</small>
@@ -276,21 +307,17 @@
           </div>
         </div>
       </div>
-
     </div>
   </div>
 
   <!-- ══════════════════════════════ DADOS ══════════════════════════════ -->
   <div class="screen" id="s-dados">
     <div class="device">
-
       <div class="topbar">
         <button data-nav="dashboard">←</button>
         <div class="top-title">Rolagem de Dados</div>
       </div>
-
       <div class="page-body">
-
         <h2 class="section-title">Fórmula</h2>
         <div class="formula-row">
           <input class="form-input" id="formula" placeholder="Ex: 2d6+3, 1d20-1">
@@ -319,11 +346,23 @@
           <span class="history-subtitle">(últimas 50)</span>
         </h2>
         <div class="history-list" id="history"></div>
-
       </div>
     </div>
   </div>
 
+</div>
+
+<!-- ══════════════════════════════ MODAL EXCLUSÃO (RF0002.6) ═════════════ -->
+<!-- UC-02 S02: "Tem certeza? Esta ação não pode ser desfeita." -->
+<div class="modal-overlay" id="modal-excluir">
+  <div class="modal">
+    <h3 class="modal-title">Excluir Personagem</h3>
+    <p class="modal-body">Tem certeza? Esta ação não pode ser desfeita.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="modal-cancelar">Cancelar</button>
+      <button class="btn-danger" id="modal-confirmar">Excluir</button>
+    </div>
+  </div>
 </div>
 
 <!-- Toast notification -->
