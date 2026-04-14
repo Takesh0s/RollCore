@@ -27,7 +27,7 @@ export function formatMod(mod: number): string {
   return mod >= 0 ? `+${mod}` : `${mod}`
 }
 
-/** PT-BR display labels for each attribute key. */
+/** PT-BR abbreviated labels for each attribute key. */
 export const ATTR_LABELS: Record<AttrKey, string> = {
   STR: 'FOR',
   DEX: 'DES',
@@ -37,27 +37,68 @@ export const ATTR_LABELS: Record<AttrKey, string> = {
   CHA: 'CAR',
 }
 
+/** PT-BR full labels for each attribute key. */
+export const ATTR_LABELS_FULL: Record<AttrKey, string> = {
+  STR: 'Força',
+  DEX: 'Destreza',
+  CON: 'Constituição',
+  INT: 'Inteligência',
+  WIS: 'Sabedoria',
+  CHA: 'Carisma',
+}
+
 export const ATTR_KEYS: AttrKey[] = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
 
-/** Maps skill names to their governing ability score (D&D 5e SRD). */
-const SKILL_MAP: Record<string, AttrKey> = {
-  Atletismo:   'STR',
-  Intimidacao: 'CHA',
-  Percepcao:   'WIS',
-  Furtividade: 'DEX',
-  Arcana:      'INT',
+/**
+ * Represents a single D&D 5e skill with its governing attribute.
+ * Doc. de Visão §4.1 — Compêndio integrado de regras / §1.4.1 SRD D&D 5e
+ */
+export interface SkillDef {
+  name: string
+  attr: AttrKey
 }
 
 /**
- * Returns the total bonus for a skill check (ability modifier + proficiency bonus).
- * @param skill  - Skill name as defined in SKILL_MAP
- * @param attrs  - Character attributes object
- * @param level  - Character level (1–20)
+ * Complete D&D 5e SRD skill list — all 18 skills mapped to their governing attribute.
+ * Replaces the previous partial SKILL_MAP (5 entries, some with typos).
+ * Reference: SRD D&D 5e §1.4.1 Doc. de Visão Equipe 9.
  */
-export function getSkillBonus(skill: string, attrs: Attributes, level: number): number {
-  const attr = SKILL_MAP[skill]
-  if (!attr) return 0
-  return calcMod(attrs[attr]) + profBonus(level)
+export const SKILLS: SkillDef[] = [
+  // FOR / STR
+  { name: 'Atletismo',       attr: 'STR' },
+  // DES / DEX
+  { name: 'Acrobacia',       attr: 'DEX' },
+  { name: 'Prestidigitação', attr: 'DEX' },
+  { name: 'Furtividade',     attr: 'DEX' },
+  // INT
+  { name: 'Arcanismo',       attr: 'INT' },
+  { name: 'História',        attr: 'INT' },
+  { name: 'Investigação',    attr: 'INT' },
+  { name: 'Natureza',        attr: 'INT' },
+  { name: 'Religião',        attr: 'INT' },
+  // SAB / WIS
+  { name: 'Adestramento',    attr: 'WIS' },
+  { name: 'Intuição',        attr: 'WIS' },
+  { name: 'Medicina',        attr: 'WIS' },
+  { name: 'Percepção',       attr: 'WIS' },
+  { name: 'Sobrevivência',   attr: 'WIS' },
+  // CAR / CHA
+  { name: 'Atuação',         attr: 'CHA' },
+  { name: 'Enganação',       attr: 'CHA' },
+  { name: 'Intimidação',     attr: 'CHA' },
+  { name: 'Persuasão',       attr: 'CHA' },
+]
+
+/**
+ * Returns the total bonus for a skill check (ability modifier + proficiency bonus).
+ * @param skillName - Skill name as defined in SKILLS
+ * @param attrs     - Character attributes object
+ * @param level     - Character level (1–20)
+ */
+export function getSkillBonus(skillName: string, attrs: Attributes, level: number): number {
+  const def = SKILLS.find(s => s.name === skillName)
+  if (!def) return 0
+  return calcMod(attrs[def.attr]) + profBonus(level)
 }
 
 /** D&D 5e SRD class list. */
