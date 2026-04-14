@@ -596,3 +596,168 @@ select.form-input option { background: var(--card2); }
     justify-content: center;
   }
 }
+/* ═══════════════════════════════════════════════════════════════
+   SPRINT 5 ADDITIONS
+   HP Tracker, Skills grid, Dashboard recent char, enhanced dice anim
+════════════════════════════════════════════════════════════════ */
+
+/* ── HP Tracker ───────────────────────────────────────────────── */
+.hp-tracker {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin-bottom: 6px;
+}
+
+.hp-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.hp-current {
+  font-family: 'Cinzel', serif;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+  transition: color 0.4s;
+}
+
+.hp-sep { font-size: 24px; color: var(--text-muted); }
+
+.hp-max {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  color: var(--text-muted);
+}
+
+.hp-bar-wrap {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.hp-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease, background 0.4s;
+}
+
+.hp-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hp-input {
+  width: 90px;
+  flex-shrink: 0;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  padding: 8px 10px;
+}
+
+.btn-hp { padding: 8px 14px; font-size: 11px; white-space: nowrap; }
+
+/* Healing button — mirror of btn-danger but green */
+.btn-heal {
+  padding: 8px 14px;
+  background: rgba(74,222,128,0.08);
+  border: 1px solid var(--success);
+  color: var(--success);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.btn-heal:hover { background: var(--success); color: #0c0f1a; }
+
+/* ── Skills grid ────────────────────────────────────────────────── */
+.skills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+}
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s;
+}
+.skill-row:hover { border-color: rgba(200,151,58,0.3); }
+
+.skill-attr {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  width: 26px;
+  flex-shrink: 0;
+}
+
+.skill-name  { flex: 1; font-size: 13px; color: var(--text); }
+
+.skill-bonus {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: right;
+}
+.skill-bonus.positive { color: var(--primary); }
+.skill-bonus.negative { color: var(--fail); }
+
+/* ── Dashboard: recent character card ──────────────────────────── */
+.dash-recent-char {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.dash-recent-char:hover { border-color: var(--primary); transform: translateX(3px); }
+
+.dash-rc-info { display: flex; flex-direction: column; gap: 3px; }
+.dash-rc-name { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 600; color: var(--text); }
+.dash-rc-sub  { font-size: 12px; color: var(--text-muted); }
+.dash-rc-arrow { color: var(--primary); font-size: 18px; flex-shrink: 0; }
+
+.dash-history { display: flex; flex-direction: column; gap: 5px; }
+
+/* ── Dice roll animation — enhanced with blur intro ─────────────── */
+/* Overrides the existing @keyframes rollIn defined above */
+@keyframes rollIn {
+  0%   { transform: scale(0.5) rotate(-18deg); opacity: 0; filter: blur(4px); }
+  50%  { transform: scale(1.12) rotate(4deg);  opacity: 1; filter: blur(0);   }
+  75%  { transform: scale(0.96) rotate(-1deg); }
+  100% { transform: scale(1)    rotate(0deg);  opacity: 1; filter: blur(0);   }
+}
+/* .roll-anim class already applied in DiceRollerScreen — no change needed */
+
+/* ── Responsive additions ────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .skills-grid { grid-template-columns: 1fr; }
+  .hp-controls { flex-wrap: wrap; }
+  .hp-input    { width: 100%; }
+  .btn-hp      { flex: 1; }
+}
