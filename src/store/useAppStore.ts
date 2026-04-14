@@ -112,14 +112,17 @@ export const useAppStore = create<AppState>((set, get) => ({
     })
   },
 
-  // ── History ───────────────────────────────────────────────────────────────
-  history: [],
+  // ── History — UC-03 RN-04 ─────────────────────────────────────────────────
+  // Hydrate from localStorage so rolls survive page refresh
+  history: storage.getHistory(),
 
   addHistory(entry) {
     set(s => {
       const next = [{ ...entry, timestamp: Date.now() }, ...s.history]
       // Enforce the 50-entry display limit — UC-03 RN-04
       if (next.length > 50) next.length = 50
+      // Persist to localStorage so history survives reloads — UC-03 RN-04
+      storage.setHistory(next)
       return { history: next }
     })
   },
