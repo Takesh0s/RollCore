@@ -1,4 +1,6 @@
 import { useAppStore } from '@/store/useAppStore'
+import { formatMod, profBonus } from '@/lib/engine'
+import { formatTimestamp } from '@/lib/dice'
 
 // Inline SVG icons — replace the emojis used in the Vanilla JS prototype (Sprint 4)
 function IconUser() {
@@ -34,7 +36,11 @@ function IconLogout() {
 }
 
 export function DashboardScreen() {
-  const { navigate, logout, user } = useAppStore()
+  const { navigate, logout, user, characters, history, selectCharacter } = useAppStore()
+
+  // Most recently created character and last roll — drive contextual UI
+  const lastChar = characters[characters.length - 1] ?? null
+  const lastRoll = history[0] ?? null
 
   return (
     <div className="device">
@@ -50,19 +56,96 @@ export function DashboardScreen() {
       </div>
 
       <div className="page-body">
+
+        {/* ── Quick access ── */}
         <h2 className="section-title">Acesso Rápido</h2>
         <div className="cards-grid">
           <div className="dash-card" onClick={() => navigate('personagens')}>
             <IconUser />
             <h3>Personagens</h3>
-            <p>Gerenciar fichas</p>
+            {/* Show character count instead of generic subtitle */}
+            <p>
+              {characters.length === 0
+                ? 'Criar primeira ficha'
+                : characters.length === 1
+                  ? '1 personagem'
+                  : `${characters.length} personagens`}
+            </p>
           </div>
           <div className="dash-card" onClick={() => navigate('dados')}>
             <IconDice />
             <h3>Dados</h3>
-            <p>Rolar dados</p>
+            {/* Show last roll result if available */}
+            <p>
+              {lastRoll
+                ? `Último: ${lastRoll.formula ?? `d${lastRoll.result.sides}`} = ${lastRoll.result.total}`
+                : 'Rolar dados'}
+            </p>
           </div>
         </div>
+
+        {/* ── Most recent character — quick-navigate to sheet ── */}
+        {lastChar && (
+          <>
+            <h2 className="section-title" style={{ marginTop: 24 }}>Personagem Recente</h2>
+            <div
+              className="dash-recent-char"
+              onClick={() => { selectCharacter(lastChar.id); navigate('ficha') }}
+            >
+              <div className="dash-rc-info">
+                <span className="dash-rc-name">{lastChar.name}</span>
+                <span className="dash-rc-sub">
+                  {lastChar.class} · {lastChar.race} · Nível {lastChar.level}
+                </span>
+                <span className="dash-rc-sub">
+                  HP {lastChar.hp}/{lastChar.max_hp ?? lastChar.hp}
+                  {' · '}CA {lastChar.ac}
+                  {' · '}Prof {formatMod(profBonus(lastChar.level))}
+                </span>
+              </div>
+              <span className="dash-rc-arrow">→</span>
+            </div>
+          </>
+        )}
+
+        {/* ── Last 5 rolls with crit/fail badges ── */}
+        {history.length > 0 && (
+          <>
+            <h2 className="section-title" style={{ marginTop: 24 }}>Últimas Rolagens</h2>
+            <div className="dash-history">
+              {history.slice(0, 5).map((entry, i) => {
+                const isCrit = entry.result.sides === 20 && entry.result.rolls[0] === 20
+                const isFail = entry.result.sides === 20 && entry.result.rolls[0] === 1
+                return (
+                  <div
+                    key={i}
+                    className={`history-entry${isCrit ? ' crit' : isFail ? ' fail' : ''}`}
+                  >
+                    <div className="h-left">
+                      <span className="h-formula">
+                        {entry.formula ?? `d${entry.result.sides}`}
+                      </span>
+                      <span className="h-time">{formatTimestamp(entry.timestamp)}</span>
+                    </div>
+                    <div className="h-right">
+                      {isCrit && <span className="badge badge-crit">CRÍTICO</span>}
+                      {isFail && <span className="badge badge-fail">FALHA</span>}
+                      <span className="h-total">{entry.result.total}</span>
+                    </div>
+                  </div>
+                )
+              })}
+              <button
+                className="btn btn-ghost"
+                style={{ width: '100%', marginTop: 6 }}
+                onClick={() => navigate('dados')}
+              >
+                Ver histórico completo →
+              </button>
+            </div>
+          </>
+        )}
+
       </div>
     </div>
   )
