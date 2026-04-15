@@ -1,13 +1,9 @@
-App/build
-App/Pods
-App/output
-App/App/public
-DerivedData
-xcuserdata
-
-# Cordova plugins for Capacitor
-capacitor-cordova-ios-plugins
-
-# Generated Config files
-App/App/capacitor.config.json
-App/App/config.xml
+.DS_Store
+/.build
+/Packages
+/*.xcodeproj
+xcuserdata/
+DerivedData/
+.swiftpm/config/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc

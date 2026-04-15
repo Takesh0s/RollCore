@@ -1,0 +1,6 @@
+{
+	"appId": "rpg.rollcore.app",
+	"appName": "rollcore",
+	"webDir": "dist",
+	"packageClassList": []
+}
