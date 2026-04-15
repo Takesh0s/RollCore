@@ -43,3 +43,7 @@ android/local.properties
 ios/App/build/
 ios/Pods/
 ios/.symlinks/
+
+# Vercel
+.vercel
+.env*.local
