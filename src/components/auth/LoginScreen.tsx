@@ -26,7 +26,7 @@ export function LoginScreen() {
     }
 
     login(email.trim(), remember)
-    showToast(`Bem-vindo, ${email.split('@')[0]}!`, 'success')
+    showToast(`Bem-vindo de volta!`, 'success')
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
