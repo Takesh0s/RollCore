@@ -761,3 +761,410 @@ select.form-input option { background: var(--card2); }
   .hp-input    { width: 100%; }
   .btn-hp      { flex: 1; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SPRINT 6 ADDITIONS
+   Profile, Username, HP Temp, Sheet Tabs, Spell Slots,
+   Race Traits, Subclass, Race Bonuses
+════════════════════════════════════════════════════════════════ */
+
+/* ── Field hint (below inputs) ──────────────────────────────── */
+.field-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  opacity: 0.75;
+}
+
+/* ── Profile screen ─────────────────────────────────────────── */
+.profile-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 0 8px;
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0c0f1a;
+  box-shadow: 0 0 24px rgba(200,151,58,0.3);
+}
+
+.profile-display-name {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--primary);
+  letter-spacing: 1px;
+}
+
+/* ── HP Tracker ─────────────────────────────────────────────── */
+.hp-tracker {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin-bottom: 6px;
+}
+
+.hp-numbers {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.hp-current {
+  font-family: 'Cinzel', serif;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+  transition: color 0.4s;
+}
+
+.hp-sep { font-size: 24px; color: var(--text-muted); }
+.hp-max { font-family: 'Cinzel', serif; font-size: 22px; color: var(--text-muted); }
+
+.hp-temp {
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: #60a5fa;
+  margin-left: 6px;
+  padding: 2px 8px;
+  background: rgba(96,165,250,0.12);
+  border: 1px solid rgba(96,165,250,0.3);
+  border-radius: 20px;
+}
+
+.hp-bar-wrap {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: visible;
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.hp-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease, background 0.4s;
+}
+
+.hp-bar-temp {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  height: 10px;
+  border-radius: 3px;
+  background: #60a5fa;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hp-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.hp-input {
+  width: 80px;
+  flex-shrink: 0;
+  text-align: center;
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  padding: 8px 10px;
+}
+
+.btn-hp { padding: 8px 12px; font-size: 10px; white-space: nowrap; }
+
+.btn-heal {
+  padding: 8px 12px;
+  background: rgba(74,222,128,0.08);
+  border: 1px solid var(--success);
+  color: var(--success);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.btn-heal:hover { background: var(--success); color: #0c0f1a; }
+
+.btn-temp {
+  padding: 8px 12px;
+  background: rgba(96,165,250,0.08);
+  border: 1px solid #60a5fa;
+  color: #60a5fa;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.btn-temp:hover { background: #60a5fa; color: #0c0f1a; }
+
+/* ── Sheet tabs ─────────────────────────────────────────────── */
+.sheet-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
+  padding: 0 16px;
+  gap: 4px;
+}
+
+.sheet-tab {
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+.sheet-tab:hover { color: var(--text); }
+.sheet-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* ── Skills grid ────────────────────────────────────────────── */
+.skills-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+}
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s;
+}
+.skill-row:hover { border-color: rgba(200,151,58,0.3); }
+
+.skill-attr { font-family: 'Cinzel', serif; font-size: 9px; color: var(--text-muted); letter-spacing: 1px; width: 26px; flex-shrink: 0; }
+.skill-name  { flex: 1; font-size: 13px; color: var(--text); }
+.skill-bonus { font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700; min-width: 28px; text-align: right; }
+.skill-bonus.positive { color: var(--primary); }
+.skill-bonus.negative { color: var(--fail); }
+
+/* ── Spell slots ────────────────────────────────────────────── */
+.spell-stats-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.spell-stat-box {
+  flex: 1;
+  text-align: center;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 8px;
+}
+
+.spell-stat-label { font-family: 'Cinzel', serif; font-size: 9px; color: var(--text-muted); letter-spacing: 1px; display: block; }
+.spell-stat-value { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 700; color: var(--primary); display: block; margin-top: 4px; }
+
+.spell-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.spell-slots-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+
+.spell-slot-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.spell-slot-label { font-family: 'Cinzel', serif; font-size: 11px; color: var(--text-muted); width: 60px; flex-shrink: 0; }
+.spell-slot-pips  { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+
+.spell-pip {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: transparent;
+  padding: 0;
+}
+.spell-pip.available { background: var(--primary); border-color: var(--primary); }
+.spell-pip.spent     { background: transparent; border-color: var(--border); opacity: 0.4; }
+.spell-pip.available:hover { opacity: 0.75; }
+.spell-pip.spent:hover     { border-color: var(--primary); opacity: 0.7; }
+
+.spell-pip.warlock-pip.available { background: #a78bfa; border-color: #a78bfa; }
+.spell-pip.warlock-pip.available:hover { opacity: 0.75; }
+
+.spell-slot-count { font-family: 'Cinzel', serif; font-size: 12px; color: var(--text-muted); min-width: 30px; text-align: right; }
+
+.warlock-slots-box {
+  background: var(--card2);
+  border: 1px solid rgba(167,139,250,0.3);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.warlock-level-label { font-size: 14px; color: var(--text-muted); }
+.warlock-level-label strong { color: #a78bfa; }
+.warlock-note { font-size: 12px; opacity: 0.7; }
+.warlock-slots-count { font-family: 'Cinzel', serif; font-size: 13px; color: var(--text-muted); margin-top: 10px; }
+
+.spell-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+/* ── Race Traits tab ────────────────────────────────────────── */
+.traits-list { display: flex; flex-direction: column; gap: 8px; }
+
+.trait-card {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  transition: border-color 0.15s;
+}
+.trait-card:hover { border-color: rgba(200,151,58,0.25); }
+
+.trait-card.trait-stat_bonus { border-left: 3px solid var(--primary); }
+.trait-card.trait-passive     { border-left: 3px solid var(--success); }
+.trait-card.trait-choice      { border-left: 3px solid #60a5fa; }
+
+.trait-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.trait-name {
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.trait-type-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.trait-stat_bonus .trait-type-badge { background: rgba(200,151,58,0.12); color: var(--primary); }
+.trait-passive     .trait-type-badge { background: rgba(74,222,128,0.12); color: var(--success); }
+.trait-choice      .trait-type-badge { background: rgba(96,165,250,0.12); color: #60a5fa; }
+
+.trait-desc { font-size: 13px; color: var(--text-muted); line-height: 1.55; }
+
+/* ── Race bonus notice (in form) ────────────────────────────── */
+.race-bonus-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(200,151,58,0.07);
+  border: 1px solid rgba(200,151,58,0.2);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.race-bonus-icon { font-size: 16px; flex-shrink: 0; }
+.race-bonus-notice strong { color: var(--primary); }
+
+/* ── Attr form race bonus label ─────────────────────────────── */
+.attr-form-race-bonus {
+  font-size: 10px;
+  color: var(--primary);
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+/* ── Dashboard additions ────────────────────────────────────── */
+.dash-recent-char {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+}
+.dash-recent-char:hover { border-color: var(--primary); transform: translateX(3px); }
+
+.dash-rc-info  { display: flex; flex-direction: column; gap: 3px; }
+.dash-rc-name  { font-family: 'Cinzel', serif; font-size: 15px; font-weight: 600; color: var(--text); }
+.dash-rc-sub   { font-size: 12px; color: var(--text-muted); }
+.dash-rc-arrow { color: var(--primary); font-size: 18px; flex-shrink: 0; }
+
+.dash-history { display: flex; flex-direction: column; gap: 5px; }
+
+/* ── Dice animation ──────────────────────────────────────────── */
+@keyframes rollIn {
+  0%   { transform: scale(0.5) rotate(-18deg); opacity: 0; filter: blur(4px); }
+  50%  { transform: scale(1.12) rotate(4deg);  opacity: 1; filter: blur(0); }
+  75%  { transform: scale(0.96) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .skills-grid { grid-template-columns: 1fr; }
+  .hp-controls { flex-wrap: wrap; }
+  .hp-input    { width: 100%; }
+  .btn-hp      { flex: 1; }
+  .spell-stats-row { flex-direction: column; }
+  .sheet-tabs  { overflow-x: auto; }
+  .sheet-tab   { padding: 10px 12px; font-size: 10px; white-space: nowrap; }
+}
