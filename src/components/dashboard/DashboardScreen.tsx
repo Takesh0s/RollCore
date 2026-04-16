@@ -2,12 +2,10 @@ import { useAppStore } from '@/store/useAppStore'
 import { formatMod, profBonus } from '@/lib/engine'
 import { formatTimestamp } from '@/lib/dice'
 
-// Inline SVG icons — replace the emojis used in the Vanilla JS prototype (Sprint 4)
 function IconUser() {
   return (
     <svg className="dash-card-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="20" cy="14" r="6" />
-      <path d="M6 34c0-7.732 6.268-14 14-14s14 6.268 14 14" />
+      <circle cx="20" cy="14" r="6" /><path d="M6 34c0-7.732 6.268-14 14-14s14 6.268 14 14" />
     </svg>
   )
 }
@@ -29,8 +27,16 @@ function IconLogout() {
   return (
     <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
       <path d="M7 3H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h3" />
-      <polyline points="13 15 17 10 13 5" />
-      <line x1="17" y1="10" x2="7" y2="10" />
+      <polyline points="13 15 17 10 13 5" /><line x1="17" y1="10" x2="7" y2="10" />
+    </svg>
+  )
+}
+
+function IconProfile() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
+      <circle cx="10" cy="7" r="3" />
+      <path d="M3 18c0-4 3.134-7 7-7s7 3 7 7" />
     </svg>
   )
 }
@@ -38,7 +44,6 @@ function IconLogout() {
 export function DashboardScreen() {
   const { navigate, logout, user, characters, history, selectCharacter } = useAppStore()
 
-  // Most recently created character and last roll — drive contextual UI
   const lastChar = characters[characters.length - 1] ?? null
   const lastRoll = history[0] ?? null
 
@@ -47,35 +52,33 @@ export function DashboardScreen() {
       <div className="topbar">
         <div className="topbar-info">
           <div className="top-title">RollCore</div>
-          <div className="top-sub">Bem-vindo, {user.email.split('@')[0]}</div>
+          <div className="top-sub">Bem-vindo, <strong style={{ color: 'var(--primary)' }}>@{user.username}</strong></div>
         </div>
-        <button className="topbar-action topbar-logout" onClick={logout} title="Sair da conta">
-          <IconLogout />
-          Sair
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="topbar-action" onClick={() => navigate('perfil')} title="Meu Perfil">
+            <IconProfile /> Perfil
+          </button>
+          <button className="topbar-action topbar-logout" onClick={logout} title="Sair da conta">
+            <IconLogout /> Sair
+          </button>
+        </div>
       </div>
 
       <div className="page-body">
-
-        {/* ── Quick access ── */}
         <h2 className="section-title">Acesso Rápido</h2>
         <div className="cards-grid">
           <div className="dash-card" onClick={() => navigate('personagens')}>
             <IconUser />
             <h3>Personagens</h3>
-            {/* Show character count instead of generic subtitle */}
             <p>
-              {characters.length === 0
-                ? 'Criar primeira ficha'
-                : characters.length === 1
-                  ? '1 personagem'
-                  : `${characters.length} personagens`}
+              {characters.length === 0 ? 'Criar primeira ficha'
+                : characters.length === 1 ? '1 personagem'
+                : `${characters.length} personagens`}
             </p>
           </div>
           <div className="dash-card" onClick={() => navigate('dados')}>
             <IconDice />
             <h3>Dados</h3>
-            {/* Show last roll result if available */}
             <p>
               {lastRoll
                 ? `Último: ${lastRoll.formula ?? `d${lastRoll.result.sides}`} = ${lastRoll.result.total}`
@@ -84,21 +87,16 @@ export function DashboardScreen() {
           </div>
         </div>
 
-        {/* ── Most recent character — quick-navigate to sheet ── */}
         {lastChar && (
           <>
             <h2 className="section-title" style={{ marginTop: 24 }}>Personagem Recente</h2>
-            <div
-              className="dash-recent-char"
-              onClick={() => { selectCharacter(lastChar.id); navigate('ficha') }}
-            >
+            <div className="dash-recent-char" onClick={() => { selectCharacter(lastChar.id); navigate('ficha') }}>
               <div className="dash-rc-info">
                 <span className="dash-rc-name">{lastChar.name}</span>
-                <span className="dash-rc-sub">
-                  {lastChar.class} · {lastChar.race} · Nível {lastChar.level}
-                </span>
+                <span className="dash-rc-sub">{lastChar.class} · {lastChar.race} · Nível {lastChar.level}</span>
                 <span className="dash-rc-sub">
                   HP {lastChar.hp}/{lastChar.max_hp ?? lastChar.hp}
+                  {lastChar.temp_hp > 0 ? ` +${lastChar.temp_hp} temp` : ''}
                   {' · '}CA {lastChar.ac}
                   {' · '}Prof {formatMod(profBonus(lastChar.level))}
                 </span>
@@ -108,7 +106,6 @@ export function DashboardScreen() {
           </>
         )}
 
-        {/* ── Last 5 rolls with crit/fail badges ── */}
         {history.length > 0 && (
           <>
             <h2 className="section-title" style={{ marginTop: 24 }}>Últimas Rolagens</h2>
@@ -117,14 +114,9 @@ export function DashboardScreen() {
                 const isCrit = entry.result.sides === 20 && entry.result.rolls[0] === 20
                 const isFail = entry.result.sides === 20 && entry.result.rolls[0] === 1
                 return (
-                  <div
-                    key={i}
-                    className={`history-entry${isCrit ? ' crit' : isFail ? ' fail' : ''}`}
-                  >
+                  <div key={i} className={`history-entry${isCrit ? ' crit' : isFail ? ' fail' : ''}`}>
                     <div className="h-left">
-                      <span className="h-formula">
-                        {entry.formula ?? `d${entry.result.sides}`}
-                      </span>
+                      <span className="h-formula">{entry.formula ?? `d${entry.result.sides}`}</span>
                       <span className="h-time">{formatTimestamp(entry.timestamp)}</span>
                     </div>
                     <div className="h-right">
@@ -135,17 +127,12 @@ export function DashboardScreen() {
                   </div>
                 )
               })}
-              <button
-                className="btn btn-ghost"
-                style={{ width: '100%', marginTop: 6 }}
-                onClick={() => navigate('dados')}
-              >
+              <button className="btn btn-ghost" style={{ width: '100%', marginTop: 6 }} onClick={() => navigate('dados')}>
                 Ver histórico completo →
               </button>
             </div>
           </>
         )}
-
       </div>
     </div>
   )
