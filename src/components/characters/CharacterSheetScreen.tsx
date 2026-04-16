@@ -19,6 +19,7 @@ export function CharacterSheetScreen() {
   const [currentHp, setCurrentHp] = useState<number>(() => char?.hp     ?? 0)
   const [tempHp,    setTempHp]    = useState<number>(() => char?.temp_hp ?? 0)
   const [hpDelta,   setHpDelta]   = useState('')
+  const [trackerFlash, setTrackerFlash] = useState<'damage'|'heal'|''>('')
   const [slots,     setSlots]     = useState<SpellSlots | null>(() => char?.spell_slots    ?? null)
   const [wSlots,    setWSlots]    = useState<WarlockSlots | null>(() => char?.warlock_slots ?? null)
 
@@ -52,6 +53,7 @@ export function CharacterSheetScreen() {
     newHp = Math.max(0, newHp - rem)
     setCurrentHp(newHp); setTempHp(newTemp); setHpDelta('')
     persist(newHp, newTemp)
+    setTrackerFlash('damage'); setTimeout(() => setTrackerFlash(''), 500)
     showToast(`${n} de dano aplicado${tempHp > 0 && newTemp < tempHp ? ' (HP temporário absorveu parte)' : ''}`)
   }
 
@@ -60,6 +62,7 @@ export function CharacterSheetScreen() {
     if (isNaN(n) || n <= 0) return
     const newHp = Math.min(maxHp, currentHp + n)
     setCurrentHp(newHp); setHpDelta(''); persist(newHp)
+    setTrackerFlash('heal'); setTimeout(() => setTrackerFlash(''), 500)
     showToast(`${n} HP recuperado`, 'success')
   }
 
@@ -131,9 +134,9 @@ export function CharacterSheetScreen() {
       {/* ── HP Tracker ── */}
       <div className="page-body" style={{ paddingBottom: 8 }}>
         <h2 className="section-title">Pontos de Vida</h2>
-        <div className="hp-tracker">
+        <div className={`hp-tracker${trackerFlash ? ' flash-' + trackerFlash : ''}`}>
           <div className="hp-numbers">
-            <span className="hp-current" style={{ color: hpColor }}>{currentHp}</span>
+            <span className={`hp-current${hpPct <= 25 ? ' critical' : ''}`} style={{ color: hpColor }}>{currentHp}</span>
             <span className="hp-sep">/</span>
             <span className="hp-max">{maxHp}</span>
             {tempHp > 0 && <span className="hp-temp">+{tempHp} temp</span>}
@@ -175,7 +178,7 @@ export function CharacterSheetScreen() {
         )}
       </div>
 
-      <div className="page-body">
+      <div className="page-body tab-content" key={tab}>
 
         {/* COMBAT TAB */}
         {tab === 'combat' && (
