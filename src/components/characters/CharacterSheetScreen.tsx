@@ -24,6 +24,7 @@ export function CharacterSheetScreen() {
 
   if (!char) { navigate('personagens'); return null }
 
+  const character = char
   const maxHp      = char.max_hp ?? char.hp
   const hpPct      = Math.max(0, Math.min(100, (currentHp / maxHp) * 100))
   const hpColor    = hpPct > 60 ? 'var(--success)' : hpPct > 30 ? '#e8a020' : 'var(--fail)'
@@ -34,8 +35,8 @@ export function CharacterSheetScreen() {
   const raceTraits = getRaceTraits(char.race)
 
   function persist(hpOv?: number, tempOv?: number, slotsOv?: SpellSlots | null, wOv?: WarlockSlots | null) {
-    updateCharacter(char.id, {
-      ...char,
+    updateCharacter(character.id, {
+      ...character,
       hp:            hpOv    ?? currentHp,
       temp_hp:       tempOv  ?? tempHp,
       spell_slots:   (slotsOv !== undefined ? slotsOv : slots) ?? undefined,
@@ -119,9 +120,9 @@ export function CharacterSheetScreen() {
       <div className="topbar">
         <button className="topbar-back" onClick={() => navigate('personagens')}>←</button>
         <div className="topbar-info">
-          <div className="top-title">{char.name}</div>
+          <div className="top-title">{character.name}</div>
           <div className="top-sub">
-            {char.class}{char.subclass ? ` · ${char.subclass}` : ''} · {char.race} · Nível {char.level}
+            {character.class}{char.subclass ? ` · ${char.subclass}` : ''} · {char.race} · Nível {char.level}
           </div>
         </div>
         <button className="topbar-action" onClick={() => navigate('editar-personagem')}>Editar</button>
