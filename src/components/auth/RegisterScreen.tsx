@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useAppStore } from '@/store/useAppStore'
+import { storage } from '@/lib/storage'
 import { DiceLogo } from '@/components/ui/DiceLogo'
 
 /** UC-01 RN-01: strong password requires ≥8 chars, 1 uppercase letter, 1 digit. */
@@ -7,7 +8,6 @@ function isStrong(p: string) {
   return p.length >= 8 && /[A-Z]/.test(p) && /[0-9]/.test(p)
 }
 
-/** Returns a score from 0–4 used to drive the password strength bar. */
 function strengthScore(p: string): number {
   let s = 0
   if (p.length >= 8)   s++
@@ -19,22 +19,46 @@ function strengthScore(p: string): number {
 
 const STRENGTH_COLORS = ['', '#e05555', '#e8a020', '#d4b830', '#4ade80']
 
+/** Validates username: 3–20 chars, letters/numbers/underscores only. */
+function isValidUsername(u: string): boolean {
+  return /^[a-zA-Z0-9_]{3,20}$/.test(u)
+}
+
 export function RegisterScreen() {
   const { register, navigate, registeredEmails, showToast } = useAppStore()
 
-  const [email,   setEmail]   = useState('')
-  const [pass,    setPass]    = useState('')
-  const [confirm, setConfirm] = useState('')
+  const [username, setUsername] = useState('')
+  const [email,    setEmail]    = useState('')
+  const [pass,     setPass]     = useState('')
+  const [confirm,  setConfirm]  = useState('')
 
-  const [emailErr,   setEmailErr]   = useState('')
-  const [passErr,    setPassErr]    = useState('')
-  const [confirmErr, setConfirmErr] = useState('')
-  const [emailValid, setEmailValid] = useState(false)
-  const [passValid,  setPassValid]  = useState(false)
+  const [usernameErr, setUsernameErr] = useState('')
+  const [emailErr,    setEmailErr]    = useState('')
+  const [passErr,     setPassErr]     = useState('')
+  const [confirmErr,  setConfirmErr]  = useState('')
+
+  const [usernameValid, setUsernameValid] = useState(false)
+  const [emailValid,    setEmailValid]    = useState(false)
+  const [passValid,     setPassValid]     = useState(false)
 
   const score = strengthScore(pass)
 
-  // E-mail uniqueness and format are validated on blur — UC-01 RAP001
+  // Username: validate uniqueness and format on blur
+  const handleUsernameBlur = useCallback(() => {
+    const v = username.trim()
+    if (!v) return
+    if (!isValidUsername(v)) {
+      setUsernameErr('3–20 caracteres. Apenas letras, números e _')
+      setUsernameValid(false)
+    } else if (storage.getUsernames().has(v.toLowerCase())) {
+      setUsernameErr('Nome de usuário já está em uso.')
+      setUsernameValid(false)
+    } else {
+      setUsernameErr(''); setUsernameValid(true)
+    }
+  }, [username])
+
+  // Email: format + uniqueness validated on blur — UC-01 RAP001
   const handleEmailBlur = useCallback(() => {
     const v = email.trim()
     if (!v) return
@@ -45,25 +69,21 @@ export function RegisterScreen() {
       setEmailErr('E-mail já cadastrado. Utilize outro e-mail ou faça login.') // MSG001
       setEmailValid(false)
     } else {
-      setEmailErr('')
-      setEmailValid(true)
+      setEmailErr(''); setEmailValid(true)
     }
   }, [email, registeredEmails])
 
-  // Password strength feedback updates on every keystroke — UC-01 RE01
+  // Password: real-time strength feedback — UC-01 E02 / MSG002
   const handlePassChange = useCallback((val: string) => {
     setPass(val)
     if (val && !isStrong(val)) {
-      setPassErr('Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.') // MSG002
+      setPassErr('Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.')
       setPassValid(false)
     } else if (val) {
-      setPassErr('')
-      setPassValid(true)
+      setPassErr(''); setPassValid(true)
     } else {
-      setPassErr('')
-      setPassValid(false)
+      setPassErr(''); setPassValid(false)
     }
-    // Re-evaluate confirmation field whenever the password changes
     if (confirm && confirm !== val) setConfirmErr('As senhas não coincidem')
     else if (confirm) setConfirmErr('')
   }, [confirm])
@@ -77,38 +97,60 @@ export function RegisterScreen() {
   function handleRegister() {
     let valid = true
 
+    const u = username.trim()
+    if (!isValidUsername(u)) {
+      setUsernameErr('3–20 caracteres. Apenas letras, números e _'); valid = false
+    } else if (storage.getUsernames().has(u.toLowerCase())) {
+      setUsernameErr('Nome de usuário já está em uso.'); valid = false
+    }
+
     const v = email.trim()
     if (!v || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
       setEmailErr('Informe um e-mail válido'); valid = false
     } else if (registeredEmails.includes(v.toLowerCase())) {
-      setEmailErr('E-mail já cadastrado. Utilize outro e-mail ou faça login.'); valid = false // MSG001
+      setEmailErr('E-mail já cadastrado. Utilize outro e-mail ou faça login.'); valid = false
     }
 
     if (!isStrong(pass)) {
-      setPassErr('Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.'); valid = false // MSG002
+      setPassErr('Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.'); valid = false
     }
-
     if (pass !== confirm) {
       setConfirmErr('As senhas não coincidem'); valid = false
     }
 
     if (!valid) return
-
-    register(email.trim())
+    register(email.trim(), username.trim())
     showToast('Conta criada com sucesso!', 'success')
   }
 
   return (
     <div className="device login-device">
       <div className="login-header">
-        <div className="logo-wrap">
-          <DiceLogo className="logo-svg" />
-        </div>
+        <div className="logo-wrap"><DiceLogo className="logo-svg" /></div>
         <h1>Criar Conta</h1>
         <p>Junte-se à aventura</p>
       </div>
 
       <div className="narrow">
+
+        {/* ── Username ── */}
+        <div className="form-group">
+          <label className="form-label">Nome de Usuário</label>
+          <input
+            className={`form-input${usernameErr ? ' error' : usernameValid ? ' valid' : ''}`}
+            type="text"
+            placeholder="ex: guerreiro_dos_reinos"
+            maxLength={20}
+            value={username}
+            onChange={e => { setUsername(e.target.value); setUsernameErr(''); setUsernameValid(false) }}
+            onBlur={handleUsernameBlur}
+            autoComplete="username"
+          />
+          <small className="field-hint">3–20 caracteres. Letras, números e _ apenas.</small>
+          {usernameErr && <small className="error-msg">{usernameErr}</small>}
+        </div>
+
+        {/* ── Email ── */}
         <div className="form-group">
           <label className="form-label">E-mail</label>
           <input
@@ -123,6 +165,7 @@ export function RegisterScreen() {
           {emailErr && <small className="error-msg">{emailErr}</small>}
         </div>
 
+        {/* ── Password ── */}
         <div className="form-group">
           <label className="form-label">Senha</label>
           <input
@@ -134,17 +177,12 @@ export function RegisterScreen() {
             autoComplete="new-password"
           />
           <div className="pass-bar">
-            <div
-              className="pass-fill"
-              style={{
-                width: `${score * 25}%`,
-                background: STRENGTH_COLORS[score] || 'transparent',
-              }}
-            />
+            <div className="pass-fill" style={{ width: `${score * 25}%`, background: STRENGTH_COLORS[score] || 'transparent' }} />
           </div>
           {passErr && <small className="error-msg">{passErr}</small>}
         </div>
 
+        {/* ── Confirm ── */}
         <div className="form-group">
           <label className="form-label">Confirmar Senha</label>
           <input
