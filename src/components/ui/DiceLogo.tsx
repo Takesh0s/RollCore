@@ -1,36 +1,39 @@
 /**
- * RollCore SVG logo — d8 (octahedron) silhouette.
- * Replaces the 🎲 emoji used in the Vanilla JS prototype (Sprint 4).
+ * RollCore logo — d20 silhouette with inner detail lines.
+ * Redesigned for v2: more geometric, more presence.
  */
 export function DiceLogo({ className = '' }: { className?: string }) {
   return (
     <svg
       className={className}
-      viewBox="0 0 64 64"
+      viewBox="0 0 80 80"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="RollCore logo"
     >
-      {/* Top diamond face */}
+      {/* Outer d20 pentagon shape — top half */}
       <polygon
-        points="32,4 58,26 32,38 6,26"
-        fill="none"
-        stroke="#C8973A"
-        strokeWidth="2"
+        points="40,4 72,26 60,62 20,62 8,26"
+        fill="rgba(212,168,67,0.06)"
+        stroke="#D4A843"
+        strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      {/* Bottom diamond face */}
+      {/* Inner geometric lines — face divisions */}
+      <line x1="40" y1="4"  x2="40" y2="62" stroke="#D4A843" strokeWidth="0.8" opacity="0.3" />
+      <line x1="8"  y1="26" x2="60" y2="62" stroke="#D4A843" strokeWidth="0.8" opacity="0.3" />
+      <line x1="72" y1="26" x2="20" y2="62" stroke="#D4A843" strokeWidth="0.8" opacity="0.3" />
+      {/* Horizontal mid-line */}
+      <line x1="8"  y1="26" x2="72" y2="26" stroke="#D4A843" strokeWidth="0.8" opacity="0.25" />
+      {/* Center glow dot */}
+      <circle cx="40" cy="35" r="4" fill="#D4A843" opacity="0.9" />
+      <circle cx="40" cy="35" r="7" fill="none" stroke="#D4A843" strokeWidth="0.8" opacity="0.3" />
+      {/* Top accent */}
       <polygon
-        points="32,38 58,26 32,60 6,26"
-        fill="rgba(200,151,58,0.12)"
-        stroke="#C8973A"
-        strokeWidth="2"
-        strokeLinejoin="round"
+        points="40,4 52,20 28,20"
+        fill="rgba(212,168,67,0.15)"
+        stroke="none"
       />
-      {/* Centre spine */}
-      <line x1="32" y1="4" x2="32" y2="60" stroke="#C8973A" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.5" />
-      {/* Result dot */}
-      <circle cx="32" cy="26" r="3.5" fill="#C8973A" />
     </svg>
   )
 }
