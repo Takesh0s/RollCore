@@ -43,7 +43,7 @@ Este repositório é um **monorepo**:
 
 ```
 RollCore/
-├── src/           Frontend React (Web + Mobile via Capacitor)
+├── src/               Frontend React (Web + Mobile via Capacitor)
 ├── backend/           API REST Spring Boot
 ├── android/           Projeto Android (Capacitor)
 ├── ios/               Projeto iOS (Capacitor)
