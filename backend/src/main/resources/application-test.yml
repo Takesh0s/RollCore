@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:rollcore_test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;NON_KEYWORDS=VALUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  flyway:
+    enabled: false
+
+jwt:
+  secret: test-secret-key-at-least-256-bits-long-for-hmac-sha256-signing-ok
+  access-token-expiration-ms: 900000
+  refresh-token-expiration-ms: 604800000
+
+rate-limit:
+  requests-per-minute: 10000
+
+cors:
+  allowed-origins: http://localhost:5173
