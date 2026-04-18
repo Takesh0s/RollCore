@@ -1,126 +1,151 @@
-# RollCore
+# 🎲 RollCore
 
-Aplicação web e mobile para **rolagem de dados e gerenciamento de personagens de RPG**, com foco em conformidade com casos de uso, arquitetura modular e experiência visual imersiva.
-
----
-
-## Sobre o Projeto
-
-O **RollCore** é uma ferramenta frontend desenvolvida para auxiliar jogadores e mestres de RPG de mesa, oferecendo:
-
-- Autenticação com validação de segurança (UC-01)
-- Ficha de personagem D&D 5e com cálculos automáticos (UC-02)
-- Rolagem de dados com suporte a fórmulas e histórico (UC-03)
-
-> **Fase 1 — Protótipo:** A persistência de dados é feita via `localStorage`. O backend Spring Boot + PostgreSQL, autenticação JWT e sessões online via WebSocket são escopo da Fase 2.
+Plataforma completa (**Web + Mobile + API**) para **rolagem de dados e gerenciamento de personagens de RPG de mesa**, com foco em conformidade com casos de uso, arquitetura modular e experiência visual imersiva.
 
 ---
 
-## Funcionalidades
+## 📌 Sobre o Projeto
 
-### Autenticação (UC-01)
-- Login com validação real contra contas cadastradas
-- Botão Entrar desabilitado até e-mail e senha preenchidos (I02 Cmd 1)
-- Proteção contra enumeração de usuários — MSG003 genérica (OWASP / RN-03)
-- Política de senha forte: mínimo 8 caracteres, 1 maiúscula, 1 número (MSG002)
-- Barra de força de senha com feedback visual progressivo
-- Validação de e-mail no evento `blur` (RAP001)
-- Detecção de e-mail duplicado no cadastro — MSG001
-- Tela de recuperação de senha (placeholder — Fase 2, NR-06)
-- Logout com limpeza de sessão
-- Proteção de rotas no frontend
+O **RollCore** é uma ferramenta para jogadores e mestres de RPG de mesa, composta por:
 
-### Sistema de Dados (UC-03)
-- Atalhos rápidos: `d4`, `d6`, `d8`, `d10`, `d12`, `d20`, `d100`
-- Suporte a fórmulas `NdX`, `NdX+M`, `NdX-M`
-- Validação de fórmula em tempo real — MSG006, botão bloqueado se inválida
-- Exibição: fórmula → `[individuais]` + modificador = total
-- Animação de rolagem (CSS keyframes)
-- Acerto Crítico d20=20 → destaque dourado + label "Crítico!" (RAP002)
-- Falha Crítica d20=1 → destaque vermelho
+- 🎨 **Frontend** Web e Mobile (React 18 + TypeScript + Capacitor)
+- ⚙️ **Backend** REST API (Spring Boot 3 + PostgreSQL 16)
 
-### Histórico (UC-03)
-- Últimas 50 rolagens (RN-04)
-- Data/hora em cada entrada — `DD/MM/AAAA HH:MM` (S02 passo 18)
-- Badges visuais de CRÍTICO e FALHA
+Casos de uso principais da Fase 1:
 
-### Personagem (UC-02)
-- Criar, visualizar, editar e excluir fichas (RF0002.1 / .4 / .5 / .6)
-- Combos SRD D&D 5e para Classe e Raça
-- Modificadores calculados em tempo real: `floor((valor–10)/2)` (RN-02)
-- Bônus de Proficiência por nível — tabela SRD (RN-03)
-- Validação de nível 1–20 com MSG004 (E01)
-- Validação de atributos 1–20 com borda vermelha (E03)
-- Exclusão com diálogo de confirmação (S02)
-- Persistência no `localStorage`
+- **UC-01** — Autenticação segura com JWT
+- **UC-02** — Gerenciamento de fichas de personagem D&D 5e
+- **UC-03** — Rolagem de dados com SecureRandom e histórico
+
+> **Fase 1 — Status atual:** Frontend: funcional com persistência local (`localStorage`).   
+> Backend REST com JWT e PostgreSQL: em desenvolvimento e integração progressiva
 
 ---
 
-## Arquitetura
+## 🌐 Deploy
+
+| Serviço | URL |
+|---|---|
+| Frontend | https://rollcore.vercel.app/ |
+| API | Em desenvolvimento (Docker + PostgreSQL) |
+
+---
+
+## 🧱 Arquitetura Geral
 
 ```
-src/
-├── main.tsx                        # Entry point
-├── App.tsx                         # Client-side router por screen
-├── index.css                       # Design tokens e estilos globais
-├── types/
-│   └── index.ts                    # Interfaces TypeScript
-├── lib/
-│   ├── engine.ts                   # Regras D&D 5e (calcMod, profBonus...)
-│   ├── dice.ts                     # Engine de rolagem
-│   └── storage.ts                  # Helpers de localStorage
-├── store/
-│   └── useAppStore.ts              # Zustand — estado global
-└── components/
-    ├── ui/
-    │   ├── Toast.tsx
-    │   ├── Modal.tsx
-    │   └── DiceLogo.tsx            # SVG logo
-    ├── auth/
-    │   ├── LoginScreen.tsx
-    │   ├── RegisterScreen.tsx
-    │   └── ForgotPasswordScreen.tsx  # Placeholder — Fase 2
-    ├── dashboard/
-    │   └── DashboardScreen.tsx
-    ├── characters/
-    │   ├── CharacterListScreen.tsx
-    │   ├── CharacterFormScreen.tsx  # Cria e edita (mode prop)
-    │   └── CharacterSheetScreen.tsx
-    └── dice/
-        └── DiceRollerScreen.tsx
+Frontend (React + Vite)   →   REST API (Spring Boot)   →   PostgreSQL 16
+      ↕ Capacitor                   ↕ JWT + BCrypt              ↕ Flyway
+  iOS / Android              Spring Security + Bucket4j       Redis (Fase 2)
+```
+
+Este repositório é um **monorepo**:
+
+```
+RollCore/
+├── src/           Frontend React (Web + Mobile via Capacitor)
+├── backend/           API REST Spring Boot
+├── android/           Projeto Android (Capacitor)
+├── ios/               Projeto iOS (Capacitor)
+├── docs/              Documentação do projeto
+├── docker-compose.yml
+└── README.md
 ```
 
 ---
 
-## Tecnologias
+## 🎨 Frontend
+
+### Tecnologias
 
 | Tecnologia | Uso |
 |---|---|
-| React 18 + TypeScript | UI e tipagem estática |
-| Vite | Build tool e dev server |
-| Zustand | Estado global |
+| React 18 + TypeScript | Interface e tipagem estática |
+| Vite 5 | Build tool e dev server |
+| Zustand 4 | Estado global |
 | Capacitor | Wrapper nativo iOS e Android |
 | CSS Variables | Design tokens e temas |
-| localStorage | Persistência de sessão e personagens (Fase 1) |
+| `localStorage` | Persistência de sessão e personagens (Fase 1) |
 
----
+### Funcionalidades
 
-## Como Executar
+#### 🔐 Autenticação (UC-01)
+- Login com validação real contra contas cadastradas
+- Botão **Entrar** desabilitado até e-mail e senha preenchidos
+- Proteção contra enumeração de usuários — MSG003 genérica (OWASP / RN-03)
+- Política de senha forte: mínimo 8 caracteres, 1 maiúscula, 1 número (MSG002)
+- Barra de força de senha com feedback visual progressivo
+- Validação de e-mail no evento `blur`
+- Detecção de e-mail duplicado no cadastro — MSG001
+- Username único com validação de formato (`/^[a-zA-Z0-9_]{3,20}$/`)
+- Tela de recuperação de senha (placeholder — Fase 2)
+- Logout com limpeza de sessão e proteção de rotas
+
+#### 🎲 Sistema de Dados (UC-03)
+- Atalhos rápidos: `d4`, `d6`, `d8`, `d10`, `d12`, `d20`, `d100`
+- Suporte a fórmulas `NdX`, `NdX+M`, `NdX-M`
+- Validação de fórmula em tempo real — MSG006, botão bloqueado se inválida
+- Exibição: fórmula → `[individuais]` + modificador `= total`
+- Animação de rolagem (CSS keyframes)
+- Acerto Crítico `d20=20` → destaque dourado + label "Crítico!"
+- Falha Crítica `d20=1` → destaque vermelho
+
+#### 📜 Histórico (UC-03)
+- Últimas 50 rolagens (RN-04)
+- Data/hora em cada entrada — `DD/MM/AAAA HH:MM`
+- Badges visuais de CRÍTICO e FALHA
+
+#### 🧙 Personagem (UC-02)
+- Criar, visualizar, editar e excluir fichas
+- Combos SRD D&D 5e para Classe e Raça
+- Subclasse condicional ao nível mínimo da classe
+- Bônus raciais aplicados automaticamente sobre os atributos base
+- Modificadores calculados em tempo real: `floor((valor–10)/2)` (RN-02)
+- Bônus de Proficiência por nível — tabela SRD (RN-03)
+- Abas: Combate, Perícias, Magias (conjuradores), Traços Raciais
+- HP temporário com absorção antes do HP regular (PHB p.198)
+- Slots de magia e Pact Magic (Warlock) com pips interativos
+- Validação de nível 1–20 e atributos com feedback visual
+- Exclusão com diálogo de confirmação
+
+### Estrutura do Frontend
+
+```
+src/
+├── main.tsx              Entry point
+├── App.tsx               Client-side router por screen
+├── index.css             Design tokens e estilos globais
+├── types/index.ts        Interfaces TypeScript de domínio
+├── lib/
+│   ├── engine.ts         Regras D&D 5e (calcMod, profBonus, slots...)
+│   ├── dice.ts           Parser de fórmulas e rolagem
+│   └── storage.ts        Helpers de localStorage
+├── store/
+│   └── useAppStore.ts    Zustand — estado global
+└── components/
+    ├── ui/               Toast · Modal · DiceLogo
+    ├── auth/             Login · Register · ForgotPassword · Profile
+    ├── dashboard/        DashboardScreen
+    ├── characters/       List · Form · Sheet
+    └── dice/             DiceRollerScreen
+```
+
+### Rodar o Frontend
 
 ```bash
-# 1. Instalar dependências
+# Instalar dependências
 npm install
 
-# 2. Iniciar servidor de desenvolvimento
+# Dev server
 npm run dev
 
-# 3. Build para produção
+# Build para produção
 npm run build
 ```
 
 > Requer Node.js 18+
 
-### Mobile (Android)
+#### Mobile (Android)
 
 ```bash
 npm run build
@@ -128,7 +153,7 @@ npx cap sync android
 npx cap open android
 ```
 
-### Mobile (iOS)
+#### Mobile (iOS)
 
 ```bash
 npm run build
@@ -138,17 +163,170 @@ npx cap open ios
 
 ---
 
-## Roadmap
+## ⚙️ Backend
 
-| Fase | Escopo |
+### Tecnologias
+
+| Camada | Tecnologia |
 |---|---|
-| **Fase 1 — atual** | Protótipo frontend, localStorage, UC-01/02/03 |
-| **Fase 2** | Backend Spring Boot + PostgreSQL, autenticação JWT, sessões online via WebSocket, recuperação de senha, app mobile publicado |
-| **Fase 3** | Suporte ao sistema Ordem Paranormal, compêndio SRD completo |
+| API | Spring Boot 3.2 · Spring MVC |
+| Segurança | Spring Security · JWT (jjwt 0.12) · BCrypt fator 12 |
+| Banco de Dados | PostgreSQL 16 · Spring Data JPA · Flyway |
+| Rate Limiting | Bucket4j — 60 req/min por IP |
+| Documentação | Springdoc / OpenAPI 3.0 · Swagger UI |
+| Testes | JUnit 5 · Mockito · JaCoCo ≥ 80% |
+| Infra | Docker · Docker Compose · GitHub Actions CI/CD |
+
+### Funcionalidades
+
+#### 🔐 Auth (UC-01)
+- `POST /auth/register` — cadastro com validação de email/username únicos (409 em conflito)
+- `POST /auth/login` — login com BCrypt; mensagem genérica anti-enumeração (OWASP)
+- `POST /auth/refresh` — renovação de access token via refresh token (UC-01 S01)
+
+#### 🧙 Characters (UC-02)
+- CRUD completo com verificação de ownership por JWT
+- AC, spell slots e warlock slots calculados server-side pelo `DndEngine`
+
+#### 🎲 Dice (UC-03)
+- `POST /dice/roll` — rolagem com `java.security.SecureRandom` (resultado inviolável)
+- `GET /dice/history` — últimas 50 rolagens persistidas
+
+### Endpoints
+
+| Método | Endpoint | Auth | Descrição |
+|---|---|---|---|
+| POST | `/auth/register` | ❌ | Cadastrar usuário |
+| POST | `/auth/login` | ❌ | Login |
+| POST | `/auth/refresh` | ❌ | Renovar token |
+| GET | `/characters` | ✅ | Listar personagens |
+| POST | `/characters` | ✅ | Criar personagem |
+| GET | `/characters/{id}` | ✅ | Buscar por ID |
+| PUT | `/characters/{id}` | ✅ | Atualizar |
+| DELETE | `/characters/{id}` | ✅ | Excluir |
+| POST | `/dice/roll` | ✅ | Rolar dados |
+| GET | `/dice/history` | ✅ | Histórico |
+
+### Estrutura do Backend
+
+```
+backend/
+├── Dockerfile
+├── pom.xml
+└── src/
+    ├── main/
+    │   ├── java/com/rollcore/
+    │   │   ├── config/
+    │   │   │   ├── SecurityConfig
+    │   │   │   └── OpenApiConfig
+    │   │   ├── controller/
+    │   │   │   ├── AuthController.java
+    │   │   │   ├── CharacterController.java
+    │   │   │   └── DiceController.java
+    │   │   ├── dto/
+    │   │   │   ├── request/
+    │   │   │   │   ├── CharacterRequest.java
+    │   │   │   │   ├── LoginRequest.java
+    │   │   │   │   ├── RefreshRequest.java
+    │   │   │   │   ├── RegisterRequest.java
+    │   │   │   │   └── RollRequest.java
+    │   │   │   └── response/
+    │   │   │   │   ├── AuthResponse.java
+    │   │   │   │   ├── CharacterResponse.java
+    │   │   │   │   └── RollResponse.java
+    │   │   ├── entity/
+    │   │   │   ├── Character.java
+    │   │   │   ├── DiceRoll.java
+    │   │   │   ├── Session.java
+    │   │   │   └── User.java
+    │   │   ├── exception/
+    │   │   │   ├── GlobalExceptionHandler.java
+    │   │   │   ├── ConflictException.java
+    │   │   │   ├── ForbiddenException.java
+    │   │   │   ├── InvalidFormulaException.java
+    │   │   │   └── NotFoundException.java
+    │   │   ├── filter/
+    │   │   │   ├── JwtAuthFilter.java
+    │   │   │   └── RateLimitFilter.java
+    │   │   ├── repository/
+    │   │   │   ├── CharacterRepository.java
+    │   │   │   ├── DiceRollRepository.java
+    │   │   │   └── UserRepository.java
+    │   │   ├── security/
+    │   │   │   ├── JwtService.java
+    │   │   │   └── UserDetailsServiceImpl.java
+    │   │   └── service/
+    │   │       ├── AuthService.java
+    │   │       ├── CharacterService.java
+    │   │       ├── DiceService.java
+    │   │       └── DndEngine.java
+    │   └── resources/
+    │   │   ├── application.yml
+    │   │   ├── application-test.yml
+    │   │   └── db/migration/
+    │   │       ├── V1__init_schema.sql
+    │   │       └── V2__fix_level_type.sql
+    │── test/java/com/rollcore/
+    │   ├── controller/
+    │   │       ├── AuthControllerTest.java
+    │   │       └── CharacterControllerTest.java
+    │   ├── engine/
+    │   │       └── DndEngineTest.java
+    │   └── service/
+    │   │       └── DiceServiceTest.java
+```
+
+### Rodar o Backend
+
+```bash
+# Subir PostgreSQL + API via Docker Compose (a partir da raiz do repositório)
+docker compose up -d
+
+# Acompanhar logs
+docker compose logs -f api
+
+# Ou rodar só o banco e subir a API com Maven
+docker compose up -d db
+cd backend && ./mvnw spring-boot:run
+```
+
+**Swagger UI:** http://localhost:8080/swagger-ui.html
+
+#### Executar testes + cobertura JaCoCo
+
+```bash
+cd backend
+./mvnw verify
+
+# Relatório HTML
+open target/site/jacoco/index.html
+```
+
+### Variáveis de Ambiente
+
+| Variável | Padrão (dev) | Descrição |
+|---|---|---|
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://db:5432/rollcore` | URL do banco |
+| `SPRING_DATASOURCE_USERNAME` | `rollcore` | Usuário do banco |
+| `SPRING_DATASOURCE_PASSWORD` | `rollcore` | Senha do banco |
+| `JWT_SECRET` | *(dev only)* | **Trocar em produção** — mín. 256 bits |
+| `PORT` | `8080` | Porta do servidor |
+| `CORS_ORIGINS` | `http://localhost:5173` | Origins permitidas (vírgula) |
+| `RATE_LIMIT_RPM` | `60` | Requisições por minuto por IP |
 
 ---
 
-## Autores
+## 🗺️ Roadmap
+
+| Fase | Escopo | Status |
+|---|---|---|
+| **Fase 1** | Frontend com `localStorage` · UC-01/02/03 completos | ✅ Concluído |
+| **Fase 2** | Backend Spring Boot + PostgreSQL · JWT · Sessões online via WebSocket · App mobile publicado | 🚧 Em desenvolvimento |
+| **Fase 3** | Suporte ao sistema Ordem Paranormal · Compêndio SRD completo · Parser de PDF de regras | 📋 Planejado |
+
+---
+
+## 👥 Autores
 
 Projeto desenvolvido pelo **Grupo 9**:
 
