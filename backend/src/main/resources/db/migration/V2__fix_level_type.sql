@@ -1,0 +1,2 @@
+ALTER TABLE characters
+ALTER COLUMN level TYPE INTEGER;
