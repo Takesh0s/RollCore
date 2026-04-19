@@ -2,14 +2,6 @@ import { useAppStore } from '@/store/useAppStore'
 import { formatMod, profBonus } from '@/lib/engine'
 import { formatTimestamp } from '@/lib/dice'
 
-function IconUser() {
-  return (
-    <svg className="dash-card-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="20" cy="14" r="6" /><path d="M6 34c0-7.732 6.268-14 14-14s14 6.268 14 14" />
-    </svg>
-  )
-}
-
 function IconDice() {
   return (
     <svg className="dash-card-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -32,11 +24,39 @@ function IconLogout() {
   )
 }
 
-function IconProfile() {
+/**
+ * Mini-profile button in the topbar.
+ * Shows the avatar (photo or initial) and navigates to the profile screen.
+ */
+function MiniProfile() {
+  const { navigate, user } = useAppStore()
+
   return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ width: 16, height: 16 }}>
-      <circle cx="10" cy="7" r="3" />
-      <path d="M3 18c0-4 3.134-7 7-7s7 3 7 7" />
+    <button
+      className="topbar-mini-profile"
+      onClick={() => navigate('perfil')}
+      title="Meu Perfil"
+    >
+      {user.avatar_url ? (
+        <img
+          src={user.avatar_url}
+          alt={user.username}
+          className="mini-avatar-img"
+        />
+      ) : (
+        <div className="mini-avatar-initials">
+          {user.username.charAt(0).toUpperCase()}
+        </div>
+      )}
+      <span className="mini-avatar-username">@{user.username}</span>
+    </button>
+  )
+}
+
+function IconChar() {
+  return (
+    <svg className="dash-card-icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="20" cy="14" r="6" /><path d="M6 34c0-7.732 6.268-14 14-14s14 6.268 14 14" />
     </svg>
   )
 }
@@ -54,10 +74,9 @@ export function DashboardScreen() {
           <div className="top-title">RollCore</div>
           <div className="top-sub">Bem-vindo, <strong style={{ color: 'var(--primary)' }}>@{user.username}</strong></div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="topbar-action" onClick={() => navigate('perfil')} title="Meu Perfil">
-            <IconProfile /> Perfil
-          </button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {/* Mini-profile replaces the old "Perfil" text button */}
+          <MiniProfile />
           <button className="topbar-action topbar-logout" onClick={logout} title="Sair da conta">
             <IconLogout /> Sair
           </button>
@@ -68,7 +87,7 @@ export function DashboardScreen() {
         <h2 className="section-title">Acesso Rápido</h2>
         <div className="cards-grid">
           <div className="dash-card" onClick={() => navigate('personagens')}>
-            <IconUser />
+            <IconChar />
             <h3>Personagens</h3>
             <p>
               {characters.length === 0 ? 'Criar primeira ficha'
@@ -91,6 +110,14 @@ export function DashboardScreen() {
           <>
             <h2 className="section-title" style={{ marginTop: 24 }}>Personagem Recente</h2>
             <div className="dash-recent-char" onClick={() => { selectCharacter(lastChar.id); navigate('ficha') }}>
+              {/* Character portrait thumbnail if available */}
+              {lastChar.avatar_url && (
+                <img
+                  src={lastChar.avatar_url}
+                  alt={lastChar.name}
+                  className="dash-rc-portrait"
+                />
+              )}
               <div className="dash-rc-info">
                 <span className="dash-rc-name">{lastChar.name}</span>
                 <span className="dash-rc-sub">{lastChar.class} · {lastChar.race} · Nível {lastChar.level}</span>
