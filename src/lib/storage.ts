@@ -1,21 +1,27 @@
 import type { Character, User, HistoryEntry } from '@/types'
 
-/** localStorage key constants — centralised to avoid typos across the app. */
+/**
+ * localStorage helpers — Fase 1 fallback and local-only data.
+ *
+ * After backend integration, this module is responsible ONLY for:
+ *  - User session info (restored on page reload while token is valid)
+ *  - Local roll history cache (replaced by GET /dice/history on mount)
+ *  - Username registry (replaced by 409 responses from POST /auth/register)
+ *
+ * Character data is now fetched from and written to the API.
+ * The character helpers are kept for the offline / no-token fallback only.
+ */
+
 const KEYS = {
-  user:    'rpg_user',
-  chars:   'rpg_characters',
-  history: 'rpg_history',
-  usernames: 'rpg_usernames', // set of registered usernames for uniqueness checks
+  user:      'rpg_user',
+  chars:     'rpg_characters',   // local cache — synced from API on login
+  history:   'rpg_history',      // local cache — synced from GET /dice/history
+  usernames: 'rpg_usernames',    // superseded by backend 409; kept for offline guard
 } as const
 
-/**
- * Thin wrapper around localStorage that handles JSON serialisation and
- * parse errors, returning safe defaults instead of throwing.
- *
- * In the production backend these operations will be replaced by API calls
- * to the Spring Boot REST endpoints (UC-01, UC-02, UC-03).
- */
 export const storage = {
+  // ── User session ───────────────────────────────────────────────────────────
+
   getUser(): User | null {
     try {
       const raw = localStorage.getItem(KEYS.user)
@@ -31,6 +37,8 @@ export const storage = {
     localStorage.removeItem(KEYS.user)
   },
 
+  // ── Character cache ────────────────────────────────────────────────────────
+
   getCharacters(): Character[] {
     try {
       const raw = localStorage.getItem(KEYS.chars)
@@ -42,7 +50,8 @@ export const storage = {
     localStorage.setItem(KEYS.chars, JSON.stringify(chars))
   },
 
-  /** Retrieves persisted dice roll history — UC-03 RN-04. */
+  // ── Roll history cache ─────────────────────────────────────────────────────
+
   getHistory(): HistoryEntry[] {
     try {
       const raw = localStorage.getItem(KEYS.history)
@@ -50,12 +59,12 @@ export const storage = {
     } catch { return [] }
   },
 
-  /** Persists dice roll history — UC-03 RN-04 (últimas 50 rolagens). */
   setHistory(entries: HistoryEntry[]): void {
     localStorage.setItem(KEYS.history, JSON.stringify(entries))
   },
 
-  /** Returns the set of all registered usernames (lowercase) for uniqueness validation. */
+  // ── Username uniqueness guard (offline) ───────────────────────────────────
+
   getUsernames(): Set<string> {
     try {
       const raw = localStorage.getItem(KEYS.usernames)
@@ -63,14 +72,12 @@ export const storage = {
     } catch { return new Set(['testuser']) }
   },
 
-  /** Registers a new username into the persisted set. */
   addUsername(username: string): void {
     const set = storage.getUsernames()
     set.add(username.toLowerCase())
     localStorage.setItem(KEYS.usernames, JSON.stringify([...set]))
   },
 
-  /** Removes a username from the set (used on profile username change). */
   removeUsername(username: string): void {
     const set = storage.getUsernames()
     set.delete(username.toLowerCase())
