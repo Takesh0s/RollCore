@@ -1,6 +1,7 @@
 package com.rollcore.controller;
 
 import com.rollcore.dto.request.RollRequest;
+import com.rollcore.dto.request.SaveRollRequest;
 import com.rollcore.dto.response.RollResponse;
 import com.rollcore.service.DiceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,6 +43,16 @@ public class DiceController {
             @Valid @RequestBody RollRequest request,
             @AuthenticationPrincipal UUID userId) {
         return diceService.roll(userId, request);
+    }
+
+
+    @Operation(summary = "Persistir resultado já calculado pelo cliente — sem rerolar")
+    @PostMapping("/save")
+    @ResponseStatus(HttpStatus.CREATED)
+    public RollResponse save(
+            @Valid @RequestBody SaveRollRequest request,
+            @AuthenticationPrincipal UUID userId) {
+        return diceService.save(userId, request);
     }
 
     @Operation(summary = "Histórico das últimas 50 rolagens — UC-03 S02 / RN-04")
