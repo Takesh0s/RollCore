@@ -315,6 +315,14 @@ select.form-input option { background: var(--card-raised); }
 
 .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
 
+/* Two-column form row (used in CharacterFormScreen) */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 14px;
+}
+.form-col { display: flex; flex-direction: column; }
+
 /* Password strength bar */
 .pass-bar  { height: 3px; border-radius: 2px; margin-top: 6px; background: var(--card-border); overflow: hidden; }
 .pass-fill { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
@@ -670,7 +678,8 @@ select.form-input option { background: var(--card-raised); }
   border-radius: 20px;
 }
 
-.hp-bar-wrap {
+.hp-bar-wrap,
+.hp-bar-bg {
   height: 8px;
   border-radius: 4px;
   background: rgba(255,255,255,0.05);
@@ -1229,24 +1238,33 @@ select.form-input option { background: var(--card-raised); }
 
 @media (max-width: 520px) {
   .app-shell {
-    padding: 0;
+    padding: 20px 16px 40px;
     max-width: 100%;
   }
 
   .device {
-    border-radius: 0;
-    box-shadow: none;
-    min-height: 100vh;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-deep);
+    min-height: auto;
   }
 
   .login-device {
-    max-width: 100%;
-    border-radius: 0;
-    min-height: 100vh;
-    padding: 64px 28px 44px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    max-width: 400px;
+    min-height: auto;
+    border-radius: var(--radius-xl);
+    padding: 48px 32px 40px;
+    display: block;
+    margin: auto;
+  }
+
+  .logo-svg {
+    width: 64px;
+    height: 64px;
+  }
+
+  .login-header h1 {
+    font-size: 22px;
+    letter-spacing: 2px;
   }
 }
 
@@ -1465,4 +1483,186 @@ select.form-input option { background: var(--card-raised); }
     animation: none;
     transition: none;
   }
+}
+
+/* ── AvatarUpload component ───────────────────────────────────────── */
+
+.avatar-upload-wrap {
+  position: relative;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+/* Photo variant */
+.avatar-img {
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 2px solid var(--border-gold);
+}
+
+/* Initials fallback — reused on profile and character form */
+.avatar-initials {
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  color: #080B14;
+  box-shadow: 0 0 24px rgba(212,168,67,0.3), 0 0 0 2px rgba(212,168,67,0.15);
+}
+
+/* Camera overlay shown on hover */
+.avatar-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(8,11,20,0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  opacity: 0;
+  transition: opacity 0.18s;
+  pointer-events: none;
+}
+
+.avatar-upload-wrap:hover .avatar-overlay { opacity: 1; }
+
+/* ── Profile screen — updated avatar wrap reuses existing wrap class ── */
+/* .profile-avatar-wrap already exists — we only add the display-name hint spacing */
+.profile-avatar-wrap .field-hint {
+  text-align: center;
+  display: block;
+}
+
+/* ── Dashboard topbar mini-profile ──────────────────────────────── */
+
+.topbar-mini-profile {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 4px 10px 4px 4px;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.5px;
+  max-width: 130px;
+  overflow: hidden;
+}
+
+.topbar-mini-profile:hover {
+  border-color: var(--border-gold);
+  background: var(--gold-subtle);
+  color: var(--gold);
+}
+
+.mini-avatar-img {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--border-gold);
+}
+
+.mini-avatar-initials {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  font-weight: 900;
+  color: #080B14;
+  flex-shrink: 0;
+}
+
+.mini-avatar-username {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Character form — avatar section ────────────────────────────── */
+
+.char-form-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 0 8px;
+}
+
+/* ── Character sheet — portrait in HP tracker ───────────────────── */
+
+.sheet-portrait {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-gold);
+  flex-shrink: 0;
+  margin-right: 4px;
+  box-shadow: 0 0 14px rgba(212,168,67,0.2);
+}
+
+/* HP header: row that contains portrait + numbers */
+.hp-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+/* ── Dashboard recent-char portrait thumbnail ───────────────────── */
+
+.dash-rc-portrait {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border-gold);
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+/* ── HP/CA auto-calc button ─────────────────────────────────────── */
+
+/* The button uses .btn.btn-ghost — just tighten the layout for inline use */
+.section-title + .btn-ghost {
+  align-self: center;
+  white-space: nowrap;
+}
+
+/* ── Loading state on buttons ───────────────────────────────────── */
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Offline / API error toast distinction ──────────────────────── */
+
+/* Already handled by .toast-error — no new class needed */
+
+/* ── Responsive: mini-profile collapses to avatar only below 380px ─ */
+
+@media (max-width: 380px) {
+  .mini-avatar-username { display: none; }
+  .topbar-mini-profile  { padding: 4px; border-radius: 50%; }
 }
