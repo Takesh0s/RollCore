@@ -19,13 +19,12 @@ function strengthScore(p: string): number {
 
 const STRENGTH_COLORS = ['', '#e05555', '#e8a020', '#d4b830', '#4ade80']
 
-/** Validates username: 3–20 chars, letters/numbers/underscores only. */
 function isValidUsername(u: string): boolean {
   return /^[a-zA-Z0-9_]{3,20}$/.test(u)
 }
 
 export function RegisterScreen() {
-  const { register, navigate, registeredEmails, showToast } = useAppStore()
+  const { register, navigate, registeredEmails } = useAppStore()
 
   const [username, setUsername] = useState('')
   const [email,    setEmail]    = useState('')
@@ -40,10 +39,10 @@ export function RegisterScreen() {
   const [usernameValid, setUsernameValid] = useState(false)
   const [emailValid,    setEmailValid]    = useState(false)
   const [passValid,     setPassValid]     = useState(false)
+  const [loading,       setLoading]       = useState(false)
 
   const score = strengthScore(pass)
 
-  // Username: validate uniqueness and format on blur
   const handleUsernameBlur = useCallback(() => {
     const v = username.trim()
     if (!v) return
@@ -58,26 +57,23 @@ export function RegisterScreen() {
     }
   }, [username])
 
-  // Email: format + uniqueness validated on blur — UC-01 RAP001
   const handleEmailBlur = useCallback(() => {
     const v = email.trim()
     if (!v) return
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-      setEmailErr('Informe um e-mail válido')
-      setEmailValid(false)
+      setEmailErr('Informe um e-mail válido'); setEmailValid(false)
     } else if (registeredEmails.includes(v.toLowerCase())) {
-      setEmailErr('E-mail já cadastrado. Utilize outro e-mail ou faça login.') // MSG001
+      setEmailErr('E-mail já cadastrado. Utilize outro e-mail ou faça login.')  // MSG001 — UC-01 A01
       setEmailValid(false)
     } else {
       setEmailErr(''); setEmailValid(true)
     }
   }, [email, registeredEmails])
 
-  // Password: real-time strength feedback — UC-01 E02 / MSG002
   const handlePassChange = useCallback((val: string) => {
     setPass(val)
     if (val && !isStrong(val)) {
-      setPassErr('Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.')
+      setPassErr('Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.')  // MSG002
       setPassValid(false)
     } else if (val) {
       setPassErr(''); setPassValid(true)
@@ -94,7 +90,7 @@ export function RegisterScreen() {
     else setConfirmErr('')
   }, [pass])
 
-  function handleRegister() {
+  async function handleRegister() {
     let valid = true
 
     const u = username.trim()
@@ -119,8 +115,22 @@ export function RegisterScreen() {
     }
 
     if (!valid) return
-    register(email.trim(), username.trim())
-    showToast('Conta criada com sucesso!', 'success')
+
+    setLoading(true)
+    try {
+      await register(email.trim(), username.trim(), pass)
+      // navigation handled inside store.register()
+    } catch (err: any) {
+      // Backend 409 for email/username conflict — override local validation message
+      const detail = err.response?.data?.detail ?? ''
+      if (detail.toLowerCase().includes('e-mail')) {
+        setEmailErr(detail)
+      } else if (detail.toLowerCase().includes('username')) {
+        setUsernameErr(detail)
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -196,8 +206,8 @@ export function RegisterScreen() {
           {confirmErr && <small className="error-msg">{confirmErr}</small>}
         </div>
 
-        <button className="btn btn-primary" onClick={handleRegister}>
-          Criar Conta
+        <button className="btn btn-primary" onClick={handleRegister} disabled={loading}>
+          {loading ? '…' : 'Criar Conta'}
         </button>
 
         <button className="link-btn" onClick={() => navigate('login')}>
