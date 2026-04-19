@@ -1,25 +1,50 @@
 interface ModalProps {
+  open: boolean
   title: string
-  body: string
+  /** Accepts both `message` (CharacterFormScreen) and `body` (legacy) */
+  message?: string
+  body?: string
   onConfirm: () => void
   onCancel: () => void
   confirmLabel?: string
+  cancelLabel?: string
+  danger?: boolean
 }
 
 /**
  * Generic confirmation modal.
- * Clicking the overlay (outside the card) triggers onCancel,
- * matching standard UX expectations.
+ * Rendered only when `open` is true.
+ * Clicking the overlay (outside the card) triggers onCancel.
  */
-export function Modal({ title, body, onConfirm, onCancel, confirmLabel = 'Confirmar' }: ModalProps) {
+export function Modal({
+  open,
+  title,
+  message,
+  body,
+  onConfirm,
+  onCancel,
+  confirmLabel = 'Confirmar',
+  cancelLabel  = 'Cancelar',
+  danger       = false,
+}: ModalProps) {
+  if (!open) return null
+
+  const text = message ?? body ?? ''
+
   return (
     <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) onCancel() }}>
       <div className="modal">
         <p className="modal-title">{title}</p>
-        <p className="modal-body">{body}</p>
-        <div className="form-actions form-actions-end">
-          <button className="btn btn-outline btn-auto" onClick={onCancel}>Cancelar</button>
-          <button className="btn btn-danger btn-auto" onClick={onConfirm}>{confirmLabel}</button>
+        <p className="modal-body">{text}</p>
+        <div className="form-actions" style={{ justifyContent: 'flex-end' }}>
+          <button className="btn btn-outline btn-auto" onClick={onCancel}>{cancelLabel}</button>
+          <button
+            className={`btn btn-auto ${danger ? 'btn-danger' : 'btn-primary'}`}
+            style={{ marginTop: 0 }}
+            onClick={onConfirm}
+          >
+            {confirmLabel}
+          </button>
         </div>
       </div>
     </div>
