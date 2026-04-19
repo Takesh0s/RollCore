@@ -59,6 +59,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // ── CORS preflight (VERY IMPORTANT) ─────────────────────
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // ── Public endpoints ──────────────────────────────────────
                 .requestMatchers(HttpMethod.POST,
                         "/auth/register", "/auth/login", "/auth/refresh").permitAll()
