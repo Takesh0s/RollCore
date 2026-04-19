@@ -23,16 +23,18 @@ export interface Character {
   id:         number
   name:       string
   class:      string
-  subclass:   string   // chosen subclass (empty string until required level)
+  subclass:   string
   race:       string
   level:      number
-  hp:         number   // current HP — tracked live during combat
-  max_hp:     number   // maximum HP — set on creation/edit
-  temp_hp:    number   // temporary HP — absorbed before regular HP (PHB p.198)
+  hp:         number
+  max_hp:     number
+  temp_hp:    number
   ac:         number
   attributes: Attributes
-  spell_slots?:   SpellSlots    // standard spell slot usage (full/half casters)
-  warlock_slots?: WarlockSlots  // pact magic usage (warlock only — PHB p.107)
+  spell_slots?:   SpellSlots
+  warlock_slots?: WarlockSlots
+  /** Optional character portrait — base64 data URL or remote URL. */
+  avatar_url?: string
 }
 
 /** Mirrors the `dice_rolls` table — UC-03 / Doc. de Visão §9.2 */
@@ -58,6 +60,8 @@ export interface User {
   email:         string
   username:      string
   keepConnected: boolean
+  /** Optional profile photo — base64 data URL stored locally (Fase 1). */
+  avatar_url?:   string
 }
 
 // ─── Navigation ───────────────────────────────────────────────────────────────
@@ -72,3 +76,42 @@ export type Screen =
 
 export type CharacterFormData = Omit<Character, 'id'>
 export interface FormErrors { [key: string]: string }
+
+// ─── API Types ────────────────────────────────────────────────────────────────
+
+/** Shape returned by POST /auth/register and POST /auth/login */
+export interface AuthTokens {
+  accessToken:  string
+  refreshToken: string
+  userId:       string
+  email:        string
+  username:     string
+}
+
+/** Shape returned by GET /characters and POST /characters */
+export interface CharacterApiResponse {
+  id:           string
+  name:         string
+  characterClass: string
+  subclass:     string
+  race:         string
+  level:        number
+  attributes:   Attributes
+  hp:           number
+  maxHp:        number
+  tempHp:       number
+  ac:           number
+  spellSlots:   SpellSlots | null
+  warlockSlots: WarlockSlots | null
+  avatar_url?:  string
+}
+
+/** Shape returned by POST /dice/roll */
+export interface DiceRollApiResponse {
+  id:       string
+  formula:  string
+  rolls:    number[]
+  mod:      number
+  total:    number
+  rolledAt: string
+}
