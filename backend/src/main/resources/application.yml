@@ -63,7 +63,7 @@ rate-limit:
 
 # ── CORS ────────────────────────────────────────────────────────────────────
 cors:
-  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,https://rollcore.vercel.app}
+  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000,http://localhost:4173,https://rollcore.vercel.app}
 
 # ── SpringDoc / Swagger UI (RNF-06) ─────────────────────────────────────────
 springdoc:
