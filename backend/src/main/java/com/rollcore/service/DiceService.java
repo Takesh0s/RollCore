@@ -1,6 +1,7 @@
 package com.rollcore.service;
 
 import com.rollcore.dto.request.RollRequest;
+import com.rollcore.dto.request.SaveRollRequest;
 import com.rollcore.dto.response.RollResponse;
 import com.rollcore.entity.DiceRoll;
 import com.rollcore.entity.User;
@@ -92,6 +93,40 @@ public class DiceService {
 
         return new RollResponse(entity.getId(), formula, rolls, parsed.mod(), total,
                 entity.getRolledAt());
+    }
+
+
+    // ── Save (client-computed result) ─────────────────────────────────────────
+
+    /**
+     * Persists a roll result that was already computed client-side.
+     * Does NOT re-roll — trusts the values sent by the frontend.
+     * This keeps the history consistent across devices with what the player saw.
+     *
+     * Formula is still validated so garbage data can't be stored.
+     */
+    @Transactional
+    public RollResponse save(UUID userId, SaveRollRequest request) {
+        // Validate formula format (but don't re-roll)
+        String formula = request.formula().trim();
+        if (!FORMULA_PATTERN.matcher(formula).matches()) {
+            throw new InvalidFormulaException(formula);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado."));
+
+        DiceRoll entity = DiceRoll.builder()
+                .user(user)
+                .formula(formula)
+                .individualResults(request.rolls())
+                .total(request.total())
+                .build();
+
+        diceRollRepository.save(entity);
+
+        return new RollResponse(entity.getId(), formula, request.rolls(),
+                request.mod(), request.total(), entity.getRolledAt());
     }
 
     // ── History ───────────────────────────────────────────────────────────────
