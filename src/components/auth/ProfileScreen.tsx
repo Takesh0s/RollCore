@@ -1,24 +1,27 @@
 import { useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { storage } from '@/lib/storage'
+import { AvatarUpload } from '@/components/ui/AvatarUpload'
 
-/** Validates username: 3–20 chars, letters/numbers/underscores only. */
 function isValidUsername(u: string): boolean {
   return /^[a-zA-Z0-9_]{3,20}$/.test(u)
 }
 
 /**
- * Profile / Settings screen — allows the authenticated user to update
- * their display username. Accessible from the dashboard topbar.
+ * Profile screen — username editing and avatar upload.
+ * Accessible from the dashboard topbar mini-profile.
+ * Avatar is stored as base64 locally in Fase 1; backend endpoint in Fase 2.
  */
 export function ProfileScreen() {
   const { navigate, user, updateProfile, showToast } = useAppStore()
 
   const [username,    setUsername]    = useState(user.username)
   const [usernameErr, setUsernameErr] = useState('')
+  const [avatarUrl,   setAvatarUrl]   = useState<string | undefined>(user.avatar_url)
   const [saved,       setSaved]       = useState(false)
+  const [loading,     setLoading]     = useState(false)
 
-  function handleSave() {
+  async function handleSave() {
     const trimmed = username.trim()
 
     if (!isValidUsername(trimmed)) {
@@ -26,7 +29,6 @@ export function ProfileScreen() {
       return
     }
 
-    // Allow keeping the same username; only block if another user owns it
     if (trimmed.toLowerCase() !== user.username.toLowerCase()) {
       if (storage.getUsernames().has(trimmed.toLowerCase())) {
         setUsernameErr('Nome de usuário já está em uso.')
@@ -35,10 +37,18 @@ export function ProfileScreen() {
     }
 
     setUsernameErr('')
-    updateProfile({ username: trimmed })
-    setSaved(true)
-    showToast('Perfil atualizado!', 'success')
-    setTimeout(() => setSaved(false), 2000)
+    setLoading(true)
+
+    try {
+      await updateProfile({ username: trimmed, avatar_url: avatarUrl })
+      setSaved(true)
+      showToast('Perfil atualizado!', 'success')
+      setTimeout(() => setSaved(false), 2000)
+    } catch {
+      showToast('Erro ao salvar perfil.', 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -53,15 +63,21 @@ export function ProfileScreen() {
 
       <div className="page-body">
 
-        {/* ── Avatar placeholder ── */}
+        {/* ── Avatar ── */}
         <div className="profile-avatar-wrap">
-          <div className="profile-avatar">
-            {user.username.charAt(0).toUpperCase()}
-          </div>
+          <AvatarUpload
+            value={avatarUrl}
+            initials={user.username.charAt(0)}
+            onChange={setAvatarUrl}
+            size={80}
+          />
           <span className="profile-display-name">@{user.username}</span>
+          <small className="field-hint" style={{ marginTop: 4 }}>
+            Toque na foto para alterar · Máx. 2 MB
+          </small>
         </div>
 
-        {/* ── Edit username ── */}
+        {/* ── Username ── */}
         <h2 className="section-title" style={{ marginTop: 28 }}>Informações</h2>
         <div className="form-group">
           <label className="form-label">Nome de Usuário</label>
@@ -78,7 +94,6 @@ export function ProfileScreen() {
 
         <div className="form-group">
           <label className="form-label">E-mail</label>
-          {/* Email is read-only in Phase 1 — change requires backend verification */}
           <input
             className="form-input"
             type="email"
@@ -97,8 +112,9 @@ export function ProfileScreen() {
             className={`btn btn-primary btn-auto${saved ? ' btn-saved' : ''}`}
             style={{ marginTop: 0 }}
             onClick={handleSave}
+            disabled={loading}
           >
-            {saved ? '✓ Salvo' : 'Salvar Alterações'}
+            {loading ? '…' : saved ? '✓ Salvo' : 'Salvar Alterações'}
           </button>
         </div>
 
