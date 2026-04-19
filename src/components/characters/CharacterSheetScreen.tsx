@@ -11,21 +11,23 @@ import type { SpellSlots, WarlockSlots } from '@/types'
 
 type SheetTab = 'combat' | 'skills' | 'spells' | 'traits'
 
+const SPELL_LABELS = ['1°','2°','3°','4°','5°','6°','7°','8°','9°']
+
 export function CharacterSheetScreen() {
   const { navigate, updateCharacter, showToast } = useAppStore()
   const char = useSelectedCharacter()
 
-  const [tab,       setTab]       = useState<SheetTab>('combat')
-  const [currentHp, setCurrentHp] = useState<number>(() => char?.hp     ?? 0)
-  const [tempHp,    setTempHp]    = useState<number>(() => char?.temp_hp ?? 0)
-  const [hpDelta,   setHpDelta]   = useState('')
+  const [tab,          setTab]          = useState<SheetTab>('combat')
+  const [currentHp,    setCurrentHp]    = useState<number>(() => char?.hp     ?? 0)
+  const [tempHp,       setTempHp]       = useState<number>(() => char?.temp_hp ?? 0)
+  const [hpDelta,      setHpDelta]      = useState('')
   const [trackerFlash, setTrackerFlash] = useState<'damage'|'heal'|''>('')
-  const [slots,     setSlots]     = useState<SpellSlots | null>(() => char?.spell_slots    ?? null)
-  const [wSlots,    setWSlots]    = useState<WarlockSlots | null>(() => char?.warlock_slots ?? null)
+  const [slots,        setSlots]        = useState<SpellSlots  | null>(() => char?.spell_slots    ?? null)
+  const [wSlots,       setWSlots]       = useState<WarlockSlots| null>(() => char?.warlock_slots  ?? null)
 
   if (!char) { navigate('personagens'); return null }
 
-  const character = char
+  const character  = char
   const maxHp      = char.max_hp ?? char.hp
   const hpPct      = Math.max(0, Math.min(100, (currentHp / maxHp) * 100))
   const hpColor    = hpPct > 60 ? 'var(--success)' : hpPct > 30 ? '#e8a020' : 'var(--fail)'
@@ -69,7 +71,7 @@ export function CharacterSheetScreen() {
   function addTempHp() {
     const n = parseInt(hpDelta, 10)
     if (isNaN(n) || n <= 0) return
-    const newTemp = Math.max(tempHp, n) // temp HP doesn't stack — take higher (PHB p.198)
+    const newTemp = Math.max(tempHp, n)   // temp HP doesn't stack — take higher (PHB p.198)
     setTempHp(newTemp); setHpDelta(''); persist(undefined, newTemp)
     showToast(`HP temporário: ${newTemp}`, 'success')
   }
@@ -98,64 +100,78 @@ export function CharacterSheetScreen() {
 
   function restoreAllSlots() {
     if (!maxSlots) return
-    setSlots({ ...maxSlots }); persist(undefined, undefined, { ...maxSlots })
-    showToast('Espaços de magia recuperados (descanso longo)', 'success')
+    const next = { ...maxSlots }
+    setSlots(next); persist(undefined, undefined, next)
+    showToast('Espaços recuperados (Descanso Longo)', 'success')
   }
 
   function spendWarlockSlot() {
     if (!wSlots || wSlots.used >= wSlots.total) return
     const next = { ...wSlots, used: wSlots.used + 1 }
     setWSlots(next); persist(undefined, undefined, undefined, next)
-    showToast(`Espaço de pacto (${wSlots.level}°) gasto`)
+    showToast('Espaço de Pacto gasto')
   }
 
   function restoreWarlockSlots() {
     if (!wSlots) return
     const next = { ...wSlots, used: 0 }
     setWSlots(next); persist(undefined, undefined, undefined, next)
-    showToast('Espaços de pacto recuperados', 'success')
+    showToast('Espaços de Pacto recuperados (Descanso Curto)', 'success')
   }
-
-  const SPELL_LABELS = ['1°','2°','3°','4°','5°','6°','7°','8°','9°']
 
   return (
     <div className="device">
+      {/* ── Topbar ── */}
       <div className="topbar">
         <button className="topbar-back" onClick={() => navigate('personagens')}>←</button>
         <div className="topbar-info">
-          <div className="top-title">{character.name}</div>
+          <div className="top-title">{char.name}</div>
           <div className="top-sub">
-            {character.class}{char.subclass ? ` · ${char.subclass}` : ''} · {char.race} · Nível {char.level}
+            {char.class}{char.subclass ? ` · ${char.subclass}` : ''} · {char.race} · Nível {char.level}
           </div>
         </div>
-        <button className="topbar-action" onClick={() => navigate('editar-personagem')}>Editar</button>
+        <button className="topbar-action" onClick={() => navigate('editar-personagem')} title="Editar">
+          ✎
+        </button>
       </div>
 
-      {/* ── HP Tracker ── */}
-      <div className="page-body" style={{ paddingBottom: 8 }}>
-        <h2 className="section-title">Pontos de Vida</h2>
-        <div className={`hp-tracker${trackerFlash ? ' flash-' + trackerFlash : ''}`}>
+      {/* ── HP tracker ── */}
+      <div className={`hp-tracker${trackerFlash ? ` flash-${trackerFlash}` : ''}`}>
+        <div className="hp-header">
+
+          {/* Character portrait — shown when available */}
+          {char.avatar_url && (
+            <img
+              src={char.avatar_url}
+              alt={char.name}
+              className="sheet-portrait"
+            />
+          )}
+
           <div className="hp-numbers">
-            <span className={`hp-current${hpPct <= 25 ? ' critical' : ''}`} style={{ color: hpColor }}>{currentHp}</span>
+            <span className="hp-current" style={{ color: hpColor }}>{currentHp}</span>
             <span className="hp-sep">/</span>
             <span className="hp-max">{maxHp}</span>
             {tempHp > 0 && <span className="hp-temp">+{tempHp} temp</span>}
           </div>
-          <div className="hp-bar-wrap">
-            <div className="hp-bar-fill" style={{ width: `${hpPct}%`, background: hpColor }} />
-            {tempHp > 0 && (
-              <div className="hp-bar-temp" style={{ width: `${Math.min(100, (tempHp / maxHp) * 100)}%` }} />
-            )}
-          </div>
-          <div className="hp-controls">
-            <input className="form-input hp-input" type="number" min={1} placeholder="Valor"
-              value={hpDelta} onChange={e => setHpDelta(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') applyDamage() }} />
-            <button className="btn btn-danger btn-hp" onClick={applyDamage}>− Dano</button>
-            <button className="btn btn-heal   btn-hp" onClick={applyHeal}>+ Cura</button>
-            <button className="btn btn-temp   btn-hp" onClick={addTempHp} title="Adicionar HP temporário">⚡ Temp</button>
-            <button className="btn btn-ghost  btn-hp" onClick={resetHp} title="Restaurar HP máximo">↺</button>
-          </div>
+        </div>
+        <div className="hp-bar-bg">
+          <div className="hp-bar-fill" style={{ width: `${hpPct}%`, background: hpColor }} />
+          {tempHp > 0 && (
+            <div
+              className="hp-bar-temp"
+              style={{ width: `${Math.min(100, (tempHp / maxHp) * 100)}%` }}
+            />
+          )}
+        </div>
+        <div className="hp-controls">
+          <input className="form-input hp-input" type="number" min={1} placeholder="Valor"
+            value={hpDelta} onChange={e => setHpDelta(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') applyDamage() }} />
+          <button className="btn btn-danger btn-hp" onClick={applyDamage}>− Dano</button>
+          <button className="btn btn-heal   btn-hp" onClick={applyHeal}>+ Cura</button>
+          <button className="btn btn-temp   btn-hp" onClick={addTempHp} title="Adicionar HP temporário">⚡ Temp</button>
+          <button className="btn btn-ghost  btn-hp" onClick={resetHp} title="Restaurar HP máximo">↺</button>
         </div>
       </div>
 
@@ -241,7 +257,6 @@ export function CharacterSheetScreen() {
         {/* SPELLS TAB */}
         {tab === 'spells' && (
           <>
-            {/* Spell stats header */}
             {spellDC !== null && (
               <div className="spell-stats-row">
                 <div className="spell-stat-box">
@@ -312,10 +327,6 @@ export function CharacterSheetScreen() {
                     {wSlots.total - wSlots.used} / {wSlots.total} espaços disponíveis
                   </p>
                 </div>
-                <p className="spell-note">
-                  O Warlock usa Magia de Pacto — poucos espaços, todos do mesmo nível,
-                  recuperados a cada descanso curto ou longo (PHB p.107).
-                </p>
               </>
             )}
           </>
