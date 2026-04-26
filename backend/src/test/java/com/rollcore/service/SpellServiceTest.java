@@ -1,7 +1,11 @@
 package com.rollcore.service;
 
 import com.rollcore.dto.response.SpellResponse;
-import com.rollcore.entity.*;
+import com.rollcore.entity.Character;
+import com.rollcore.entity.CharacterSpell;
+import com.rollcore.entity.CharacterSpellId;
+import com.rollcore.entity.Spell;
+import com.rollcore.entity.User;
 import com.rollcore.exception.ConflictException;
 import com.rollcore.exception.ForbiddenException;
 import com.rollcore.exception.NotFoundException;
