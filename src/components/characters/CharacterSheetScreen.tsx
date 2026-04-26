@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppStore, useSelectedCharacter } from '@/store/useAppStore'
 import {
   calcMod, formatMod, profBonus,
@@ -7,7 +7,11 @@ import {
   getSpellSaveDC, getSpellAttackBonus,
   getRaceTraits,
 } from '@/lib/engine'
-import type { SpellSlots, WarlockSlots } from '@/types'
+import { fetchCharacterSpells, removeSpellFromCharacter } from '@/lib/spells'
+import { SpellSearchModal } from './SpellSearchModal'
+import { SpellDetail } from '@/components/ui/SpellDetail'
+import type { Spell, SpellSlots, WarlockSlots } from '@/types'
+import { SCHOOL_COLORS, LEVEL_LABELS } from '@/types'
 
 type SheetTab = 'combat' | 'skills' | 'spells' | 'traits'
 
@@ -25,6 +29,13 @@ export function CharacterSheetScreen() {
   const [slots,        setSlots]        = useState<SpellSlots  | null>(() => char?.spell_slots    ?? null)
   const [wSlots,       setWSlots]       = useState<WarlockSlots| null>(() => char?.warlock_slots  ?? null)
 
+  // ── Sprint 8: known spells ─────────────────────────────────────────────────
+  const [knownSpells,     setKnownSpells]     = useState<Spell[]>([])
+  const [loadingSpells,   setLoadingSpells]   = useState(false)
+  const [showSpellSearch, setShowSpellSearch] = useState(false)
+  const [expandedSpellId, setExpandedSpellId] = useState<string | null>(null)
+  const [removingId,      setRemovingId]      = useState<string | null>(null)
+
   if (!char) { navigate('personagens'); return null }
 
   const character  = char
@@ -36,6 +47,21 @@ export function CharacterSheetScreen() {
   const spellDC    = getSpellSaveDC(char.class, char.level, char.attributes)
   const spellAtk   = getSpellAttackBonus(char.class, char.level, char.attributes)
   const raceTraits = getRaceTraits(char.race)
+
+  const knownIds = new Set(knownSpells.map(s => s.id))
+
+  // Load known spells when spells tab is first opened
+  useEffect(() => {
+    if (tab !== 'spells' || casterType === 'none') return
+    if (knownSpells.length > 0) return  // already loaded
+    setLoadingSpells(true)
+    fetchCharacterSpells(char.id)
+      .then(setKnownSpells)
+      .catch(() => showToast('Erro ao carregar magias.', 'error'))
+      .finally(() => setLoadingSpells(false))
+  }, [tab, casterType, char.id])
+
+  // ── HP helpers ─────────────────────────────────────────────────────────────
 
   function persist(hpOv?: number, tempOv?: number, slotsOv?: SpellSlots | null, wOv?: WarlockSlots | null) {
     updateCharacter(character.id, {
@@ -71,7 +97,7 @@ export function CharacterSheetScreen() {
   function addTempHp() {
     const n = parseInt(hpDelta, 10)
     if (isNaN(n) || n <= 0) return
-    const newTemp = Math.max(tempHp, n)   // temp HP doesn't stack — take higher (PHB p.198)
+    const newTemp = Math.max(tempHp, n)
     setTempHp(newTemp); setHpDelta(''); persist(undefined, newTemp)
     showToast(`HP temporário: ${newTemp}`, 'success')
   }
@@ -80,6 +106,8 @@ export function CharacterSheetScreen() {
     setCurrentHp(maxHp); setTempHp(0); persist(maxHp, 0)
     showToast('HP restaurado ao máximo', 'success')
   }
+
+  // ── Spell slot helpers ─────────────────────────────────────────────────────
 
   function spendSlot(level: number) {
     if (!slots) return
@@ -100,8 +128,7 @@ export function CharacterSheetScreen() {
 
   function restoreAllSlots() {
     if (!maxSlots) return
-    const next = { ...maxSlots }
-    setSlots(next); persist(undefined, undefined, next)
+    setSlots(maxSlots); persist(undefined, undefined, maxSlots)
     showToast('Espaços recuperados (Descanso Longo)', 'success')
   }
 
@@ -118,6 +145,29 @@ export function CharacterSheetScreen() {
     setWSlots(next); persist(undefined, undefined, undefined, next)
     showToast('Espaços de Pacto recuperados (Descanso Curto)', 'success')
   }
+
+  // ── Known spell helpers ────────────────────────────────────────────────────
+
+  async function handleRemoveSpell(spell: Spell) {
+    setRemovingId(spell.id)
+    try {
+      await removeSpellFromCharacter(character.id, spell.id)
+      setKnownSpells(prev => prev.filter(s => s.id !== spell.id))
+      setExpandedSpellId(null)
+      showToast(`${spell.name} removida.`)
+    } catch {
+      showToast('Erro ao remover magia.', 'error')
+    } finally {
+      setRemovingId(null)
+    }
+  }
+
+  // Group known spells by level for display
+  const spellsByLevel = knownSpells.reduce<Record<number, Spell[]>>((acc, s) => {
+    if (!acc[s.level]) acc[s.level] = []
+    acc[s.level].push(s)
+    return acc
+  }, {})
 
   return (
     <div className="device">
@@ -138,16 +188,9 @@ export function CharacterSheetScreen() {
       {/* ── HP tracker ── */}
       <div className={`hp-tracker${trackerFlash ? ` flash-${trackerFlash}` : ''}`}>
         <div className="hp-header">
-
-          {/* Character portrait — shown when available */}
           {char.avatar_url && (
-            <img
-              src={char.avatar_url}
-              alt={char.name}
-              className="sheet-portrait"
-            />
+            <img src={char.avatar_url} alt={char.name} className="sheet-portrait" />
           )}
-
           <div className="hp-numbers">
             <span className="hp-current" style={{ color: hpColor }}>{currentHp}</span>
             <span className="hp-sep">/</span>
@@ -158,10 +201,7 @@ export function CharacterSheetScreen() {
         <div className="hp-bar-bg">
           <div className="hp-bar-fill" style={{ width: `${hpPct}%`, background: hpColor }} />
           {tempHp > 0 && (
-            <div
-              className="hp-bar-temp"
-              style={{ width: `${Math.min(100, (tempHp / maxHp) * 100)}%` }}
-            />
+            <div className="hp-bar-temp" style={{ width: `${Math.min(100, (tempHp / maxHp) * 100)}%` }} />
           )}
         </div>
         <div className="hp-controls">
@@ -170,8 +210,8 @@ export function CharacterSheetScreen() {
             onKeyDown={e => { if (e.key === 'Enter') applyDamage() }} />
           <button className="btn btn-danger btn-hp" onClick={applyDamage}>− Dano</button>
           <button className="btn btn-heal   btn-hp" onClick={applyHeal}>+ Cura</button>
-          <button className="btn btn-temp   btn-hp" onClick={addTempHp} title="Adicionar HP temporário">⚡ Temp</button>
-          <button className="btn btn-ghost  btn-hp" onClick={resetHp} title="Restaurar HP máximo">↺</button>
+          <button className="btn btn-temp   btn-hp" onClick={addTempHp} title="HP temporário">⚡ Temp</button>
+          <button className="btn btn-ghost  btn-hp" onClick={resetHp} title="Restaurar máximo">↺</button>
         </div>
       </div>
 
@@ -184,7 +224,7 @@ export function CharacterSheetScreen() {
         ))}
         {casterType !== 'none' && (
           <button className={`sheet-tab${tab === 'spells' ? ' active' : ''}`} onClick={() => setTab('spells')}>
-            Magias
+            Magias {knownSpells.length > 0 && <span className="tab-count">{knownSpells.length}</span>}
           </button>
         )}
         {raceTraits.length > 0 && (
@@ -196,7 +236,7 @@ export function CharacterSheetScreen() {
 
       <div className="page-body tab-content" key={tab}>
 
-        {/* COMBAT TAB */}
+        {/* ═══ COMBAT TAB ═══════════════════════════════════════════════════════ */}
         {tab === 'combat' && (
           <>
             <h2 className="section-title">Atributos</h2>
@@ -233,7 +273,7 @@ export function CharacterSheetScreen() {
           </>
         )}
 
-        {/* SKILLS TAB */}
+        {/* ═══ SKILLS TAB ═══════════════════════════════════════════════════════ */}
         {tab === 'skills' && (
           <>
             <h2 className="section-title">Perícias</h2>
@@ -254,9 +294,10 @@ export function CharacterSheetScreen() {
           </>
         )}
 
-        {/* SPELLS TAB */}
+        {/* ═══ SPELLS TAB ═══════════════════════════════════════════════════════ */}
         {tab === 'spells' && (
           <>
+            {/* Spell attack stats */}
             {spellDC !== null && (
               <div className="spell-stats-row">
                 <div className="spell-stat-box">
@@ -270,6 +311,7 @@ export function CharacterSheetScreen() {
               </div>
             )}
 
+            {/* Standard spell slots */}
             {(casterType === 'full' || casterType === 'half') && slots && maxSlots && (
               <>
                 <div className="spell-section-header">
@@ -302,6 +344,7 @@ export function CharacterSheetScreen() {
               </>
             )}
 
+            {/* Warlock pact magic */}
             {casterType === 'warlock' && wSlots && (
               <>
                 <div className="spell-section-header">
@@ -329,10 +372,95 @@ export function CharacterSheetScreen() {
                 </div>
               </>
             )}
+
+            {/* ── Known Spells section ── */}
+            <div className="spell-section-header" style={{ marginTop: 24 }}>
+              <h2 className="section-title" style={{ margin: 0 }}>
+                Magias Conhecidas
+                {knownSpells.length > 0 && (
+                  <span className="known-spell-count"> ({knownSpells.length})</span>
+                )}
+              </h2>
+              <button
+                className="btn btn-primary"
+                style={{ fontSize: 12, padding: '5px 12px' }}
+                onClick={() => setShowSpellSearch(true)}
+              >
+                + Adicionar
+              </button>
+            </div>
+
+            {loadingSpells && <div className="spell-loading">Carregando magias…</div>}
+
+            {!loadingSpells && knownSpells.length === 0 && (
+              <div className="spell-empty-state">
+                <p>Nenhuma magia adicionada ainda.</p>
+                <button className="btn btn-ghost" onClick={() => setShowSpellSearch(true)}>
+                  Navegar no compêndio →
+                </button>
+              </div>
+            )}
+
+            {/* Known spells grouped by level */}
+            {!loadingSpells && Object.entries(spellsByLevel)
+              .sort(([a], [b]) => Number(a) - Number(b))
+              .map(([lvlStr, spells]) => {
+                const lvl = Number(lvlStr)
+                return (
+                  <div key={lvl} className="known-spell-group">
+                    <h3 className="known-spell-group-title">
+                      {lvl === 0 ? 'Truques' : `${LEVEL_LABELS[lvl]}° Nível`}
+                      <span className="known-spell-group-count">{spells.length}</span>
+                    </h3>
+                    {spells.map(spell => {
+                      const expanded = expandedSpellId === spell.id
+                      const schoolColor = SCHOOL_COLORS[spell.school] ?? '#888'
+                      return (
+                        <div key={spell.id} className={`known-spell-row${expanded ? ' expanded' : ''}`}>
+                          <div
+                            className="known-spell-summary"
+                            onClick={() => setExpandedSpellId(expanded ? null : spell.id)}
+                          >
+                            <span
+                              className="spell-level-dot"
+                              style={{ background: lvl === 0 ? '#888' : schoolColor }}
+                            >
+                              {lvl === 0 ? '✦' : lvl}
+                            </span>
+                            <div className="known-spell-info">
+                              <span className="known-spell-name">{spell.name}</span>
+                              <span className="known-spell-meta">
+                                {spell.school}
+                                {spell.concentration && ' · ◎'}
+                                {spell.damageDice && ` · ${spell.damageDice} ${spell.damageType ?? ''}`}
+                              </span>
+                            </div>
+                            <span className="known-spell-chevron">{expanded ? '▲' : '▼'}</span>
+                          </div>
+
+                          {expanded && (
+                            <div className="known-spell-detail">
+                              <SpellDetail
+                                spell={spell}
+                                action={{
+                                  label:   'Remover do personagem',
+                                  danger:  true,
+                                  loading: removingId === spell.id,
+                                  onClick: () => handleRemoveSpell(spell),
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })}
           </>
         )}
 
-        {/* TRAITS TAB */}
+        {/* ═══ TRAITS TAB ═══════════════════════════════════════════════════════ */}
         {tab === 'traits' && (
           <>
             <h2 className="section-title">Traços Raciais — {char.race}</h2>
@@ -353,6 +481,17 @@ export function CharacterSheetScreen() {
         )}
 
       </div>
+
+      {/* ── SpellSearchModal ── */}
+      {showSpellSearch && (
+        <SpellSearchModal
+          characterId={char.id}
+          characterClass={char.class}
+          knownSpellIds={knownIds}
+          onAdded={spell => setKnownSpells(prev => [...prev, spell])}
+          onClose={() => setShowSpellSearch(false)}
+        />
+      )}
     </div>
   )
 }
