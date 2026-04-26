@@ -13,12 +13,11 @@ export interface SpellSlots {
 }
 
 export interface WarlockSlots {
-  total: number   // total pact magic slots at this level
-  level: number   // slot level (all slots are the same level — PHB p.107)
-  used:  number   // slots currently expended
+  total: number
+  level: number
+  used:  number
 }
 
-/** Mirrors the `characters` table — UC-02 / Doc. de Visão §9.2 */
 export interface Character {
   id:         number
   name:       string
@@ -33,11 +32,9 @@ export interface Character {
   attributes: Attributes
   spell_slots?:   SpellSlots
   warlock_slots?: WarlockSlots
-  /** Optional character portrait — base64 data URL or remote URL. */
   avatar_url?: string
 }
 
-/** Mirrors the `dice_rolls` table — UC-03 / Doc. de Visão §9.2 */
 export interface RollResult {
   total: number; rolls: number[]
   mod: number; sides: number
@@ -60,7 +57,6 @@ export interface User {
   email:         string
   username:      string
   keepConnected: boolean
-  /** Optional profile photo — base64 data URL stored locally (Fase 1). */
   avatar_url?:   string
 }
 
@@ -79,7 +75,6 @@ export interface FormErrors { [key: string]: string }
 
 // ─── API Types ────────────────────────────────────────────────────────────────
 
-/** Shape returned by POST /auth/register and POST /auth/login */
 export interface AuthTokens {
   accessToken:  string
   refreshToken: string
@@ -88,25 +83,23 @@ export interface AuthTokens {
   username:     string
 }
 
-/** Shape returned by GET /characters and POST /characters */
 export interface CharacterApiResponse {
-  id:           string
-  name:         string
+  id:             string
+  name:           string
   characterClass: string
-  subclass:     string
-  race:         string
-  level:        number
-  attributes:   Attributes
-  hp:           number
-  maxHp:        number
-  tempHp:       number
-  ac:           number
-  spellSlots:   SpellSlots | null
-  warlockSlots: WarlockSlots | null
-  avatar_url?:  string
+  subclass:       string
+  race:           string
+  level:          number
+  attributes:     Attributes
+  hp:             number
+  maxHp:          number
+  tempHp:         number
+  ac:             number
+  spellSlots:     SpellSlots | null
+  warlockSlots:   WarlockSlots | null
+  avatar_url?:    string
 }
 
-/** Shape returned by POST /dice/roll */
 export interface DiceRollApiResponse {
   id:       string
   formula:  string
@@ -115,3 +108,50 @@ export interface DiceRollApiResponse {
   total:    number
   rolledAt: string
 }
+
+// ─── Spell Types (Sprint 8) ───────────────────────────────────────────────────
+
+/**
+ * Mirrors SpellResponse from the backend — V3__spells_schema.sql / Sprint 8.
+ * All fields use camelCase as returned by the Spring Boot JSON serializer.
+ */
+export interface Spell {
+  id:            string
+  name:          string
+  /** 0 = truque, 1–9 = spell level. */
+  level:         number
+  school:        string
+  castingTime:   string
+  range:         string
+  components:    string
+  duration:      string
+  description:   string
+  higherLevels?: string | null
+  classes:       string[]
+  ritual:        boolean
+  concentration: boolean
+  /** 'ranged' | 'melee' | null — null for non-attack spells. */
+  attackType?:   string | null
+  damageDice?:   string | null
+  damageType?:   string | null
+  saveAttribute?: string | null
+  source:        string
+}
+
+export type SpellSchool =
+  | 'Abjuração' | 'Adivinhação' | 'Conjuração' | 'Encantamento'
+  | 'Evocação'  | 'Ilusão'      | 'Necromancia' | 'Transmutação'
+
+/** School display colors — used in badges. */
+export const SCHOOL_COLORS: Record<string, string> = {
+  'Abjuração':    '#4a90d9',
+  'Adivinhação':  '#9b59b6',
+  'Conjuração':   '#e67e22',
+  'Encantamento': '#e91e8c',
+  'Evocação':     '#e74c3c',
+  'Ilusão':       '#8e44ad',
+  'Necromancia':  '#2c3e50',
+  'Transmutação': '#27ae60',
+}
+
+export const LEVEL_LABELS = ['Truque', '1°', '2°', '3°', '4°', '5°', '6°', '7°', '8°', '9°']
