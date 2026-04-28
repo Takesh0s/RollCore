@@ -17,17 +17,26 @@ Casos de uso principais da Fase 1:
 - **UC-02** — Gerenciamento de fichas de personagem D&D 5e
 - **UC-03** — Rolagem de dados com SecureRandom e histórico
 
-> **Fase 1 — Status atual:** Frontend: funcional com persistência local (`localStorage`).   
-> Backend REST com JWT e PostgreSQL: em desenvolvimento e integração progressiva
+> **Fase 1 — Status atual:** Backend em produção no Render. Frontend em produção no Vercel. Fase 2 em desenvolvimento.
 
 ---
 
-## 🌐 Deploy
+## 🌐 Deploy (Produção)
 
 | Serviço | URL |
 |---|---|
-| Frontend | https://rollcore.vercel.app/ |
-| API | Em desenvolvimento (Docker + PostgreSQL) |
+| Frontend | https://rollcore.vercel.app |
+| API (backend) | https://rollcore-api.onrender.com |
+| Banco de Dados | PostgreSQL — Render (interno) |
+
+> **Aviso:** o plano gratuito do Render coloca o serviço em modo de espera após 15 min sem requisições. O primeiro acesso pode demorar ~30 segundos para acordar.
+
+### Verificar saúde do backend
+
+```bash
+curl https://rollcore-api.onrender.com/actuator/health
+# esperado: {"status":"UP"}
+```
 
 ---
 
@@ -39,7 +48,7 @@ Frontend (React + Vite)   →   REST API (Spring Boot)   →   PostgreSQL 16
   iOS / Android              Spring Security + Bucket4j       Redis (Fase 2)
 ```
 
-Este repositório é um **monorepo**:
+O Capacitor empacota o frontend React e aponta para a mesma `VITE_API_URL` — o app mobile funciona em qualquer rede, sem precisar do Docker local.
 
 ```
 RollCore/
@@ -48,7 +57,8 @@ RollCore/
 ├── android/           Projeto Android (Capacitor)
 ├── ios/               Projeto iOS (Capacitor)
 ├── docs/              Documentação do projeto
-├── docker-compose.yml
+├── docker-compose.yml Ambiente de desenvolvimento local
+├── render.yaml        Configuração de deploy no Render
 └── README.md
 ```
 
@@ -65,28 +75,24 @@ RollCore/
 | Zustand 4 | Estado global |
 | Capacitor | Wrapper nativo iOS e Android |
 | CSS Variables | Design tokens e temas |
-| `localStorage` | Persistência de sessão e personagens (Fase 1) |
+| `localStorage` | Cache local de sessão e personagens |
 
 ### Funcionalidades
 
 #### 🔐 Autenticação (UC-01)
 - Login com validação real contra contas cadastradas
-- Botão **Entrar** desabilitado até e-mail e senha preenchidos
 - Proteção contra enumeração de usuários — MSG003 genérica (OWASP / RN-03)
 - Política de senha forte: mínimo 8 caracteres, 1 maiúscula, 1 número (MSG002)
 - Barra de força de senha com feedback visual progressivo
-- Validação de e-mail no evento `blur`
 - Detecção de e-mail duplicado no cadastro — MSG001
-- Username único com validação de formato (`/^[a-zA-Z0-9_]{3,20}$/`)
-- Tela de recuperação de senha (placeholder — Fase 2)
+- Username único com validação de formato
 - Logout com limpeza de sessão e proteção de rotas
 
 #### 🎲 Sistema de Dados (UC-03)
 - Atalhos rápidos: `d4`, `d6`, `d8`, `d10`, `d12`, `d20`, `d100`
 - Suporte a fórmulas `NdX`, `NdX+M`, `NdX-M`
-- Validação de fórmula em tempo real — MSG006, botão bloqueado se inválida
-- Exibição: fórmula → `[individuais]` + modificador `= total`
-- Animação de rolagem (CSS keyframes)
+- Validação de fórmula em tempo real
+- Animação de rolagem
 - Acerto Crítico `d20=20` → destaque dourado + label "Crítico!"
 - Falha Crítica `d20=1` → destaque vermelho
 
@@ -105,60 +111,72 @@ RollCore/
 - Abas: Combate, Perícias, Magias (conjuradores), Traços Raciais
 - HP temporário com absorção antes do HP regular (PHB p.198)
 - Slots de magia e Pact Magic (Warlock) com pips interativos
-- Validação de nível 1–20 e atributos com feedback visual
+  - Cliques nos pips salvam apenas no localStorage (estado de sessão)
+  - PUT para o backend ocorre somente em alterações de HP/atributos
+- Avatar preservado localmente entre reloads
 - Exclusão com diálogo de confirmação
+
+#### 📚 Compêndio de Magias
+- GET `/spells` — público, sem autenticação (SRD CC BY 4.0)
+- Filtros: classe, nível, busca por nome
+- Adicionar/remover magias de um personagem (JWT obrigatório)
+- Seed com magias do Livro do Jogador e Compêndio de Magia
+
+#### Engine D&D 5e — tipos de conjurador (PHB)
+
+| Tipo | Classes / Subclasses |
+|---|---|
+| `full` | Bardo, Clérigo, Druida, Feiticeiro, Mago |
+| `half` | Paladino, Patrulheiro |
+| `third` | Cavaleiro Arcano (Guerreiro nv 3+), Trapaceiro Arcano (Ladino nv 3+) |
+| `warlock` | Bruxo (Pact Magic) |
+| `none` | Bárbaro, Guerreiro (demais subclasses), Ladino (demais subclasses), Monge |
+
+> Monge Via da Sombra usa Pontos de Ki, não espaços de magia — não exibe aba Magias (PHB p.80).
 
 ### Estrutura do Frontend
 
 ```
 src/
-├── main.tsx              Entry point
-├── App.tsx               Client-side router por screen
-├── index.css             Design tokens e estilos globais
-├── types/index.ts        Interfaces TypeScript de domínio
+├── main.tsx
+├── App.tsx
+├── index.css
+├── types/index.ts
 ├── lib/
-│   ├── engine.ts         Regras D&D 5e (calcMod, profBonus, slots...)
-│   ├── dice.ts           Parser de fórmulas e rolagem
-│   └── storage.ts        Helpers de localStorage
+│   ├── engine.ts         Regras D&D 5e (calcMod, profBonus, slots, subclasses)
+│   ├── dice.ts
+│   ├── spells.ts         Helpers para API de magias
+│   └── storage.ts
 ├── store/
-│   └── useAppStore.ts    Zustand — estado global
+│   └── useAppStore.ts    Zustand — estado global + patchCharacterLocal
 └── components/
-    ├── ui/               Toast · Modal · DiceLogo
+    ├── ui/               Toast · Modal · DiceLogo · SpellDetail
     ├── auth/             Login · Register · ForgotPassword · Profile
     ├── dashboard/        DashboardScreen
-    ├── characters/       List · Form · Sheet
+    ├── characters/       List · Form · Sheet · SpellSearchModal
     └── dice/             DiceRollerScreen
 ```
 
-### Rodar o Frontend
+### Rodar o Frontend (desenvolvimento local)
 
 ```bash
-# Instalar dependências
 npm install
-
-# Dev server
 npm run dev
-
-# Build para produção
-npm run build
+# Aponta para http://localhost:8080 por padrão
+# Para usar o backend em produção:
+# VITE_API_URL=https://rollcore-api.onrender.com npm run dev
 ```
-
-> Requer Node.js 18+
 
 #### Mobile (Android)
 
 ```bash
-npm run build
-npx cap sync android
-npx cap open android
+npm run build && npx cap sync android && npx cap open android
 ```
 
 #### Mobile (iOS)
 
 ```bash
-npm run build
-npx cap sync ios
-npx cap open ios
+npm run build && npx cap sync ios && npx cap open ios
 ```
 
 ---
@@ -175,22 +193,7 @@ npx cap open ios
 | Rate Limiting | Bucket4j — 60 req/min por IP |
 | Documentação | Springdoc / OpenAPI 3.0 · Swagger UI |
 | Testes | JUnit 5 · Mockito · JaCoCo ≥ 80% |
-| Infra | Docker · Docker Compose · GitHub Actions CI/CD |
-
-### Funcionalidades
-
-#### 🔐 Auth (UC-01)
-- `POST /auth/register` — cadastro com validação de email/username únicos (409 em conflito)
-- `POST /auth/login` — login com BCrypt; mensagem genérica anti-enumeração (OWASP)
-- `POST /auth/refresh` — renovação de access token via refresh token (UC-01 S01)
-
-#### 🧙 Characters (UC-02)
-- CRUD completo com verificação de ownership por JWT
-- AC, spell slots e warlock slots calculados server-side pelo `DndEngine`
-
-#### 🎲 Dice (UC-03)
-- `POST /dice/roll` — rolagem com `java.security.SecureRandom` (resultado inviolável)
-- `GET /dice/history` — últimas 50 rolagens persistidas
+| Infra | Docker · Docker Compose · Render (produção) |
 
 ### Endpoints
 
@@ -204,103 +207,23 @@ npx cap open ios
 | GET | `/characters/{id}` | ✅ | Buscar por ID |
 | PUT | `/characters/{id}` | ✅ | Atualizar |
 | DELETE | `/characters/{id}` | ✅ | Excluir |
+| GET | `/spells` | ❌ | Compêndio (público) |
+| GET | `/spells/{id}` | ❌ | Magia por ID (público) |
+| GET | `/characters/{id}/spells` | ✅ | Magias do personagem |
+| POST | `/characters/{id}/spells/{spellId}` | ✅ | Adicionar magia |
+| DELETE | `/characters/{id}/spells/{spellId}` | ✅ | Remover magia |
 | POST | `/dice/roll` | ✅ | Rolar dados |
 | GET | `/dice/history` | ✅ | Histórico |
 
-### Estrutura do Backend
+### Migrations Flyway
 
-```
-backend/
-├── Dockerfile
-├── pom.xml
-└── src/
-    ├── main/
-    │   ├── java/com/rollcore/
-    │   │   ├── config/
-    │   │   │   ├── SecurityConfig
-    │   │   │   └── OpenApiConfig
-    │   │   ├── controller/
-    │   │   │   ├── AuthController.java
-    │   │   │   ├── CharacterController.java
-    │   │   │   └── DiceController.java
-    │   │   ├── dto/
-    │   │   │   ├── request/
-    │   │   │   │   ├── CharacterRequest.java
-    │   │   │   │   ├── LoginRequest.java
-    │   │   │   │   ├── RefreshRequest.java
-    │   │   │   │   ├── RegisterRequest.java
-    │   │   │   │   └── RollRequest.java
-    │   │   │   └── response/
-    │   │   │   │   ├── AuthResponse.java
-    │   │   │   │   ├── CharacterResponse.java
-    │   │   │   │   └── RollResponse.java
-    │   │   ├── entity/
-    │   │   │   ├── Character.java
-    │   │   │   ├── DiceRoll.java
-    │   │   │   ├── Session.java
-    │   │   │   └── User.java
-    │   │   ├── exception/
-    │   │   │   ├── GlobalExceptionHandler.java
-    │   │   │   ├── ConflictException.java
-    │   │   │   ├── ForbiddenException.java
-    │   │   │   ├── InvalidFormulaException.java
-    │   │   │   └── NotFoundException.java
-    │   │   ├── filter/
-    │   │   │   ├── JwtAuthFilter.java
-    │   │   │   └── RateLimitFilter.java
-    │   │   ├── repository/
-    │   │   │   ├── CharacterRepository.java
-    │   │   │   ├── DiceRollRepository.java
-    │   │   │   └── UserRepository.java
-    │   │   ├── security/
-    │   │   │   ├── JwtService.java
-    │   │   │   └── UserDetailsServiceImpl.java
-    │   │   └── service/
-    │   │       ├── AuthService.java
-    │   │       ├── CharacterService.java
-    │   │       ├── DiceService.java
-    │   │       └── DndEngine.java
-    │   └── resources/
-    │   │   ├── application.yml
-    │   │   ├── application-test.yml
-    │   │   └── db/migration/
-    │   │       ├── V1__init_schema.sql
-    │   │       └── V2__fix_level_type.sql
-    │── test/java/com/rollcore/
-    │   ├── controller/
-    │   │       ├── AuthControllerTest.java
-    │   │       └── CharacterControllerTest.java
-    │   ├── engine/
-    │   │       └── DndEngineTest.java
-    │   └── service/
-    │   │       └── DiceServiceTest.java
-```
-
-### Rodar o Backend
-
-```bash
-# Subir PostgreSQL + API via Docker Compose (a partir da raiz do repositório)
-docker compose up -d
-
-# Acompanhar logs
-docker compose logs -f api
-
-# Ou rodar só o banco e subir a API com Maven
-docker compose up -d db
-cd backend && ./mvnw spring-boot:run
-```
-
-**Swagger UI:** http://localhost:8080/swagger-ui.html
-
-#### Executar testes + cobertura JaCoCo
-
-```bash
-cd backend
-./mvnw verify
-
-# Relatório HTML
-open target/site/jacoco/index.html
-```
+| Versão | Descrição |
+|---|---|
+| V1 | Schema inicial (users, characters, dice_rolls, sessions) |
+| V2 | Fix tipo da coluna `level` |
+| V3 | Schema de magias (spells, character_spells) |
+| V4 | Seed do compêndio SRD |
+| V5 | Fix tipo da coluna `level` em spells |
 
 ### Variáveis de Ambiente
 
@@ -309,10 +232,54 @@ open target/site/jacoco/index.html
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://db:5432/rollcore` | URL do banco |
 | `SPRING_DATASOURCE_USERNAME` | `rollcore` | Usuário do banco |
 | `SPRING_DATASOURCE_PASSWORD` | `rollcore` | Senha do banco |
-| `JWT_SECRET` | *(dev only)* | **Trocar em produção** — mín. 256 bits |
-| `PORT` | `8080` | Porta do servidor |
+| `JWT_SECRET` | *(dev only)* | **Obrigatório em produção** — mín. 256 bits |
+| `PORT` | `8080` | Porta (injetada automaticamente pelo Render) |
 | `CORS_ORIGINS` | `http://localhost:5173` | Origins permitidas (vírgula) |
 | `RATE_LIMIT_RPM` | `60` | Requisições por minuto por IP |
+
+---
+
+## 🚀 Deploy — Render + PostgreSQL
+
+### Configuração atual
+
+O `render.yaml` na raiz do repositório configura o serviço. O Render faz build e deploy automático a cada `git push` na `main`. As variáveis ficam no painel Render → Environment tab.
+
+### Configurar do zero
+
+1. **Render** → New → Blueprint → conectar repositório → Apply
+2. New → PostgreSQL → criar banco `rollcore-db`
+3. Em Environment, adicionar:
+   - `SPRING_DATASOURCE_URL` → Internal Database URL com `jdbc:` na frente
+   - `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD`
+   - `JWT_SECRET` → `node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"`
+   - `CORS_ORIGINS` → `https://rollcore.vercel.app`
+4. **Vercel** → Environment Variables → `VITE_API_URL=https://rollcore-api.onrender.com` → Redeploy
+
+---
+
+## 💻 Desenvolvimento Local (Docker)
+
+```bash
+# Subir PostgreSQL + API
+docker compose up -d
+
+# Acompanhar logs
+docker compose logs -f api
+
+# Rebuild após mudanças no backend
+docker compose down && docker compose up -d --build
+```
+
+**Swagger UI (local):** http://localhost:8080/swagger-ui.html
+
+### Testes + cobertura JaCoCo
+
+```bash
+cd backend
+./mvnw verify
+open target/site/jacoco/index.html
+```
 
 ---
 
@@ -320,15 +287,15 @@ open target/site/jacoco/index.html
 
 | Fase | Escopo | Status |
 |---|---|---|
-| **Fase 1** | Frontend com `localStorage` · UC-01/02/03 completos | ✅ Concluído |
-| **Fase 2** | Backend Spring Boot + PostgreSQL · JWT · Sessões online via WebSocket · App mobile publicado | 🚧 Em desenvolvimento |
-| **Fase 3** | Suporte ao sistema Ordem Paranormal · Compêndio SRD completo · Parser de PDF de regras | 📋 Planejado |
+| **Fase 1** | Frontend · UC-01/02/03 · Backend REST + JWT · Compêndio de Magias · Deploy Render/Vercel | ✅ Concluído |
+| **Fase 2** | Sessões online WebSocket · App mobile nas lojas · Histórico de sessões | 🚧 Em desenvolvimento |
+| **Fase 3** | Suporte ao sistema Ordem Paranormal · Compêndio SRD completo · Parser de PDF | 📋 Planejado |
 
 ---
 
 ## 👥 Autores
 
-Projeto desenvolvido pelo **Grupo 9**:
+Projeto desenvolvido pelo **Grupo 9** — Universidade Católica de Brasília:
 
 - João Pedro Nunes Neto
 - Leonardo dos Santos Silva
