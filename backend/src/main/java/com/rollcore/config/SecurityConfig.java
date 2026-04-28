@@ -36,7 +36,7 @@ import java.util.List;
  *   <li>CORS restricted to configured origins — Arquitetura §3.
  *   <li>Rate limiting via {@link RateLimitFilter}: 60 req/min/IP — RNF-03.
  *   <li>Public: POST /auth/register, /auth/login, /auth/refresh,
- *       GET /v3/api-docs/**, /swagger-ui/**, /actuator/health.
+ *       GET /spells/**, GET /v3/api-docs/**, /swagger-ui/**, /actuator/health.
  *   <li>Everything else requires a valid access token.
  * </ul>
  */
@@ -59,17 +59,21 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // ── CORS preflight (VERY IMPORTANT) ─────────────────────
+                // ── CORS preflight ────────────────────────────────────────
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // ── Public endpoints ──────────────────────────────────────
+                // ── Public auth endpoints ─────────────────────────────────
                 .requestMatchers(HttpMethod.POST,
                         "/auth/register", "/auth/login", "/auth/refresh").permitAll()
-                // ── OpenAPI / Swagger — RNF-06 ─────────────────────────
+                // ── Spell compendium — public read (SRD CC BY 4.0) ───────
+                // GET /spells and GET /spells/{id} are unauthenticated.
+                // POST/DELETE /characters/{id}/spells/** remain protected.
+                .requestMatchers(HttpMethod.GET, "/spells", "/spells/**").permitAll()
+                // ── OpenAPI / Swagger — RNF-06 ────────────────────────────
                 .requestMatchers(
                         "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                // ── Actuator health — RNF-02 ───────────────────────────
+                // ── Actuator health — RNF-02 ──────────────────────────────
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
-                // ── All other requests require authentication ──────────
+                // ── All other requests require authentication ─────────────
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

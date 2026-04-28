@@ -9,8 +9,13 @@ import type {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-/** Maps the API's camelCase response to the frontend's snake_case Character shape. */
-function mapCharacter(r: CharacterApiResponse): Character {
+/**
+ * Maps the API's camelCase response to the frontend's snake_case Character shape.
+ * localAvatarUrl: when provided, preserves the locally-stored avatar instead of
+ * overwriting with the server value (which is always null — no backend column yet).
+ * This prevents the avatar from disappearing after server responses and page reloads.
+ */
+function mapCharacter(r: CharacterApiResponse, localAvatarUrl?: string): Character {
   return {
     id:            r.id as unknown as number,   // UUIDs from backend — cast for compatibility
     name:          r.name,
@@ -25,7 +30,8 @@ function mapCharacter(r: CharacterApiResponse): Character {
     ac:            r.ac,
     spell_slots:   r.spellSlots   ?? undefined,
     warlock_slots: r.warlockSlots ?? undefined,
-    avatar_url:    r.avatar_url,
+    // Preserve local avatar — backend has no avatar_url column (Fase 1 local-only)
+    avatar_url:    localAvatarUrl ?? r.avatar_url,
   }
 }
 
@@ -176,7 +182,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ isLoadingChars: true })
     try {
       const { data } = await api.get<CharacterApiResponse[]>('/characters')
-      const characters = data.map(mapCharacter)
+      // Preserve locally-stored avatar_url values — the backend has no avatar column
+      const existingChars = get().characters
+      const characters = data.map(r => {
+        const existing = existingChars.find(c => String(c.id) === String(r.id))
+        return mapCharacter(r, existing?.avatar_url)
+      })
       storage.setCharacters(characters)
       set({ characters, isLoadingChars: false })
     } catch {
@@ -187,8 +198,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   async addCharacter(charData) {
     // Optimistic: compute slots locally for instant UI feedback
-    const slots  = getMaxSpellSlots(charData.class, charData.level)
-    const wSlots = getWarlockSlots(charData.class, charData.level)
+    const slots  = getMaxSpellSlots(charData.class, charData.level, charData.subclass)
+    const wSlots = getWarlockSlots(charData.class, charData.level, charData.subclass)
     const optimistic: Character = {
       id:            Date.now(),
       ...charData,
@@ -206,7 +217,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     try {
       const { data } = await api.post<CharacterApiResponse>('/characters', mapCharacterRequest(charData))
-      const saved = mapCharacter(data)
+      // Preserve local avatar_url — not sent to or stored by the backend
+      const saved = mapCharacter(data, charData.avatar_url)
 
       // Replace optimistic entry with server-assigned UUID
       set(s => {
@@ -227,8 +239,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   async updateCharacter(id, data) {
-    const slots  = getMaxSpellSlots(data.class, data.level)
-    const wSlots = getWarlockSlots(data.class, data.level)
+    const slots  = getMaxSpellSlots(data.class, data.level, data.subclass)
+    const wSlots = getWarlockSlots(data.class, data.level, data.subclass)
 
     set(s => {
       const existing  = s.characters.find(c => c.id === id)

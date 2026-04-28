@@ -3,7 +3,7 @@ import { useAppStore, useSelectedCharacter } from '@/store/useAppStore'
 import {
   calcMod, formatMod, profBonus,
   ATTR_KEYS, ATTR_LABELS, SKILLS, getSkillBonus,
-  CLASS_CASTER_TYPE, getMaxSpellSlots,
+  resolveCasterType, getMaxSpellSlots,
   getSpellSaveDC, getSpellAttackBonus,
   getRaceTraits,
 } from '@/lib/engine'
@@ -42,10 +42,10 @@ export function CharacterSheetScreen() {
   const maxHp      = char.max_hp ?? char.hp
   const hpPct      = Math.max(0, Math.min(100, (currentHp / maxHp) * 100))
   const hpColor    = hpPct > 60 ? 'var(--success)' : hpPct > 30 ? '#e8a020' : 'var(--fail)'
-  const casterType = CLASS_CASTER_TYPE[char.class] ?? 'none'
-  const maxSlots   = getMaxSpellSlots(char.class, char.level)
-  const spellDC    = getSpellSaveDC(char.class, char.level, char.attributes)
-  const spellAtk   = getSpellAttackBonus(char.class, char.level, char.attributes)
+  const casterType = resolveCasterType(char.class, char.subclass)
+  const maxSlots   = getMaxSpellSlots(char.class, char.level, char.subclass)
+  const spellDC    = getSpellSaveDC(char.class, char.level, char.attributes, char.subclass)
+  const spellAtk   = getSpellAttackBonus(char.class, char.level, char.attributes, char.subclass)
   const raceTraits = getRaceTraits(char.race)
 
   const knownIds = new Set(knownSpells.map(s => s.id))

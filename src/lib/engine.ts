@@ -239,7 +239,15 @@ export const SUBCLASSES: Record<string, { options: string[]; choiceLevel: number
 
 // ─── Spellcasting System ──────────────────────────────────────────────────────
 
-export type CasterType = 'full' | 'half' | 'warlock' | 'none'
+/**
+ * Caster types:
+ *  full    — full caster (Bardo, Clérigo, Druida, Feiticeiro, Mago)
+ *  half    — half caster, slots from level 2 (Paladino, Patrulheiro)
+ *  third   — 1/3 caster, slots from level 3 (Cavaleiro Arcano, Trapaceiro Arcano)
+ *  warlock — Pact Magic, slots from level 1 (Warlock)
+ *  none    — no spellcasting
+ */
+export type CasterType = 'full' | 'half' | 'third' | 'warlock' | 'none'
 
 export const CLASS_CASTER_TYPE: Record<string, CasterType> = {
   'Bárbaro':    'none',
@@ -247,13 +255,28 @@ export const CLASS_CASTER_TYPE: Record<string, CasterType> = {
   'Clérigo':    'full',
   'Druida':     'full',
   'Feiticeiro': 'full',
-  'Guerreiro':  'none',
-  'Ladino':     'none',
+  'Guerreiro':  'none',   // base class — overridden by subclass below
+  'Ladino':     'none',   // base class — overridden by subclass below
   'Mago':       'full',
-  'Monge':      'none',
+  'Monge':      'none',   // Via dos Quatro Elementos uses Ki, not spell slots
   'Paladino':   'half',
   'Patrulheiro':'half',
   'Warlock':    'warlock',
+}
+
+/**
+ * Subclasses that grant spellcasting — PHB Chapter 3.
+ * Overrides CLASS_CASTER_TYPE when a specific subclass is selected.
+ * Key: subclass name (must match SUBCLASSES options exactly).
+ */
+export const SUBCLASS_CASTER_TYPE: Record<string, { type: CasterType; ability: AttrKey }> = {
+  // Guerreiro — Cavaleiro Arcano (PHB p.85)
+  // 1/3 caster starting at level 3, uses INT, same table as Trapaceiro Arcano
+  'Cavaleiro Arcano': { type: 'third', ability: 'INT' },
+
+  // Ladino — Trapaceiro Arcano (PHB p.92)
+  // 1/3 caster starting at level 3, uses INT
+  'Trapaceiro Arcano': { type: 'third', ability: 'INT' },
 }
 
 /** Spellcasting ability by class — PHB Chapter 3 */
@@ -266,6 +289,28 @@ export const CLASS_SPELL_ABILITY: Record<string, AttrKey> = {
   'Paladino':   'CHA',
   'Patrulheiro':'WIS',
   'Warlock':    'CHA',
+}
+
+/**
+ * Resolves the effective CasterType for a class+subclass combination.
+ * Subclass overrides class when the subclass grants spellcasting.
+ */
+export function resolveCasterType(className: string, subclass?: string): CasterType {
+  if (subclass && SUBCLASS_CASTER_TYPE[subclass]) {
+    return SUBCLASS_CASTER_TYPE[subclass].type
+  }
+  return CLASS_CASTER_TYPE[className] ?? 'none'
+}
+
+/**
+ * Resolves the spellcasting ability for a class+subclass combination.
+ * Returns null for non-casters.
+ */
+export function resolveSpellAbility(className: string, subclass?: string): AttrKey | null {
+  if (subclass && SUBCLASS_CASTER_TYPE[subclass]) {
+    return SUBCLASS_CASTER_TYPE[subclass].ability
+  }
+  return CLASS_SPELL_ABILITY[className] ?? null
 }
 
 /** Full-caster slot table — PHB Ch.3 (Bardo/Clérigo/Druida/Mago/Feiticeiro) */
@@ -290,6 +335,21 @@ const HALF_CASTER_SLOTS: number[][] = [
   [4,3,3,3,2,0,0,0,0],[4,3,3,3,2,0,0,0,0],
 ]
 
+/**
+ * Third-caster slot table — PHB Ch.3 (Cavaleiro Arcano / Trapaceiro Arcano).
+ * Slots start at level 3. Levels 1-2 have no slots (row of zeros).
+ * Max spell level reaches 4th at character level 19+.
+ */
+const THIRD_CASTER_SLOTS: number[][] = [
+  [0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0],[2,0,0,0,0,0,0,0,0],
+  [3,0,0,0,0,0,0,0,0],[3,0,0,0,0,0,0,0,0],[3,0,0,0,0,0,0,0,0],
+  [4,2,0,0,0,0,0,0,0],[4,2,0,0,0,0,0,0,0],[4,2,0,0,0,0,0,0,0],
+  [4,3,0,0,0,0,0,0,0],[4,3,0,0,0,0,0,0,0],[4,3,0,0,0,0,0,0,0],
+  [4,3,2,0,0,0,0,0,0],[4,3,2,0,0,0,0,0,0],[4,3,2,0,0,0,0,0,0],
+  [4,3,3,0,0,0,0,0,0],[4,3,3,0,0,0,0,0,0],[4,3,3,0,0,0,0,0,0],
+  [4,3,3,1,0,0,0,0,0],[4,3,3,1,0,0,0,0,0],
+]
+
 /** Warlock Pact Magic table — PHB p.107 */
 const WARLOCK_TABLE: Array<{total: number; level: number}> = [
   {total:1,level:1},{total:2,level:1},{total:2,level:2},{total:2,level:2},
@@ -299,17 +359,28 @@ const WARLOCK_TABLE: Array<{total: number; level: number}> = [
   {total:4,level:5},{total:4,level:5},{total:4,level:5},{total:4,level:5},
 ]
 
-export function getMaxSpellSlots(className: string, level: number): SpellSlots | null {
-  const type = CLASS_CASTER_TYPE[className]
-  const table = type === 'full' ? FULL_CASTER_SLOTS
-              : type === 'half' ? HALF_CASTER_SLOTS : null
+/**
+ * Returns the spell slot counts for a class+subclass at a given level.
+ * Now subclass-aware: Cavaleiro Arcano and Trapaceiro Arcano use the 1/3
+ * caster table despite their base classes being 'none'.
+ */
+export function getMaxSpellSlots(className: string, level: number, subclass?: string): SpellSlots | null {
+  const type = resolveCasterType(className, subclass)
+  const table = type === 'full'  ? FULL_CASTER_SLOTS
+              : type === 'half'  ? HALF_CASTER_SLOTS
+              : type === 'third' ? THIRD_CASTER_SLOTS : null
   if (!table) return null
   const row = table[Math.min(level, 20) - 1]
+  // Return null instead of all-zeros for third-casters below level 3
+  if (row.every(v => v === 0)) return null
   return { 1:row[0], 2:row[1], 3:row[2], 4:row[3], 5:row[4], 6:row[5], 7:row[6], 8:row[7], 9:row[8] }
 }
 
-export function getWarlockSlots(className: string, level: number): WarlockSlots | null {
-  if (CLASS_CASTER_TYPE[className] !== 'warlock') return null
+/**
+ * Returns Warlock Pact Magic slots or null for non-warlocks.
+ */
+export function getWarlockSlots(className: string, level: number, subclass?: string): WarlockSlots | null {
+  if (resolveCasterType(className, subclass) !== 'warlock') return null
   const row = WARLOCK_TABLE[Math.min(level, 20) - 1]
   return { total: row.total, level: row.level, used: 0 }
 }
@@ -317,9 +388,10 @@ export function getWarlockSlots(className: string, level: number): WarlockSlots 
 /**
  * Returns the spell save DC for a caster.
  * Formula: 8 + proficiency bonus + spellcasting ability modifier — PHB p.205
+ * Now subclass-aware for Cavaleiro Arcano and Trapaceiro Arcano.
  */
-export function getSpellSaveDC(className: string, level: number, attrs: Attributes): number | null {
-  const abilityKey = CLASS_SPELL_ABILITY[className]
+export function getSpellSaveDC(className: string, level: number, attrs: Attributes, subclass?: string): number | null {
+  const abilityKey = resolveSpellAbility(className, subclass)
   if (!abilityKey) return null
   return 8 + profBonus(level) + calcMod(attrs[abilityKey])
 }
@@ -327,9 +399,10 @@ export function getSpellSaveDC(className: string, level: number, attrs: Attribut
 /**
  * Returns the spell attack bonus for a caster.
  * Formula: proficiency bonus + spellcasting ability modifier — PHB p.205
+ * Now subclass-aware for Cavaleiro Arcano and Trapaceiro Arcano.
  */
-export function getSpellAttackBonus(className: string, level: number, attrs: Attributes): number | null {
-  const abilityKey = CLASS_SPELL_ABILITY[className]
+export function getSpellAttackBonus(className: string, level: number, attrs: Attributes, subclass?: string): number | null {
+  const abilityKey = resolveSpellAbility(className, subclass)
   if (!abilityKey) return null
   return profBonus(level) + calcMod(attrs[abilityKey])
 }
