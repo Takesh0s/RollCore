@@ -18,7 +18,7 @@ type SheetTab = 'combat' | 'skills' | 'spells' | 'traits'
 const SPELL_LABELS = ['1°','2°','3°','4°','5°','6°','7°','8°','9°']
 
 export function CharacterSheetScreen() {
-  const { navigate, updateCharacter, showToast } = useAppStore()
+  const { navigate, updateCharacter, patchCharacterLocal, showToast } = useAppStore()
   const char = useSelectedCharacter()
 
   const [tab,          setTab]          = useState<SheetTab>('combat')
@@ -29,7 +29,7 @@ export function CharacterSheetScreen() {
   const [slots,        setSlots]        = useState<SpellSlots  | null>(() => char?.spell_slots    ?? null)
   const [wSlots,       setWSlots]       = useState<WarlockSlots| null>(() => char?.warlock_slots  ?? null)
 
-  // ── Sprint 8: known spells ─────────────────────────────────────────────────
+  // Known spells state management
   const [knownSpells,     setKnownSpells]     = useState<Spell[]>([])
   const [loadingSpells,   setLoadingSpells]   = useState(false)
   const [showSpellSearch, setShowSpellSearch] = useState(false)
@@ -61,8 +61,7 @@ export function CharacterSheetScreen() {
       .finally(() => setLoadingSpells(false))
   }, [tab, casterType, char.id])
 
-  // ── HP helpers ─────────────────────────────────────────────────────────────
-
+  // HP state management and persistence
   function persist(hpOv?: number, tempOv?: number, slotsOv?: SpellSlots | null, wOv?: WarlockSlots | null) {
     updateCharacter(character.id, {
       ...character,
@@ -107,14 +106,14 @@ export function CharacterSheetScreen() {
     showToast('HP restaurado ao máximo', 'success')
   }
 
-  // ── Spell slot helpers ─────────────────────────────────────────────────────
-
+  // Spell slot management
   function spendSlot(level: number) {
     if (!slots) return
     const k = level as keyof SpellSlots
     if (slots[k] <= 0) return
     const next = { ...slots, [k]: slots[k] - 1 }
-    setSlots(next); persist(undefined, undefined, next)
+    setSlots(next)
+    patchCharacterLocal(character.id, { spell_slots: next })
     showToast(`Espaço de ${level}° nível gasto`)
   }
 
@@ -123,31 +122,34 @@ export function CharacterSheetScreen() {
     const k = level as keyof SpellSlots
     if (slots[k] >= maxSlots[k]) return
     const next = { ...slots, [k]: slots[k] + 1 }
-    setSlots(next); persist(undefined, undefined, next)
+    setSlots(next)
+    patchCharacterLocal(character.id, { spell_slots: next })
   }
 
   function restoreAllSlots() {
     if (!maxSlots) return
-    setSlots(maxSlots); persist(undefined, undefined, maxSlots)
+    setSlots(maxSlots)
+    patchCharacterLocal(character.id, { spell_slots: maxSlots })
     showToast('Espaços recuperados (Descanso Longo)', 'success')
   }
 
   function spendWarlockSlot() {
     if (!wSlots || wSlots.used >= wSlots.total) return
     const next = { ...wSlots, used: wSlots.used + 1 }
-    setWSlots(next); persist(undefined, undefined, undefined, next)
+    setWSlots(next)
+    patchCharacterLocal(character.id, { warlock_slots: next })
     showToast('Espaço de Pacto gasto')
   }
 
   function restoreWarlockSlots() {
     if (!wSlots) return
     const next = { ...wSlots, used: 0 }
-    setWSlots(next); persist(undefined, undefined, undefined, next)
+    setWSlots(next)
+    patchCharacterLocal(character.id, { warlock_slots: next })
     showToast('Espaços de Pacto recuperados (Descanso Curto)', 'success')
   }
 
-  // ── Known spell helpers ────────────────────────────────────────────────────
-
+  // Known spells management
   async function handleRemoveSpell(spell: Spell) {
     setRemovingId(spell.id)
     try {
@@ -171,7 +173,7 @@ export function CharacterSheetScreen() {
 
   return (
     <div className="device">
-      {/* ── Topbar ── */}
+      {/* Character header with navigation */}
       <div className="topbar">
         <button className="topbar-back" onClick={() => navigate('personagens')}>←</button>
         <div className="topbar-info">
@@ -185,7 +187,7 @@ export function CharacterSheetScreen() {
         </button>
       </div>
 
-      {/* ── HP tracker ── */}
+      {/* HP display and damage/healing controls */}
       <div className={`hp-tracker${trackerFlash ? ` flash-${trackerFlash}` : ''}`}>
         <div className="hp-header">
           {char.avatar_url && (
@@ -215,7 +217,7 @@ export function CharacterSheetScreen() {
         </div>
       </div>
 
-      {/* ── Tab Bar ── */}
+      {/* Sheet navigation tabs */}
       <div className="sheet-tabs">
         {(['combat','skills'] as SheetTab[]).map(t => (
           <button key={t} className={`sheet-tab${tab === t ? ' active' : ''}`} onClick={() => setTab(t)}>
@@ -236,7 +238,7 @@ export function CharacterSheetScreen() {
 
       <div className="page-body tab-content" key={tab}>
 
-        {/* ═══ COMBAT TAB ═══════════════════════════════════════════════════════ */}
+        {/* Combat tab: attributes and combat stats */}
         {tab === 'combat' && (
           <>
             <h2 className="section-title">Atributos</h2>
@@ -273,7 +275,7 @@ export function CharacterSheetScreen() {
           </>
         )}
 
-        {/* ═══ SKILLS TAB ═══════════════════════════════════════════════════════ */}
+        {/* Skills tab: skill checks */}
         {tab === 'skills' && (
           <>
             <h2 className="section-title">Perícias</h2>
@@ -294,7 +296,7 @@ export function CharacterSheetScreen() {
           </>
         )}
 
-        {/* ═══ SPELLS TAB ═══════════════════════════════════════════════════════ */}
+        {/* Spells tab: spell slots, caster stats, and known spells */}
         {tab === 'spells' && (
           <>
             {/* Spell attack stats */}
@@ -373,7 +375,7 @@ export function CharacterSheetScreen() {
               </>
             )}
 
-            {/* ── Known Spells section ── */}
+            {/* Known spells list with add button */}
             <div className="spell-section-header" style={{ marginTop: 24 }}>
               <h2 className="section-title" style={{ margin: 0 }}>
                 Magias Conhecidas
@@ -460,7 +462,7 @@ export function CharacterSheetScreen() {
           </>
         )}
 
-        {/* ═══ TRAITS TAB ═══════════════════════════════════════════════════════ */}
+        {/* Traits tab: racial and class traits */}
         {tab === 'traits' && (
           <>
             <h2 className="section-title">Traços Raciais — {char.race}</h2>
@@ -482,7 +484,7 @@ export function CharacterSheetScreen() {
 
       </div>
 
-      {/* ── SpellSearchModal ── */}
+      {/* Spell search and addition modal */}
       {showSpellSearch && (
         <SpellSearchModal
           characterId={char.id}
