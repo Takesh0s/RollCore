@@ -80,7 +80,7 @@ public class DiceService {
         int total = rolls.stream().mapToInt(Integer::intValue).sum() + parsed.mod();
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found."));
 
         DiceRoll entity = DiceRoll.builder()
                 .user(user)
@@ -89,10 +89,10 @@ public class DiceService {
                 .total(total)
                 .build();
 
-        diceRollRepository.save(entity);
+        DiceRoll saved = diceRollRepository.save(entity);
 
-        return new RollResponse(entity.getId(), formula, rolls, parsed.mod(), total,
-                entity.getRolledAt());
+        return new RollResponse(saved.getId(), formula, rolls, parsed.mod(), total,
+                saved.getRolledAt());
     }
 
 
@@ -114,7 +114,7 @@ public class DiceService {
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found."));
 
         DiceRoll entity = DiceRoll.builder()
                 .user(user)
@@ -123,10 +123,10 @@ public class DiceService {
                 .total(request.total())
                 .build();
 
-        diceRollRepository.save(entity);
+        DiceRoll saved = diceRollRepository.save(entity);
 
-        return new RollResponse(entity.getId(), formula, request.rolls(),
-                request.mod(), request.total(), entity.getRolledAt());
+        return new RollResponse(saved.getId(), formula, request.rolls(),
+                request.mod(), request.total(), saved.getRolledAt());
     }
 
     // ── History ───────────────────────────────────────────────────────────────
