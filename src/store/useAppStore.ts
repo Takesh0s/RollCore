@@ -7,7 +7,7 @@ import type {
   AuthTokens, CharacterApiResponse, DiceRollApiResponse,
 } from '@/types'
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// Data transformation helpers
 
 /**
  * Maps the API's camelCase response to the frontend's snake_case Character shape.
@@ -50,13 +50,12 @@ function mapCharacterRequest(c: Omit<Character, 'id'>) {
   }
 }
 
-// ── Store interface ───────────────────────────────────────────────────────────
-
+// Application state interface
 interface AppState {
   screen: Screen
   navigate: (screen: Screen) => void
 
-  // Auth
+  // Authentication and user management
   user:             User
   registeredEmails: string[]
   login:            (email: string, password: string, keepConnected: boolean) => Promise<void>
@@ -64,7 +63,7 @@ interface AppState {
   logout:           () => void
   updateProfile:    (updates: Partial<Pick<User, 'username' | 'avatar_url'>>) => Promise<void>
 
-  // Characters
+  // Character management
   characters:          Character[]
   selectedCharacterId: number | null
   isLoadingChars:      boolean
@@ -72,21 +71,21 @@ interface AppState {
   loadCharacters:      () => Promise<void>
   addCharacter:        (char: Omit<Character, 'id'>) => Promise<void>
   updateCharacter:     (id: number, data: Omit<Character, 'id'>) => Promise<void>
+  patchCharacterLocal: (id: number, patch: Partial<Character>) => void
   deleteCharacter:     (id: number) => Promise<void>
 
-  // Dice history
+  // Dice roll history
   history:    HistoryEntry[]
   addHistory: (entry: Omit<HistoryEntry, 'timestamp'>) => Promise<void>
   loadHistory: () => Promise<void>
 
-  // UI
+  // UI notifications
   toast:      { message: string; type: 'success' | 'error' | '' } | null
   showToast:  (message: string, type?: 'success' | 'error' | '') => void
   clearToast: () => void
 }
 
-// ── Store ─────────────────────────────────────────────────────────────────────
-
+// Store implementation
 export const useAppStore = create<AppState>((set, get) => ({
   screen: 'login',
 
@@ -97,8 +96,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ screen })
   },
 
-  // ── Auth ───────────────────────────────────────────────────────────────────
-
+  // Authentication handlers
   user:             { isLogged: false, email: '', username: '', keepConnected: false },
   registeredEmails: ['teste@rpg.com'],
 
@@ -170,8 +168,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  // ── Characters ─────────────────────────────────────────────────────────────
-
+  // Character management handlers
   characters:          storage.getCharacters(),
   selectedCharacterId: null,
   isLoadingChars:      false,
@@ -238,8 +235,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  async updateCharacter(id, data) {
-    const slots  = getMaxSpellSlots(data.class, data.level, data.subclass)
+  async updateCharacter(id, data) {    const slots  = getMaxSpellSlots(data.class, data.level, data.subclass)
     const wSlots = getWarlockSlots(data.class, data.level, data.subclass)
 
     set(s => {
@@ -263,6 +259,21 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
+  /**
+   * Updates a character only in local state and localStorage — no API call.
+   * Used for spell slot pip clicks (used slots are session state, not persisted
+   * to the server, which would recalculate and overwrite them).
+   */
+  patchCharacterLocal(id: number, patch: Partial<Character>) {
+    set(s => {
+      const characters = s.characters.map(c =>
+        c.id === id ? { ...c, ...patch } : c
+      )
+      storage.setCharacters(characters)
+      return { characters }
+    })
+  },
+
   async deleteCharacter(id) {
     set(s => {
       const characters = s.characters.filter(c => c.id !== id)
@@ -278,8 +289,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  // ── Dice history ───────────────────────────────────────────────────────────
-
+  // Dice roll history handlers
   history: storage.getHistory(),
 
   async loadHistory() {
@@ -337,8 +347,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  // ── Toast ──────────────────────────────────────────────────────────────────
-
+  // Toast notification handlers
   toast: null,
   showToast(message, type = '') {
     set({ toast: { message, type } })
@@ -347,8 +356,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   clearToast() { set({ toast: null }) },
 }))
 
-// ── Restore session on page reload ────────────────────────────────────────────
-
+// Restore user session on page load
 const saved = storage.getUser()
 if (saved?.keepConnected && tokenStorage.getAccess()) {
   useAppStore.setState({ user: { ...saved, isLogged: true }, screen: 'dashboard' })
@@ -356,8 +364,7 @@ if (saved?.keepConnected && tokenStorage.getAccess()) {
   useAppStore.getState().loadHistory()
 }
 
-// ── Selector helpers ──────────────────────────────────────────────────────────
-
+// Store selector hooks
 export function useSelectedCharacter(): Character | undefined {
   return useAppStore(s => s.characters.find(c => c.id === s.selectedCharacterId))
 }
