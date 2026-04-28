@@ -1,0 +1,32 @@
+# RollCore Render deployment configuration
+# Reference: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: rollcore-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /actuator/health
+
+    envVars:
+      # Database Configuration (Supabase)
+      # Format: jdbc:postgresql://HOST:5432/postgres?sslmode=require
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+
+      # JWT Secret Key
+      - key: JWT_SECRET
+        sync: false
+
+      # CORS Configuration
+      # Frontend URL hosted on Vercel
+      - key: CORS_ORIGINS
+        value: https://rollcore.vercel.app
