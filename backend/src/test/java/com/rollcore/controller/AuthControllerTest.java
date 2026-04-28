@@ -1,19 +1,28 @@
 package com.rollcore.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rollcore.config.SecurityConfig;
 import com.rollcore.dto.request.LoginRequest;
 import com.rollcore.dto.request.RefreshRequest;
 import com.rollcore.dto.request.RegisterRequest;
 import com.rollcore.dto.response.AuthResponse;
 import com.rollcore.exception.ConflictException;
 import com.rollcore.exception.GlobalExceptionHandler;
+import com.rollcore.filter.JwtAuthFilter;
+import com.rollcore.filter.RateLimitFilter;
 import com.rollcore.service.AuthService;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -23,29 +32,54 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Web-layer slice tests for {@link AuthController}.
- * Spring Security is partially loaded — only the auth filter chain matters here.
+ *
+ * Imports {@link SecurityConfig} so the real permit-all rules apply to
+ * /auth/register, /auth/login and /auth/refresh.
+ *
+ * JwtAuthFilter and RateLimitFilter are @SpyBean so Spring injects real
+ * instances into SecurityConfig, but we override doFilter() to simply delegate
+ * to chain.doFilter() — bypassing JWT validation and rate limiting in tests.
  */
-@WebMvcTest(AuthController.class)
-@Import(GlobalExceptionHandler.class)
+@WebMvcTest(
+    controllers = AuthController.class,
+    excludeAutoConfiguration = UserDetailsServiceAutoConfiguration.class
+)
+@Import({SecurityConfig.class, GlobalExceptionHandler.class})
 @ActiveProfiles("test")
 @DisplayName("AuthController")
 class AuthControllerTest {
 
-    @Autowired MockMvc       mvc;
-    @Autowired ObjectMapper  mapper;
-    @MockBean  AuthService   authService;
+    @Autowired MockMvc      mvc;
+    @Autowired ObjectMapper mapper;
+    @MockBean  AuthService  authService;
 
-    // Needed by SecurityConfig even in slice tests
-    @MockBean com.rollcore.security.JwtService            jwtService;
-    @MockBean com.rollcore.security.UserDetailsServiceImpl userDetailsService;
-    @MockBean com.rollcore.filter.JwtAuthFilter            jwtAuthFilter;
-    @MockBean com.rollcore.filter.RateLimitFilter          rateLimitFilter;
+    @MockBean  com.rollcore.security.JwtService             jwtService;
+    @MockBean  com.rollcore.security.UserDetailsServiceImpl userDetailsService;
+    @SpyBean   JwtAuthFilter                                jwtAuthFilter;
+    @SpyBean   RateLimitFilter                              rateLimitFilter;
+
+    @BeforeEach
+    void bypassFilters() throws Exception {
+        doAnswer(inv -> {
+            ((FilterChain) inv.getArgument(2)).doFilter(
+                    inv.getArgument(0), inv.getArgument(1));
+            return null;
+        }).when(jwtAuthFilter).doFilter(any(), any(), any());
+
+        doAnswer(inv -> {
+            ((FilterChain) inv.getArgument(2)).doFilter(
+                    inv.getArgument(0), inv.getArgument(1));
+            return null;
+        }).when(rateLimitFilter).doFilter(any(), any(), any());
+    }
 
     private static final AuthResponse FAKE_RESPONSE = new AuthResponse(
             "access.token.here",
@@ -65,11 +99,10 @@ class AuthControllerTest {
         void registerSuccess() throws Exception {
             when(authService.register(any())).thenReturn(FAKE_RESPONSE);
 
-            RegisterRequest req = new RegisterRequest("PlayerOne", "player@rollcore.com", "Senha1!");
-
-            mvc.perform(post("/auth/register")
+            mvc.perform(post("/auth/register").with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(req)))
+                            .content(mapper.writeValueAsString(
+                                    new RegisterRequest("PlayerOne", "player@rollcore.com", "Senha123"))))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.accessToken").isNotEmpty())
                     .andExpect(jsonPath("$.username").value("PlayerOne"));
@@ -81,11 +114,10 @@ class AuthControllerTest {
             when(authService.register(any()))
                     .thenThrow(new ConflictException("E-mail já cadastrado."));
 
-            RegisterRequest req = new RegisterRequest("PlayerOne", "taken@rollcore.com", "Senha1!");
-
-            mvc.perform(post("/auth/register")
+            mvc.perform(post("/auth/register").with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(req)))
+                            .content(mapper.writeValueAsString(
+                                    new RegisterRequest("PlayerOne", "taken@rollcore.com", "Senha123"))))
                     .andExpect(status().isConflict())
                     .andExpect(jsonPath("$.detail").value("E-mail já cadastrado."));
         }
@@ -93,12 +125,10 @@ class AuthControllerTest {
         @Test
         @DisplayName("400 when username format is invalid")
         void registerBadUsername() throws Exception {
-            // username contains space → fails regex
-            RegisterRequest req = new RegisterRequest("Bad Name!", "player@rollcore.com", "Senha1!");
-
-            mvc.perform(post("/auth/register")
+            mvc.perform(post("/auth/register").with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(req)))
+                            .content(mapper.writeValueAsString(
+                                    new RegisterRequest("Bad Name!", "player@rollcore.com", "Senha123"))))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.fields.username").isNotEmpty());
         }
@@ -106,11 +136,10 @@ class AuthControllerTest {
         @Test
         @DisplayName("400 when password is too weak — UC-01 RN-01")
         void registerWeakPassword() throws Exception {
-            RegisterRequest req = new RegisterRequest("PlayerOne", "player@rollcore.com", "weak");
-
-            mvc.perform(post("/auth/register")
+            mvc.perform(post("/auth/register").with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(req)))
+                            .content(mapper.writeValueAsString(
+                                    new RegisterRequest("PlayerOne", "player@rollcore.com", "weak"))))
                     .andExpect(status().isBadRequest())
                     .andExpect(jsonPath("$.fields.password").isNotEmpty());
         }
@@ -127,29 +156,26 @@ class AuthControllerTest {
         void loginSuccess() throws Exception {
             when(authService.login(any())).thenReturn(FAKE_RESPONSE);
 
-            LoginRequest req = new LoginRequest("player@rollcore.com", "Senha1!");
-
-            mvc.perform(post("/auth/login")
+            mvc.perform(post("/auth/login").with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(req)))
+                            .content(mapper.writeValueAsString(
+                                    new LoginRequest("player@rollcore.com", "Senha1!"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.accessToken").isNotEmpty());
         }
 
         @Test
-        @DisplayName("401 with wrong credentials — UC-01 E01 / MSG003 (generic message)")
+        @DisplayName("401 with wrong credentials — UC-01 E01 / MSG003")
         void loginBadCredentials() throws Exception {
             when(authService.login(any()))
                     .thenThrow(new BadCredentialsException("Credenciais inválidas."));
 
-            LoginRequest req = new LoginRequest("player@rollcore.com", "wrongpass");
-
-            mvc.perform(post("/auth/login")
+            mvc.perform(post("/auth/login").with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(req)))
+                            .content(mapper.writeValueAsString(
+                                    new LoginRequest("player@rollcore.com", "wrongpass"))))
                     .andExpect(status().isUnauthorized())
-                    // UC-01 RN-03: must not reveal which field is wrong
-                    .andExpect(jsonPath("$.detail").value("E-mail ou senha incorretos."));
+                    .andExpect(jsonPath("$.detail").value("Email or password is incorrect."));
         }
     }
 
@@ -164,11 +190,10 @@ class AuthControllerTest {
         void refreshSuccess() throws Exception {
             when(authService.refresh(any())).thenReturn(FAKE_RESPONSE);
 
-            RefreshRequest req = new RefreshRequest("valid.refresh.token");
-
-            mvc.perform(post("/auth/refresh")
+            mvc.perform(post("/auth/refresh").with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(req)))
+                            .content(mapper.writeValueAsString(
+                                    new RefreshRequest("valid.refresh.token"))))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.accessToken").isNotEmpty());
         }
@@ -177,13 +202,12 @@ class AuthControllerTest {
         @DisplayName("401 with expired refresh token — UC-01 E03")
         void refreshExpired() throws Exception {
             when(authService.refresh(any()))
-                    .thenThrow(new BadCredentialsException("Refresh token inválido ou expirado."));
+                    .thenThrow(new BadCredentialsException("Refresh token inválido."));
 
-            RefreshRequest req = new RefreshRequest("expired.token");
-
-            mvc.perform(post("/auth/refresh")
+            mvc.perform(post("/auth/refresh").with(csrf())
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(mapper.writeValueAsString(req)))
+                            .content(mapper.writeValueAsString(
+                                    new RefreshRequest("expired.token"))))
                     .andExpect(status().isUnauthorized());
         }
     }
