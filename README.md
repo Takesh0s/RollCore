@@ -199,21 +199,22 @@ npm run build && npx cap sync ios && npx cap open ios
 
 | Método | Endpoint | Auth | Descrição |
 |---|---|---|---|
-| POST | `/auth/register` | ❌ | Cadastrar usuário |
-| POST | `/auth/login` | ❌ | Login |
-| POST | `/auth/refresh` | ❌ | Renovar token |
+| POST | `/auth/register` | público | Cadastrar usuário |
+| POST | `/auth/login` | público | Login |
+| POST | `/auth/refresh` | público | Renovar token |
 | GET | `/characters` | ✅ | Listar personagens |
 | POST | `/characters` | ✅ | Criar personagem |
 | GET | `/characters/{id}` | ✅ | Buscar por ID |
 | PUT | `/characters/{id}` | ✅ | Atualizar |
 | DELETE | `/characters/{id}` | ✅ | Excluir |
-| GET | `/spells` | ❌ | Compêndio (público) |
-| GET | `/spells/{id}` | ❌ | Magia por ID (público) |
+| GET | `/spells` | público | Compêndio (SRD CC BY 4.0) |
+| GET | `/spells/{id}` | público | Magia por ID |
 | GET | `/characters/{id}/spells` | ✅ | Magias do personagem |
 | POST | `/characters/{id}/spells/{spellId}` | ✅ | Adicionar magia |
 | DELETE | `/characters/{id}/spells/{spellId}` | ✅ | Remover magia |
-| POST | `/dice/roll` | ✅ | Rolar dados |
-| GET | `/dice/history` | ✅ | Histórico |
+| POST | `/dice/roll` | ✅ | Rolar dados (SecureRandom server-side) |
+| POST | `/dice/save` | ✅ | Persistir resultado calculado pelo cliente |
+| GET | `/dice/history` | ✅ | Últimas 50 rolagens |
 
 ### Migrations Flyway
 
