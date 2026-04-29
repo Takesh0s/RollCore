@@ -24,7 +24,7 @@ import java.util.UUID;
  * DELETE /characters/{id}/spells/{spellId} → remove spell from character
  * </pre>
  */
-@Tag(name = "Spells", description = "Compêndio de magias D&D 5e — Sprint 8")
+@Tag(name = "Spells", description = "D&D 5e spell compendium — Sprint 8")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class SpellController {
 
     // ── Catalog ───────────────────────────────────────────────────────────────
 
-    @Operation(summary = "Listar magias do compêndio com filtros opcionais")
+    @Operation(summary = "List spells from the compendium with optional filters")
     @GetMapping("/spells")
     public List<SpellResponse> list(
             @RequestParam(required = false) String className,
@@ -43,7 +43,7 @@ public class SpellController {
         return spellService.filter(className, level, search);
     }
 
-    @Operation(summary = "Buscar magia por ID")
+    @Operation(summary = "Retrieve a spell by ID")
     @GetMapping("/spells/{spellId}")
     public SpellResponse getById(@PathVariable UUID spellId) {
         return spellService.getById(spellId);
@@ -51,7 +51,7 @@ public class SpellController {
 
     // ── Character spells ──────────────────────────────────────────────────────
 
-    @Operation(summary = "Listar magias conhecidas por um personagem")
+    @Operation(summary = "List spells known by a character")
     @GetMapping("/characters/{id}/spells")
     public List<SpellResponse> listForCharacter(
             @PathVariable UUID id,
@@ -59,7 +59,7 @@ public class SpellController {
         return spellService.listForCharacter(id, userId);
     }
 
-    @Operation(summary = "Adicionar magia ao personagem")
+    @Operation(summary = "Add spell to character's known/prepared spells")
     @PostMapping("/characters/{id}/spells/{spellId}")
     @ResponseStatus(HttpStatus.CREATED)
     public SpellResponse addToCharacter(
@@ -69,7 +69,7 @@ public class SpellController {
         return spellService.addToCharacter(id, spellId, userId);
     }
 
-    @Operation(summary = "Remover magia do personagem")
+    @Operation(summary = "Remove spell from character's known spells")
     @DeleteMapping("/characters/{id}/spells/{spellId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeFromCharacter(

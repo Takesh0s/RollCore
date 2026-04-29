@@ -20,7 +20,7 @@ import java.util.UUID;
 
 /**
  * Spell catalog queries and character-spell management.
- * Sprint 8 — Compêndio de Magias.
+ * Sprint 8 — D&D 5e spell compendium.
  */
 @Service
 @RequiredArgsConstructor
@@ -76,7 +76,7 @@ public class SpellService {
         Spell     spell     = findSpell(spellId);
 
         if (characterSpellRepository.existsByIdCharacterIdAndIdSpellId(characterId, spellId)) {
-            throw new ConflictException("Personagem já conhece essa magia.");
+            throw new ConflictException("Character already knows this spell.");
         }
 
         CharacterSpell cs = CharacterSpell.builder()
@@ -100,7 +100,7 @@ public class SpellService {
         verifyOwnership(characterId, userId);
 
         if (!characterSpellRepository.existsByIdCharacterIdAndIdSpellId(characterId, spellId)) {
-            throw new NotFoundException("Magia não encontrada na lista do personagem.");
+            throw new NotFoundException("Spell not found in character's known spells.");
         }
 
         characterSpellRepository.deleteByIdCharacterIdAndIdSpellId(characterId, spellId);
@@ -110,15 +110,15 @@ public class SpellService {
 
     private Spell findSpell(UUID id) {
         return spellRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Magia não encontrada."));
+                .orElseThrow(() -> new NotFoundException("Spell not found."));
     }
 
     private Character verifyOwnership(UUID characterId, UUID userId) {
         return characterRepository.findByIdAndUserId(characterId, userId)
                 .orElseThrow(() -> {
                     boolean exists = characterRepository.existsById(characterId);
-                    if (exists) throw new ForbiddenException("Acesso negado ao personagem.");
-                    return new NotFoundException("Personagem não encontrado.");
+                    if (exists) throw new ForbiddenException("Access denied to character.");
+                    return new NotFoundException("Character not found.");
                 });
     }
 }
