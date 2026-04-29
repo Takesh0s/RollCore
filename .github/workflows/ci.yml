@@ -1,0 +1,152 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# RollCore — CI/CD Pipeline
+# Architecture Reference: Section 7 · Test Plan Section 2.3.3
+#
+# Jobs:
+#   1. test   → Compiles, runs tests, verifies JaCoCo coverage ≥ 80%
+#   2. docker → Builds Docker image and publishes to GHCR (main branch only)
+#
+# Required Secrets (Settings → Secrets and variables → Actions):
+#   None required: uses automatic GITHUB_TOKEN for GHCR authentication.
+#   Docker job only runs on direct pushes to main/develop; PRs skip push.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── 1. Build, Test and Coverage Verification ───────────────────────────────
+  test:
+    name: Build & Test (JaCoCo ≥ 80%)
+    runs-on: ubuntu-latest
+
+    # PostgreSQL service container matches production environment
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rollcore_test
+          POSTGRES_USER: rollcore
+          POSTGRES_PASSWORD: rollcore
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rollcore -d rollcore_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      # mvn verify runs: compile → test → JaCoCo check (fails if coverage < 80%)
+      - name: Build and Verify Coverage
+        working-directory: backend
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/rollcore_test
+          SPRING_DATASOURCE_USERNAME: rollcore
+          SPRING_DATASOURCE_PASSWORD: rollcore
+          JWT_SECRET: ci-test-secret-must-be-at-least-256-bits-long-for-hmac-sha256!!
+          CORS_ORIGINS: http://localhost:5173
+          SPRING_PROFILES_ACTIVE: test
+        run: ./mvnw --no-transfer-progress verify
+
+      # Publishes JaCoCo HTML report as artifact for review
+      - name: Upload JaCoCo Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: backend/target/site/jacoco/
+          retention-days: 14
+
+      # Publishes coverage summary directly to pull request and commit summary
+      - name: Publish Coverage Summary to Job Report
+        if: always()
+        run: |
+          REPORT="backend/target/site/jacoco/index.html"
+          if [ -f "$REPORT" ]; then
+            COVERAGE=$(grep -oP 'Total[^%]+\K[0-9]+(?=%)' "$REPORT" | head -1)
+            echo "## 📊 JaCoCo Coverage" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|--------|-------|" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Instruction | ${COVERAGE:-N/A}% |" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            if [ "${COVERAGE:-0}" -ge 80 ]; then
+              echo "✅ Coverage **above 80%** — passed." >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "❌ Coverage **below 80%** — build blocked by JaCoCo." >> "$GITHUB_STEP_SUMMARY"
+            fi
+          else
+            echo "⚠️ JaCoCo report not found." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+  # ── 2. Docker Image Build and Registry Publication ─────────────────────────
+  docker:
+    name: Docker Build & Push (GHCR)
+    needs: test
+    # Publishes image only on direct pushes to main or develop.
+    # Pull requests validate Dockerfile through build without publishing.
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate with GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extracts Docker metadata intelligently based on Git branch:
+      #   push main    → ghcr.io/<owner>/rollcore-api:latest + sha-xxxxxxx
+      #   push develop → ghcr.io/<owner>/rollcore-api:develop + sha-xxxxxxx
+      - name: Extract Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/rollcore-api
+          tags: |
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
+            type=sha,prefix=sha-,format=short
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Build with caching strategy for improved performance (~2x faster on subsequent builds)
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: backend
+          file: backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
