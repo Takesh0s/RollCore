@@ -30,7 +30,7 @@ import java.util.UUID;
  * security context ({@code @AuthenticationPrincipal UUID userId}) and used
  * as an ownership check — never trusted from the request body.
  */
-@Tag(name = "Characters", description = "Fichas de personagem D&D 5e — UC-02")
+@Tag(name = "Characters", description = "D&D 5e character sheets — UC-02")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/characters")
@@ -39,13 +39,13 @@ public class CharacterController {
 
     private final CharacterService characterService;
 
-    @Operation(summary = "Listar personagens do usuário autenticado")
+    @Operation(summary = "List all characters for the authenticated user")
     @GetMapping
     public List<CharacterResponse> list(@AuthenticationPrincipal UUID userId) {
         return characterService.listByUser(userId);
     }
 
-    @Operation(summary = "Criar novo personagem")
+    @Operation(summary = "Create a new character")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CharacterResponse create(
@@ -54,7 +54,7 @@ public class CharacterController {
         return characterService.create(request, userId);
     }
 
-    @Operation(summary = "Buscar personagem por ID")
+    @Operation(summary = "Retrieve a character by ID")
     @GetMapping("/{id}")
     public CharacterResponse getById(
             @PathVariable UUID id,
@@ -62,7 +62,7 @@ public class CharacterController {
         return characterService.getById(id, userId);
     }
 
-    @Operation(summary = "Atualizar personagem (substituição completa)")
+    @Operation(summary = "Update a character (full replacement)")
     @PutMapping("/{id}")
     public CharacterResponse update(
             @PathVariable UUID id,
@@ -71,7 +71,7 @@ public class CharacterController {
         return characterService.update(id, request, userId);
     }
 
-    @Operation(summary = "Excluir personagem")
+    @Operation(summary = "Delete a character")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(

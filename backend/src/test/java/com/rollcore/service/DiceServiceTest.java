@@ -101,6 +101,7 @@ class DiceServiceTest {
             when(userRepository.findById(userId)).thenReturn(Optional.of(user));
             when(diceRollRepository.save(any())).thenAnswer(inv -> {
                 DiceRoll r = inv.getArgument(0);
+                // Simulate what the DB does: assign a generated UUID
                 return DiceRoll.builder()
                         .id(UUID.randomUUID())
                         .user(r.getUser())

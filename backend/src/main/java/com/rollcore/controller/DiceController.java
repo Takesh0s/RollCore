@@ -27,7 +27,7 @@ import java.util.UUID;
  * Rolling is processed server-side with {@link java.security.SecureRandom}
  * to guarantee result integrity — UC-03 RE-01.
  */
-@Tag(name = "Dice", description = "Rolagem de dados virtuais — UC-03")
+@Tag(name = "Dice", description = "Virtual dice rolling — UC-03")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/dice")
@@ -36,7 +36,7 @@ public class DiceController {
 
     private final DiceService diceService;
 
-    @Operation(summary = "Rolar dados com fórmula NdX+M — UC-03 §3.1")
+    @Operation(summary = "Roll dice with formula NdX+M — UC-03 §3.1")
     @PostMapping("/roll")
     @ResponseStatus(HttpStatus.CREATED)
     public RollResponse roll(
@@ -46,7 +46,7 @@ public class DiceController {
     }
 
 
-    @Operation(summary = "Persistir resultado já calculado pelo cliente — sem rerolar")
+    @Operation(summary = "Persist a pre-calculated roll result without rerolling")
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.CREATED)
     public RollResponse save(
@@ -55,7 +55,7 @@ public class DiceController {
         return diceService.save(userId, request);
     }
 
-    @Operation(summary = "Histórico das últimas 50 rolagens — UC-03 S02 / RN-04")
+    @Operation(summary = "Get history of the last 50 rolls — UC-03 S02 / RN-04")
     @GetMapping("/history")
     public List<RollResponse> history(@AuthenticationPrincipal UUID userId) {
         return diceService.getHistory(userId);

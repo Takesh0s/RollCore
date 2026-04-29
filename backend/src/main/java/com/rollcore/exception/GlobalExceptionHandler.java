@@ -31,13 +31,13 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
-                        fe -> fe.getDefaultMessage() == null ? "Inválido" : fe.getDefaultMessage(),
+                        fe -> fe.getDefaultMessage() == null ? "Invalid" : fe.getDefaultMessage(),
                         (a, b) -> a));
 
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         pd.setType(URI.create("urn:rollcore:validation-error"));
-        pd.setTitle("Erro de Validação");
-        pd.setDetail("Um ou mais campos são inválidos.");
+        pd.setTitle("Validation Error");
+        pd.setDetail("One or more fields are invalid.");
         pd.setProperty("fields", errors);
         return pd;
     }
@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleInvalidFormula(InvalidFormulaException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         pd.setType(URI.create("urn:rollcore:invalid-formula"));
-        pd.setTitle("Fórmula Inválida");
+        pd.setTitle("Invalid Formula");
         pd.setDetail(ex.getMessage());
         return pd;
     }
@@ -61,8 +61,8 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleBadCredentials(RuntimeException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.UNAUTHORIZED);
         pd.setType(URI.create("urn:rollcore:bad-credentials"));
-        pd.setTitle("Credenciais Inválidas");
-        pd.setDetail("E-mail ou senha incorretos.");   // MSG003 — UC-01 E01
+        pd.setTitle("Invalid Credentials");
+        pd.setDetail("Email or password is incorrect.");   // MSG003 — UC-01 E01
         return pd;
     }
 
@@ -72,7 +72,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleForbidden(ForbiddenException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
         pd.setType(URI.create("urn:rollcore:forbidden"));
-        pd.setTitle("Acesso Negado");
+        pd.setTitle("Access Denied");
         pd.setDetail(ex.getMessage());
         return pd;
     }
@@ -83,7 +83,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleNotFound(NotFoundException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         pd.setType(URI.create("urn:rollcore:not-found"));
-        pd.setTitle("Não Encontrado");
+        pd.setTitle("Not Found");
         pd.setDetail(ex.getMessage());
         return pd;
     }
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleConflict(ConflictException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         pd.setType(URI.create("urn:rollcore:conflict"));
-        pd.setTitle("Conflito");
+        pd.setTitle("Conflict");
         pd.setDetail(ex.getMessage());
         return pd;
     }
@@ -106,8 +106,8 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception", ex);
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         pd.setType(URI.create("urn:rollcore:internal-error"));
-        pd.setTitle("Erro Interno");
-        pd.setDetail("Ocorreu um erro inesperado. Tente novamente.");
+        pd.setTitle("Internal Error");
+        pd.setDetail("An unexpected error occurred. Please try again.");
         return pd;
     }
 }

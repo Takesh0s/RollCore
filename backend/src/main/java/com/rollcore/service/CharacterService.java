@@ -58,7 +58,7 @@ public class CharacterService {
     @Transactional
     public CharacterResponse create(CharacterRequest req, UUID userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found."));
 
         Character character = buildFrom(new Character(), req, user);
         characterRepository.save(character);
@@ -104,9 +104,12 @@ public class CharacterService {
         int dex = req.attributes().getOrDefault("DEX", 10);
         entity.setAc(10 + engine.calcMod(dex));
 
-        // Spell slots computed server-side — UC-02 RN-04 / engine.ts mirrors
-        entity.setSpellSlots(engine.getMaxSpellSlots(req.characterClass(), req.level()));
-        entity.setWarlockSlots(engine.getWarlockSlots(req.characterClass(), req.level()));
+        // Spell slots computed server-side — UC-02 RN-04 / engine.ts mirrors.
+        // Subclass is passed so Cavaleiro Arcano and Trapaceiro Arcano (1/3 casters)
+        // receive the correct THIRD_CASTER_SLOTS table — mirrors resolveCasterType().
+        String subclass = req.subclass() != null ? req.subclass() : "";
+        entity.setSpellSlots(engine.getMaxSpellSlots(req.characterClass(), req.level(), subclass));
+        entity.setWarlockSlots(engine.getWarlockSlots(req.characterClass(), req.level(), subclass));
 
         return entity;
     }

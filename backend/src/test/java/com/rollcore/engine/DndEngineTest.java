@@ -129,6 +129,70 @@ class DndEngineTest {
         }
     }
 
+    // ── getMaxSpellSlots — third casters ──────────────────────────────────────
+
+    @Nested
+    @DisplayName("getMaxSpellSlots — third casters (Cavaleiro Arcano / Trapaceiro Arcano)")
+    class ThirdCasterSlotsTest {
+
+        @Test
+        @DisplayName("Guerreiro Cavaleiro Arcano level 1 → null (no slots before level 3)")
+        void cavaleiroLevel1() {
+            assertThat(engine.getMaxSpellSlots("Guerreiro", 1, "Cavaleiro Arcano")).isNull();
+        }
+
+        @Test
+        @DisplayName("Guerreiro Cavaleiro Arcano level 2 → null (no slots before level 3)")
+        void cavaleiroLevel2() {
+            assertThat(engine.getMaxSpellSlots("Guerreiro", 2, "Cavaleiro Arcano")).isNull();
+        }
+
+        @Test
+        @DisplayName("Guerreiro Cavaleiro Arcano level 3 → 2 first-level slots")
+        void cavaleiroLevel3() {
+            Map<String, Integer> slots = engine.getMaxSpellSlots("Guerreiro", 3, "Cavaleiro Arcano");
+            assertThat(slots).isNotNull();
+            assertThat(slots.get("1")).isEqualTo(2);
+            assertThat(slots.get("2")).isEqualTo(0);
+        }
+
+        @Test
+        @DisplayName("Ladino Trapaceiro Arcano level 7 → 4/2 slots for levels 1/2")
+        void trapeceiroLevel7() {
+            Map<String, Integer> slots = engine.getMaxSpellSlots("Ladino", 7, "Trapaceiro Arcano");
+            assertThat(slots).isNotNull();
+            assertThat(slots.get("1")).isEqualTo(4);
+            assertThat(slots.get("2")).isEqualTo(2);
+            assertThat(slots.get("3")).isEqualTo(0);
+        }
+
+        @Test
+        @DisplayName("Guerreiro sem subclasse → null (base class is non-caster)")
+        void guerreiroSemSubclasse() {
+            assertThat(engine.getMaxSpellSlots("Guerreiro", 10, null)).isNull();
+        }
+
+        @Test
+        @DisplayName("resolveCasterType — Cavaleiro Arcano → THIRD")
+        void resolveCavaleiroArcano() {
+            assertThat(engine.resolveCasterType("Guerreiro", "Cavaleiro Arcano"))
+                    .isEqualTo(DndEngine.CasterType.THIRD);
+        }
+
+        @Test
+        @DisplayName("resolveCasterType — Trapaceiro Arcano → THIRD")
+        void resolveTrapeceiroArcano() {
+            assertThat(engine.resolveCasterType("Ladino", "Trapaceiro Arcano"))
+                    .isEqualTo(DndEngine.CasterType.THIRD);
+        }
+
+        @Test
+        @DisplayName("resolveSpellAbility — Cavaleiro Arcano → INT")
+        void resolveSpellAbilityCavaleiro() {
+            assertThat(engine.resolveSpellAbility("Guerreiro", "Cavaleiro Arcano")).isEqualTo("INT");
+        }
+    }
+
     // ── getWarlockSlots ───────────────────────────────────────────────────────
 
     @Nested
@@ -201,7 +265,7 @@ class DndEngineTest {
     // ── getSpellAttackBonus ───────────────────────────────────────────────────
 
     @Test
-    @DisplayName("getSpellAttackBonus: Warlock level 5, CHA=14 → +4  (2 + 2)")
+    @DisplayName("getSpellAttackBonus: Warlock level 5, CHA=14 → +5  (profBonus=3 + mod=2)")
     void spellAttackBonus() {
         // profBonus(5)=3, calcMod(14)=2 → 3+2=5
         Map<String, Integer> attrs = Map.of("CHA", 14);

@@ -36,7 +36,7 @@ public class AuthService {
 
     /**
      * Creates a new user account and returns a token pair.
-     * UC-01 §3.1 (cadastro) — pré-condição: email/username únicos.
+     * UC-01 §3.1 (registration) — precondition: email/username must be unique.
      *
      * @throws ConflictException if the email or username is already taken (HTTP 409).
      */
@@ -47,10 +47,10 @@ public class AuthService {
 
         if (userRepository.existsByEmail(email)) {
             // UC-01 A01 / MSG001
-            throw new ConflictException("E-mail já cadastrado. Utilize outro e-mail ou faça login.");
+            throw new ConflictException("Email is already registered. Please use a different email or log in.");
         }
         if (userRepository.existsByUsername(username)) {
-            throw new ConflictException("Username já em uso. Escolha outro.");
+            throw new ConflictException("Username is already in use. Please choose a different one.");
         }
 
         User user = User.builder()
@@ -65,17 +65,17 @@ public class AuthService {
 
     /**
      * Authenticates by email + password and returns a token pair.
-     * UC-01 §3.1 (login).
+     * UC-01 §3.1 (authentication).
      *
      * @throws BadCredentialsException if credentials are wrong — UC-01 E01 / MSG003.
      */
     @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest req) {
         User user = userRepository.findByEmail(req.email().toLowerCase())
-                .orElseThrow(() -> new BadCredentialsException("Credenciais inválidas."));
+                .orElseThrow(() -> new BadCredentialsException("Invalid credentials."));
 
         if (!passwordEncoder.matches(req.password(), user.getPasswordHash())) {
-            throw new BadCredentialsException("Credenciais inválidas.");
+            throw new BadCredentialsException("Invalid credentials.");
         }
 
         return tokenPair(user);
@@ -83,7 +83,7 @@ public class AuthService {
 
     /**
      * Exchanges a valid refresh token for a new access + refresh pair.
-     * UC-01 S01 (renovação de token).
+     * UC-01 S01 (token refresh).
      *
      * @throws BadCredentialsException if the token is invalid or expired — UC-01 E03.
      */
@@ -92,12 +92,12 @@ public class AuthService {
         String token = req.refreshToken();
 
         if (!jwtService.isValidRefreshToken(token)) {
-            throw new BadCredentialsException("Refresh token inválido ou expirado.");
+            throw new BadCredentialsException("Refresh token is invalid or expired.");
         }
 
         UUID userId = jwtService.extractUserId(token);
         User user   = userRepository.findById(userId)
-                .orElseThrow(() -> new BadCredentialsException("Usuário não encontrado."));
+                .orElseThrow(() -> new BadCredentialsException("User not found."));
 
         return tokenPair(user);
     }
