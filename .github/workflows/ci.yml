@@ -56,6 +56,10 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      # mvnw loses execute permission on Windows — restore before running
+      - name: Set mvnw as executable
+        run: chmod +x mvnw
+
       # mvn verify runs: compile → test → JaCoCo check (fails if coverage < 80%)
       # mvnw lives at project root, not inside backend/
       - name: Build and Verify Coverage
