@@ -57,8 +57,8 @@ jobs:
           cache: maven
 
       # mvn verify runs: compile → test → JaCoCo check (fails if coverage < 80%)
+      # mvnw lives at project root, not inside backend/
       - name: Build and Verify Coverage
-        working-directory: backend
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/rollcore_test
           SPRING_DATASOURCE_USERNAME: rollcore
@@ -66,7 +66,7 @@ jobs:
           JWT_SECRET: ci-test-secret-must-be-at-least-256-bits-long-for-hmac-sha256!!
           CORS_ORIGINS: http://localhost:5173
           SPRING_PROFILES_ACTIVE: test
-        run: ./mvnw --no-transfer-progress verify
+        run: ./mvnw -f backend/pom.xml --no-transfer-progress verify
 
       # Publishes JaCoCo HTML report as artifact for review
       - name: Upload JaCoCo Report
