@@ -31,7 +31,7 @@ O usuário acessa o app e é direcionado automaticamente para a tela de **Login*
 |---|---|---|
 | Nome de usuário | Input text | 3–20 caracteres; apenas letras, números e `_` |
 | Email | Input text | Formato de e-mail válido |
-| Senha | Input password | Mínimo 8 caracteres, 1 maiúsculo e 1 minúsculo |
+| Senha | Input password | Mínimo 8 caracteres, 1 maiúsculo e 1 número |
 | Confirmar senha | Input password | Deve ser igual ao campo Senha |
 
 **Ações disponíveis:**
@@ -54,7 +54,7 @@ Após autenticação, o usuário chega à **Home**, que exibe:
 
 ## 3. Menu de Navegação
 
-O menu lateral (hambúrguer) dá acesso a todas as seções principais:
+O menu lateral (hambúrguer) dá acesso às seções principais do aplicativo. O acesso às Mesas é feito diretamente pela Home, não pelo menu lateral.
 
 | Ícone | Seção | Destino |
 |---|---|---|
@@ -67,8 +67,6 @@ O menu lateral (hambúrguer) dá acesso a todas as seções principais:
 | 💬 | Tutoriais | Guias e tutoriais |
 | 🎲 | Créditos | Créditos do projeto |
 | ⚙️ | Configurações | Preferências do app |
-
-> **Nota:** O acesso às Mesas é feito pela Home, não pelo menu lateral. O menu lateral não possui item "Mesas".
 
 ---
 
@@ -105,7 +103,7 @@ Mesma tela de Criar Mesa, com os campos pré-preenchidos.
 **Tela:** `Dados`
 
 ### 5.1 Fórmula Livre
-- Campo de texto aceita expressões no formato `2d6 + 3D10 + 2`
+- Campo de texto aceita expressões compostas com múltiplos tipos de dado no formato `2d6 + 3D10 + 2`
 - Botão **Rolar Dados** executa e exibe o resultado
 
 ### 5.2 Dados Rápidos
@@ -137,6 +135,8 @@ Exibe todos os personagens do usuário com:
 ### 6.2 Criar / Editar Ficha
 **Tela:** `Criar Ficha` / `Ficha`
 
+Exibe as informações de roleplay do personagem:
+
 | Campo | Tipo | Observação |
 |---|---|---|
 | Nome do personagem | Input text | Campo com ícone de pena para edição rápida |
@@ -161,6 +161,17 @@ Exibe dados vitais e itens do personagem:
 - Barra de Pontos de Vida (HP atual / HP máximo) com visualização colorida (azul/verde/vermelho)
 - Escudo de Classe de Armadura (CA)
 - Moedas: Platina · Ouro · Prata · Cobre
+
+**Atributos D&D 5e** (com cores de destaque por atributo):
+
+| Atributo | Cor |
+|---|---|
+| Força | Vermelho |
+| Destreza | Verde |
+| Constituição | Prata |
+| Inteligência | Azul |
+| Sabedoria | Roxo |
+| Carisma | Âmbar |
 
 **Tabela de Itens:**
 
@@ -249,6 +260,7 @@ Acesso ao app
     ├─ Não → Login / Cadastro
     └─ Sim ↓
         Home / Dashboard
-            ├─ Menu hambúrguer → Mesas / Dados / Fichas / Grimório / Calendário / ...
+            ├─ Menu hambúrguer → Fichas / Dados / Grimório / Calendário / ...
+            ├─ Seção Mesas (Home) → Lista de Mesas
             └─ Ícone de perfil → Meu Perfil → Configurações
 ```
