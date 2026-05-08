@@ -58,9 +58,8 @@ O menu lateral (hambúrguer) dá acesso a todas as seções principais:
 
 | Ícone | Seção | Destino |
 |---|---|---|
-| 🏠 | Início / Home Page | Tela principal |
+| 🏠 | Início | Tela principal (Home) |
 | 🔔 | Notificações | Lista de notificações |
-| 📖 | Mesas | Campanhas salvas |
 | 🗺️ | Criação de Mapas | Editor de mapas |
 | 📅 | Calendário | Calendário da campanha |
 | 📚 | Sistemas | Sistemas de RPG suportados |
@@ -69,7 +68,7 @@ O menu lateral (hambúrguer) dá acesso a todas as seções principais:
 | 🎲 | Créditos | Créditos do projeto |
 | ⚙️ | Configurações | Preferências do app |
 
-**Ícone de perfil** (canto superior direito) → acessa **Meu Perfil**.
+> **Nota:** O acesso às Mesas é feito pela Home, não pelo menu lateral. O menu lateral não possui item "Mesas".
 
 ---
 
@@ -167,8 +166,8 @@ Exibe dados vitais e itens do personagem:
 
 | Coluna | Descrição |
 |---|---|
-| ✔/✗ | Equipado ou não |
-| 🟢/⚫ | Disponível ou indisponível |
+| ✔/✗ | Disponível para uso ou não (check verde = pode usar; X vermelho = requisitos de atributo não atendidos) |
+| 🟢/⚫ | Dot de status secundário |
 | Nome | Nome do item |
 | Dano/AC | Ex: 1D8 Perf., 11 + Dex CA |
 | Quant. | Quantidade em posse |
@@ -253,7 +252,3 @@ Acesso ao app
             ├─ Menu hambúrguer → Mesas / Dados / Fichas / Grimório / Calendário / ...
             └─ Ícone de perfil → Meu Perfil → Configurações
 ```
-
----
-
-*Documento gerado para a entrega da Atividade 04 — Fase 1 do RollCore.*
