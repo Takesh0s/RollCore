@@ -35,8 +35,8 @@ A interface remete a pergaminhos, grimórios e tavernas medievais. O uso de bord
 
 | Nome | Hex | Uso |
 |---|---|---|
-| Sucesso / Disponível | `#2E7D32` (verde) | Dot indicador de item equipado/disponível |
-| Neutro / Indisponível | `#5D4037` (marrom) | Dot indicador de item indisponível |
+| Sucesso / Disponível | `#084C08` (verde escuro) | Ícone de item disponível para uso (check verde) |
+| Neutro / Indisponível | `#5D4037` (marrom) | Dot indicador de item indisponível para uso |
 | Sucesso Crítico | `#00C853` (verde vivo) | Texto de resultado de dado crítico |
 | Dano / Alerta | `#FF5252` (vermelho) | Barra de HP crítica, Excluir Conta |
 | HP Bar — Cheio | `#2196F3` (azul) | Segmento esquerdo da barra de vida |
@@ -177,8 +177,8 @@ A interface remete a pergaminhos, grimórios e tavernas medievais. O uso de bord
 [████████░░░░░░░░░░░░░░░░░] 32/25
 ```
 
-- **Segmento azul:** HP atual até o máximo "normal"
-- **Segmento verde:** zona saudável
+- **Segmento azul:** vida temporária (HP acima do máximo base)
+- **Segmento verde:** HP atual saudável
 - **Segmento vermelho:** zona crítica (quando HP < 30%)
 - **Texto central:** "HP atual / HP máximo" em branco
 
@@ -255,10 +255,10 @@ Cada tipo de dado tem um ícone geométrico próprio:
 │                             │
 │         Conteúdo            │  ← Scroll area
 │                             │
-├─────────────────────────────┤
-│  [⬛]  [⬛]  [⬛]  [⬛]    │  ← Bottom nav (fixed)
 └─────────────────────────────┘
 ```
+
+> **Nota:** Não há barra de navegação inferior. Toda a navegação é feita pelo menu hambúrguer (≡) no header.
 
 ### 6.2 Estrutura Geral (Desktop)
 
@@ -290,7 +290,7 @@ O app no PC é exibido como um card centralizado (simulando proporções mobile)
 
 ## 7. Borda Dourada do Container
 
-Um dos elementos visuais mais marcantes do RollCore é a **borda interna dourada** que envolve toda a área de conteúdo do app, reforçando a estética de pergaminho/moldura de grimório.
+Um dos elementos visuais mais marcantes do RollCore é a **borda interna dourada** que envolve toda a área de conteúdo do app, reforçando a estética de estandarte ou bandeira medieval.
 
 - **Cor:** Dourado Escuro / Dourado Principal
 - **Espessura:** 1–2px
@@ -330,7 +330,3 @@ Adicionalmente, o usuário pode personalizar as **cores de destaque** via seleto
 | Botão Entrar (hover/press) | Leve aumento de brilho |
 | Menu hambúrguer | Slide-in lateral |
 | Dados (rolagem) | Animação de rotação do d20 ao rolar (aguardando implementação) |
-
----
-
-*Documento gerado para a entrega da Atividade 04 — Fase 1 do RollCore.*
