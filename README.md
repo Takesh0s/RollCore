@@ -1,284 +1,277 @@
-# 🎲 RollCore
+# 🎲 RollCore — RPG Skill Checker & Companion
 
-Plataforma completa (**Web + Mobile + API**) para **rolagem de dados e gerenciamento de personagens de RPG de mesa**, com foco em conformidade com casos de uso, arquitetura modular e experiência visual imersiva.
+Plataforma **multiplataforma (Mobile + Steam para PC + API)** para **rolagem de dados e gerenciamento de personagens de RPG de mesa**, com identidade visual medieval fiel ao design system do Figma.
+
+> Desenvolvido pela **Equipe 9** — Universidade Católica de Brasília  
+> Disciplina: Análise e Projeto de Software
 
 ---
 
 ## 📌 Sobre o Projeto
 
-O **RollCore** é uma ferramenta para jogadores e mestres de RPG de mesa, composta por:
+O **RollCore** é uma ferramenta para jogadores e mestres de RPG de mesa composta por:
 
-- 🎨 **Frontend** Web e Mobile (React 18 + TypeScript + Capacitor)
-- ⚙️ **Backend** REST API (Spring Boot 3 + PostgreSQL 16)
+- 🎨 **Frontend** — React 18 + TypeScript + Capacitor (Mobile + Steam)
+- ⚙️ **Backend** — Spring Boot 3 + PostgreSQL 16 (API REST)
 
-Casos de uso principais da Fase 1:
+### Casos de uso (Fase 1 MVP)
 
-- **UC-01** — Autenticação segura com JWT
-- **UC-02** — Gerenciamento de fichas de personagem D&D 5e
-- **UC-03** — Rolagem de dados com SecureRandom e histórico
-
-> **Fase 1 — Status atual:** Backend em produção no Render. Frontend em produção no Vercel. Fase 2 em desenvolvimento.
-
----
-
-## 🌐 Deploy (Produção)
-
-| Serviço | URL |
-|---|---|
-| Frontend | https://rollcore.vercel.app |
-| API (backend) | https://rollcore-api.onrender.com |
-| Banco de Dados | PostgreSQL — Render (interno) |
-
-> **Aviso:** o plano gratuito do Render coloca o serviço em modo de espera após 15 min sem requisições. O primeiro acesso pode demorar ~30 segundos para acordar.
-
-### Verificar saúde do backend
-
-```bash
-curl https://rollcore-api.onrender.com/actuator/health
-# esperado: {"status":"UP"}
-```
+| UC | Funcionalidade | Status |
+|---|---|---|
+| **UC-01** | Cadastrar e Autenticar Usuário (JWT + BCrypt) | ✅ Implementado |
+| **UC-02** | Criar e Gerenciar Ficha de Personagem D&D 5e | ✅ Implementado |
+| **UC-03** | Rolar Dados Virtuais (SecureRandom server-side) | ✅ Implementado |
+| **UC-04** | Sessão Online via WebSocket (STOMP) | 🚧 Fase 2 |
 
 ---
 
-## 🧱 Arquitetura Geral
+## 🖥️ Plataformas
+
+| Plataforma | Distribuição | Tecnologia |
+|---|---|---|
+| **Android** | Google Play Store (Fase 2) | Capacitor → APK nativo |
+| **iOS** | Apple App Store (Fase 2) | Capacitor → build Xcode |
+| **PC (Windows / macOS / Linux)** | **Steam** | Capacitor + Electron |
+| **API (backend)** | Render (produção) | Spring Boot 3 / Docker |
+
+---
+
+## 🎨 Design System — Figma v1.1
+
+O visual segue fielmente os frames do Figma (Desktop 1–12, Mobile). A identidade visual é **medieval/fantasia** com:
+
+### Paleta de cores
+
+| Token CSS | Hex | Uso |
+|---|---|---|
+| `--card` | `#400101` | Fundo principal — vinho escuro |
+| `--card-raised` | `#461615` | Header, seções internas — vinho médio |
+| `--gold` | `#C8963E` | Dourado Principal — títulos, ícones, bordas |
+| `--gold-dim` | `#997733` | Dourado Escuro — bordas sutis, estado inativo |
+| `--gold-light` (alias `--text-muted`) | `#E8B86D` | Dourado Claro — labels, texto secundário |
+| `--input-bg` | `#624A2E` | Marrom claro — fundo dos campos |
+| `--bg` / body | `#7A6040` | Marrom neutro — fundo externo (desktop) |
+| `--sapphire` | `#227BFF` | HP temporário (barra azul) |
+| `--success` / crit verde | `#53A653` | Sucesso crítico |
+| `--fail` / crit vermelho | `#BC0E0E` | Falha crítica / HP crítico |
+
+### Frame de estandarte medieval
+
+Todas as telas são exibidas dentro de um **frame de estandarte medieval**: card central com borda dourada fina de 2px, borda interna decorativa, e **franjas medievais** na base (tabs verticais douradas). O fundo externo é o marrom neutro `#7A6040`.
 
 ```
-Frontend (React + Vite)   →   REST API (Spring Boot)   →   PostgreSQL 16
-      ↕ Capacitor                   ↕ JWT + BCrypt              ↕ Flyway
-  iOS / Android              Spring Security + Bucket4j       Redis (Fase 2)
+┌─────────────────────────────────────────┐  ← borda dourada 2px (#997733)
+│ ┌─────────────────────────────────────┐ │  ← borda interna decorativa
+│ │           CONTEÚDO DA TELA         │ │
+│ │   Header: ≡  Título  👤            │ │
+│ │   (background: #461615)            │ │
+│ │   ...                              │ │
+│ └─────────────────────────────────────┘ │
+└─────────────────────────────────────────┘
+    ▮▮  ▮▮  ▮▮  ▮▮  ▮▮  ▮▮  ▮▮           ← franjas medievais (#997733)
 ```
 
-O Capacitor empacota o frontend React e aponta para a mesma `VITE_API_URL` — o app mobile funciona em qualquer rede, sem precisar do Docker local.
+### Tipografia
+
+| Tipo | Fonte | Uso |
+|---|---|---|
+| Display | Cinzel Decorative | Logo, títulos de tela (Mesas, Fichas, Dados…) |
+| Títulos | Cinzel | Seções, botões, labels em caps |
+| Corpo | Crimson Pro | Texto geral, campos, descrições |
+
+### Componentes principais
+
+**Botão CTA (principal):**
+- Fundo `#3D1A0A`, borda dourada, texto dourado itálico, border-radius 24px (pílula)
+- Glow laranja-dourado: `box-shadow: 0 0 18px rgba(200,120,30,0.6), 0 0 40px rgba(200,100,20,0.25)`
+
+**Header de todas as telas internas:**
+- `background: #461615` · `border-bottom: 2px solid #997733`
+- Hambúrguer (≡) à esquerda · Título (Cinzel Decorative, dourado) centralizado · Ícone 👤 à direita
+- **Não há barra de navegação inferior** — toda navegação é pelo menu hambúrguer
+
+**Campos de input:**
+- Fundo `#624A2E`, sem borda visível, texto dourado claro `#E8B86D`, placeholder dourado escuro
+
+---
+
+## 🏗️ Arquitetura
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                      CAMADA DE APRESENTAÇÃO                          │
+│  📱 Mobile (iOS / Android)            🖥️ PC via Steam               │
+│  Capacitor → APK / IPA                Capacitor + Electron           │
+│  React 18 + TypeScript + Vite · Zustand (estado global)              │
+└────────────────────────────┬─────────────────────────────────────────┘
+                             │  HTTPS / REST + JSON
+                             ↕  (Fase 2: WSS / STOMP)
+┌────────────────────────────┴─────────────────────────────────────────┐
+│                    CAMADA DE APLICAÇÃO / API                         │
+│  Spring Boot 3 / Java 21                                             │
+│  REST Controllers · Spring Security + JWT · Rate Limiting (60/min)  │
+│  Engine D&D 5e (Java puro) · Dice Service (SecureRandom)            │
+│  WebSocket Controller STOMP — Fase 2                                 │
+└──────────┬──────────────────────────────────────────┬───────────────┘
+           │ JDBC / JPA                               │ Redis Client
+           ↕                                          ↕
+  ┌────────┴───────┐                      ┌───────────┴──────────────┐
+  │ PostgreSQL 16  │                      │ Redis 7                  │
+  │ users          │                      │ refresh tokens (TTL 7d)  │
+  │ characters     │                      │ sessões ao vivo (Fase 2) │
+  │ dice_rolls     │                      └──────────────────────────┘
+  │ sessions       │
+  └────────────────┘
+[ Docker + Docker Compose | GitHub Actions CI/CD | Render (backend) | Steam (PC) ]
+```
+
+### Estrutura de pastas
 
 ```
 RollCore/
-├── src/               Frontend React (Web + Mobile via Capacitor)
-├── backend/           API REST Spring Boot
-├── android/           Projeto Android (Capacitor)
-├── ios/               Projeto iOS (Capacitor)
-├── docs/              Documentação do projeto
-├── docker-compose.yml Ambiente de desenvolvimento local
-├── render.yaml        Configuração de deploy no Render
+├── src/
+│   ├── App.tsx                     Roteamento + frame estandarte + franjas
+│   ├── index.css                   Design System completo (tokens Figma v1.1)
+│   ├── types/index.ts
+│   ├── lib/
+│   │   ├── engine.ts               Regras D&D 5e (calcMod, profBonus, slots, raças)
+│   │   ├── engine-hp.ts            HP máximo, CA
+│   │   ├── dice.ts                 Parser de fórmulas NdX+M, validação, histórico
+│   │   ├── spells.ts               Compêndio de magias SRD
+│   │   └── storage.ts
+│   ├── store/useAppStore.ts        Zustand — estado global
+│   └── components/
+│       ├── ui/                     Toast · Modal · DiceLogo · AvatarUpload · SpellDetail
+│       ├── auth/                   LoginScreen · RegisterScreen · ProfileScreen
+│       ├── dashboard/              DashboardScreen (Mesas + D20 + Fichas)
+│       ├── characters/             CharacterListScreen · CharacterFormScreen · CharacterSheetScreen
+│       └── dice/                   DiceRollerScreen
+├── backend/                        API REST Spring Boot 3
+│   ├── src/main/java/br/com/rollcore/
+│   │   ├── controller/             Auth · Character · Dice · (WebSocket Fase 2)
+│   │   ├── service/                Auth · Character · Dice · (Session Fase 2)
+│   │   ├── security/               JwtFilter · SecurityConfig · RateLimitingFilter
+│   │   ├── engine/                 DnD5eEngine (calcMod, profBonus, spell slots)
+│   │   ├── repository/             JPA repos
+│   │   └── entity/                 User · Character · DiceRoll · Session
+│   ├── Dockerfile
+│   └── pom.xml
+├── android/                        Projeto Android (Capacitor)
+├── ios/                            Projeto iOS (Capacitor)
+├── docs/                           Documentação oficial do projeto
+│   ├── architecture/               Documento de Arquitetura (4+1) v1.0
+│   ├── requirements/               Documento de Visão v1.0 · Casos de Uso v1.0
+│   ├── testing/                    Plano de Testes v1.0
+│   └── ui-design/                  Documentação de Interface v1.1 · Figma frames
+├── docker-compose.yml
+├── render.yaml
+├── capacitor.config.ts
+├── design-system.md
+├── user-flow.md
 └── README.md
 ```
 
 ---
 
-## 🎨 Frontend
+## 🎲 Telas implementadas (Figma → Código)
 
-### Tecnologias
-
-| Tecnologia | Uso |
-|---|---|
-| React 18 + TypeScript | Interface e tipagem estática |
-| Vite 5 | Build tool e dev server |
-| Zustand 4 | Estado global |
-| Capacitor | Wrapper nativo iOS e Android |
-| CSS Variables | Design tokens e temas |
-| `localStorage` | Cache local de sessão e personagens |
-
-### Funcionalidades
-
-#### 🔐 Autenticação (UC-01)
-- Login com validação real contra contas cadastradas
-- Proteção contra enumeração de usuários — MSG003 genérica (OWASP / RN-03)
-- Política de senha forte: mínimo 8 caracteres, 1 maiúscula, 1 número (MSG002)
-- Barra de força de senha com feedback visual progressivo
-- Detecção de e-mail duplicado no cadastro — MSG001
-- Username único com validação de formato
-- Logout com limpeza de sessão e proteção de rotas
-
-#### 🎲 Sistema de Dados (UC-03)
-- Atalhos rápidos: `d4`, `d6`, `d8`, `d10`, `d12`, `d20`, `d100`
-- Suporte a fórmulas `NdX`, `NdX+M`, `NdX-M`
-- Validação de fórmula em tempo real
-- Animação de rolagem
-- Acerto Crítico `d20=20` → destaque dourado + label "Crítico!"
-- Falha Crítica `d20=1` → destaque vermelho
-
-#### 📜 Histórico (UC-03)
-- Últimas 50 rolagens (RN-04)
-- Data/hora em cada entrada — `DD/MM/AAAA HH:MM`
-- Badges visuais de CRÍTICO e FALHA
-
-#### 🧙 Personagem (UC-02)
-- Criar, visualizar, editar e excluir fichas
-- Combos SRD D&D 5e para Classe e Raça
-- Subclasse condicional ao nível mínimo da classe
-- Bônus raciais aplicados automaticamente sobre os atributos base
-- Modificadores calculados em tempo real: `floor((valor–10)/2)` (RN-02)
-- Bônus de Proficiência por nível — tabela SRD (RN-03)
-- Abas: Combate, Perícias, Magias (conjuradores), Traços Raciais
-- HP temporário com absorção antes do HP regular (PHB p.198)
-- Slots de magia e Pact Magic (Warlock) com pips interativos
-  - Cliques nos pips salvam apenas no localStorage (estado de sessão)
-  - PUT para o backend ocorre somente em alterações de HP/atributos
-- Avatar preservado localmente entre reloads
-- Exclusão com diálogo de confirmação
-
-#### 📚 Compêndio de Magias
-- GET `/spells` — público, sem autenticação (SRD CC BY 4.0)
-- Filtros: classe, nível, busca por nome
-- Adicionar/remover magias de um personagem (JWT obrigatório)
-- Seed com magias do Livro do Jogador e Compêndio de Magia
-
-#### Engine D&D 5e — tipos de conjurador (PHB)
-
-| Tipo | Classes / Subclasses |
-|---|---|
-| `full` | Bardo, Clérigo, Druida, Feiticeiro, Mago |
-| `half` | Paladino, Patrulheiro |
-| `third` | Cavaleiro Arcano (Guerreiro nv 3+), Trapaceiro Arcano (Ladino nv 3+) |
-| `warlock` | Bruxo (Pact Magic) |
-| `none` | Bárbaro, Guerreiro (demais subclasses), Ladino (demais subclasses), Monge |
-
-> Monge Via da Sombra usa Pontos de Ki, não espaços de magia — não exibe aba Magias (PHB p.80).
-
-### Estrutura do Frontend
-
-```
-src/
-├── main.tsx
-├── App.tsx
-├── index.css
-├── types/index.ts
-├── lib/
-│   ├── engine.ts         Regras D&D 5e (calcMod, profBonus, slots, subclasses)
-│   ├── dice.ts
-│   ├── spells.ts         Helpers para API de magias
-│   └── storage.ts
-├── store/
-│   └── useAppStore.ts    Zustand — estado global + patchCharacterLocal
-└── components/
-    ├── ui/               Toast · Modal · DiceLogo · SpellDetail
-    ├── auth/             Login · Register · ForgotPassword · Profile
-    ├── dashboard/        DashboardScreen
-    ├── characters/       List · Form · Sheet · SpellSearchModal
-    └── dice/             DiceRollerScreen
-```
-
-### Rodar o Frontend (desenvolvimento local)
-
-```bash
-npm install
-npm run dev
-# Aponta para http://localhost:8080 por padrão
-# Para usar o backend em produção:
-# VITE_API_URL=https://rollcore-api.onrender.com npm run dev
-```
-
-#### Mobile (Android)
-
-```bash
-npm run build && npx cap sync android && npx cap open android
-```
-
-#### Mobile (iOS)
-
-```bash
-npm run build && npx cap sync ios && npx cap open ios
-```
+| Frame | Tela | Componente |
+|---|---|---|
+| Desktop-1 | Login | `LoginScreen.tsx` |
+| Desktop-2 | Cadastro | `RegisterScreen.tsx` |
+| Desktop-3 | Home / Dashboard | `DashboardScreen.tsx` |
+| Desktop-3.2 | Menu Lateral (hambúrguer) | `DashboardScreen.tsx` (inline) |
+| Desktop-4 | Meu Perfil | `ProfileScreen.tsx` |
+| Desktop-5 | Configurações | *(Fase 2)* |
+| Desktop-6 | Lista de Mesas | `DashboardScreen.tsx` (seção Mesas) |
+| Desktop-7 / 7.2 | Criar / Editar Mesa | *(Fase 2 — CRUD de mesas)* |
+| Desktop-8 | Lista de Fichas | `CharacterListScreen.tsx` |
+| Desktop-9 / 9.2 | Ficha / Criar Ficha | `CharacterFormScreen.tsx` |
+| Desktop-10 | Inventário | `CharacterSheetScreen.tsx` |
+| Desktop-11 | Grimório | `CharacterSheetScreen.tsx` (aba Magias) |
+| Desktop-12 | Dados (rolador) | `DiceRollerScreen.tsx` |
 
 ---
 
 ## ⚙️ Backend
 
-### Tecnologias
-
-| Camada | Tecnologia |
-|---|---|
-| API | Spring Boot 3.2 · Spring MVC |
-| Segurança | Spring Security · JWT (jjwt 0.12) · BCrypt fator 12 |
-| Banco de Dados | PostgreSQL 16 · Spring Data JPA · Flyway |
-| Rate Limiting | Bucket4j — 60 req/min por IP |
-| Documentação | Springdoc / OpenAPI 3.0 · Swagger UI |
-| Testes | JUnit 5 · Mockito · JaCoCo ≥ 80% |
-| Infra | Docker · Docker Compose · Render (produção) |
-
-### Endpoints
+### Endpoints REST
 
 | Método | Endpoint | Auth | Descrição |
 |---|---|---|---|
 | POST | `/auth/register` | público | Cadastrar usuário |
-| POST | `/auth/login` | público | Login |
-| POST | `/auth/refresh` | público | Renovar token |
-| GET | `/characters` | ✅ | Listar personagens |
-| POST | `/characters` | ✅ | Criar personagem |
-| GET | `/characters/{id}` | ✅ | Buscar por ID |
-| PUT | `/characters/{id}` | ✅ | Atualizar |
-| DELETE | `/characters/{id}` | ✅ | Excluir |
-| GET | `/spells` | público | Compêndio (SRD CC BY 4.0) |
-| GET | `/spells/{id}` | público | Magia por ID |
-| GET | `/characters/{id}/spells` | ✅ | Magias do personagem |
-| POST | `/characters/{id}/spells/{spellId}` | ✅ | Adicionar magia |
-| DELETE | `/characters/{id}/spells/{spellId}` | ✅ | Remover magia |
-| POST | `/dice/roll` | ✅ | Rolar dados (SecureRandom server-side) |
-| POST | `/dice/save` | ✅ | Persistir resultado calculado pelo cliente |
-| GET | `/dice/history` | ✅ | Últimas 50 rolagens |
+| POST | `/auth/login` | público | Login → JWT access + refresh |
+| POST | `/auth/refresh` | público | Renovar access token |
+| GET | `/characters` | ✅ JWT | Listar personagens |
+| POST | `/characters` | ✅ JWT | Criar personagem |
+| GET | `/characters/{id}` | ✅ JWT | Buscar ficha |
+| PUT | `/characters/{id}` | ✅ JWT | Atualizar ficha |
+| DELETE | `/characters/{id}` | ✅ JWT | Excluir ficha |
+| GET | `/spells` | público | Compêndio SRD |
+| POST | `/dice/roll` | ✅ JWT | Rolar dados (SecureRandom) |
+| GET | `/dice/history` | ✅ JWT | Últimas 50 rolagens |
+| GET | `/actuator/health` | público | Health check |
 
-### Migrations Flyway
-
-| Versão | Descrição |
-|---|---|
-| V1 | Schema inicial (users, characters, dice_rolls, sessions) |
-| V2 | Fix tipo da coluna `level` |
-| V3 | Schema de magias (spells, character_spells) |
-| V4 | Seed do compêndio SRD |
-| V5 | Fix tipo da coluna `level` em spells |
-
-### Variáveis de Ambiente
+### Variáveis de ambiente
 
 | Variável | Padrão (dev) | Descrição |
 |---|---|---|
-| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://db:5432/rollcore` | URL do banco |
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://db:5432/rollcore` | URL JDBC |
 | `SPRING_DATASOURCE_USERNAME` | `rollcore` | Usuário do banco |
 | `SPRING_DATASOURCE_PASSWORD` | `rollcore` | Senha do banco |
 | `JWT_SECRET` | *(dev only)* | **Obrigatório em produção** — mín. 256 bits |
-| `PORT` | `8080` | Porta (injetada automaticamente pelo Render) |
-| `CORS_ORIGINS` | `http://localhost:5173` | Origins permitidas (vírgula) |
-| `RATE_LIMIT_RPM` | `60` | Requisições por minuto por IP |
+| `PORT` | `8080` | Porta da API |
+| `CORS_ORIGINS` | `http://localhost:5173` | Origins permitidas |
 
 ---
 
-## 🚀 Deploy — Render + PostgreSQL
+## 🚀 Rodando localmente
 
-### Configuração atual
-
-O `render.yaml` na raiz do repositório configura o serviço. O Render faz build e deploy automático a cada `git push` na `main`. As variáveis ficam no painel Render → Environment tab.
-
-### Configurar do zero
-
-1. **Render** → New → Blueprint → conectar repositório → Apply
-2. New → PostgreSQL → criar banco `rollcore-db`
-3. Em Environment, adicionar:
-   - `SPRING_DATASOURCE_URL` → Internal Database URL com `jdbc:` na frente
-   - `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD`
-   - `JWT_SECRET` → `node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"`
-   - `CORS_ORIGINS` → `https://rollcore.vercel.app`
-4. **Vercel** → Environment Variables → `VITE_API_URL=https://rollcore-api.onrender.com` → Redeploy
-
----
-
-## 💻 Desenvolvimento Local (Docker)
+### Backend (Docker)
 
 ```bash
-# Subir PostgreSQL + API
+# Sobe PostgreSQL 16 + API Spring Boot
 docker compose up -d
 
-# Acompanhar logs
+# Logs
 docker compose logs -f api
 
-# Rebuild após mudanças no backend
-docker compose down && docker compose up -d --build
+# Swagger UI
+open http://localhost:8080/swagger-ui.html
 ```
 
-**Swagger UI (local):** http://localhost:8080/swagger-ui.html
-
-### Testes + cobertura JaCoCo
+### Frontend (dev server)
 
 ```bash
-cd backend
-./mvnw verify
+npm install
+npm run dev
+# → http://localhost:5173
+```
+
+### Build mobile
+
+```bash
+npm run build
+
+# Android
+npx cap sync android && npx cap open android
+
+# iOS
+npx cap sync ios && npx cap open ios
+```
+
+### Build Steam (PC)
+
+```bash
+npm run build
+npm run build:steam    # Electron + Capacitor → executável nativo
+# Publicar via Steamworks SDK
+```
+
+### Testes (cobertura JaCoCo ≥ 80%)
+
+```bash
+cd backend && ./mvnw verify
 open target/site/jacoco/index.html
 ```
 
@@ -288,18 +281,37 @@ open target/site/jacoco/index.html
 
 | Fase | Escopo | Status |
 |---|---|---|
-| **Fase 1** | Frontend · UC-01/02/03 · Backend REST + JWT · Compêndio de Magias · Deploy Render/Vercel | ✅ Concluído |
-| **Fase 2** | Sessões online WebSocket · App mobile nas lojas · Histórico de sessões | 🚧 Em desenvolvimento |
-| **Fase 3** | Suporte ao sistema Ordem Paranormal · Compêndio SRD completo · Parser de PDF | 📋 Planejado |
+| **Fase 1 MVP** | UC-01/02/03 · Backend REST + JWT · Compêndio SRD · Deploy Render · Capacitor Mobile + Steam | ✅ Concluído |
+| **Fase 2** | UC-04 WebSocket/STOMP · Sessões online · Lojas mobile · Histórico de sessões · CRUD de mesas completo | 🚧 Em desenvolvimento |
+| **Fase 3** | Suporte Ordem Paranormal · Parser PDF de regras · Testes WCAG | 📋 Planejado |
 
 ---
 
-## 👥 Autores
+## 📁 Documentação
 
-Projeto desenvolvido pelo **Grupo 9** — Universidade Católica de Brasília:
+| Documento | Versão | Pasta |
+|---|---|---|
+| Documento de Visão | v1.0 | `docs/requirements/` |
+| Especificação de Casos de Uso | v1.0 | `docs/requirements/` |
+| Documento de Arquitetura (4+1) | v1.0 | `docs/architecture/` |
+| Plano de Testes | v1.0 | `docs/testing/` |
+| Documentação de Interface e Prototipação | v1.1 | `docs/ui-design/` |
+| Design System | v1.0 | `design-system.md` |
+| User Flow | v1.0 | `user-flow.md` |
 
-- João Pedro Nunes Neto
-- Leonardo dos Santos Silva
-- Lucas Gabriel Pereira Guerra
-- Luis Felipe Nunes da Fonseca Figueiredo
-- Luiz Phillipe de Souza Santos
+---
+
+## 👥 Equipe
+
+| Nome |
+|---|
+| João Pedro Nunes Neto |
+| Lucas Gabriel Pereira Guerra |
+| Luis Felipe Nunes da Fonseca Figueiredo |
+| Luiz Phillipe de Souza Santos |
+
+---
+
+## 📄 Licença
+
+Conteúdo de regras D&D 5e derivado do **System Reference Document (SRD)** da Wizards of the Coast, licenciado sob **CC BY 4.0**.
