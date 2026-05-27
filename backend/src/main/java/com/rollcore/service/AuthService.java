@@ -4,6 +4,7 @@ import com.rollcore.dto.request.LoginRequest;
 import com.rollcore.dto.request.RefreshRequest;
 import com.rollcore.dto.request.RegisterRequest;
 import com.rollcore.dto.response.AuthResponse;
+import com.rollcore.dto.response.DeleteResponse;
 import com.rollcore.entity.User;
 import com.rollcore.exception.ConflictException;
 import com.rollcore.repository.UserRepository;
@@ -102,7 +103,17 @@ public class AuthService {
         return tokenPair(user);
     }
 
+    @Transactional
+    public DeleteResponse delete() {
+        userRepository.deleteAll();
+        return deletions();
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private DeleteResponse deletions() {
+        return new DeleteResponse("All Users have been deleted.");
+    }
 
     private AuthResponse tokenPair(User user) {
         return new AuthResponse(

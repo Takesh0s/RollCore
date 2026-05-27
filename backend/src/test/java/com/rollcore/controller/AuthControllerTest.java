@@ -212,3 +212,6 @@ class AuthControllerTest {
         }
     }
 }
+
+    // - Delete /auth/DeleteAll
+

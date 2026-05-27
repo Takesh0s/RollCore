@@ -4,6 +4,7 @@ import com.rollcore.dto.request.LoginRequest;
 import com.rollcore.dto.request.RefreshRequest;
 import com.rollcore.dto.request.RegisterRequest;
 import com.rollcore.dto.response.AuthResponse;
+import com.rollcore.dto.response.DeleteResponse;
 import com.rollcore.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,4 +50,8 @@ public class AuthController {
     public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) {
         return authService.refresh(request);
     }
+
+    @Operation(summary = "Delete all users")
+    @DeleteMapping("/delete")
+    public DeleteResponse delete() { return authService.delete();}
 }
