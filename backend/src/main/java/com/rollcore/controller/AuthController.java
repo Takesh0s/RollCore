@@ -1,5 +1,6 @@
 package com.rollcore.controller;
 
+import com.rollcore.dto.request.DeleteRequest;
 import com.rollcore.dto.request.LoginRequest;
 import com.rollcore.dto.request.RefreshRequest;
 import com.rollcore.dto.request.RegisterRequest;
@@ -52,6 +53,10 @@ public class AuthController {
     }
 
     @Operation(summary = "Delete all users")
+    @DeleteMapping("/deleteall")
+    public DeleteResponse deleteall() { return authService.deleteall();}
+
+    @Operation(summary = "Delete one user by ID")
     @DeleteMapping("/delete")
-    public DeleteResponse delete() { return authService.delete();}
+    public DeleteResponse deleteOne(@Valid @RequestBody DeleteRequest request) { return authService.delete(request);}
 }

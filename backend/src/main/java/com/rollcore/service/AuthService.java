@@ -1,5 +1,6 @@
 package com.rollcore.service;
 
+import com.rollcore.dto.request.DeleteRequest;
 import com.rollcore.dto.request.LoginRequest;
 import com.rollcore.dto.request.RefreshRequest;
 import com.rollcore.dto.request.RegisterRequest;
@@ -7,6 +8,7 @@ import com.rollcore.dto.response.AuthResponse;
 import com.rollcore.dto.response.DeleteResponse;
 import com.rollcore.entity.User;
 import com.rollcore.exception.ConflictException;
+import com.rollcore.exception.NotFoundException;
 import com.rollcore.repository.UserRepository;
 import com.rollcore.security.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -104,15 +106,36 @@ public class AuthService {
     }
 
     @Transactional
-    public DeleteResponse delete() {
+    public DeleteResponse deleteall() {
         userRepository.deleteAll();
-        return deletions();
+        return deletions(null);
     }
+
+    @Transactional
+    public DeleteResponse delete(DeleteRequest req) {
+        if (userRepository.existsById(req.userID())){
+            userRepository.deleteById(req.userID());
+            return deletions(req.userID());
+        }
+        else  {
+            throw new NotFoundException("User not found.");
+        }
+    }
+
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private DeleteResponse deletions() {
-        return new DeleteResponse("All Users have been deleted.");
+    private DeleteResponse deletions(UUID id) {
+        if (id == null) {
+            return new DeleteResponse(
+                    "All Users have been deleted.");
+        }
+        else {
+            return new DeleteResponse(
+                    "User with ID: " + id + " has been deleted."
+            );
+        }
+
     }
 
     private AuthResponse tokenPair(User user) {
