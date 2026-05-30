@@ -8,6 +8,26 @@
   },
   "item": [
     {
+      "name": "Delete all users",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/auth/deleteall",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "deleteall"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "Delete all and create the first user",
       "event": [
         {
@@ -84,43 +104,60 @@
       "response": []
     },
     {
-      "name": "Delete all users",
-      "request": {
-        "method": "DELETE",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:8080/auth/deleteall",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "auth",
-            "deleteall"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Delete all users Copy",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{Secret}}",
-              "type": "string"
-            }
-          ]
+      "name": "Create Duplicate account",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const postRequest = {",
+              "    url: 'http://localhost:8080/auth/deleteall',",
+              "    method: 'DELETE',",
+              "    header: {",
+              "        \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"Secret\")",
+              "    },",
+              "    body: {",
+              "        ",
+              "    }",
+              "}",
+              "pm.sendRequest(postRequest, (error, response) => {",
+              "  console.log(error ? error : response.json());",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
         },
-        "method": "DELETE",
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test(\"Status code is 201\", function () {",
+              "    if (pm.response.code == \"201\") {",
+              "        console.log(jsonData.accessToken);",
+              "        pm.collectionVariables.set(\"Secret\", jsonData.accessToken);",
+              "    }",
+              "    console.log(pm.response.code)",
+              "    console.log(jsonData.accessToken);",
+              "    console.log(pm.collectionVariables.get(\"Secret\"))",
+              "    pm.response.to.have.status(201);",
+              "    ",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "",
+          "raw": "{\n    \"username\": \"UsuarioEmail1\",\n    \"email\": \"Email1@email.com\",\n    \"password\": \"MBK^xT8v&2QHCvVp2Gwz\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -128,7 +165,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/auth/delete",
+          "raw": "http://localhost:8080/auth/register",
           "protocol": "http",
           "host": [
             "localhost"
@@ -136,7 +173,7 @@
           "port": "8080",
           "path": [
             "auth",
-            "delete"
+            "register"
           ]
         }
       },
@@ -192,7 +229,80 @@
       "response": []
     },
     {
-      "name": "New Request",
+      "name": "5 D20 Rolls",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "var jsonData = pm.response.json();",
+              "",
+              "pm.test(\"Response to have 5 Dice Rolls\", function () {",
+              "    pm.expect(jsonData.rolls.length).to.eql(5);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"formula\": \"5d20\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/dice/roll",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "dice",
+            "roll"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "History isn't empty",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Response status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var jsonData = pm.response.json();",
+              "pm.test(\"Response body is an array\", function () {",
+              "    pm.expect(jsonData).to.be.an('array');",
+              "    });",
+              "",
+              "pm.test(\"Array contains at least one element\", function () {",
+              "    pm.expect(jsonData).to.have.length.of.at.least(1);",
+              "    });"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "protocolProfileBehavior": {
         "disableBodyPruning": true
       },
@@ -201,7 +311,65 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"email\": \"Email1@email.com\",\n    \"password\": \"MBK^xT8v&2QHCvVp2Gwz\"\n}"
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/dice/history",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "dice",
+            "history"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create a char",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "    });",
+              "",
+              "var jsonData = pm.response.json();",
+              "const deleteRequest = {",
+              "    URL: \"http://localhost:8080/characters/\"+ jsonData.id,",
+              "    method: \"DELETE\",",
+              "    header: {",
+              "        \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"Secret\")",
+              "}",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Char1\",\n  \"characterClass\": \"Fighter\",\n  \"subclass\": \"Battle Master\",\n  \"race\": \"Human\",\n  \"level\": 5,\n  \"attributes\": {\n    \"STR\": 18,\n    \"DEX\": 14,\n    \"CON\": 16,\n    \"INT\": 10,\n    \"WIS\": 12,\n    \"CHA\": 8\n  },\n  \"hp\": 49,\n  \"maxHp\": 49,\n  \"tempHp\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         },
         "url": {
           "raw": "http://localhost:8080/characters",
