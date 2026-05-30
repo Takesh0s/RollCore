@@ -1,0 +1,261 @@
+{
+  "info": {
+    "_postman_id": "b996afa8-b7c5-497c-90f6-32d1761f069f",
+    "name": "RollCore",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54513429",
+    "_collection_link": "https://go.postman.co/collection/54513429-b996afa8-b7c5-497c-90f6-32d1761f069f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Delete all and create the first user",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const postRequest = {",
+              "    url: 'http://localhost:8080/auth/deleteall',",
+              "    method: 'DELETE',",
+              "    header: {",
+              "        \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"Secret\")",
+              "    },",
+              "    body: {",
+              "        ",
+              "    }",
+              "}",
+              "pm.sendRequest(postRequest, (error, response) => {",
+              "  console.log(error ? error : response.json());",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test(\"Status code is 201\", function () {",
+              "    if (pm.response.code == \"201\") {",
+              "        console.log(jsonData.accessToken);",
+              "        pm.collectionVariables.set(\"Secret\", jsonData.accessToken);",
+              "    }",
+              "    console.log(pm.response.code)",
+              "    console.log(jsonData.accessToken);",
+              "    console.log(pm.collectionVariables.get(\"Secret\"))",
+              "    pm.response.to.have.status(201);",
+              "    ",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"UsuarioEmail1\",\n    \"email\": \"Email1@email.com\",\n    \"password\": \"MBK^xT8v&2QHCvVp2Gwz\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete all users",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/auth/deleteall",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "deleteall"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete all users Copy",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{Secret}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/auth/delete",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "delete"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test(\"Status code is 201\", function () {",
+              "    console.log(pm.response.code)",
+              "    console.log(jsonData.accessToken);",
+              "    console.log(pm.collectionVariables.get(\"Secret\"))",
+              "    pm.response.to.have.status(200);",
+              "    ",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"Email1@email.com\",\n    \"password\": \"MBK^xT8v&2QHCvVp2Gwz\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"Email1@email.com\",\n    \"password\": \"MBK^xT8v&2QHCvVp2Gwz\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/characters",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "characters"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{Secret}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "Secret",
+      "value": ""
+    }
+  ]
+}
