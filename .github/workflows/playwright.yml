@@ -97,7 +97,7 @@ jobs:
               cat spring.log
               exit 1
             fi
-            STATUS=$(curl -sf http://localhost:8080/actuator/health 2>/dev/null)
+            STATUS=$(curl -sf http://localhost:8080/actuator/health 2>/dev/null || true)
             if echo "$STATUS" | grep -q '"status":"UP"'; then
               echo "✅ API is UP after $i attempt(s)"
               exit 0
