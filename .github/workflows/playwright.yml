@@ -72,7 +72,11 @@ jobs:
           chmod +x mvnw
           ./mvnw -f backend/pom.xml --no-transfer-progress package -DskipTests
 
-      - name: Start Spring Boot API
+      # Starts Spring Boot in background and waits for /actuator/health in the
+      # SAME shell so that spring.log and SPRING_PID are always in scope.
+      # Each iteration also checks kill -0 so a silent crash is detected
+      # immediately instead of waiting 150 s for the loop to exhaust.
+      - name: Start Spring Boot API and wait for readiness
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/rollcore
           SPRING_DATASOURCE_USERNAME: rollcore
@@ -83,16 +87,9 @@ jobs:
           PORT: 8080
         run: |
           java -jar backend/target/*.jar > spring.log 2>&1 &
-          echo $! > spring.pid
-          echo "Spring Boot PID: $(cat spring.pid)"
+          SPRING_PID=$!
+          echo "Spring Boot PID: $SPRING_PID"
 
-      # Polls /actuator/health until Spring context and Flyway migrations are fully
-      # complete — health returns UP only after all migration scripts have run.
-      # Also monitors the process PID so a silent crash is detected immediately
-      # instead of waiting 150 s for the loop to exhaust.
-      - name: Wait for API to be ready
-        run: |
-          SPRING_PID=$(cat spring.pid)
           for i in $(seq 1 30); do
             if ! kill -0 "$SPRING_PID" 2>/dev/null; then
               echo "❌ Spring Boot process (PID $SPRING_PID) died unexpectedly!"
