@@ -191,8 +191,8 @@ class DndEngineTest {
         void resolveSpellAbilityCavaleiro() {
             assertThat(engine.resolveSpellAbility("Guerreiro", "Cavaleiro Arcano")).isEqualTo("INT");
         }
-    }
 
+        // CT-ENG-44 — HU-02
         @Test
         @DisplayName("CT-ENG-44 | resolveCasterType — Clérigo → FULL; spell ability → WIS")
         void clerigoFullCaster() {

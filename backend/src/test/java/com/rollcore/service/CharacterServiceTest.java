@@ -382,7 +382,6 @@ class CharacterServiceTest {
             assertThat(resp.spellSlots().get("2")).isEqualTo(3);
             assertThat(resp.spellSlots().get("3")).isEqualTo(2);
         }
-    }
 
         // CT-SVC-22 — HU-02
         @Test
