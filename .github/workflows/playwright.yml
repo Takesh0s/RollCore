@@ -81,21 +81,35 @@ jobs:
           CORS_ORIGINS: http://localhost:5173
           SPRING_PROFILES_ACTIVE: default
           PORT: 8080
-        run: java -jar backend/target/*.jar &
+        run: |
+          java -jar backend/target/*.jar > spring.log 2>&1 &
+          echo $! > spring.pid
+          echo "Spring Boot PID: $(cat spring.pid)"
 
       # Polls /actuator/health until Spring context and Flyway migrations are fully
       # complete — health returns UP only after all migration scripts have run.
+      # Also monitors the process PID so a silent crash is detected immediately
+      # instead of waiting 150 s for the loop to exhaust.
       - name: Wait for API to be ready
         run: |
+          SPRING_PID=$(cat spring.pid)
           for i in $(seq 1 30); do
+            if ! kill -0 "$SPRING_PID" 2>/dev/null; then
+              echo "❌ Spring Boot process (PID $SPRING_PID) died unexpectedly!"
+              echo "──── spring.log ────"
+              cat spring.log
+              exit 1
+            fi
             STATUS=$(curl -sf http://localhost:8080/actuator/health 2>/dev/null)
             if echo "$STATUS" | grep -q '"status":"UP"'; then
-              echo "✅ API is UP"; break
+              echo "✅ API is UP after $i attempt(s)"
+              exit 0
             fi
             echo "attempt $i/30 — sleeping 5s"; sleep 5
           done
-          curl -sf http://localhost:8080/actuator/health | grep -q '"status":"UP"' \
-            || (echo "❌ API never started" && exit 1)
+          echo "❌ API never became healthy — Spring Boot logs:"
+          cat spring.log
+          exit 1
 
       - name: Start Vite dev server
         run: npm run dev &
