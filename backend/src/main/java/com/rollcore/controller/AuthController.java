@@ -51,12 +51,12 @@ public class AuthController {
     public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) {
         return authService.refresh(request);
     }
-
-    @Operation(summary = "Delete all users")
-    @DeleteMapping("/deleteall")
-    public DeleteResponse deleteall() { return authService.deleteall();}
-
-    @Operation(summary = "Delete one user by ID")
-    @DeleteMapping("/delete")
-    public DeleteResponse deleteOne(@Valid @RequestBody DeleteRequest request) { return authService.delete(request);}
+        //Never go into production
+//    @Operation(summary = "Delete all users")
+//    @DeleteMapping("/deleteall")
+//    public DeleteResponse deleteall() { return authService.deleteall();}
+//      //Needs a filter to be used only for the current user (allow deleting only the self active account) or admin privileges to allow control and banning malicous users.
+//    @Operation(summary = "Delete one user by ID")
+//    @DeleteMapping("/delete")
+//    public DeleteResponse deleteOne(@Valid @RequestBody DeleteRequest request) { return authService.delete(request);}
 }

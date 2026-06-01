@@ -66,8 +66,7 @@ public class SecurityConfig {
                         "/auth/register", "/auth/login", "/auth/refresh").permitAll()
 
                     //Testing purposes, to be deleted after
-                    .requestMatchers(HttpMethod.DELETE,
-                            "/auth/deleteall").permitAll()
+//                    .requestMatchers(HttpMethod.DELETE, "/auth/deleteall").permitAll()
                 // ── Spell compendium — public read (SRD CC BY 4.0) ───────
                 // GET /spells and GET /spells/{id} are unauthenticated.
                 // POST/DELETE /characters/{id}/spells/** remain protected.

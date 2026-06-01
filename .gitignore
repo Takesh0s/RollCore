@@ -134,3 +134,12 @@ commits.sh
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+/out/production/RollCore2/src/main/resources/application.yml
+/out/production/RollCore2/src/main/resources/application-test.yml
+/out/production/RollCore2/Dockerfile
+/out/production/RollCore2/pom.xml
+/out/production/RollCore2/src/main/resources/db/migration/V1__init_schema.sql
+/out/production/RollCore2/src/main/resources/db/migration/V2__fix_level_type.sql
+/out/production/RollCore2/src/main/resources/db/migration/V3__spells_schema.sql
+/out/production/RollCore2/src/main/resources/db/migration/V4__seed_spells.sql
+/out/production/RollCore2/src/main/resources/db/migration/V5__fix_spell_level_type.sql
