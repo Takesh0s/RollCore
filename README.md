@@ -309,6 +309,7 @@ open target/site/jacoco/index.html
 | Lucas Gabriel Pereira Guerra |
 | Luis Felipe Nunes da Fonseca Figueiredo |
 | Luiz Phillipe de Souza Santos |
+| Leonardo Dos Santos Silva |
 
 ---
 
