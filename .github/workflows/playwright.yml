@@ -1,27 +1,108 @@
-name: Playwright Tests
+name: Playwright E2E Tests
+
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, develop]
+
+concurrency:
+  group: playwright-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
-    timeout-minutes: 60
+  e2e:
+    name: E2E — Chromium
+    timeout-minutes: 30
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rollcore
+          POSTGRES_USER: rollcore
+          POSTGRES_PASSWORD: rollcore
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rollcore -d rollcore"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Build backend (skip tests)
+        run: |
+          chmod +x mvnw
+          ./mvnw -f backend/pom.xml --no-transfer-progress package -DskipTests
+
+      - name: Start Spring Boot API
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/rollcore
+          SPRING_DATASOURCE_USERNAME: rollcore
+          SPRING_DATASOURCE_PASSWORD: rollcore
+          JWT_SECRET: e2e-ci-secret-must-be-at-least-256-bits-long-for-hmac-sha256!!
+          CORS_ORIGINS: http://localhost:5173
+          SPRING_PROFILES_ACTIVE: default
+          PORT: 8080
+        run: java -jar backend/target/*.jar &
+
+      - name: Wait for API to be ready
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
+              echo "✅ API is UP"; break
+            fi
+            echo "attempt $i/30 — sleeping 5s"; sleep 5
+          done
+          curl -sf http://localhost:8080/actuator/health || (echo "❌ API never started" && exit 1)
+
+      - name: Start Vite dev server
+        run: npm run dev &
+
+      - name: Wait for frontend to be ready
+        run: |
+          for i in $(seq 1 20); do
+            if curl -sf http://localhost:5173 > /dev/null; then
+              echo "✅ Frontend is UP"; break
+            fi
+            echo "attempt $i/20 — sleeping 3s"; sleep 3
+          done
+          curl -sf http://localhost:5173 > /dev/null || (echo "❌ Frontend never started" && exit 1)
+
+      - name: Run Playwright E2E tests
+        env:
+          CI: true
+          BASE_URL: http://localhost:5173
+        run: npx playwright test --project=chromium
+
+      - name: Upload Playwright Report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ github.run_id }}
+          path: playwright-report/
+          retention-days: 30
