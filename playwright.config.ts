@@ -33,16 +33,7 @@ export default defineConfig({
           { name: 'webkit', use: { ...devices['Desktop Safari'] } },
         ]
       : []),
-  ],
-  webServer: process.env.CI
-    ? undefined
-    : {
-        command: 'npm run dev',
-        url: 'http://localhost:5173',
-        reuseExistingServer: true,
-        timeout: 60_000,
-      },
-});
+
     /* Test against mobile viewports. */
     // {
     //   name: 'Mobile Chrome',
@@ -63,6 +54,14 @@ export default defineConfig({
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
   ],
+  webServer: process.env.CI
+    ? undefined
+    : {
+        command: 'npm run dev',
+        url: 'http://localhost:5173',
+        reuseExistingServer: true,
+        timeout: 60_000,
+      },
 
   /* Run your local dev server before starting the tests */
   // webServer: {
