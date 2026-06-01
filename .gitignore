@@ -94,6 +94,7 @@ logs/
 backend/logs/
 
 # Spring Boot log files generated at runtime
+spring.pid
 spring.log
 
 # ==============================================================================
