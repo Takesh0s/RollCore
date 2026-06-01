@@ -384,6 +384,27 @@ class CharacterServiceTest {
         }
     }
 
+        // CT-SVC-22 — HU-02
+        @Test
+        @DisplayName("CT-SVC-22 | update() throws ForbiddenException for another user's character — UC-02 RN-04")
+        void throwsForbiddenOnUpdateOther() {
+            // Character exists in the DB but belongs to a different user
+            when(characterRepository.findByIdAndUserId(characterId, userId))
+                    .thenReturn(Optional.empty());
+            when(characterRepository.existsById(characterId)).thenReturn(true);
+
+            Map<String, Integer> attrs = Map.of(
+                    "STR", 10, "DEX", 10, "CON", 10,
+                    "INT", 10, "WIS", 10, "CHA", 10
+            );
+            assertThatThrownBy(() -> service.update(characterId, request("Guerreiro", 1, attrs), userId))
+                    .isInstanceOf(ForbiddenException.class);
+
+            // Ownership violation must never reach the repository write path
+            verify(characterRepository, never()).save(any(Character.class));
+        }
+    }
+
     // Character deletion
 
     @Nested

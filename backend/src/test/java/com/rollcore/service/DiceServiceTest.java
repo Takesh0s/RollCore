@@ -118,6 +118,53 @@ class DiceServiceTest {
             assertThat(response.id()).isNotNull();
         }
 
+        // CT-DICE-16 — HU-03
+        @Test
+        @DisplayName("CT-DICE-16 | 1d8-2 → mod=-2, total = roll - 2 (negative modifier path)")
+        void rollFormulaNegativeMod() {
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(diceRollRepository.save(any())).thenAnswer(inv -> {
+                DiceRoll r = inv.getArgument(0);
+                return DiceRoll.builder()
+                        .id(UUID.randomUUID())
+                        .user(r.getUser())
+                        .formula(r.getFormula())
+                        .individualResults(r.getIndividualResults())
+                        .total(r.getTotal())
+                        .rolledAt(Instant.now())
+                        .build();
+            });
+
+            RollResponse response = diceService.roll(userId, new RollRequest("1d8-2"));
+
+            assertThat(response.formula()).isEqualTo("1d8-2");
+            assertThat(response.rolls()).hasSize(1);
+            assertThat(response.rolls().get(0)).isBetween(1, 8);
+            assertThat(response.mod()).isEqualTo(-2);
+            // Total must equal the single die result minus the modifier
+            assertThat(response.total()).isEqualTo(response.rolls().get(0) - 2);
+        }
+
+        // CT-DICE-17 — HU-03
+        @Test
+        @DisplayName("CT-DICE-17 | 1d4 result is always between 1 and 4 in 100 iterations (SecureRandom bounds)")
+        void d4BoundsCheck() {
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            when(diceRollRepository.save(any())).thenAnswer(inv -> {
+                DiceRoll r = inv.getArgument(0);
+                return DiceRoll.builder()
+                        .id(UUID.randomUUID()).user(r.getUser()).formula(r.getFormula())
+                        .individualResults(r.getIndividualResults()).total(r.getTotal())
+                        .rolledAt(Instant.now()).build();
+            });
+
+            // Roll 100 times — validates SecureRandom ceiling for the smallest standard die
+            for (int i = 0; i < 100; i++) {
+                RollResponse r = diceService.roll(userId, new RollRequest("1d4"));
+                assertThat(r.total()).isBetween(1, 4);
+            }
+        }
+
         @Test
         @DisplayName("1d20 result is always between 1 and 20 (SecureRandom bounds)")
         void d20BoundsCheck() {

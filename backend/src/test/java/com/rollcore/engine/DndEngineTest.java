@@ -193,7 +193,35 @@ class DndEngineTest {
         }
     }
 
-    // ── getWarlockSlots ───────────────────────────────────────────────────────
+        @Test
+        @DisplayName("CT-ENG-44 | resolveCasterType — Clérigo → FULL; spell ability → WIS")
+        void clerigoFullCaster() {
+            // Validates that a base FULL-caster class resolves correctly (no subclass override needed)
+            assertThat(engine.resolveCasterType("Clérigo", null))
+                    .isEqualTo(DndEngine.CasterType.FULL);
+            assertThat(engine.resolveSpellAbility("Clérigo", null)).isEqualTo("WIS");
+        }
+    }
+
+    // ── getMaxSpellSlots — Druid (full caster parity) ─────────────────────────
+
+    @Nested
+    @DisplayName("getMaxSpellSlots — Druida level 3 (FULL caster, PHB slot table)")
+    class DruidSlotsTest {
+
+        // CT-ENG-45 — HU-02
+        @Test
+        @DisplayName("CT-ENG-45 | Druida level 3 → slots 1/2 = 4/2, level 3 = 0 (PHB table)")
+        void druidaLevel3() {
+            // Druida is a FULL caster sharing the same progression table as Mago/Bardo.
+            // This test rules out a false-positive caused by hard-coding a specific class.
+            Map<String, Integer> slots = engine.getMaxSpellSlots("Druida", 3);
+            assertThat(slots).isNotNull();
+            assertThat(slots.get("1")).isEqualTo(4);
+            assertThat(slots.get("2")).isEqualTo(2);
+            assertThat(slots.get("3")).isEqualTo(0);
+        }
+    }
 
     @Nested
     @DisplayName("getWarlockSlots — Pact Magic (PHB p.107)")
