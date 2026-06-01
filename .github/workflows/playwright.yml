@@ -1,3 +1,14 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# RollCore — Playwright E2E Pipeline
+# Architecture Reference: Section 7 · Test Plan Section 2.3.4
+#
+# Starts a full stack (PostgreSQL → Spring Boot → Vite) on the CI runner,
+# then runs all E2E tests against Chromium only.
+#
+# Concurrency: push and pull_request events use separate groups so a PR run
+# is never cancelled by its corresponding push and vice-versa.
+# ─────────────────────────────────────────────────────────────────────────────
+
 name: Playwright E2E Tests
 
 on:
@@ -6,8 +17,10 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Includes github.event_name so push and pull_request runs on the same branch
+# occupy different concurrency groups and do not cancel each other.
 concurrency:
-  group: playwright-${{ github.ref }}
+  group: playwright-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -70,28 +83,28 @@ jobs:
           PORT: 8080
         run: java -jar backend/target/*.jar &
 
+      # Polls /actuator/health until Spring context and Flyway migrations are fully
+      # complete — health returns UP only after all migration scripts have run.
       - name: Wait for API to be ready
         run: |
           for i in $(seq 1 30); do
-            if curl -sf http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
+            STATUS=$(curl -sf http://localhost:8080/actuator/health 2>/dev/null)
+            if echo "$STATUS" | grep -q '"status":"UP"'; then
               echo "✅ API is UP"; break
             fi
             echo "attempt $i/30 — sleeping 5s"; sleep 5
           done
-          curl -sf http://localhost:8080/actuator/health || (echo "❌ API never started" && exit 1)
+          curl -sf http://localhost:8080/actuator/health | grep -q '"status":"UP"' \
+            || (echo "❌ API never started" && exit 1)
 
       - name: Start Vite dev server
         run: npm run dev &
 
+      # Uses wait-on instead of a plain curl loop — curl returns 200 as soon as Vite
+      # answers the first request, but modules may still be compiling in memory.
+      # wait-on blocks until the TCP port is stable and accepting connections.
       - name: Wait for frontend to be ready
-        run: |
-          for i in $(seq 1 20); do
-            if curl -sf http://localhost:5173 > /dev/null; then
-              echo "✅ Frontend is UP"; break
-            fi
-            echo "attempt $i/20 — sleeping 3s"; sleep 3
-          done
-          curl -sf http://localhost:5173 > /dev/null || (echo "❌ Frontend never started" && exit 1)
+        run: npx wait-on http://localhost:5173 --timeout 60000
 
       - name: Run Playwright E2E tests
         env:
