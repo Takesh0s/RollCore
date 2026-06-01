@@ -1,0 +1,410 @@
+{
+  "info": {
+    "_postman_id": "b996afa8-b7c5-497c-90f6-32d1761f069f",
+    "name": "RollCore",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54513429",
+    "_collection_link": "https://go.postman.co/collection/54513429-b996afa8-b7c5-497c-90f6-32d1761f069f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Delete all users",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/auth/deleteall",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "deleteall"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete all and create the first user",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const postRequest = {",
+              "    url: 'http://localhost:8080/auth/deleteall',",
+              "    method: 'DELETE',",
+              "    header: {",
+              "        \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"Secret\")",
+              "}",
+              "};",
+              "",
+              "pm.sendRequest(postRequest, (error, response) => {",
+              "  console.log(error ? error : response.json());",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test(\"Status code is 201\", function () {",
+              "    if (pm.response.code == \"201\") {",
+              "        console.log(jsonData.accessToken);",
+              "        pm.collectionVariables.set(\"Secret\", jsonData.accessToken);",
+              "    }",
+              "    console.log(pm.response.code)",
+              "    console.log(jsonData.accessToken);",
+              "    console.log(pm.collectionVariables.get(\"Secret\"))",
+              "    pm.response.to.have.status(201);",
+              "    ",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"PlayerOne\",\n    \"email\": \"player@rollcore.com\",\n    \"password\": \"Senha123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Duplicate account",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test(\"Status code is 409\", function () {",
+              "    pm.response.to.have.status(409);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"PlayerOne\",\n    \"email\": \"player@rollcore.com\",\n    \"password\": \"Senha123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/auth/register",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "pm.test(\"Status code is 201\", function () {",
+              "    console.log(pm.response.code)",
+              "    console.log(jsonData.accessToken);",
+              "    console.log(pm.collectionVariables.get(\"Secret\"))",
+              "    pm.response.to.have.status(200);",
+              "    ",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"Player@rollcore.com\",\n    \"password\": \"Senha123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/auth/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5 D20 Rolls",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "var jsonData = pm.response.json();",
+              "",
+              "pm.test(\"Response to have 5 Dice Rolls\", function () {",
+              "    pm.expect(jsonData.rolls.length).to.eql(5);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"formula\": \"5d20\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/dice/roll",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "dice",
+            "roll"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "History isn't empty",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Response status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "var jsonData = pm.response.json();",
+              "pm.test(\"Response body is an array\", function () {",
+              "    pm.expect(jsonData).to.be.an('array');",
+              "    });",
+              "",
+              "pm.test(\"Array contains at least one element\", function () {",
+              "    pm.expect(jsonData).to.have.length.of.at.least(1);",
+              "    });"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/dice/history",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "dice",
+            "history"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create a char",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 201\", function () {",
+              "    pm.response.to.have.status(201);",
+              "    });",
+              "",
+              "// var jsonData = pm.response.json();",
+              "// const deleteRequest = {",
+              "//     URL: \"http://localhost:8080/characters/\"+ jsonData.id,",
+              "//     method: \"DELETE\",",
+              "//     header: {",
+              "//         \"Authorization\": \"Bearer \" + pm.collectionVariables.get(\"Secret\")",
+              "// }",
+              "// }"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Char1\",\n  \"characterClass\": \"Fighter\",\n  \"subclass\": \"Battle Master\",\n  \"race\": \"Human\",\n  \"level\": 5,\n  \"attributes\": {\n    \"STR\": 18,\n    \"DEX\": 14,\n    \"CON\": 16,\n    \"INT\": 10,\n    \"WIS\": 12,\n    \"CHA\": 8\n  },\n  \"hp\": 49,\n  \"maxHp\": 49,\n  \"tempHp\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/characters",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "characters"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{Secret}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "Secret",
+      "value": ""
+    }
+  ]
+}

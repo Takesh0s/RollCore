@@ -163,11 +163,14 @@ RollCore/
 │   ├── requirements/               Documento de Visão v1.0 · Casos de Uso v1.0
 │   ├── testing/                    Plano de Testes v1.0
 │   └── ui-design/                  Documentação de Interface v1.1 · Figma frames
+├── E2E/
+│   └── RollCore.spec.ts            Testes de E2E Implementado por Playwright
 ├── docker-compose.yml
 ├── render.yaml
 ├── capacitor.config.ts
 ├── design-system.md
 ├── user-flow.md
+├── RollCore.postman_collection.json Testes do postman prontso para importar para a ferramenta.
 └── README.md
 ```
 
@@ -270,9 +273,17 @@ npm run build:steam    # Electron + Capacitor → executável nativo
 
 ### Testes (cobertura JaCoCo ≥ 80%)
 
+
+Junit
 ```bash
 cd backend && ./mvnw verify
 open target/site/jacoco/index.html
+```
+
+PlayWright
+```bash
+npx playwright text --trace on //Run all tests and record the trace
+npx playwright test --ui //Visual GUI for testing
 ```
 
 ---
