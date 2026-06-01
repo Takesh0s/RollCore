@@ -147,13 +147,16 @@ RollCore/
 │       ├── characters/             CharacterListScreen · CharacterFormScreen · CharacterSheetScreen
 │       └── dice/                   DiceRollerScreen
 ├── backend/                        API REST Spring Boot 3
-│   ├── src/main/java/br/com/rollcore/
-│   │   ├── controller/             Auth · Character · Dice · (WebSocket Fase 2)
-│   │   ├── service/                Auth · Character · Dice · (Session Fase 2)
-│   │   ├── security/               JwtFilter · SecurityConfig · RateLimitingFilter
-│   │   ├── engine/                 DnD5eEngine (calcMod, profBonus, spell slots)
-│   │   ├── repository/             JPA repos
-│   │   └── entity/                 User · Character · DiceRoll · Session
+│   ├── src/main/java/com/rollcore/
+│   │   ├── controller/             Auth · Character · Dice · Spell · (WebSocket Fase 2)
+│   │   ├── service/                AuthService · CharacterService · DiceService · SpellService · DndEngine
+│   │   ├── security/               JwtService · UserDetailsServiceImpl
+│   │   ├── filter/                 JwtAuthFilter · RateLimitFilter
+│   │   ├── config/                 SecurityConfig · OpenApiConfig
+│   │   ├── exception/              GlobalExceptionHandler · ForbiddenException · NotFoundException · InvalidFormulaException
+│   │   ├── dto/                    request/ · response/
+│   │   ├── repository/             JPA repositories
+│   │   └── entity/                 User · Character · DiceRoll · Spell · Session
 │   ├── Dockerfile
 │   └── pom.xml
 ├── android/                        Projeto Android (Capacitor)
@@ -161,7 +164,7 @@ RollCore/
 ├── docs/                           Documentação oficial do projeto
 │   ├── architecture/               Documento de Arquitetura (4+1) v1.0
 │   ├── requirements/               Documento de Visão v1.0 · Casos de Uso v1.0
-│   ├── testing/                    Plano de Testes v1.0
+│   ├── testing/                    Plano de Testes v1.2
 │   └── ui-design/                  Documentação de Interface v1.1 · Figma frames
 ├── E2E/
 │   └── RollCore.spec.ts            Testes de E2E Implementado por Playwright
@@ -271,19 +274,31 @@ npm run build:steam    # Electron + Capacitor → executável nativo
 # Publicar via Steamworks SDK
 ```
 
-### Testes (cobertura JaCoCo ≥ 80%)
+### Tests (JaCoCo coverage ≥ 80%)
 
+**Test suite — 120 cases across 7 Java files + 1 Postman collection:**
 
-Junit
+| File | Type | Cases | HU |
+|---|---|---|---|
+| `AuthControllerTest` | API / WebMvcTest | 8 | HU-01 |
+| `CharacterControllerTest` | API / WebMvcTest | 7 | HU-02 |
+| `DndEngineTest` | Unit (no Spring context) | 45 | HU-02 |
+| `CharacterServiceTest` | Unit (Mockito) | 21 | HU-02 |
+| `RollCoreE2E` | E2E (Playwright) | 6 | HU-01, HU-02 |
+| `DiceServiceTest` | Unit (Mockito) | 17 | HU-03 |
+| `SpellServiceTest` | Unit (Mockito) | 9 | HU-02 |
+| `RollCore.postman_collection.json` | API (live environment) | 6 | HU-01, HU-03 |
+
+JUnit
 ```bash
 cd backend && ./mvnw verify
 open target/site/jacoco/index.html
 ```
 
-PlayWright
+Playwright
 ```bash
-npx playwright text --trace on //Run all tests and record the trace
-npx playwright test --ui //Visual GUI for testing
+npx playwright test --trace on   # Run all tests and record the trace
+npx playwright test --ui          # Visual GUI for testing
 ```
 
 ---
@@ -305,7 +320,7 @@ npx playwright test --ui //Visual GUI for testing
 | Documento de Visão | v1.0 | `docs/requirements/` |
 | Especificação de Casos de Uso | v1.0 | `docs/requirements/` |
 | Documento de Arquitetura (4+1) | v1.0 | `docs/architecture/` |
-| Plano de Testes | v1.0 | `docs/testing/` |
+| Plano de Testes | v1.2 | `docs/testing/` |
 | Documentação de Interface e Prototipação | v1.1 | `docs/ui-design/` |
 | Design System | v1.0 | `design-system.md` |
 | User Flow | v1.0 | `user-flow.md` |
