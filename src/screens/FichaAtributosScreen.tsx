@@ -165,28 +165,6 @@ export default function FichaAtributosScreen() {
         </View>
       </ScrollView>
 
-      <Pressable
-        onPress={() => rollAttribute(primeiro.key, modificador(personagem.valores[primeiro.key] ?? 10))}
-        accessibilityLabel="Rolar d20"
-        style={{
-          position: 'absolute',
-          right: 16,
-          bottom: 88,
-          width: 56,
-          height: 56,
-          borderRadius: 28,
-          backgroundColor: COLORS.primary,
-          alignItems: 'center',
-          justifyContent: 'center',
-          shadowColor: '#000',
-          shadowOpacity: 0.4,
-          shadowOffset: { width: 0, height: 4 },
-          shadowRadius: 12,
-          elevation: 8,
-        }}>
-        <MaterialIcons name="casino" size={26} color={COLORS.onPrimary} />
-      </Pressable>
-
       <BottomNavBar active="skills" onNavigate={(route) => router.push(route as any)} />
     </SafeAreaView>
   );
