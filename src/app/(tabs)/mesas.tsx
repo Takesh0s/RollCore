@@ -22,7 +22,7 @@ export default function MesasScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <Header title="Campaigns" rightIcon="settings" />
+      <Header title="Campaigns" rightIcon="settings" onRightPress={() => router.push('/configuracoes')} />
 
       <ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
 

@@ -1,9 +1,3 @@
-// CadastroScreen.tsx — RollCore
-//
-// Reconstrução em flexbox do export do Stitch (code.html do Cadastro),
-// usando os componentes/tokens de src/design/shared.tsx. Substitui a
-// versão antiga (pixel-perfect, cores diferentes).
-
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, Text } from 'react-native';
@@ -21,6 +15,24 @@ import {
   useAppFonts,
 } from '../design/shared';
 
+// Corrigido: adicionada a tipagem ': string' para o TypeScript e ajustado o Regex de caracteres especiais
+function obterForcaSenha(senha: string) {
+  if (!senha) return { strength: 0, label: 'Força: Digite uma senha' };
+
+  let pontuacao = 0;
+
+  // Critérios de validação
+  if (senha.length >= 8) pontuacao++;
+  if (/[A-Z]/.test(senha)) pontuacao++; // Letra maiúscula
+  if (/[0-9]/.test(senha)) pontuacao++; // Número
+  if (/[^A-Za-z0-9]/.test(senha)) pontuacao++; // Caractere especial
+
+  // Mapeamento para os níveis do seu componente
+  if (pontuacao <= 1) return { strength: 1, label: 'Força: Fraca' };
+  if (pontuacao === 2) return { strength: 2, label: 'Força: Média' };
+  return { strength: 3, label: 'Força: Forte' };
+}
+
 function GoogleIcon() {
   return <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#4285F4' }}>G</Text>;
 }
@@ -37,6 +49,9 @@ export default function CadastroScreen() {
   if (!fontsLoaded) return null;
 
   const goToLogin = () => router.push('/login');
+
+  // Calcula os dados da senha atual em tempo de renderização
+  const infoSenha = obterForcaSenha(senha);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -88,7 +103,8 @@ export default function CadastroScreen() {
 
           <Field label="Senha" icon="lock" isPassword value={senha} onChangeText={setSenha} />
 
-          <PasswordStrength strength={3} label="Força: Forte" />
+          {/* Passando as propriedades dinâmicas aqui */}
+          <PasswordStrength strength={infoSenha.strength} label={infoSenha.label} />
 
           <Field
             label="Confirmar Senha"

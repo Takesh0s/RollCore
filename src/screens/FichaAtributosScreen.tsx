@@ -2,7 +2,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context'; 
+
 import { BottomNavBar, COLORS, useAppFonts } from '../design/shared';
 import { ATRIBUTOS_BASE, modificador, usePersonagem } from '../store/personagem';
 
