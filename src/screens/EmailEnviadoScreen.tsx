@@ -1,3 +1,4 @@
+import { useAcessibilidade } from '../store/acessibilidade';
 // EmailEnviadoScreen.tsx — RollCore
 //
 // Reconstrução em flexbox do export do Stitch
@@ -7,13 +8,15 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Linking, Pressable, Text, View } from 'react-native';
+import { Linking, Pressable as NativePressable, Text as NativeText, View } from 'react-native';
+import { AccessibleText as Text, AccessiblePressable as Pressable } from '../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Card, COLORS, Header, useAppFonts } from '../design/shared';
+import { Card, COLORS, Header, useAppFonts, appFontSize } from '../design/shared';
 
 const COOLDOWN_SECONDS = 48;
 
 export default function EmailEnviadoScreen() {
+  useAcessibilidade();
   const router = useRouter();
   const fontsLoaded = useAppFonts();
   const { email } = useLocalSearchParams<{ email?: string }>();
@@ -69,7 +72,7 @@ export default function EmailEnviadoScreen() {
             style={{
               color: COLORS.primary,
               fontFamily: 'AtkinsonHyperlegible_700Bold',
-              fontSize: 12,
+              fontSize: appFontSize(12),
               letterSpacing: 1,
               textTransform: 'uppercase',
             }}>
@@ -79,7 +82,7 @@ export default function EmailEnviadoScreen() {
             style={{
               color: COLORS.primary,
               fontFamily: 'SourceSerif4_600SemiBold',
-              fontSize: 24,
+              fontSize: appFontSize(24),
               textAlign: 'center',
             }}>
             E-mail Enviado!
@@ -88,7 +91,7 @@ export default function EmailEnviadoScreen() {
             style={{
               color: COLORS.onSurfaceVariant,
               fontFamily: 'AtkinsonHyperlegible_400Regular',
-              fontSize: 15,
+              fontSize: appFontSize(15),
               textAlign: 'center',
               maxWidth: 280,
             }}>
@@ -107,14 +110,14 @@ export default function EmailEnviadoScreen() {
               marginTop: 8,
             }}>
             <MaterialIcons name="alternate-email" size={16} color={COLORS.primary} />
-            <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 14 }}>
+            <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>
               {email || 'aventureiro@guilda.com'}
             </Text>
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 8 }}>
             <MaterialIcons name="hourglass-top" size={16} color={COLORS.primary} />
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 13 }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>
               O link de acesso mágico expira em{' '}
               <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold' }}>30 minutos</Text>.
             </Text>
@@ -135,7 +138,7 @@ export default function EmailEnviadoScreen() {
               gap: 8,
             }}>
             <MaterialIcons name="open-in-new" size={20} color={COLORS.onPrimaryContainer} />
-            <Text style={{ color: COLORS.onPrimaryContainer, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 15 }}>
+            <Text style={{ color: COLORS.onPrimaryContainer, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
               Abrir Aplicativo de E-mail
             </Text>
           </Pressable>
@@ -162,13 +165,13 @@ export default function EmailEnviadoScreen() {
               style={{
                 color: canResend ? COLORS.primary : COLORS.onSurfaceVariant,
                 fontFamily: 'AtkinsonHyperlegible_700Bold',
-                fontSize: 15,
+                fontSize: appFontSize(15),
               }}>
               {resending ? 'Enviando...' : 'Reenviar E-mail'}
             </Text>
           </Pressable>
 
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 12, textAlign: 'center' }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12), textAlign: 'center' }}>
             {notice
               ? notice
               : canResend
@@ -179,10 +182,10 @@ export default function EmailEnviadoScreen() {
           <View style={{ flexDirection: 'row', gap: 8, padding: 12, borderRadius: 8, backgroundColor: COLORS.surfaceContainerHigh }}>
             <MaterialIcons name="info" size={16} color={COLORS.primary} />
             <View style={{ flex: 1, gap: 2 }}>
-              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 13 }}>
+              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>
                 Caixa de Entrada Vazia?
               </Text>
-              <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 13 }}>
+              <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>
                 Verifique a pasta de Spam ou de promoções. Corujas mensageiras às vezes tomam rotas alternativas.
               </Text>
             </View>
@@ -201,11 +204,11 @@ export default function EmailEnviadoScreen() {
           }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1 }}>
             <MaterialIcons name="support-agent" size={20} color={COLORS.secondary} />
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 13 }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>
               Digitou errado ou precisa de suporte?
             </Text>
           </View>
-          <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 13 }}>
+          <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>
             Falar com a Taverna
           </Text>
         </View>
@@ -213,11 +216,11 @@ export default function EmailEnviadoScreen() {
         <View style={{ alignItems: 'center', gap: 4, marginTop: 8 }}>
           <Pressable onPress={goToLogin} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <MaterialIcons name="arrow-back" size={18} color={COLORS.primary} />
-            <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 15 }}>
+            <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
               Voltar para o Login
             </Text>
           </Pressable>
-          <Text style={{ color: COLORS.outline, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 11, letterSpacing: 1 }}>
+          <Text style={{ color: COLORS.outline, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(11), letterSpacing: 1 }}>
             ROLLCORE RPG COMPANION • GUILDA DOS MESTRES
           </Text>
         </View>

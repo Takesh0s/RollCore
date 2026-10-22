@@ -35,6 +35,12 @@
       ],
       "expo-font",
       "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permita que o RollCore escolha fotos da galeria para retratos e capas de mesas."
+        }
+      ],
       "expo-web-browser"
     ],
     "experiments": {

@@ -1,5 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 
 export interface AtributoBase {
   key: string;
@@ -17,40 +19,118 @@ export const ATRIBUTOS_BASE: AtributoBase[] = [
 ];
 
 export interface Personagem {
+  id: string;
   nome: string;
   classe: string;
   nivel: number;
+  raca?: string;
+  imagemUri?: string;
+  pontosVida?: number;
+  classeArmadura?: number;
   valores: Record<string, number>;
 }
 
-let personagem: Personagem = {
-  nome: 'Valerius',
-  classe: 'Paladin',
-  nivel: 5,
-  valores: { for: 16, des: 8, con: 14, int: 10, sab: 12, car: 18 },
+const STORAGE_KEY = '@rollcore/personagens-v1';
+const EMPTY: Personagem = {
+  id: 'sem-personagem', nome: 'Nenhum personagem', classe: 'Aventureiro', nivel: 1,
+  valores: { for: 10, des: 10, con: 10, int: 10, sab: 10, car: 10 },
 };
+let personagens: Personagem[] = [];
+let personagemAtivoId: string | null = null;
+let revision = 0;
+const listeners = new Set<() => void>();
+const emit = () => listeners.forEach((listener) => listener());
 
-type Listener = () => void;
-const listeners = new Set<Listener>();
-const emit = () => listeners.forEach((l) => l());
-
-export function getPersonagem(): Personagem {
-  return personagem;
+function persist() {
+  void AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ personagens, personagemAtivoId }))
+    .catch((error) => console.warn('Falha ao salvar personagens localmente', error));
 }
 
-export function setPersonagem(novo: Personagem) {
-  personagem = novo;
+async function hydrate() {
+  if (Platform.OS === 'web' && typeof window === 'undefined') return;
+  try {
+    const raw = await AsyncStorage.getItem(STORAGE_KEY);
+    if (revision === 0 && raw) {
+      const parsed = JSON.parse(raw) as { personagens?: Personagem[]; personagemAtivoId?: string | null };
+      personagens = Array.isArray(parsed.personagens) ? parsed.personagens : [];
+      personagemAtivoId = parsed.personagemAtivoId ?? personagens[0]?.id ?? null;
+    } else if (!raw) {
+      persist();
+    }
+  } catch (error) {
+    console.warn('Falha ao carregar personagens locais', error);
+  }
+  emit();
+}
+void hydrate();
+
+function makeId() {
+  return `personagem-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+export function getPersonagens(): Personagem[] {
+  return personagens;
+}
+
+export function getPersonagem(id?: string): Personagem {
+  if (id) return personagens.find((item) => item.id === id) ?? EMPTY;
+  return personagens.find((item) => item.id === personagemAtivoId) ?? personagens[0] ?? EMPTY;
+}
+
+export function setPersonagem(input: Omit<Personagem, 'id'> & { id?: string }): Personagem {
+  const id = input.id ?? makeId();
+  const saved: Personagem = { ...input, id };
+  const exists = personagens.some((item) => item.id === id);
+  personagens = exists
+    ? personagens.map((item) => item.id === id ? saved : item)
+    : [...personagens, saved];
+  personagemAtivoId = id;
+  revision += 1;
+  persist();
+  emit();
+  return saved;
+}
+
+export function updatePersonagem(id: string, patch: Partial<Omit<Personagem, 'id'>>): void {
+  personagens = personagens.map((item) => item.id === id ? { ...item, ...patch } : item);
+  revision += 1;
+  persist();
   emit();
 }
 
-export function usePersonagem(): Personagem {
+export function selectPersonagem(id: string): void {
+  if (!personagens.some((item) => item.id === id)) return;
+  personagemAtivoId = id;
+  revision += 1;
+  persist();
+  emit();
+}
+
+export function removePersonagem(id: string): void {
+  personagens = personagens.filter((item) => item.id !== id);
+  if (personagemAtivoId === id) personagemAtivoId = personagens[0]?.id ?? null;
+  revision += 1;
+  persist();
+  emit();
+}
+
+function useStoreUpdate(): void {
   const [, forceUpdate] = useState(0);
   useEffect(() => {
-    const listener = () => forceUpdate((t) => t + 1);
+    const listener = () => forceUpdate((value) => value + 1);
     listeners.add(listener);
     return () => { listeners.delete(listener); };
   }, []);
-  return personagem;
+}
+
+export function usePersonagens(): Personagem[] {
+  useStoreUpdate();
+  return personagens;
+}
+
+export function usePersonagem(id?: string): Personagem {
+  useStoreUpdate();
+  return getPersonagem(id);
 }
 
 export function modificador(valor: number): number {

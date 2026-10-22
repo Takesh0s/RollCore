@@ -7,9 +7,19 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable as NativePressable, ScrollView, Text as NativeText, View } from 'react-native';
+import { AccessibleText as Text, AccessiblePressable as Pressable } from '../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, Header, SegmentedControl, Toggle, useAppFonts } from '../design/shared';
+import { applyAccessibilityPalette, COLORS, Header, SegmentedControl, Toggle, useAppFonts, appFontSize } from '../design/shared';
+import { encerrarSessao } from '../store/conta';
+import { DaltonismType, useAcessibilidade, updateAcessibilidade } from '../store/acessibilidade';
+
+const DALTONISM_OPTIONS: { id: DaltonismType; label: string; detail: string }[] = [
+  { id: 'protanopia', label: 'Protanopia', detail: 'Dificuldade de percepção do vermelho; paleta azul e âmbar.' },
+  { id: 'deuteranopia', label: 'Deuteranopia', detail: 'Dificuldade de percepção do verde; paleta azul e amarelo.' },
+  { id: 'tritanopia', label: 'Tritanopia', detail: 'Dificuldade de percepção do azul e amarelo; paleta coral e violeta.' },
+  { id: 'acromatopsia', label: 'Acromatopsia', detail: 'Paleta monocromática em tons de cinza.' },
+];
 
 function SectionTitle({ icon, children }: { icon: keyof typeof MaterialIcons.glyphMap; children: string }) {
   return (
@@ -19,12 +29,12 @@ function SectionTitle({ icon, children }: { icon: keyof typeof MaterialIcons.gly
         alignItems: 'center',
         gap: 8,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(158,143,120,0.3)',
+        borderBottomColor: 'rgba(192,192,192,0.3)',
         paddingBottom: 8,
         marginBottom: 12,
       }}>
       <MaterialIcons name={icon} size={20} color={COLORS.outline} />
-      <Text style={{ color: COLORS.primary, fontFamily: 'SourceSerif4_600SemiBold', fontSize: 18 }}>{children}</Text>
+      <Text style={{ color: COLORS.primary, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(18) }}>{children}</Text>
     </View>
   );
 }
@@ -36,7 +46,7 @@ function Card({ children }: { children: React.ReactNode }) {
         backgroundColor: COLORS.surfaceContainer,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(158,143,120,0.3)',
+        borderColor: 'rgba(192,192,192,0.3)',
         padding: 16,
         gap: 16,
       }}>
@@ -50,14 +60,16 @@ export default function ConfiguracoesScreen() {
   const fontsLoaded = useAppFonts();
 
   const [notificacoes, setNotificacoes] = useState(true);
-  const [daltonico, setDaltonico] = useState(false);
-  const [fonte, setFonte] = useState('Padrão');
+  const { daltonico, tipoDaltonismo, fonte } = useAcessibilidade();
 
   if (!fontsLoaded) return null;
 
   const goBack = () => router.back();
   const goToAcessibilidadeVisual = () => router.push('/acessibilidade-visual');
-  const goToLogin = () => router.push('/login');
+  const goToLogin = () => {
+    encerrarSessao();
+    router.replace('/login');
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -82,16 +94,28 @@ export default function ConfiguracoesScreen() {
           <Card>
             <Toggle
               label="Modo Daltônico"
-              description="Ajusta paletas de cores e texturas"
+              description="Escolha uma paleta de alto contraste adaptada ao seu perfil"
               value={daltonico}
-              onValueChange={setDaltonico}
+              onValueChange={(value) => { updateAcessibilidade({ daltonico: value }); applyAccessibilityPalette(value, tipoDaltonismo); }}
             />
 
+            {daltonico && <View style={{ gap: 6, paddingTop: 2 }}>
+              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>Perfil de daltonismo</Text>
+              {DALTONISM_OPTIONS.map((option) => {
+                const selected = tipoDaltonismo === option.id;
+                return <Pressable key={option.id} onPress={() => { updateAcessibilidade({ tipoDaltonismo: option.id }); applyAccessibilityPalette(true, option.id); }} accessibilityRole="radio" accessibilityState={{ selected }} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, borderWidth: selected ? 2 : 1, borderColor: selected ? COLORS.primary : COLORS.outlineVariant, backgroundColor: selected ? COLORS.primaryContainer : 'transparent' }}>
+                  <MaterialIcons name={selected ? 'radio-button-checked' : 'radio-button-unchecked'} size={20} color={COLORS.primary} />
+                  <View style={{ flex: 1, gap: 2 }}><Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>{option.label}</Text><Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(11) }}>{option.detail}</Text></View>
+                </Pressable>;
+              })}
+              <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(11) }}>A paleta melhora a distinção de elementos; não é uma simulação médica da visão.</Text>
+            </View>}
+
             <View style={{ gap: 8 }}>
-              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 15 }}>
+              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
                 Tamanho de Fonte
               </Text>
-              <SegmentedControl options={['Pequeno', 'Padrão', 'Grande']} selected={fonte} onSelect={setFonte} />
+              <SegmentedControl options={['Pequeno', 'Padrão', 'Grande']} selected={fonte} onSelect={(value) => updateAcessibilidade({ fonte: value as 'Pequeno' | 'Padrão' | 'Grande' })} />
             </View>
 
             {/* Link novo: Acessibilidade Visual e Áudio */}
@@ -105,7 +129,7 @@ export default function ConfiguracoesScreen() {
               }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <MaterialIcons name="record-voice-over" size={20} color={COLORS.primary} />
-                <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 15 }}>
+                <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
                   Acessibilidade Visual e Áudio
                 </Text>
               </View>
@@ -132,7 +156,7 @@ export default function ConfiguracoesScreen() {
                 gap: 8,
               }}>
               <MaterialIcons name="logout" size={20} color={COLORS.onSurface} />
-              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 15 }}>
+              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
                 Sair da Conta (Logout)
               </Text>
             </Pressable>
@@ -150,7 +174,7 @@ export default function ConfiguracoesScreen() {
                 gap: 8,
               }}>
               <MaterialIcons name="delete-forever" size={20} color="#ffb4ab" />
-              <Text style={{ color: '#ffb4ab', fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 15 }}>
+              <Text style={{ color: '#ffb4ab', fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
                 Excluir Conta
               </Text>
             </Pressable>

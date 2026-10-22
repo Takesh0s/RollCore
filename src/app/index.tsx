@@ -1,3 +1,3 @@
-import CadastroScreen from '../screens/CadastroScreen';
+import LoginScreen from '../screens/LoginScreen';
 
-export default function App() { return <CadastroScreen />; }
+export default LoginScreen;

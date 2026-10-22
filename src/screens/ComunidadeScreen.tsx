@@ -1,3 +1,4 @@
+import { useAcessibilidade } from '../store/acessibilidade';
 // ComunidadeScreen.tsx — RollCore
 //
 // Baseada na estrutura do Figma (Comunidade - chat com participantes),
@@ -7,9 +8,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Image, Pressable as NativePressable, ScrollView, Text as NativeText, TextInput as NativeTextInput, View } from 'react-native';
+import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, useAppFonts } from '../design/shared';
+import { COLORS, Header, useAppFonts, appFontSize } from '../design/shared';
 
 interface Community {
   id: string;
@@ -63,25 +65,25 @@ function CommunityCard({ community, onPress }: { community: Community; onPress: 
         borderRadius: 12,
         padding: 12,
         borderWidth: 1,
-        borderColor: 'rgba(158,143,120,0.3)',
+        borderColor: 'rgba(192,192,192,0.3)',
         alignItems: 'center',
       }}>
       <Image source={{ uri: community.imageUri }} style={{ width: 56, height: 56, borderRadius: 12 }} resizeMode="cover" />
       <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: 16 }}>
+        <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(16) }}>
           {community.name}
         </Text>
-        <Text numberOfLines={2} style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 12 }}>
+        <Text numberOfLines={2} style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>
           {community.description}
         </Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 2 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#4ADE80' }} />
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 11 }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(11) }}>
               {community.online} online
             </Text>
           </View>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 11 }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(11) }}>
             {community.members} membros
           </Text>
         </View>
@@ -96,7 +98,7 @@ function CommunityCard({ community, onPress }: { community: Community; onPress: 
             borderRadius: 999,
             backgroundColor: COLORS.primary,
           }}>
-          <Text style={{ color: COLORS.onPrimary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 12 }}>
+          <Text style={{ color: COLORS.onPrimary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12) }}>
             Entrar
           </Text>
         </View>
@@ -106,6 +108,7 @@ function CommunityCard({ community, onPress }: { community: Community; onPress: 
 }
 
 export default function ComunidadeScreen() {
+  useAcessibilidade();
   const router = useRouter();
   const fontsLoaded = useAppFonts();
   const [tab, setTab] = useState<'minhas' | 'descobrir'>('minhas');
@@ -115,20 +118,14 @@ export default function ComunidadeScreen() {
 
   const list = COMMUNITIES.filter((c) => (tab === 'minhas' ? c.joined : !c.joined));
   const openChat = (c: Community) => router.push(`/comunidade/${c.id}` as any);
+  const voltar = () => {
+    if (router.canGoBack()) router.back();
+    else router.replace('/mesas' as any);
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <View
-        style={{
-          height: 56,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderBottomWidth: 2,
-          borderBottomColor: 'rgba(255,220,161,0.2)',
-        }}>
-        <Text style={{ color: COLORS.primary, fontFamily: 'SourceSerif4_700Bold', fontSize: 22 }}>Comunidade</Text>
-      </View>
+      <Header title="Comunidade" onBack={voltar} rightIcon="person" onRightPress={() => router.push('/perfil' as any)} />
 
       <View style={{ padding: 16, gap: 16 }}>
         <View
@@ -148,8 +145,8 @@ export default function ComunidadeScreen() {
             value={busca}
             onChangeText={setBusca}
             placeholder="Digite algo..."
-            placeholderTextColor="rgba(213,196,171,0.5)"
-            style={{ flex: 1, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 14 }}
+            placeholderTextColor={COLORS.outline}
+            style={{ flex: 1, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }}
           />
         </View>
 
@@ -167,7 +164,7 @@ export default function ComunidadeScreen() {
             <Text
               style={{
                 fontFamily: 'AtkinsonHyperlegible_700Bold',
-                fontSize: 13,
+                fontSize: appFontSize(13),
                 color: tab === 'minhas' ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant,
               }}>
               Minhas Comunidades
@@ -186,7 +183,7 @@ export default function ComunidadeScreen() {
             <Text
               style={{
                 fontFamily: 'AtkinsonHyperlegible_700Bold',
-                fontSize: 13,
+                fontSize: appFontSize(13),
                 color: tab === 'descobrir' ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant,
               }}>
               Descubra
@@ -200,7 +197,7 @@ export default function ComunidadeScreen() {
           <CommunityCard key={c.id} community={c} onPress={() => openChat(c)} />
         ))}
         {list.length === 0 && (
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 14, textAlign: 'center', marginTop: 24 }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14), textAlign: 'center', marginTop: 24 }}>
             Nada por aqui ainda.
           </Text>
         )}

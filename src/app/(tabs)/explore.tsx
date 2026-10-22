@@ -1,8 +1,10 @@
+import { useAcessibilidade } from '../../store/acessibilidade';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Pressable as NativePressable, ScrollView, Text as NativeText, TextInput as NativeTextInput, View } from 'react-native';
+import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, Card, Header } from '../../design/shared';
+import { COLORS, Card, appFontSize } from '../../design/shared';
 
 interface ResultadoBusca {
   id: string;
@@ -31,6 +33,7 @@ const CORES_CATEGORIA: Record<ResultadoBusca['categoria'], string> = {
 };
 
 export default function ExploreScreen() {
+  useAcessibilidade();
   const [query, setQuery] = useState('');
 
   const resultados = useMemo(() => {
@@ -44,10 +47,10 @@ export default function ExploreScreen() {
     );
   }, [query]);
 
+  // O cabeçalho (hambúrguer, título e perfil) vem do _layout.tsx do grupo (tabs).
+  // Por isso a área segura do topo não é aplicada aqui (edges sem 'top').
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <Header title="Search" />
-
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
       <View style={{ padding: 24, paddingBottom: 0 }}>
         <View
           style={{
@@ -67,12 +70,12 @@ export default function ExploreScreen() {
             value={query}
             onChangeText={setQuery}
             placeholder="Pesquisar manuais, feitiços, monstros..."
-            placeholderTextColor="rgba(213,196,171,0.5)"
+            placeholderTextColor="rgba(192,192,192,0.5)"
             style={{
               flex: 1,
               color: COLORS.onSurface,
               fontFamily: 'AtkinsonHyperlegible_400Regular',
-              fontSize: 15,
+              fontSize: appFontSize(15),
             }}
           />
           {query.length > 0 && (
@@ -89,7 +92,7 @@ export default function ExploreScreen() {
             style={{
               color: COLORS.onSurfaceVariant,
               fontFamily: 'AtkinsonHyperlegible_400Regular',
-              fontSize: 15,
+              fontSize: appFontSize(15),
               textAlign: 'center',
               marginTop: 40,
             }}
@@ -101,7 +104,7 @@ export default function ExploreScreen() {
             style={{
               color: COLORS.onSurfaceVariant,
               fontFamily: 'AtkinsonHyperlegible_400Regular',
-              fontSize: 15,
+              fontSize: appFontSize(15),
               textAlign: 'center',
               marginTop: 40,
             }}
@@ -129,7 +132,7 @@ export default function ExploreScreen() {
                   <Text
                     style={{
                       color: COLORS.onSurfaceVariant,
-                      fontSize: 11,
+                      fontSize: appFontSize(11),
                       fontFamily: 'AtkinsonHyperlegible_700Bold',
                       textTransform: 'uppercase',
                     }}
@@ -139,7 +142,7 @@ export default function ExploreScreen() {
                   <Text
                     style={{
                       color: COLORS.primary,
-                      fontSize: 17,
+                      fontSize: appFontSize(17),
                       fontFamily: 'SourceSerif4_700Bold',
                     }}
                   >
@@ -148,7 +151,7 @@ export default function ExploreScreen() {
                   <Text
                     style={{
                       color: COLORS.secondary,
-                      fontSize: 13,
+                      fontSize: appFontSize(13),
                       fontFamily: 'AtkinsonHyperlegible_400Regular',
                       marginTop: 2,
                     }}

@@ -1,24 +1,27 @@
+import { useAcessibilidade } from '../../store/acessibilidade';
 import { useRouter } from 'expo-router';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable as NativePressable, ScrollView, Text as NativeText, View } from 'react-native';
+import { AccessibleText as Text, AccessiblePressable as Pressable } from '../../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, Card, Divider, Header } from '../../design/shared';
+import { COLORS, Card, Divider, appFontSize } from '../../design/shared';
 import { PRODUTOS } from '../../store/produtos';
 
 
 export default function LivrariaScreen() {
+  useAcessibilidade();
   const router = useRouter();
 
+  // O cabeçalho (hambúrguer, título e perfil) vem do _layout.tsx do grupo (tabs).
+  // Por isso a área segura do topo não é aplicada aqui (edges sem 'top').
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <Header title="Library" rightIcon="search" onRightPress={() => router.push('/(tabs)/explore')} />
-
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView contentContainerStyle={{ padding: 24, gap: 16 }}>
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ color: COLORS.primary, fontSize: 20, fontFamily: 'SourceSerif4_700Bold' }}>
+          <Text style={{ color: COLORS.primary, fontSize: appFontSize(20), fontFamily: 'SourceSerif4_700Bold' }}>
             Manuais e Compêndios
           </Text>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontSize: 14, fontFamily: 'AtkinsonHyperlegible_400Regular' }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(14), fontFamily: 'AtkinsonHyperlegible_400Regular' }}>
             {PRODUTOS.length} Livros
           </Text>
         </View>
@@ -33,10 +36,10 @@ export default function LivrariaScreen() {
                   resizeMode="cover"
                 />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.onSurfaceVariant, fontSize: 12, fontFamily: 'AtkinsonHyperlegible_700Bold', textTransform: 'uppercase' }}>
+                  <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(12), fontFamily: 'AtkinsonHyperlegible_700Bold', textTransform: 'uppercase' }}>
                     {produto.categoria}
                   </Text>
-                  <Text style={{ color: COLORS.primary, fontSize: 20, fontFamily: 'SourceSerif4_700Bold', marginTop: 2 }}>
+                  <Text style={{ color: COLORS.primary, fontSize: appFontSize(20), fontFamily: 'SourceSerif4_700Bold', marginTop: 2 }}>
                     {produto.titulo}
                   </Text>
                 </View>
@@ -47,10 +50,10 @@ export default function LivrariaScreen() {
               </View>
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                <Text style={{ color: COLORS.secondary, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 13 }}>
+                <Text style={{ color: COLORS.secondary, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>
                   {produto.descricaoCurta}
                 </Text>
-                <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 14 }}>
+                <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>
                   {produto.preco}
                 </Text>
               </View>

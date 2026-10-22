@@ -1,8 +1,9 @@
+import { useAcessibilidade } from '../../store/acessibilidade';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text as NativeText, View } from 'react-native';
+import { AccessibleText as Text } from '../../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, Header } from '../../design/shared';
+import { COLORS, appFontSize } from '../../design/shared';
 
 interface ItemListagem {
   id: string;
@@ -23,12 +24,11 @@ const FEITICOS: ItemListagem[] = [
 ];
 
 export default function ListingsScreen() {
-  const router = useRouter();
-
+  useAcessibilidade();
+  // O cabeçalho (hambúrguer, título e perfil) vem do _layout.tsx do grupo (tabs).
+  // Por isso a área segura do topo não é aplicada aqui (edges sem 'top').
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <Header title="Listings" rightIcon="search" onRightPress={() => router.push('/(tabs)/explore')} />
-
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView contentContainerStyle={{ padding: 24, gap: 4 }}>
         <View
           style={{
@@ -38,10 +38,10 @@ export default function ListingsScreen() {
             marginBottom: 12,
           }}
         >
-          <Text style={{ color: COLORS.primary, fontSize: 20, fontFamily: 'SourceSerif4_700Bold' }}>
+          <Text style={{ color: COLORS.primary, fontSize: appFontSize(20), fontFamily: 'SourceSerif4_700Bold' }}>
             Feitiços
           </Text>
-          <Text style={{ color: COLORS.secondary, fontSize: 13, fontFamily: 'AtkinsonHyperlegible_700Bold' }}>
+          <Text style={{ color: COLORS.secondary, fontSize: appFontSize(13), fontFamily: 'AtkinsonHyperlegible_700Bold' }}>
             Nome: A-Z
           </Text>
         </View>
@@ -63,19 +63,19 @@ export default function ListingsScreen() {
               </View>
 
               <View style={{ flex: 1 }}>
-                <Text style={{ color: COLORS.onSurface, fontSize: 16, fontFamily: 'AtkinsonHyperlegible_700Bold' }}>
+                <Text style={{ color: COLORS.onSurface, fontSize: appFontSize(16), fontFamily: 'AtkinsonHyperlegible_700Bold' }}>
                   {item.titulo}
                 </Text>
-                <Text style={{ color: COLORS.secondary, fontSize: 13, fontFamily: 'AtkinsonHyperlegible_400Regular' }}>
+                <Text style={{ color: COLORS.secondary, fontSize: appFontSize(13), fontFamily: 'AtkinsonHyperlegible_400Regular' }}>
                   {item.subtitulo}
                 </Text>
-                <Text style={{ color: COLORS.onSurfaceVariant, fontSize: 12, fontFamily: 'AtkinsonHyperlegible_400Regular', fontStyle: 'italic' }}>
+                <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(12), fontFamily: 'AtkinsonHyperlegible_400Regular', fontStyle: 'italic' }}>
                   {item.fonte}
                 </Text>
               </View>
             </View>
             {i < FEITICOS.length - 1 && (
-              <View style={{ height: 1, backgroundColor: 'rgba(158,143,120,0.15)' }} />
+              <View style={{ height: 1, backgroundColor: 'rgba(192,192,192,0.15)' }} />
             )}
           </View>
         ))}

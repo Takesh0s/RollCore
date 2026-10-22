@@ -1,3 +1,4 @@
+import { useAcessibilidade } from '../store/acessibilidade';
 // RecuperarSenhaScreen.tsx — RollCore
 //
 // Reconstrução em flexbox do export do Stitch (recupera_o_de_senha/code.html).
@@ -5,7 +6,8 @@
 
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Text as NativeText, View } from 'react-native';
+import { AccessibleText as Text } from '../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import {
@@ -14,10 +16,10 @@ import {
   Field,
   Header,
   PrimaryButton,
-  useAppFonts,
-} from '../design/shared';
+  useAppFonts, appFontSize } from '../design/shared';
 
 export default function RecuperarSenhaScreen() {
+  useAcessibilidade();
   const router = useRouter();
   const fontsLoaded = useAppFonts();
   const [email, setEmail] = useState('');
@@ -52,7 +54,7 @@ export default function RecuperarSenhaScreen() {
             style={{
               color: COLORS.primary,
               fontFamily: 'AtkinsonHyperlegible_700Bold',
-              fontSize: 12,
+              fontSize: appFontSize(12),
               letterSpacing: 1,
               textTransform: 'uppercase',
             }}>
@@ -62,7 +64,7 @@ export default function RecuperarSenhaScreen() {
             style={{
               color: COLORS.onSurface,
               fontFamily: 'SourceSerif4_600SemiBold',
-              fontSize: 24,
+              fontSize: appFontSize(24),
               textAlign: 'center',
             }}>
             Recupere seu Acesso
@@ -71,7 +73,7 @@ export default function RecuperarSenhaScreen() {
             style={{
               color: COLORS.onSurfaceVariant,
               fontFamily: 'AtkinsonHyperlegible_400Regular',
-              fontSize: 15,
+              fontSize: appFontSize(15),
               textAlign: 'center',
               maxWidth: 280,
             }}>
@@ -91,7 +93,7 @@ export default function RecuperarSenhaScreen() {
           />
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <MaterialIcons name="shield" size={14} color={COLORS.primary} />
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 12 }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>
               Enviaremos instruções seguras para sua guilda.
             </Text>
           </View>
@@ -110,10 +112,10 @@ export default function RecuperarSenhaScreen() {
           }}>
           <MaterialIcons name="info" size={20} color={COLORS.primary} />
           <View style={{ flex: 1, gap: 2 }}>
-            <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 14 }}>
+            <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>
               Não recebeu o e-mail?
             </Text>
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 14 }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }}>
               Verifique sua caixa de spam ou solicite auxílio ao Mestre de Taverna pelo suporte da guilda.
             </Text>
           </View>
@@ -124,7 +126,7 @@ export default function RecuperarSenhaScreen() {
           style={{
             color: COLORS.onSurfaceVariant,
             fontFamily: 'AtkinsonHyperlegible_400Regular',
-            fontSize: 14,
+            fontSize: appFontSize(14),
             textAlign: 'center',
           }}>
           Lembrou a senha?{' '}

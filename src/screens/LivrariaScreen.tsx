@@ -1,3 +1,4 @@
+import { useAcessibilidade } from '../store/acessibilidade';
 // LivrariaScreen.tsx — RollCore
 //
 // Reconstrução em flexbox do export do Stitch
@@ -8,9 +9,10 @@
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable as NativePressable, ScrollView, Text as NativeText, View } from 'react-native';
+import { AccessibleText as Text, AccessiblePressable as Pressable } from '../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, useAppFonts } from '../design/shared';
+import { COLORS, useAppFonts, appFontSize } from '../design/shared';
 
 interface Item {
   id: string;
@@ -74,10 +76,10 @@ function ItemCard({ item, onPress }: { item: Item; onPress: () => void }) {
       <View style={{ padding: 12, gap: 6 }}>
         <Text
           numberOfLines={2}
-          style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: 15 }}>
+          style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(15) }}>
           {item.title}
         </Text>
-        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 12 }}>
+        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>
           {item.author}
         </Text>
         <View
@@ -92,7 +94,7 @@ function ItemCard({ item, onPress }: { item: Item; onPress: () => void }) {
           }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <MaterialIcons name="star" size={14} color={COLORS.primary} />
-            <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 13 }}>
+            <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>
               {item.rating}
             </Text>
           </View>
@@ -101,7 +103,7 @@ function ItemCard({ item, onPress }: { item: Item; onPress: () => void }) {
               color: isFree ? COLORS.onPrimary : COLORS.primary,
               backgroundColor: isFree ? COLORS.primary : 'transparent',
               fontFamily: 'AtkinsonHyperlegible_700Bold',
-              fontSize: 12,
+              fontSize: appFontSize(12),
               paddingHorizontal: isFree ? 8 : 0,
               paddingVertical: isFree ? 2 : 0,
               borderRadius: 4,
@@ -143,7 +145,7 @@ function BottomTab({
       <Text
         style={{
           fontFamily: 'AtkinsonHyperlegible_700Bold',
-          fontSize: 11,
+          fontSize: appFontSize(11),
           color: active ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant,
         }}>
         {label}
@@ -153,6 +155,7 @@ function BottomTab({
 }
 
 export default function LivrariaScreen() {
+  useAcessibilidade();
   const router = useRouter();
   const fontsLoaded = useAppFonts();
   if (!fontsLoaded) return null;
@@ -179,7 +182,7 @@ export default function LivrariaScreen() {
         <Pressable onPress={goBack} accessibilityLabel="Voltar" style={{ padding: 12 }}>
           <MaterialIcons name="arrow-back" size={22} color={COLORS.primary} />
         </Pressable>
-        <Text style={{ color: COLORS.primary, fontFamily: 'SourceSerif4_700Bold', fontSize: 22 }}>Livraria</Text>
+        <Text style={{ color: COLORS.primary, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(22) }}>Livraria</Text>
         <Pressable accessibilityLabel="Buscar" style={{ padding: 12 }}>
           <MaterialIcons name="search" size={22} color={COLORS.primary} />
         </Pressable>
@@ -204,7 +207,7 @@ export default function LivrariaScreen() {
               <Text
                 style={{
                   fontFamily: 'AtkinsonHyperlegible_700Bold',
-                  fontSize: 13,
+                  fontSize: appFontSize(13),
                   color: i === 0 ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant,
                 }}>
                 {cat}

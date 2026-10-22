@@ -1,76 +1,37 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppHeader } from '../../components/AppHeader';
 import { COLORS } from '../../design/shared';
 
-export default function TabsLayout() {
+// Cabeçalho único das telas do grupo (tabs), no padrão do Figma:
+// hambúrguer (abre o menu lateral), título e ícone de perfil.
+function TabsHeader({ title }: { title: string }) {
   const insets = useSafeAreaInsets();
+  return (
+    <View style={{ paddingTop: insets.top, backgroundColor: COLORS.background }}>
+      <AppHeader title={title} />
+    </View>
+  );
+}
 
+// No Figma não existe barra inferior: a navegação é toda pelo menu lateral.
+// As abas continuam registradas aqui só para as rotas existirem; a barra fica
+// escondida (tabBarStyle display none). Para trazer a barra de volta, troque
+// por: tabBarStyle: undefined
+export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#E53935', // Vermelho destaque estilo D&D Beyond
-        tabBarInactiveTintColor: COLORS.onSurfaceVariant,
-        tabBarStyle: {
-          backgroundColor: COLORS.background,
-          borderTopWidth: 1,
-          borderTopColor: 'rgba(255,255,255,0.1)',
-          // Altura e espaçamento seguro adaptados para telemóveis Samsung/Android
-          height: 62 + (insets.bottom > 0 ? insets.bottom : 10),
-          paddingBottom: insets.bottom > 0 ? insets.bottom : 6,
-          paddingTop: 6,
-        },
-        tabBarLabelStyle: {
-          fontFamily: 'AtkinsonHyperlegible_700Bold',
-          fontSize: 10,
-        },
+        headerShown: true,
+        header: ({ options }) => <TabsHeader title={options.title ?? ''} />,
+        tabBarStyle: { display: 'none' },
       }}>
-      
-      {/* 1. Library */}
-      <Tabs.Screen
-        name="livraria"
-        options={{
-          title: 'Library',
-          tabBarIcon: ({ color }) => <MaterialIcons name="menu-book" size={24} color={color} />,
-        }}
-      />
-
-      {/* 2. Listings */}
-      <Tabs.Screen
-        name="dice"
-        options={{
-          title: 'Listings',
-          tabBarIcon: ({ color }) => <MaterialIcons name="list-alt" size={24} color={color} />,
-        }}
-      />
-
-      {/* 3. Search */}
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Search',
-          tabBarIcon: ({ color }) => <MaterialIcons name="search" size={24} color={color} />,
-        }}
-      />
-
-      {/* 4. Characters */}
-      <Tabs.Screen
-        name="skills"
-        options={{
-          title: 'Characters',
-          tabBarIcon: ({ color }) => <MaterialIcons name="person" size={24} color={color} />,
-        }}
-      />
-
-      {/* 5. Campaigns */}
-      <Tabs.Screen
-        name="mesas"
-        options={{
-          title: 'Campaigns',
-          tabBarIcon: ({ color }) => <MaterialIcons name="flag" size={24} color={color} />,
-        }}
-      />
+      <Tabs.Screen name="livraria" options={{ title: 'Livraria' }} />
+      <Tabs.Screen name="dice" options={{ title: 'Grimório' }} />
+      <Tabs.Screen name="explore" options={{ title: 'Busca' }} />
+      <Tabs.Screen name="skills" options={{ title: 'Fichas' }} />
+      <Tabs.Screen name="mesas" options={{ title: 'Mesas' }} />
     </Tabs>
   );
 }

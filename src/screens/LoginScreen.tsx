@@ -1,121 +1,220 @@
+import { useAcessibilidade } from '../store/acessibilidade';
 // LoginScreen.tsx — RollCore
-//
-// Reconstrução em flexbox do export do Stitch (login_e_cadastro/code.html),
-// usando os componentes/tokens de src/design/shared.tsx.
 
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  Card,
-  COLORS,
-  Divider,
-  Field,
-  LinkText,
-  Logo,
-  PrimaryButton,
-  Screen,
-  SecondaryButton,
-  useAppFonts,
-} from '../design/shared';
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable as NativePressable,
+  ScrollView,
+  StyleSheet,
+  Text as NativeText,
+  TextInput as NativeTextInput,
+  View,
+} from 'react-native';
+import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { G, Path, Polygon } from 'react-native-svg';
+import { AUTH_COLORS, appFontSize } from '../design/shared';
+import { autenticarConta } from '../store/conta';
 
-function GoogleIcon() {
-  // Ícone simples do "G" do Google (aproximação; sem depender de asset extra)
+const C = {
+  blue: AUTH_COLORS.canvas,
+  card: AUTH_COLORS.panel,
+  field: AUTH_COLORS.field,
+  green: AUTH_COLORS.mint,
+  gold: AUTH_COLORS.mint,
+  white: AUTH_COLORS.white,
+  button: AUTH_COLORS.button,
+  gray: AUTH_COLORS.gray,
+  checkbox: '#D9D9D9',
+  typed: AUTH_COLORS.typed,
+  placeholder: AUTH_COLORS.placeholder,
+};
+
+// Logo: dado d20 simplificado, desenhado em SVG (substitui a imagem do Figma, cuja URL expira)
+function DiceLogo({ size = 72 }: { size?: number }) {
   return (
-    <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#4285F4' }}>G</Text>
+    <Svg width={size} height={size} viewBox="0 0 100 100" accessibilityElementsHidden importantForAccessibility="no">
+      <G fill="none" stroke={C.gold} strokeWidth={4} strokeLinejoin="round">
+        <Polygon points="50,6 90,28 90,72 50,94 10,72 10,28" />
+        <Polygon points="50,28 72,66 28,66" />
+        <Path d="M50 6 L50 28 M90 28 L72 66 M10 28 L28 66 M50 94 L50 66 M90 72 L72 66 M10 72 L28 66 M90 28 L50 28 M10 28 L50 28" />
+      </G>
+    </Svg>
   );
 }
 
 export default function LoginScreen() {
+  useAcessibilidade();
   const router = useRouter();
-  const fontsLoaded = useAppFonts();
-
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [manter, setManter] = useState(false);
 
-  if (!fontsLoaded) return null;
-
+  const goToMesas = () => {
+    if (!email.trim() || !senha) {
+      Alert.alert('Preencha seus dados', 'Informe o e-mail e a senha cadastrados.');
+      return;
+    }
+    if (!autenticarConta(email, senha)) {
+      Alert.alert('Não foi possível entrar', 'Confira seus dados ou crie uma conta neste dispositivo.');
+      return;
+    }
+    router.replace('/mesas');
+  };
   const goToCadastro = () => router.push('/cadastro');
-  const goToMesas = () => router.push('/mesas'); // ajuste quando a rota existir
+  const goToRecuperar = () => router.push('/recuperar-senha');
+  const googleIndisponivel = () => Alert.alert('Login Google indisponível', 'A integração com Google ainda não está configurada.');
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <Screen>
-        {/* Header / Logo */}
-        <Logo size={80} />
-        <Text
-          style={{
-            color: COLORS.primary,
-            fontFamily: 'SourceSerif4_700Bold',
-            fontSize: 30,
-            textAlign: 'center',
-            textTransform: 'uppercase',
-            letterSpacing: 1,
-            marginTop: -16,
-          }}>
-          RollCore
-        </Text>
-        <Text
-          style={{
-            color: COLORS.onSurfaceVariant,
-            fontFamily: 'AtkinsonHyperlegible_400Regular',
-            fontSize: 16,
-            textAlign: 'center',
-            marginTop: -24,
-          }}>
-          Aventure-se além do limite.
-        </Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: AUTH_COLORS.canvas }]}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.wrapper}>
+            <View style={[styles.card, { backgroundColor: AUTH_COLORS.panel }]}>
+              <View style={[styles.topLine, { backgroundColor: AUTH_COLORS.gray }]} />
 
-        {/* Card do formulário */}
-        <Card>
-          <Field
-            label="E-mail"
-            icon="email"
-            placeholder="heroi@guilda.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-          />
+              <View style={styles.center}>
+                <DiceLogo />
+                <Text style={[styles.title, { color: AUTH_COLORS.mint, fontSize: appFontSize(32) }]} accessibilityRole="header">
+                  RollCore
+                </Text>
+                <Text style={[styles.subtitle, { color: AUTH_COLORS.white, fontSize: appFontSize(16) }]}>Login</Text>
+              </View>
 
-          <Field
-            label="Senha"
-            icon="lock"
-            isPassword
-            placeholder="••••••••"
-            value={senha}
-            onChangeText={setSenha}
-          />
+              <Text style={[styles.label, { color: AUTH_COLORS.white, fontSize: appFontSize(14) }]}>e-mail</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: AUTH_COLORS.field, color: AUTH_COLORS.typed, borderColor: AUTH_COLORS.gray, fontSize: appFontSize(16) }]}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="seu@email.com"
+                placeholderTextColor={AUTH_COLORS.placeholder}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                returnKeyType="next"
+                accessibilityLabel="E-mail"
+              />
 
-          <LinkText align="right" onPress={() => router.push('/recuperar-senha')}>Esqueceu a senha?</LinkText>
+              <Text style={[styles.label, { color: AUTH_COLORS.white, fontSize: appFontSize(14) }]}>senha</Text>
+              <TextInput
+                style={[styles.input, { backgroundColor: AUTH_COLORS.field, color: AUTH_COLORS.typed, borderColor: AUTH_COLORS.gray, fontSize: appFontSize(16) }]}
+                value={senha}
+                onChangeText={setSenha}
+                placeholder="••••••••"
+                placeholderTextColor={AUTH_COLORS.placeholder}
+                secureTextEntry
+                autoCapitalize="none"
+                returnKeyType="done"
+                onSubmitEditing={goToMesas}
+                accessibilityLabel="Senha"
+              />
 
-          <Divider label="ou" />
+              <Pressable
+                style={styles.checkRow}
+                onPress={() => setManter((v) => !v)}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: manter }}
+                accessibilityLabel="Mantenha conectado">
+                <View style={[styles.checkbox, { backgroundColor: AUTH_COLORS.gray }, manter && [styles.checkboxOn, { backgroundColor: AUTH_COLORS.mint }]]}>
+                  {manter && <Text style={[styles.checkMark, { color: AUTH_COLORS.typed, fontSize: appFontSize(16) }]}>✓</Text>}
+                </View>
+                <Text style={[styles.small, { color: AUTH_COLORS.white, fontSize: appFontSize(14) }]}>Mantenha conectado</Text>
+              </Pressable>
 
-          <PrimaryButton title="Entrar" icon="login" onPress={goToMesas} />
+              <Pressable onPress={goToRecuperar} accessibilityRole="link" style={styles.linkBox}>
+                <Text style={[styles.small, styles.underline, { color: AUTH_COLORS.white, fontSize: appFontSize(14) }]}>esqueci minha senha</Text>
+              </Pressable>
 
-          <SecondaryButton title="Continuar com Google" icon={<GoogleIcon />} onPress={goToMesas} />
+              <Pressable onPress={goToMesas} accessibilityRole="button" style={[styles.button, { backgroundColor: AUTH_COLORS.button }]} >
+                <Text style={[styles.buttonText, { color: AUTH_COLORS.white, fontSize: appFontSize(19) }]}>Entrar</Text>
+              </Pressable>
 
-          <Text
-            style={{
-              color: COLORS.onSurfaceVariant,
-              fontFamily: 'AtkinsonHyperlegible_400Regular',
-              fontSize: 14,
-              textAlign: 'center',
-              marginTop: 8,
-            }}>
-            Novo no RollCore?{' '}
-            <Text
-              onPress={goToCadastro}
-              style={{
-                color: COLORS.primary,
-                fontFamily: 'AtkinsonHyperlegible_700Bold',
-                textDecorationLine: 'underline',
-              }}>
-              Criar Conta
-            </Text>
-          </Text>
-        </Card>
-      </Screen>
+              <Pressable onPress={goToCadastro} accessibilityRole="link" style={styles.linkBox}>
+                <Text style={[styles.small, styles.underline, { color: AUTH_COLORS.white, textAlign: 'center', fontSize: appFontSize(14) }]}>criar conta</Text>
+              </Pressable>
+
+              <Pressable onPress={googleIndisponivel} accessibilityRole="button" style={styles.google}>
+                <View style={[styles.gBadge, { backgroundColor: AUTH_COLORS.white }]}>
+                  <Text style={[styles.gText, { fontSize: appFontSize(16) }]}>G</Text>
+                </View>
+                <Text style={[styles.small, { color: AUTH_COLORS.white, fontSize: appFontSize(14) }]}>Login com o google</Text>
+              </Pressable>
+
+              <View style={[styles.bottomLine, { backgroundColor: AUTH_COLORS.gray }]} />
+            </View>
+
+            {/* "Dentes" decorativos do Figma */}
+            <View style={styles.teeth} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <View key={i} style={[styles.tooth, { backgroundColor: AUTH_COLORS.panel }]} />
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: C.blue },
+  scroll: { flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 32, paddingHorizontal: 16 },
+  wrapper: { width: '100%', maxWidth: 380 },
+  card: { backgroundColor: C.card, paddingTop: 8, paddingBottom: 12, paddingHorizontal: 20 },
+  topLine: { height: 1, backgroundColor: C.gray, marginBottom: 16, marginHorizontal: -20 },
+  bottomLine: { height: 1, backgroundColor: C.gray, marginTop: 8, marginHorizontal: -20 },
+  center: { alignItems: 'center', marginBottom: 16 },
+  title: { color: C.green, fontSize: appFontSize(32), fontWeight: '700', marginTop: 8 },
+  subtitle: { color: C.white, fontSize: appFontSize(16), marginTop: 4 },
+  label: { color: C.white, fontSize: appFontSize(14), marginBottom: 6, marginTop: 8 },
+  input: {
+    minHeight: 48,
+    backgroundColor: C.field,
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    fontSize: appFontSize(16),
+    color: C.typed,
+  },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 44, marginTop: 8 },
+  checkbox: {
+    width: 22,
+    height: 22,
+    backgroundColor: C.checkbox,
+    borderRadius: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkboxOn: { backgroundColor: C.green },
+  checkMark: { color: C.typed, fontSize: appFontSize(16), fontWeight: '700' },
+  small: { color: C.white, fontSize: appFontSize(14) },
+  underline: { textDecorationLine: 'underline' },
+  linkBox: { minHeight: 44, justifyContent: 'center' },
+  button: {
+    backgroundColor: C.button,
+    borderRadius: 10,
+    minHeight: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
+  buttonText: { color: '#FFFFFF', fontSize: appFontSize(19), fontWeight: '700' },
+  google: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, minHeight: 48, marginTop: 4 },
+  gBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  gText: { color: '#4285F4', fontSize: appFontSize(16), fontWeight: '700' },
+  teeth: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 8 },
+  tooth: { width: 23, height: 28, backgroundColor: C.card },
+});

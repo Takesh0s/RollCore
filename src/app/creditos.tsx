@@ -1,4 +1,3 @@
-import RouteStub from '../components/route-stub';
-export default function Creditos() {
-  return <RouteStub title="Créditos" icon="dice-d20" />;
-}
+import CreditosScreen from '../screens/CreditosScreen';
+
+export default CreditosScreen;

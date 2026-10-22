@@ -1,13 +1,18 @@
+import { useAcessibilidade } from '../store/acessibilidade';
 // MinhasMesasScreen.tsx — RollCore
 //
 // Reconstrução em flexbox do export do Stitch (minhas_mesas/code.html).
 // Tela raiz pós-login: lista as mesas do usuário, com FAB para criar nova.
+// Cabeçalho no padrão do Figma (hambúrguer + título + perfil) e busca por nome.
 
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Image, Pressable as NativePressable, ScrollView, Text as NativeText, TextInput as NativeTextInput, View } from 'react-native';
+import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, BottomNavBar, useAppFonts } from '../design/shared';
+import { AppHeader } from '../components/AppHeader';
+import { COLORS, useAppFonts, appFontSize } from '../design/shared';
 
 interface Campaign {
   id: string;
@@ -77,7 +82,7 @@ function CampaignCard({ campaign, onPress }: { campaign: Campaign; onPress: () =
           <Text
             style={{
               fontFamily: 'AtkinsonHyperlegible_700Bold',
-              fontSize: 12,
+              fontSize: appFontSize(12),
               color: isMestre ? COLORS.onPrimary : COLORS.onSurfaceVariant,
             }}>
             {campaign.role}
@@ -95,16 +100,16 @@ function CampaignCard({ campaign, onPress }: { campaign: Campaign; onPress: () =
             paddingHorizontal: 6,
             paddingVertical: 2,
           }}>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 11 }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(11) }}>
             {campaign.system}
           </Text>
         </View>
-        <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: 20 }}>
+        <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(20) }}>
           {campaign.title}
         </Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
           <MaterialIcons name="calendar-month" size={18} color={COLORS.onSurfaceVariant} />
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 14 }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }}>
             {campaign.nextSession}
           </Text>
         </View>
@@ -114,59 +119,72 @@ function CampaignCard({ campaign, onPress }: { campaign: Campaign; onPress: () =
 }
 
 export default function MinhasMesasScreen() {
+  useAcessibilidade();
   const router = useRouter();
   const fontsLoaded = useAppFonts();
+  const [busca, setBusca] = useState('');
 
   if (!fontsLoaded) return null;
 
-  const goToSettings = () => router.push('/configuracoes');
   const goToNovaMesa = () => router.push('/mesa');
-  const goToMesa = (_campaign: Campaign) => {
-    // TODO: criar rota de Perfil da Mesa — ainda não codificada.
-  };
+  const goToMesa = (campaign: Campaign) => router.push(`/sessao/${campaign.id}` as any);
+
+  const termo = busca.trim().toLowerCase();
+  const campanhas = termo
+    ? CAMPAIGNS.filter((c) => c.title.toLowerCase().includes(termo) || c.system.toLowerCase().includes(termo))
+    : CAMPAIGNS;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
-      {/* Header */}
-      <View
-        style={{
-          height: 56,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: 16,
-          borderBottomWidth: 2,
-          borderBottomColor: 'rgba(255,220,161,0.2)',
-          backgroundColor: COLORS.surfaceContainerHigh,
-        }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          <Pressable onPress={() => router.push('/livraria')} accessibilityLabel="Menu" style={{ padding: 8 }}>
-            <MaterialIcons name="menu" size={24} color={COLORS.primary} />
-          </Pressable>
-          <View
+      <AppHeader title="Minhas Mesas" />
+
+      <ScrollView contentContainerStyle={{ padding: 16 }} keyboardShouldPersistTaps="handled">
+        {/* Busca (Figma: lupa no topo da lista de mesas) */}
+        <View style={{ marginBottom: 16, justifyContent: 'center' }}>
+          <MaterialIcons
+            name="search"
+            size={20}
+            color={COLORS.onSurfaceVariant}
+            style={{ position: 'absolute', left: 14, zIndex: 1 }}
+          />
+          <TextInput
+            value={busca}
+            onChangeText={setBusca}
+            placeholder="Buscar mesa"
+            placeholderTextColor="rgba(192,192,192,0.5)"
+            accessibilityLabel="Buscar mesa"
             style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              borderWidth: 2,
-              borderColor: COLORS.primary,
-              overflow: 'hidden',
+              minHeight: 44,
               backgroundColor: COLORS.surfaceContainerHighest,
+              borderWidth: 1,
+              borderColor: COLORS.outlineVariant,
+              borderRadius: 8,
+              paddingLeft: 42,
+              paddingRight: 12,
+              color: COLORS.onSurface,
+              fontFamily: 'AtkinsonHyperlegible_400Regular',
+              fontSize: appFontSize(15),
             }}
           />
-          <Text style={{ color: COLORS.primary, fontFamily: 'SourceSerif4_600SemiBold', fontSize: 22 }}>
-            Minhas Mesas
-          </Text>
         </View>
-        <Pressable onPress={goToSettings} accessibilityLabel="Configurações" style={{ padding: 8 }}>
-          <MaterialIcons name="settings" size={24} color={COLORS.onSurfaceVariant} />
-        </Pressable>
-      </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16 }}>
-        {CAMPAIGNS.map((c) => (
+        {campanhas.map((c) => (
           <CampaignCard key={c.id} campaign={c} onPress={() => goToMesa(c)} />
         ))}
+        {campanhas.length === 0 && (
+          <Text
+            style={{
+              color: COLORS.onSurfaceVariant,
+              fontFamily: 'AtkinsonHyperlegible_400Regular',
+              fontSize: appFontSize(15),
+              textAlign: 'center',
+              marginTop: 24,
+            }}>
+            Nenhuma mesa encontrada.
+          </Text>
+        )}
+        {/* Espaço para o FAB não cobrir o último card */}
+        <View style={{ height: 72 }} />
       </ScrollView>
 
       {/* FAB */}
@@ -176,7 +194,7 @@ export default function MinhasMesasScreen() {
         style={{
           position: 'absolute',
           right: 16,
-          bottom: 88,
+          bottom: 24,
           width: 56,
           height: 56,
           borderRadius: 16,
@@ -191,8 +209,6 @@ export default function MinhasMesasScreen() {
         }}>
         <MaterialIcons name="add" size={28} color={COLORS.onPrimary} />
       </Pressable>
-
-      <BottomNavBar active="dashboard" onNavigate={(route) => router.push(route as any)} />
     </SafeAreaView>
   );
 }

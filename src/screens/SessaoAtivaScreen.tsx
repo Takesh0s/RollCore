@@ -1,6 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Text, View } from 'react-native';
+import { Text as NativeText, View } from 'react-native';
+import { AccessibleText as Text } from '../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, Header, PrimaryButton } from '../design/shared';
 import { getMesaById } from '../store/mesas';

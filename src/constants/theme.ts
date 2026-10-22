@@ -13,12 +13,12 @@ export const Colors = {
   },
   dark: {
     text: '#FFFFFF',
-    background: '#0B0F19', // Fundo escuro principal do app (azul muito escuro/preto)
-    backgroundElement: '#111827', // Fundo dos cards e inputs
-    backgroundSelected: '#1F2937', // Hover/Seleção
-    textSecondary: '#9CA3AF', // Textos secundários ou placeholders
-    primary: '#FBBF24', // Dourado/Amarelo dos botões e ícones
-    border: '#374151', // Linhas e separadores
+    background: '#353839', // Grafite da área útil das referências Figma
+    backgroundElement: '#353E43', // Painéis e cartões
+    backgroundSelected: '#6A89A7', // Campos/áreas selecionadas
+    textSecondary: '#C0C0C0', // Texto secundário
+    primary: '#70B596', // Destaques mint
+    border: '#70787B', // Contornos
   },
 } as const;
 

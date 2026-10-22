@@ -1,26 +1,44 @@
+import { useAcessibilidade } from '../store/acessibilidade';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS } from '../design/shared';
+import { Modal, ScrollView, StyleSheet, Text as NativeText, TouchableOpacity as NativeTouchableOpacity, View } from 'react-native';
+import { AccessibleText as Text, AccessibleTouchableOpacity as TouchableOpacity } from './accessible-text';
+import { COLORS, appFontSize } from '../design/shared';
 
 interface DrawerMenuProps {
   visible: boolean;
   onClose: () => void;
 }
 
-const ROTAS_PENDENTES = [
-  '/notificacoes',
-  '/comunidade',
-  '/calendario',
-  '/sistemas',
-  '/gmtools',
-  '/bestiario',
-  '/tutoriais',
-  '/creditos',
-  '/busca',
+// Rotas que ainda não têm tela nenhuma. As demais (notificações, calendário,
+// sistemas, GM Tools, bestiário, tutoriais, créditos...) já existem, mesmo que
+// sejam telas "Em breve", então abrem normalmente.
+const ROTAS_PENDENTES: string[] = [];
+
+// Sem o prefixo "/(tabs)": os grupos do expo-router não fazem parte da URL, então
+// "/mesas" funciona esteja o arquivo dentro de (tabs) ou direto em app/.
+// Ordem do menu: a mesma do Figma, com Fichas, Dados, Inventário e Livraria
+// no começo por serem as telas mais usadas.
+const MENU_ITEMS: { label: string; icon: string; route: string; color?: string }[] = [
+  { label: 'Home Page', icon: 'home', route: '/mesas' },
+  { label: 'Fichas', icon: 'account-details-outline', route: '/skills' },
+  { label: 'Dados', icon: 'dice-multiple-outline', route: '/dados' },
+  { label: 'Inventário', icon: 'treasure-chest', route: '/vault' },
+  { label: 'Livraria', icon: 'book-open-variant', route: '/livraria' },
+  { label: 'Busca', icon: 'magnify', route: '/explore' },
+  { label: 'Notificações', icon: 'bell-outline', route: '/notificacoes' },
+  { label: 'Comunidade', icon: 'account-group-outline', route: '/comunidade' },
+  { label: 'Calendário', icon: 'calendar-month-outline', route: '/calendario' },
+  { label: 'Sistemas', icon: 'book-open-page-variant-outline', route: '/sistemas' },
+  { label: 'GM Tools', icon: 'magic-staff', route: '/gmtools' },
+  { label: 'Bestiário', icon: 'paw', route: '/bestiario' },
+  { label: 'Tutoriais', icon: 'message-processing-outline', route: '/tutoriais' },
+  { label: 'Créditos', icon: 'dice-d20', route: '/creditos', color: COLORS.primary },
+  { label: 'Configurações', icon: 'cog-outline', route: '/configuracoes' },
 ];
 
 export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
+  useAcessibilidade();
   const router = useRouter();
 
   const handleNavigation = (route: string) => {
@@ -34,22 +52,6 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
     router.push(route as any);
   };
 
-  const menuItems = [
-    { label: 'Home Page', icon: 'home', route: '/(tabs)/mesas' },
-    { label: 'Minhas Mesas', icon: 'flag-outline', route: '/(tabs)/mesas' },
-    { label: 'Personagens', icon: 'account-details-outline', route: '/(tabs)/skills' },
-    { label: 'Busca', icon: 'magnify', route: '/busca' },
-    { label: 'Livraria', icon: 'book-open-variant', route: '/(tabs)/livraria' },
-    { label: 'Notificações', icon: 'bell-outline', route: '/notificacoes' },
-    { label: 'Comunidade', icon: 'account-group-outline', route: '/comunidade' },
-    { label: 'Calendario', icon: 'calendar-month-outline', route: '/calendario' },
-    { label: 'Sistemas', icon: 'book-open-page-variant-outline', route: '/sistemas' },
-    { label: 'Gm Tools', icon: 'magic-staff', route: '/gmtools' },
-    { label: 'Bestiario', icon: 'paw', route: '/bestiario' },
-    { label: 'Tutoriais', icon: 'message-processing-outline', route: '/tutoriais' },
-    { label: 'Creditos', icon: 'dice-d20', route: '/creditos', color: COLORS.primary },
-  ];
-
   return (
     <Modal
       visible={visible}
@@ -60,29 +62,26 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
       <View style={styles.overlay}>
         <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={onClose} />
 
-        <View style={styles.drawerContainer}>
+        <View style={[styles.drawerContainer, { backgroundColor: COLORS.surfaceContainerHigh }]}>
           <View style={styles.drawerHeader}>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={onClose} accessibilityLabel="Fechar menu">
               <MaterialCommunityIcons name="menu" size={32} color={COLORS.primary} />
             </TouchableOpacity>
           </View>
 
           <ScrollView contentContainerStyle={styles.scrollContent}>
-            {menuItems.map((item, index) => (
+            {MENU_ITEMS.map((item) => (
               <TouchableOpacity
-                key={index}
+                key={item.label}
                 style={styles.menuItem}
                 onPress={() => handleNavigation(item.route)}
               >
                 <MaterialCommunityIcons
                   name={item.icon as any}
                   size={28}
-                  color={item.color || COLORS.onSurfaceVariant}
+                  color={item.label === 'Créditos' ? COLORS.primary : COLORS.onSurfaceVariant}
                 />
-                <Text style={[
-                  styles.menuText,
-                  item.color && { color: item.color }
-                ]}>
+                <Text style={[styles.menuText, { color: item.label === 'Créditos' ? COLORS.primary : COLORS.onSurface }]}>
                   {item.label}
                 </Text>
               </TouchableOpacity>
@@ -114,8 +113,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16, paddingHorizontal: 20,
   },
   menuText: {
-    color: COLORS.onSurface, fontSize: 18,
+    color: COLORS.onSurface, fontSize: appFontSize(18),
     fontFamily: 'SourceSerif4_700Bold', marginLeft: 16,
-    textTransform: 'capitalize',
   },
 });
