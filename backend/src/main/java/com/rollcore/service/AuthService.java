@@ -1,6 +1,5 @@
 package com.rollcore.service;
 
-import com.rollcore.dto.request.DeleteRequest;
 import com.rollcore.dto.request.LoginRequest;
 import com.rollcore.dto.request.RefreshRequest;
 import com.rollcore.dto.request.RegisterRequest;
@@ -20,11 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
 
 /**
- * Handles user registration, login and token refresh — UC-01.
+ * Handles user registration, login, token refresh and logout — UC-01.
  *
  * <ul>
  *   <li>Passwords hashed with BCrypt factor 12 — UC-01 RN-01 / RNF-03.
  *   <li>Issues access (15 min) + refresh (7 days) JWT pair — UC-01 RN-02.
+ *   <li>Refresh tokens are stored hashed, rotated on every use and revocable
+ *       ({@link RefreshTokenService}).
  *   <li>Login error is generic — UC-01 RN-03 / MSG003 (OWASP: no user enumeration).
  *   <li>Email and username uniqueness checked before insert — UC-01 A01 / 409.
  * </ul>
@@ -33,13 +34,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository  userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService      jwtService;
+    private final UserRepository       userRepository;
+    private final PasswordEncoder      passwordEncoder;
+    private final JwtService           jwtService;
+    private final RefreshTokenService  refreshTokenService;
 
     /**
      * Creates a new user account and returns a token pair.
-     * UC-01 §3.1 (registration) — precondition: email/username must be unique.
      *
      * @throws ConflictException if the email or username is already taken (HTTP 409).
      */
@@ -63,16 +64,15 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
-        return tokenPair(user);
+        return newSession(user);
     }
 
     /**
-     * Authenticates by email + password and returns a token pair.
-     * UC-01 §3.1 (authentication).
+     * Authenticates by email + password and returns a token pair (new session family).
      *
      * @throws BadCredentialsException if credentials are wrong — UC-01 E01 / MSG003.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponse login(LoginRequest req) {
         User user = userRepository.findByEmail(req.email().toLowerCase())
                 .orElseThrow(() -> new BadCredentialsException("Invalid credentials."));
@@ -81,67 +81,67 @@ public class AuthService {
             throw new BadCredentialsException("Invalid credentials.");
         }
 
-        return tokenPair(user);
+        return newSession(user);
     }
 
     /**
-     * Exchanges a valid refresh token for a new access + refresh pair.
-     * UC-01 S01 (token refresh).
+     * Exchanges a valid refresh token for a new access + refresh pair (rotation).
+     * Re-using an already-rotated token revokes the whole session family.
      *
-     * @throws BadCredentialsException if the token is invalid or expired — UC-01 E03.
+     * <p>{@code noRollbackFor}: the family revocation must be committed even though
+     * we answer 401.
+     *
+     * @throws BadCredentialsException if the token is invalid, expired, revoked or reused.
      */
-    @Transactional(readOnly = true)
+    @Transactional(noRollbackFor = BadCredentialsException.class)
     public AuthResponse refresh(RefreshRequest req) {
-        String token = req.refreshToken();
+        RefreshTokenService.Rotated rotated = refreshTokenService.rotate(req.refreshToken());
 
-        if (!jwtService.isValidRefreshToken(token)) {
-            throw new BadCredentialsException("Refresh token is invalid or expired.");
-        }
-
-        UUID userId = jwtService.extractUserId(token);
-        User user   = userRepository.findById(userId)
+        User user = userRepository.findById(rotated.userId())
                 .orElseThrow(() -> new BadCredentialsException("User not found."));
 
-        return tokenPair(user);
+        return response(user, rotated.refreshToken());
     }
 
+    /** Revokes the session the given refresh token belongs to. Idempotent, never reveals validity. */
     @Transactional
-    public DeleteResponse deleteall() {
-        userRepository.deleteAll();
-        return deletions(null);
+    public void logout(RefreshRequest req) {
+        refreshTokenService.revokeSessionOf(req.refreshToken());
     }
 
+    /** Revokes every refresh token of the user (all devices). */
     @Transactional
-    public DeleteResponse delete(DeleteRequest req) {
-        if (userRepository.existsById(req.userID())){
-            userRepository.deleteById(req.userID());
-            return deletions(req.userID());
-        }
-        else  {
+    public void logoutAll(UUID userId) {
+        refreshTokenService.revokeAllFor(userId);
+    }
+
+    /** Deletes the caller's own account; child rows go via ON DELETE CASCADE. */
+    @Transactional
+    public DeleteResponse deleteAccount(UUID userId) {
+        if (!userRepository.existsById(userId)) {
             throw new NotFoundException("User not found.");
         }
+        userRepository.deleteById(userId);
+        return new DeleteResponse("User with ID: " + userId + " has been deleted.");
     }
 
+    /** E2E-only: wipes all users. Reachable solely via E2eSupportController (opt-in flag). */
+    @Transactional
+    public DeleteResponse deleteAllForE2e() {
+        userRepository.deleteAll();
+        return new DeleteResponse("All Users have been deleted.");
+    }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private DeleteResponse deletions(UUID id) {
-        if (id == null) {
-            return new DeleteResponse(
-                    "All Users have been deleted.");
-        }
-        else {
-            return new DeleteResponse(
-                    "User with ID: " + id + " has been deleted."
-            );
-        }
-
+    private AuthResponse newSession(User user) {
+        return response(user, refreshTokenService.startSession(user.getId()));
     }
 
-    private AuthResponse tokenPair(User user) {
+    private AuthResponse response(User user, String refreshToken) {
         return new AuthResponse(
                 jwtService.generateAccessToken(user.getId()),
-                jwtService.generateRefreshToken(user.getId()),
+                refreshToken,
                 user.getId(),
                 user.getEmail(),
                 user.getUsername());

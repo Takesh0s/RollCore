@@ -4,7 +4,6 @@ import com.rollcore.dto.request.CharacterRequest;
 import com.rollcore.dto.response.CharacterResponse;
 import com.rollcore.entity.Character;
 import com.rollcore.entity.User;
-import com.rollcore.exception.ForbiddenException;
 import com.rollcore.exception.NotFoundException;
 import com.rollcore.repository.CharacterRepository;
 import com.rollcore.repository.UserRepository;
@@ -118,12 +117,8 @@ public class CharacterService {
     private Character findOwned(UUID characterId, UUID userId) {
         return characterRepository
                 .findByIdAndUserId(characterId, userId)
-                .orElseThrow(() -> {
-                    // Return 404 whether the character doesn't exist or belongs to another user
-                    // to avoid ownership enumeration
-                    boolean exists = characterRepository.existsById(characterId);
-                    if (exists) throw new ForbiddenException("Acesso negado ao personagem.");
-                    return new NotFoundException("Personagem não encontrado.");
-                });
+                // 404 whether the character doesn't exist or belongs to another user,
+                // so IDs of other users' characters cannot be enumerated.
+                .orElseThrow(() -> new NotFoundException("Personagem não encontrado."));
     }
 }

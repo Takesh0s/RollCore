@@ -7,7 +7,6 @@ import com.rollcore.entity.CharacterSpellId;
 import com.rollcore.entity.Spell;
 import com.rollcore.entity.User;
 import com.rollcore.exception.ConflictException;
-import com.rollcore.exception.ForbiddenException;
 import com.rollcore.exception.NotFoundException;
 import com.rollcore.repository.CharacterRepository;
 import com.rollcore.repository.CharacterSpellRepository;
@@ -117,13 +116,12 @@ class SpellServiceTest {
             verify(characterSpellRepository, never()).save(any());
         }
 
-        @Test @DisplayName("throws ForbiddenException for wrong owner")
-        void addForbidden() {
+        @Test @DisplayName("throws NotFoundException for wrong owner (no enumeration)")
+        void addNotOwned() {
             when(characterRepository.findByIdAndUserId(characterId, userId)).thenReturn(Optional.empty());
-            when(characterRepository.existsById(characterId)).thenReturn(true);
 
             assertThatThrownBy(() -> spellService.addToCharacter(characterId, spellId, userId))
-                    .isInstanceOf(ForbiddenException.class);
+                    .isInstanceOf(NotFoundException.class);
         }
     }
 

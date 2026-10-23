@@ -4,7 +4,6 @@ import com.rollcore.dto.request.CharacterRequest;
 import com.rollcore.dto.response.CharacterResponse;
 import com.rollcore.entity.Character;
 import com.rollcore.entity.User;
-import com.rollcore.exception.ForbiddenException;
 import com.rollcore.exception.NotFoundException;
 import com.rollcore.repository.CharacterRepository;
 import com.rollcore.repository.UserRepository;
@@ -38,7 +37,7 @@ import static org.mockito.Mockito.*;
  * <ul>
  *   <li>UC-02 RN-01: AC = 10 + DEX modifier, calculated server-side.
  *   <li>UC-02 RN-04: Spell slots populated by DndEngine, never by client.
- *   <li>UC-02: Ownership validation — characters from other users return 403/404.
+ *   <li>UC-02: Ownership validation — characters from other users return 404 (no ID enumeration).
  *   <li>UC-02: Full CRUD operations (create, list, getById, update, delete).
  * </ul>
  *
@@ -288,15 +287,14 @@ class CharacterServiceTest {
         }
 
         @Test
-        @DisplayName("Throws ForbiddenException when character belongs to another user — UC-02 RN-04")
-        void throwsForbiddenForOtherUserCharacter() {
+        @DisplayName("Throws NotFoundException when character belongs to another user — UC-02 RN-04 (no enumeration)")
+        void throwsNotFoundForOtherUserCharacter() {
             when(characterRepository.findByIdAndUserId(characterId, userId))
                     .thenReturn(Optional.empty());
-            when(characterRepository.existsById(characterId)).thenReturn(true);
 
             assertThatThrownBy(() -> service.getById(characterId, userId))
-                    .isInstanceOf(ForbiddenException.class)
-                    .hasMessageContaining("Acesso negado");
+                    .isInstanceOf(NotFoundException.class)
+                    .hasMessageContaining("não encontrado");
         }
 
         @Test
@@ -304,7 +302,6 @@ class CharacterServiceTest {
         void throwsNotFoundForMissingCharacter() {
             when(characterRepository.findByIdAndUserId(characterId, userId))
                     .thenReturn(Optional.empty());
-            when(characterRepository.existsById(characterId)).thenReturn(false);
 
             assertThatThrownBy(() -> service.getById(characterId, userId))
                     .isInstanceOf(NotFoundException.class)
@@ -385,19 +382,18 @@ class CharacterServiceTest {
 
         // CT-SVC-22 — HU-02
         @Test
-        @DisplayName("CT-SVC-22 | update() throws ForbiddenException for another user's character — UC-02 RN-04")
-        void throwsForbiddenOnUpdateOther() {
+        @DisplayName("CT-SVC-22 | update() throws NotFoundException for another user's character — UC-02 RN-04")
+        void throwsNotFoundOnUpdateOther() {
             // Character exists in the DB but belongs to a different user
             when(characterRepository.findByIdAndUserId(characterId, userId))
                     .thenReturn(Optional.empty());
-            when(characterRepository.existsById(characterId)).thenReturn(true);
 
             Map<String, Integer> attrs = Map.of(
                     "STR", 10, "DEX", 10, "CON", 10,
                     "INT", 10, "WIS", 10, "CHA", 10
             );
             assertThatThrownBy(() -> service.update(characterId, request("Guerreiro", 1, attrs), userId))
-                    .isInstanceOf(ForbiddenException.class);
+                    .isInstanceOf(NotFoundException.class);
 
             // Ownership violation must never reach the repository write path
             verify(characterRepository, never()).save(any(Character.class));
@@ -430,14 +426,13 @@ class CharacterServiceTest {
         }
 
         @Test
-        @DisplayName("Throws ForbiddenException when attempting to delete another user's character")
-        void throwsForbiddenOnDeleteOther() {
+        @DisplayName("Throws NotFoundException when attempting to delete another user's character")
+        void throwsNotFoundOnDeleteOther() {
             when(characterRepository.findByIdAndUserId(characterId, userId))
                     .thenReturn(Optional.empty());
-            when(characterRepository.existsById(characterId)).thenReturn(true);
 
             assertThatThrownBy(() -> service.delete(characterId, userId))
-                    .isInstanceOf(ForbiddenException.class);
+                    .isInstanceOf(NotFoundException.class);
 
             verify(characterRepository, never()).delete(any(Character.class));
         }
