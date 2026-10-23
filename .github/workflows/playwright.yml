@@ -88,6 +88,9 @@ jobs:
           CORS_ORIGINS: http://localhost:5173
           SPRING_PROFILES_ACTIVE: default
           PORT: 8080
+          E2E_CLEANUP_ENABLED: 'true'
+          RATE_LIMIT_AUTH_RPM: '1000'
+          RATE_LIMIT_RPM: '10000'
         run: |
           java -jar backend/target/*.jar > spring.log 2>&1 &
           SPRING_PID=$!

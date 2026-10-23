@@ -52,22 +52,27 @@ public class SecurityConfig {
     @Value("${cors.allowed-origins}")
     private String allowedOriginsRaw;
 
+    /** Default false. Set E2E_CLEANUP_ENABLED=true only for local dev / the Playwright CI job. */
+    @Value("${rollcore.e2e-cleanup.enabled:false}")
+    private boolean e2eCleanupEnabled;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
+            .authorizeHttpRequests(auth -> {
+                // ── E2E cleanup — opened only when explicitly enabled (never in prod) ──
+                if (e2eCleanupEnabled) {
+                    auth.requestMatchers(HttpMethod.DELETE, "/auth/deleteall").permitAll();
+                }
+                auth
                 // ── CORS preflight ────────────────────────────────────────
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // ── Public auth endpoints ─────────────────────────────────
                 .requestMatchers(HttpMethod.POST,
-                        "/auth/register", "/auth/login", "/auth/refresh").permitAll()
-
-                    //Testing purposes, to be deleted after
-                    .requestMatchers(HttpMethod.DELETE,
-                            "/auth/deleteall").permitAll()
+                        "/auth/register", "/auth/login", "/auth/refresh", "/auth/logout").permitAll()
                 // ── Spell compendium — public read (SRD CC BY 4.0) ───────
                 // GET /spells and GET /spells/{id} are unauthenticated.
                 // POST/DELETE /characters/{id}/spells/** remain protected.
@@ -78,8 +83,8 @@ public class SecurityConfig {
                 // ── Actuator health — RNF-02 ──────────────────────────────
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 // ── All other requests require authentication ─────────────
-                .anyRequest().authenticated()
-            )
+                .anyRequest().authenticated();
+            })
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthFilter,   UsernamePasswordAuthenticationFilter.class);

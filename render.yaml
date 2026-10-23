@@ -26,6 +26,10 @@ services:
       - key: JWT_SECRET
         sync: false
 
+      # Must stay "false" in production (DELETE /auth/deleteall is only for local/CI)
+      - key: E2E_CLEANUP_ENABLED
+        value: "false"
+
       # CORS Configuration
       # Frontend URL hosted on Vercel
       - key: CORS_ORIGINS
