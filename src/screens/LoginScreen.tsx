@@ -4,19 +4,16 @@ import { useAcessibilidade } from '../store/acessibilidade';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable as NativePressable,
-  ScrollView,
-  StyleSheet,
-  Text as NativeText,
-  TextInput as NativeTextInput,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    View
 } from 'react-native';
-import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { G, Path, Polygon } from 'react-native-svg';
+import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { AUTH_COLORS, appFontSize } from '../design/shared';
 import { autenticarConta } from '../store/conta';
 
@@ -37,13 +34,15 @@ const C = {
 // Logo: dado d20 simplificado, desenhado em SVG (substitui a imagem do Figma, cuja URL expira)
 function DiceLogo({ size = 72 }: { size?: number }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 100 100" accessibilityElementsHidden importantForAccessibility="no">
-      <G fill="none" stroke={C.gold} strokeWidth={4} strokeLinejoin="round">
-        <Polygon points="50,6 90,28 90,72 50,94 10,72 10,28" />
-        <Polygon points="50,28 72,66 28,66" />
-        <Path d="M50 6 L50 28 M90 28 L72 66 M10 28 L28 66 M50 94 L50 66 M90 72 L72 66 M10 72 L28 66 M90 28 L50 28 M10 28 L50 28" />
-      </G>
-    </Svg>
+    <View aria-hidden>
+      <Svg width={size} height={size} viewBox="0 0 100 100">
+        <G fill="none" stroke={C.gold} strokeWidth={4} strokeLinejoin="round">
+          <Polygon points="50,6 90,28 90,72 50,94 10,72 10,28" />
+          <Polygon points="50,28 72,66 28,66" />
+          <Path d="M50 6 L50 28 M90 28 L72 66 M10 28 L28 66 M50 94 L50 66 M90 72 L72 66 M10 72 L28 66 M90 28 L50 28 M10 28 L50 28" />
+        </G>
+      </Svg>
+    </View>
   );
 }
 
@@ -151,7 +150,7 @@ export default function LoginScreen() {
             </View>
 
             {/* "Dentes" decorativos do Figma */}
-            <View style={styles.teeth} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+            <View style={styles.teeth} aria-hidden>
               {[0, 1, 2, 3, 4].map((i) => (
                 <View key={i} style={[styles.tooth, { backgroundColor: AUTH_COLORS.panel }]} />
               ))}
