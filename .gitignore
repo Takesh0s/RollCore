@@ -1,43 +1,45 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
+# ── Dependências ────────────────────────────────────────────────────────────
 node_modules/
 
-# Expo
-.expo/
+# ── Builds ──────────────────────────────────────────────────────────────────
 dist/
 web-build/
-expo-env.d.ts
+*.tsbuildinfo
+backend/target/
 
-# Native
+# ── Mobile (Expo / React Native) ────────────────────────────────────────────
+.expo/
+expo-env.d.ts
 .kotlin/
-*.orig.*
+.metro-health-check*
+# pastas nativas geradas pelo Expo (prebuild) — não versionar
+/ios
+/android
+/mobile/ios
+/mobile/android
+
+# ── Web (Vite / Playwright) ─────────────────────────────────────────────────
+playwright-report/
+test-results/
+
+# ── Segredos e certificados ─────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.orig.*
 
-# Metro
-.metro-health-check*
-
-# debug
+# ── Logs ────────────────────────────────────────────────────────────────────
 npm-debug.*
 yarn-debug.*
 yarn-error.*
 
-# macOS
+# ── Sistema ─────────────────────────────────────────────────────────────────
 .DS_Store
-*.pem
-
-# local env files
-.env*.local
-
-# typescript
-*.tsbuildinfo
 
 example
-
-# generated native folders
-/ios
-/android
