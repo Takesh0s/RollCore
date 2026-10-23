@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -30,6 +31,7 @@ import java.util.UUID;
 @Service
 public class JwtService {
 
+    private static final int    MIN_SECRET_BYTES = 32;
     private static final String CLAIM_TYPE    = "type";
     private static final String TYPE_ACCESS   = "access";
     private static final String TYPE_REFRESH  = "refresh";
@@ -42,7 +44,12 @@ public class JwtService {
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-token-expiration-ms}") long accessMs,
             @Value("${jwt.refresh-token-expiration-ms}") long refreshMs) {
-        this.key       = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        byte[] secretBytes = secret == null ? new byte[0] : secret.getBytes(StandardCharsets.UTF_8);
+        if (secretBytes.length < MIN_SECRET_BYTES || secret.startsWith("CHANGE_THIS")) {
+            throw new IllegalStateException(
+                    "JWT_SECRET must be set and at least " + MIN_SECRET_BYTES + " bytes long.");
+        }
+        this.key       = Keys.hmacShaKeyFor(secretBytes);
         this.accessMs  = accessMs;
         this.refreshMs = refreshMs;
     }
@@ -60,6 +67,7 @@ public class JwtService {
     private String build(String subject, String type, long expirationMs) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())   // jti — makes every token unique
                 .subject(subject)
                 .claim(CLAIM_TYPE, type)
                 .issuedAt(new Date(now))
@@ -72,6 +80,11 @@ public class JwtService {
 
     public UUID extractUserId(String token) {
         return UUID.fromString(claims(token).getSubject());
+    }
+
+    /** Expiration instant of a (valid, signed) token. */
+    public Instant extractExpiration(String token) {
+        return claims(token).getExpiration().toInstant();
     }
 
     public boolean isValidAccessToken(String token) {
