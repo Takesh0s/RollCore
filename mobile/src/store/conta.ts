@@ -67,6 +67,16 @@ export async function autenticarConta(email: string, senha: string): Promise<voi
   await abrirSessao(resposta);
 }
 
+/** Signs in (or signs up) with a Google ID token. Throws ApiError (401 = token rejected). */
+export async function autenticarComGoogle(idToken: string): Promise<void> {
+  const resposta = await request<AuthResponse>('/auth/google', {
+    method: 'POST',
+    auth: false,
+    body: { idToken },
+  });
+  await abrirSessao(resposta);
+}
+
 /** Restores a previous session at app start. No network call is needed here: the
  *  first authenticated request refreshes the access token when it has expired. */
 export async function restaurarSessao(): Promise<boolean> {

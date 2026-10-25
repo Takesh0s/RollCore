@@ -13,11 +13,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { G, Path, Polygon } from 'react-native-svg';
+import GoogleLoginButton from '../components/GoogleLoginButton';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { AUTH_COLORS, appFontSize } from '../design/shared';
 import { mensagemDeErro } from '../services/api';
+import { googleConfiguradoNestaPlataforma } from '../services/googleAuth';
 import { SLOW_HINT_TEXT, useSlowHint } from '../services/useSlowHint';
-import { autenticarConta } from '../store/conta';
+import { autenticarComGoogle, autenticarConta } from '../store/conta';
 
 const C = {
   blue: AUTH_COLORS.canvas,
@@ -75,7 +77,21 @@ export default function LoginScreen() {
   };
   const goToCadastro = () => router.push('/cadastro');
   const goToRecuperar = () => router.push('/recuperar-senha');
-  const googleIndisponivel = () => Alert.alert('Login Google indisponível', 'A integração com Google ainda não está configurada.');
+  const googleIndisponivel = () => Alert.alert('Login Google indisponível', 'A integração com Google ainda não está configurada neste dispositivo.');
+  const googleConfigurado = googleConfiguradoNestaPlataforma();
+
+  const entrarComGoogle = async (idToken: string) => {
+    if (carregando) return;
+    setCarregando(true);
+    try {
+      await autenticarComGoogle(idToken);
+      router.replace('/mesas');
+    } catch (error) {
+      Alert.alert('Não foi possível entrar com o Google', mensagemDeErro(error));
+    } finally {
+      setCarregando(false);
+    }
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: AUTH_COLORS.canvas }]}>
@@ -149,12 +165,23 @@ export default function LoginScreen() {
                 <Text style={[styles.small, styles.underline, { color: AUTH_COLORS.white, textAlign: 'center', fontSize: appFontSize(14) }]}>criar conta</Text>
               </Pressable>
 
-              <Pressable onPress={googleIndisponivel} accessibilityRole="button" style={styles.google}>
-                <View style={[styles.gBadge, { backgroundColor: AUTH_COLORS.white }]}>
-                  <Text style={[styles.gText, { fontSize: appFontSize(16) }]}>G</Text>
-                </View>
-                <Text style={[styles.small, { color: AUTH_COLORS.white, fontSize: appFontSize(14) }]}>Login com o google</Text>
-              </Pressable>
+              {googleConfigurado ? (
+                <GoogleLoginButton
+                  disabled={carregando}
+                  onIdToken={entrarComGoogle}
+                  onError={(mensagem) => Alert.alert('Login Google', mensagem)}
+                  style={styles.google}
+                  badgeStyle={[styles.gBadge, { backgroundColor: AUTH_COLORS.white }]}
+                  badgeTextStyle={[styles.gText, { fontSize: appFontSize(16) }]}
+                />
+              ) : (
+                <Pressable onPress={googleIndisponivel} accessibilityRole="button" style={styles.google}>
+                  <View style={[styles.gBadge, { backgroundColor: AUTH_COLORS.white }]}>
+                    <Text style={[styles.gText, { fontSize: appFontSize(16) }]}>G</Text>
+                  </View>
+                  <Text style={[styles.small, { color: AUTH_COLORS.white, fontSize: appFontSize(14) }]}>Login com o google</Text>
+                </Pressable>
+              )}
 
               <View style={[styles.bottomLine, { backgroundColor: AUTH_COLORS.gray }]} />
             </View>
