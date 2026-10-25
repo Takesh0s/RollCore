@@ -21,6 +21,7 @@ Papéis (`role`): `MASTER` (GM, dono), `MODERATOR` ("Moderador assistente"), `PL
 | Sair da Mesa | `DELETE /tables/{id}/members/me` | membro (menos `MASTER`) |
 | Remover membro | `DELETE /tables/{id}/members/{userId}` | `MASTER`, `MODERATOR` |
 | Promover / rebaixar | `PATCH /tables/{id}/members/{userId}/role` | `MASTER` |
+| Passar o hosting a outro membro | `POST /tables/{id}/transfer-host` | quem criou a mesa, no plano pagante |
 
 ## Exemplos
 
@@ -54,10 +55,11 @@ Resposta `201`:
 | 400 | validação (nome com menos de 3 caracteres, `maxPlayers` fora de 1–20, capa que não é http/https, cargo inválido) |
 | 403 | membro sem o papel necessário |
 | 404 | mesa inexistente **ou** que você não integra; código de convite inválido |
-| 409 | mesa cheia, já é membro, `maxPlayers` menor que o número atual de membros, mestre tentando sair, limite de mesas por usuário (10, configurável em `rollcore.tables.max-owned-per-user`) |
+| 409 | mesa cheia, já é membro, `maxPlayers` menor que o número atual de membros, mestre tentando sair, cota de mesas do plano esgotada (plano grátis: 1 mesa por vez, `rollcore.tables.free-max-tables`; pagante: teto técnico de 200, `rollcore.tables.premium-max-tables`), tentativa de transferir o hosting para quem já é o mestre |
 
 ## Fora do escopo desta fase
 - Upload de imagem (capa/avatar): por enquanto só URL.
 - Sessão online com mapa em tempo real (WebSocket) e rolagens por mesa: Fase 2b.
 - Calendário, comunidade/chat e notificações: Fases 3 e 4.
-- "Usuário pagante" (telas de Criação de Mesa e Sistemas): regra de negócio ainda não definida.
+- Cobrança: ainda não há pagamento; o plano pagante é ligado à mão (ver `docs/api/planos.md`).
+- Sistemas próprios, Livraria e personalização do perfil para o pagante: fases seguintes.

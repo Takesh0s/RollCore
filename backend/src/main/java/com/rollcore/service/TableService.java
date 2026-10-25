@@ -15,6 +15,7 @@ import com.rollcore.entity.GameTable;
 import com.rollcore.entity.GameTableMember;
 import com.rollcore.entity.GameTableMember.Role;
 import com.rollcore.entity.User;
+import com.rollcore.entity.User.Plan;
 import com.rollcore.exception.ConflictException;
 import com.rollcore.exception.ForbiddenException;
 import com.rollcore.exception.NotFoundException;
@@ -41,6 +42,9 @@ import java.util.UUID;
  *   <li>Visibility: a table that the caller does not belong to answers 404 (never 403),
  *       so table IDs cannot be enumerated. Members lacking the required role get 403.
  *   <li>Joins and edits lock the table row, so the player cap cannot be exceeded by a race.
+ *   <li>Plans (Fase 2c): a FREE user sponsors at most {@code free-max-tables} table at a time;
+ *       a PREMIUM user sponsors many (technical cap {@code premium-max-tables}) and may hand
+ *       the hosting of a table they sponsor to another member.
  * </ul>
  */
 @Service
@@ -57,16 +61,19 @@ public class TableService {
     private final GameTableRepository       tables;
     private final GameTableMemberRepository members;
     private final UserRepository            users;
-    private final int                       maxOwnedPerUser;
+    private final int                       freeMaxTables;
+    private final int                       premiumMaxTables;
 
     public TableService(GameTableRepository tables,
                         GameTableMemberRepository members,
                         UserRepository users,
-                        @Value("${rollcore.tables.max-owned-per-user:10}") int maxOwnedPerUser) {
-        this.tables          = tables;
-        this.members         = members;
-        this.users           = users;
-        this.maxOwnedPerUser = maxOwnedPerUser;
+                        @Value("${rollcore.tables.free-max-tables:1}") int freeMaxTables,
+                        @Value("${rollcore.tables.premium-max-tables:200}") int premiumMaxTables) {
+        this.tables           = tables;
+        this.members          = members;
+        this.users            = users;
+        this.freeMaxTables    = freeMaxTables;
+        this.premiumMaxTables = premiumMaxTables;
     }
 
     // ── Create / read ─────────────────────────────────────────────────────────
@@ -76,12 +83,11 @@ public class TableService {
         User user = users.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found."));
 
-        if (tables.countByOwnerId(userId) >= maxOwnedPerUser) {
-            throw new ConflictException("Table limit reached (" + maxOwnedPerUser + " per user).");
-        }
+        enforceTableQuota(user);
 
         GameTable table = tables.save(GameTable.builder()
                 .owner(user)
+                .sponsor(user)
                 .name(req.name().trim())
                 .gameSystem(blankToNull(req.gameSystem()) != null ? req.gameSystem().trim() : DEFAULT_SYSTEM)
                 .description(blankToNull(req.description()))
@@ -156,6 +162,43 @@ public class TableService {
         GameTable table = lock(tableId);
         members.deleteByGameTableId(tableId);
         tables.delete(table);
+    }
+
+    /**
+     * Hands the hosting (master role) of a table to another member. Only the sponsor —
+     * the paying user who created the table — may do it, and only while on the PREMIUM plan.
+     * The previous host becomes a moderator; the sponsor's quota is unchanged.
+     */
+    @Transactional
+    public TableDetailResponse transferHost(UUID tableId, UUID actorId, UUID targetUserId) {
+        GameTableMember actor = requireMember(tableId, actorId);
+        GameTable table = lock(tableId);
+
+        User sponsor = table.getSponsor();
+        if (sponsor == null || !sponsor.getId().equals(actorId)) {
+            throw new ForbiddenException("Only the user who created the table can transfer its hosting.");
+        }
+        if (sponsor.getPlan() != Plan.PREMIUM) {
+            throw new ForbiddenException("Transferring the hosting requires the paid plan.");
+        }
+
+        GameTableMember target = members.findByGameTableIdAndUserId(tableId, targetUserId)
+                .orElseThrow(() -> new NotFoundException("Member not found."));
+        if (target.getRole() == Role.MASTER) {
+            throw new ConflictException("This member is already the host of the table.");
+        }
+
+        GameTableMember previous = members.findByGameTableIdAndUserId(tableId, table.getOwner().getId())
+                .orElseThrow(() -> new NotFoundException("Member not found."));
+
+        previous.setRole(Role.MODERATOR);
+        target.setRole(Role.MASTER);
+        table.setOwner(target.getUser());
+        members.save(previous);
+        members.save(target);
+        tables.save(table);
+
+        return detail(table, actor);
     }
 
     // ── Joining ───────────────────────────────────────────────────────────────
@@ -279,15 +322,33 @@ public class TableService {
 
     // ── Internals ─────────────────────────────────────────────────────────────
 
+    /** Rejects creation when the user's plan quota of sponsored tables is used up. */
+    private void enforceTableQuota(User user) {
+        long sponsored = tables.countBySponsorId(user.getId());
+        if (user.getPlan() == Plan.PREMIUM) {
+            if (sponsored >= premiumMaxTables) {
+                throw new ConflictException("Table limit reached (" + premiumMaxTables + ").");
+            }
+        } else if (sponsored >= freeMaxTables) {
+            throw new ConflictException("The free plan allows " + freeMaxTables
+                    + " table at a time. Delete one or upgrade to the paid plan.");
+        }
+    }
+
     private TableDetailResponse detail(GameTable table, GameTableMember me) {
         List<GameTableMember> all = members.findByGameTableIdOrderByJoinedAtAsc(table.getId());
         boolean staff = me.getRole() != Role.PLAYER;
+        User sponsor = table.getSponsor();
+        boolean canTransferHost = sponsor != null
+                && sponsor.getId().equals(me.getUser().getId())
+                && sponsor.getPlan() == Plan.PREMIUM;
 
         return new TableDetailResponse(
                 TableSummaryResponse.from(table, all.size(), me.getRole().name()),
                 staff ? table.getInviteCode() : null,
                 all.stream().map(MemberResponse::from).toList(),
-                MemberSelfResponse.from(me));
+                MemberSelfResponse.from(me),
+                canTransferHost);
     }
 
     /** 404 for non-members, so the existence of a table is never revealed to outsiders. */

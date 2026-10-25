@@ -30,6 +30,15 @@ public class GameTable {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
+    /**
+     * The user whose plan pays for this table. Normally the creator; stays the same when
+     * the hosting (master role / {@link #owner}) is handed to someone else. Null once the
+     * sponsor's account is deleted.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sponsor_id")
+    private User sponsor;
+
     @Column(nullable = false, length = 100)
     private String name;
 
