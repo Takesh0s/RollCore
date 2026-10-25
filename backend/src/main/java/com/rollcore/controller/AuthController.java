@@ -1,5 +1,6 @@
 package com.rollcore.controller;
 
+import com.rollcore.dto.request.GoogleLoginRequest;
 import com.rollcore.dto.request.LoginRequest;
 import com.rollcore.dto.request.RefreshRequest;
 import com.rollcore.dto.request.RegisterRequest;
@@ -23,6 +24,7 @@ import java.util.UUID;
  * <pre>
  * POST /auth/register  → 201 Created   — user registration
  * POST /auth/login     → 200 OK        — user login
+ * POST /auth/google    → 200 OK        — sign in / sign up with a Google ID token
  * POST /auth/refresh   → 200 OK        — token refresh with rotation (S01)
  * POST /auth/logout    → 204           — revoke the refresh-token family
  * POST /auth/logout-all→ 204           — revoke every session (JWT required)
@@ -50,6 +52,12 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @Operation(summary = "Sign in (or sign up) with a Google ID token and return a token pair")
+    @PostMapping("/google")
+    public AuthResponse google(@Valid @RequestBody GoogleLoginRequest request) {
+        return authService.loginWithGoogle(request);
     }
 
     @Operation(summary = "Refresh access token using refresh token — UC-01 S01")

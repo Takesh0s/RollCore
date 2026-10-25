@@ -41,7 +41,7 @@ O RollCore reúne em um único lugar o que um grupo de RPG de mesa usa durante a
 
 | Área | Situação |
 | --- | --- |
-| Autenticação (JWT + refresh token com rotação) | Implementado |
+| Autenticação (JWT + refresh token com rotação, login com Google) | Implementado |
 | Personagens, magias e dados | Implementado |
 | Mesas, convites, papéis e planos | Implementado |
 | Cliente web (personagens, dados, dashboard) | Implementado |
@@ -83,7 +83,7 @@ Decisões principais:
 - **Camadas:** `controller` expõe HTTP e valida entrada; `service` concentra regras de negócio e transações; `repository` isola o acesso a dados. Entidades JPA não saem da API, que responde com DTOs.
 - **Stateless:** a API não mantém sessão. O access token dura 15 minutos e o refresh token 7 dias.
 - **Refresh tokens:** guardados apenas como hash SHA-256, com rotação a cada uso e detecção de reutilização por família de tokens (uma reutilização revoga a família inteira). Há uma janela curta de tolerância para requisições concorrentes.
-- **Esquema versionado:** o Hibernate roda em `ddl-auto: validate`; toda mudança de banco passa por uma migração Flyway (`V1` a `V8`).
+- **Esquema versionado:** o Hibernate roda em `ddl-auto: validate`; toda mudança de banco passa por uma migração Flyway (`V1` a `V9`).
 - **Isolamento de recursos:** quem não é membro de uma mesa recebe `404`, não `403`, para não revelar que ela existe. A entrada em mesas usa lock pessimista na linha para respeitar o limite de membros sob concorrência.
 - **Planos:** o limite de mesas é aplicado por patrocinador (`sponsor_id`), de forma que a hospedagem de uma mesa pode ser transferida sem burlar a cota.
 - **Rate limiting:** Bucket4j, com limite mais restrito nas rotas de autenticação.
@@ -197,6 +197,7 @@ Variáveis de ambiente do backend:
 | `SPRING_DATASOURCE_USERNAME` | Usuário do banco | `rollcore` |
 | `SPRING_DATASOURCE_PASSWORD` | Senha do banco | `rollcore` |
 | `JWT_SECRET` | Segredo de assinatura (mínimo 32 bytes) | **obrigatório**, sem padrão |
+| `GOOGLE_CLIENT_ID` | Client id(s) OAuth aceitos no login com Google, separados por vírgula (vazio desativa o recurso) | vazio |
 | `CORS_ORIGINS` | Origens permitidas, separadas por vírgula | origens locais e Vercel |
 | `PORT` | Porta HTTP | `8080` |
 | `RATE_LIMIT_RPM` | Requisições por minuto por cliente | `60` |
@@ -211,7 +212,7 @@ Visão geral dos grupos de rotas (detalhes e esquemas no Swagger UI):
 
 | Grupo | Rotas |
 | --- | --- |
-| Autenticação | `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/logout-all`; `DELETE /auth/me` |
+| Autenticação | `POST /auth/register`, `/auth/login`, `/auth/google`, `/auth/refresh`, `/auth/logout`, `/auth/logout-all`; `DELETE /auth/me` |
 | Usuário | `GET /users/me` |
 | Personagens | CRUD em `/characters` e sub-rotas de magias |
 | Magias | `GET /spells`, `GET /spells/{id}` (públicas) |
@@ -223,6 +224,7 @@ Requisições sem token válido recebem `401`. Documentação específica:
 
 - [Mesas](docs/api/mesas.md)
 - [Planos e limites](docs/api/planos.md)
+- [Login com Google](docs/api/auth-google.md)
 - Coleção Postman: [`RollCore.postman_collection.json`](RollCore.postman_collection.json)
 
 ## Testes
@@ -233,7 +235,7 @@ Requisições sem token válido recebem `401`. Documentação específica:
 ./mvnw -f backend/pom.xml test
 ```
 
-No Windows: `.\mvnw.cmd -f backend/pom.xml test`. A suíte tem 174 testes e o pipeline exige cobertura de linhas mínima de 80% (JaCoCo).
+No Windows: `.\mvnw.cmd -f backend/pom.xml test`. A suíte tem mais de 190 testes e o pipeline exige cobertura de linhas mínima de 80% (JaCoCo).
 
 **Web:**
 
@@ -274,7 +276,7 @@ Pontos de atenção em produção:
 - Biblioteca de sistemas (Quilombo Zero, City of Myst, Ordem Paranormal, Pathfinder) e criação de sistemas próprios
 - Bestiário e livraria
 - Chat, calendário de sessões e notificações
-- Recuperação de senha por e-mail e login social
+- Recuperação de senha por e-mail e login com Google no aplicativo mobile
 - Upload de imagens
 - Pagamento do plano `PREMIUM`
 - Alinhamento das telas mobile ao design no Figma

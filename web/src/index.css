@@ -2048,3 +2048,18 @@ select.form-input option { background: var(--card-raised); }
   width: 100%;
   margin-top: 4px;
 }
+/* ── Google sign-in ──────────────────────────────────────────────────────── */
+.google-signin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 4px;
+}
+.google-signin-divider {
+  color: var(--text-faint);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.google-signin-button { min-height: 44px; }

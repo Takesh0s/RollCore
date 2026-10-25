@@ -30,6 +30,10 @@ services:
       - key: E2E_CLEANUP_ENABLED
         value: "false"
 
+      # Google sign-in: public OAuth client id (Web application). Not a secret.
+      - key: GOOGLE_CLIENT_ID
+        value: 6441366899-rajs6jj2mmclodmq857n9ahgjn5fjl94.apps.googleusercontent.com
+
       # CORS Configuration
       # Frontend URL hosted on Vercel
       - key: CORS_ORIGINS
