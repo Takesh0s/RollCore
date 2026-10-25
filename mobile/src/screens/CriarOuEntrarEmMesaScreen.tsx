@@ -8,6 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, Field, Header, PrimaryButton, useAppFonts, appFontSize } from '../design/shared';
 import { addMesa, getMesaById, entrarPorCodigo, updateMesa } from '../store/mesas';
 import { pickLocalImage } from '../utils/imagePicker';
+import { mensagemDeErro } from '../services/api';
+import { SLOW_HINT_TEXT, useSlowHint } from '../services/useSlowHint';
 
 const SISTEMAS = ['D&D 5e', 'Tormenta20', 'Call of Cthulhu', 'Pathfinder 2e', 'Outro'];
 
@@ -41,6 +43,8 @@ export default function CriarOuEntrarEmMesaScreen() {
   const [descricao, setDescricao] = useState(existing?.descricao ?? '');
   const [codigo, setCodigo] = useState('');
   const [imagemUri, setImagemUri] = useState(existing?.imagemUri);
+  const [enviando, setEnviando] = useState(false);
+  const lento = useSlowHint(enviando);
 
   if (!fontsLoaded) return null;
 
@@ -53,24 +57,40 @@ export default function CriarOuEntrarEmMesaScreen() {
     }
   };
 
-  const handleCriar = () => {
+  const handleCriar = async () => {
+    if (enviando) return;
     const titulo = nome.trim();
-    if (titulo.length < 2) {
-      Alert.alert('Nome da mesa', 'Informe pelo menos 2 caracteres para o nome da campanha.');
+    if (titulo.length < 3) {
+      Alert.alert('Nome da mesa', 'Informe pelo menos 3 caracteres para o nome da campanha.');
       return;
     }
-    if (editing && existing) updateMesa(existing.id, { titulo, sistema: sistema.trim() || 'Sistema Livre', descricao: descricao.trim() || undefined, imagemUri });
-    else addMesa({ titulo, sistema, descricao, imagemUri });
-    router.replace('/mesas' as any);
+    setEnviando(true);
+    try {
+      if (editing && existing) await updateMesa(existing.id, { titulo, sistema: sistema.trim() || 'D&D 5e', descricao: descricao.trim() || undefined, imagemUri });
+      else await addMesa({ titulo, sistema, descricao, imagemUri });
+      router.replace('/mesas' as any);
+    } catch (error) {
+      Alert.alert(editing ? 'Não foi possível salvar' : 'Não foi possível criar a mesa', mensagemDeErro(error));
+    } finally {
+      setEnviando(false);
+    }
   };
 
-  const handleEntrar = () => {
+  const handleEntrar = async () => {
+    if (enviando) return;
     if (!codigo.trim()) {
       Alert.alert('Código de convite', 'Digite o código fornecido pelo mestre.');
       return;
     }
-    entrarPorCodigo(codigo);
-    router.replace('/mesas' as any);
+    setEnviando(true);
+    try {
+      await entrarPorCodigo(codigo);
+      router.replace('/mesas' as any);
+    } catch (error) {
+      Alert.alert('Não foi possível entrar na mesa', mensagemDeErro(error));
+    } finally {
+      setEnviando(false);
+    }
   };
 
   return (
@@ -100,17 +120,19 @@ export default function CriarOuEntrarEmMesaScreen() {
               <TextInput value={descricao} onChangeText={setDescricao} placeholder="Uma breve descrição sobre a campanha..." placeholderTextColor={COLORS.outline} multiline numberOfLines={4} style={{ minHeight: 96, backgroundColor: COLORS.surfaceContainerLowest, borderWidth: 2, borderColor: COLORS.outlineVariant, borderRadius: 8, padding: 16, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(15), textAlignVertical: 'top' }} />
             </View>
             <View style={{ flex: 1 }} />
-            <PrimaryButton title={editing ? 'Salvar Alterações' : 'Criar Mesa'} icon={editing ? 'save' : 'edit-document'} onPress={handleCriar} />
+            <PrimaryButton title={enviando ? 'Enviando…' : editing ? 'Salvar Alterações' : 'Criar Mesa'} icon={editing ? 'save' : 'edit-document'} onPress={handleCriar} />
+            {lento ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12), textAlign: 'center' }}>{SLOW_HINT_TEXT}</Text> : null}
           </> : <>
             <View style={{ alignItems: 'center', gap: 8, marginTop: 24 }}>
               <View style={{ width: 96, height: 96, borderRadius: 48, borderWidth: 2, borderColor: COLORS.outlineVariant, backgroundColor: COLORS.surfaceContainerHighest, alignItems: 'center', justifyContent: 'center' }}><MaterialIcons name="vpn-key" size={40} color={COLORS.onSurfaceVariant} /></View>
               <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(20), textAlign: 'center' }}>Possui um Código de Convite?</Text>
-              <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14), textAlign: 'center', maxWidth: 280 }}>Insira o código fornecido pelo seu Mestre para registrar a mesa neste aparelho.</Text>
+              <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14), textAlign: 'center', maxWidth: 280 }}>Insira o código fornecido pelo seu Mestre para entrar na mesa.</Text>
             </View>
-            <Field label="Código de convite" placeholder="EX: AX7-99B" value={codigo} onChangeText={(value) => setCodigo(value.toUpperCase())} autoCapitalize="characters" />
+            <Field label="Código de convite" placeholder="EX: K7M2QX9R" value={codigo} onChangeText={(value) => setCodigo(value.toUpperCase())} autoCapitalize="characters" />
             <View style={{ flex: 1 }} />
-            <PrimaryButton title="Entrar na Mesa" icon="login" onPress={handleEntrar} />
-            <Text style={{ color: COLORS.outline, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(11), textAlign: 'center' }}>Sem backend, o convite fica registrado apenas como uma mesa local de demonstração.</Text>
+            <PrimaryButton title={enviando ? 'Entrando…' : 'Entrar na Mesa'} icon="login" onPress={handleEntrar} />
+            {lento ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12), textAlign: 'center' }}>{SLOW_HINT_TEXT}</Text> : null}
+            <Text style={{ color: COLORS.outline, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(11), textAlign: 'center' }}>Peça o código de 8 caracteres ao mestre da mesa. Maiúsculas e minúsculas não importam.</Text>
           </>}
         </ScrollView>
       </KeyboardAvoidingView>

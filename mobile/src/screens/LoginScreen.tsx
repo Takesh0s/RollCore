@@ -15,6 +15,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { G, Path, Polygon } from 'react-native-svg';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { AUTH_COLORS, appFontSize } from '../design/shared';
+import { mensagemDeErro } from '../services/api';
+import { SLOW_HINT_TEXT, useSlowHint } from '../services/useSlowHint';
 import { autenticarConta } from '../store/conta';
 
 const C = {
@@ -52,17 +54,24 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [manter, setManter] = useState(false);
+  const [carregando, setCarregando] = useState(false);
+  const lento = useSlowHint(carregando);
 
-  const goToMesas = () => {
+  const goToMesas = async () => {
+    if (carregando) return;
     if (!email.trim() || !senha) {
       Alert.alert('Preencha seus dados', 'Informe o e-mail e a senha cadastrados.');
       return;
     }
-    if (!autenticarConta(email, senha)) {
-      Alert.alert('Não foi possível entrar', 'Confira seus dados ou crie uma conta neste dispositivo.');
-      return;
+    setCarregando(true);
+    try {
+      await autenticarConta(email, senha);
+      router.replace('/mesas');
+    } catch (error) {
+      Alert.alert('Não foi possível entrar', mensagemDeErro(error));
+    } finally {
+      setCarregando(false);
     }
-    router.replace('/mesas');
   };
   const goToCadastro = () => router.push('/cadastro');
   const goToRecuperar = () => router.push('/recuperar-senha');
@@ -131,9 +140,10 @@ export default function LoginScreen() {
                 <Text style={[styles.small, styles.underline, { color: AUTH_COLORS.white, fontSize: appFontSize(14) }]}>esqueci minha senha</Text>
               </Pressable>
 
-              <Pressable onPress={goToMesas} accessibilityRole="button" style={[styles.button, { backgroundColor: AUTH_COLORS.button }]} >
-                <Text style={[styles.buttonText, { color: AUTH_COLORS.white, fontSize: appFontSize(19) }]}>Entrar</Text>
+              <Pressable onPress={goToMesas} disabled={carregando} accessibilityRole="button" accessibilityState={{ busy: carregando, disabled: carregando }} style={[styles.button, { backgroundColor: AUTH_COLORS.button, opacity: carregando ? 0.7 : 1 }]} >
+                <Text style={[styles.buttonText, { color: AUTH_COLORS.white, fontSize: appFontSize(19) }]}>{carregando ? 'Entrando…' : 'Entrar'}</Text>
               </Pressable>
+              {lento ? <Text accessibilityLiveRegion="polite" style={[styles.small, { color: AUTH_COLORS.white, textAlign: 'center', fontSize: appFontSize(13) }]}>{SLOW_HINT_TEXT}</Text> : null}
 
               <Pressable onPress={goToCadastro} accessibilityRole="link" style={styles.linkBox}>
                 <Text style={[styles.small, styles.underline, { color: AUTH_COLORS.white, textAlign: 'center', fontSize: appFontSize(14) }]}>criar conta</Text>

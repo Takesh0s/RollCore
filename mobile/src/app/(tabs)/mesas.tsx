@@ -1,12 +1,13 @@
 import { useAcessibilidade } from '../../store/acessibilidade';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
 import { Alert, ImageBackground, Modal, Pressable as NativePressable, ScrollView, Text as NativeText, TextInput as NativeTextInput, View } from 'react-native';
 import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS, appFontSize } from '../../design/shared';
-import { removeMesa, useMesas } from '../../store/mesas';
+import { mensagemDeErro } from '../../services/api';
+import { carregarMesas, removeMesa, useMesas, useMesasStatus } from '../../store/mesas';
 
 const COVERS: Record<string, string> = {
   strahd: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD0QJzoailqXRucEkipJju_1KNsEjPvsB4A5em7pd30adzbsQ_lCHq6ANuX964zpnysn5suxi2Gx8jNHsJGCFmIQljHgpbyArmqTjstxI7gaeC0L9C5Pe9CC1TP3qzP5uT9w1cED47VfEX6o8fpz7X2dWgMDHHtqIgKoMOE2YpYplGraTOQs7p6Zz4V0OszoS2grsD6UjqaWtTajH6CIahtKj94iYXKm1LQC4SQlF0FWvsF8qc_Eo68Xw',
@@ -21,6 +22,8 @@ export default function MesasScreen() {
   useAcessibilidade();
   const router = useRouter();
   const mesas = useMesas();
+  const { carregando, erro } = useMesasStatus();
+  useFocusEffect(useCallback(() => { void carregarMesas(); }, []));
   const [query, setQuery] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [roleFilter, setRoleFilter] = useState<'Todas' | 'Mestre' | 'Jogador'>('Todas');
@@ -33,14 +36,18 @@ export default function MesasScreen() {
     });
   }, [mesas, query, roleFilter]);
 
-  const confirmDelete = (id: string, title: string) => Alert.alert(
-    'Editar mesa',
+  const confirmDelete = (id: string, title: string, mestre: boolean) => Alert.alert(
+    mestre ? 'Editar mesa' : 'Mesa',
     `O que deseja fazer com “${title}”?`,
     [
       { text: 'Cancelar', style: 'cancel' },
-      { text: 'Editar', onPress: () => router.push(`/mesa?id=${id}` as any) },
+      ...(mestre ? [{ text: 'Editar', onPress: () => router.push(`/mesa?id=${id}` as any) }] : []),
       { text: 'Abrir mesa', onPress: () => router.push(`/sessao/${id}` as any) },
-      { text: 'Excluir', style: 'destructive', onPress: () => removeMesa(id) },
+      {
+        text: mestre ? 'Excluir' : 'Sair da mesa',
+        style: 'destructive' as const,
+        onPress: () => { removeMesa(id).catch((error) => Alert.alert(mestre ? 'Não foi possível excluir' : 'Não foi possível sair', mensagemDeErro(error))); },
+      },
     ],
   );
 
@@ -90,7 +97,7 @@ export default function MesasScreen() {
                   <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12, backgroundColor: COLORS.surfaceContainerHighest }}>
                     <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(10) }}>{mesa.papel}</Text>
                   </View>
-                  <Pressable onPress={() => confirmDelete(mesa.id, mesa.titulo)} accessibilityLabel={`Editar ${mesa.titulo}`} style={{ padding: 4 }}>
+                  <Pressable onPress={() => confirmDelete(mesa.id, mesa.titulo, mesa.papelApi === 'MASTER')} accessibilityLabel={`Editar ${mesa.titulo}`} style={{ padding: 4 }}>
                     <MaterialIcons name="more-vert" size={20} color={COLORS.onSurfaceVariant} />
                   </Pressable>
                 </View>
@@ -101,8 +108,13 @@ export default function MesasScreen() {
 
         {filteredTables.length === 0 && (
           <View style={{ alignItems: 'center', paddingVertical: 48, gap: 8 }}>
-            <MaterialIcons name="search-off" size={36} color={COLORS.outline} />
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }}>Nenhuma mesa encontrada.</Text>
+            <MaterialIcons name={erro ? 'cloud-off' : carregando ? 'hourglass-empty' : 'search-off'} size={36} color={COLORS.outline} />
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14), textAlign: 'center' }}>
+              {erro ? erro : carregando ? 'Carregando suas mesas… se o servidor estiver dormindo, pode levar até 1 minuto.' : mesas.length === 0 ? 'Você ainda não tem mesas. Toque em + para criar uma ou entrar com um código.' : 'Nenhuma mesa encontrada.'}
+            </Text>
+            {erro ? <Pressable onPress={() => { void carregarMesas(); }} accessibilityRole="button" style={{ paddingHorizontal: 18, paddingVertical: 10, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+              <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>Tentar de novo</Text>
+            </Pressable> : null}
           </View>
         )}
       </ScrollView>

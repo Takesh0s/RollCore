@@ -66,8 +66,8 @@ export default function ConfiguracoesScreen() {
 
   const goBack = () => router.back();
   const goToAcessibilidadeVisual = () => router.push('/acessibilidade-visual');
-  const goToLogin = () => {
-    encerrarSessao();
+  const goToLogin = async () => {
+    await encerrarSessao();
     router.replace('/login');
   };
 

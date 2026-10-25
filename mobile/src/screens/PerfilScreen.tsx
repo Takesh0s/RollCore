@@ -19,8 +19,8 @@ export default function PerfilScreen() {
 
   if (!fontsLoaded) return null;
 
-  const sair = () => {
-    encerrarSessao();
+  const sair = async () => {
+    await encerrarSessao();
     router.replace('/login');
   };
 
