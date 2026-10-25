@@ -61,7 +61,7 @@ class TableServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new TableService(tables, members, users, 10);
+        service = new TableService(tables, members, users, 1, 3);
 
         master    = user(masterId, "gm");
         moderator = user(modId, "mod");
@@ -104,7 +104,7 @@ class TableServiceTest {
         @Test @DisplayName("creates the table, makes the caller MASTER and applies defaults")
         void createsWithDefaults() {
             when(users.findById(masterId)).thenReturn(Optional.of(master));
-            when(tables.countByOwnerId(masterId)).thenReturn(0L);
+            when(tables.countBySponsorId(masterId)).thenReturn(0L);
             when(tables.existsByInviteCode(any())).thenReturn(false);
             when(tables.save(any(GameTable.class))).thenAnswer(inv -> {
                 GameTable t = inv.getArgument(0);
@@ -133,16 +133,142 @@ class TableServiceTest {
             assertThat(r.me().role()).isEqualTo("MASTER");
         }
 
-        @Test @DisplayName("rejects creation beyond the per-user limit")
-        void rejectsOverLimit() {
+        @Test @DisplayName("FREE plan: rejects a second table (1 at a time)")
+        void freePlanRejectsSecondTable() {
             when(users.findById(masterId)).thenReturn(Optional.of(master));
-            when(tables.countByOwnerId(masterId)).thenReturn(10L);
+            when(tables.countBySponsorId(masterId)).thenReturn(1L);
+
+            assertThatThrownBy(() -> service.create(masterId,
+                    new CreateTableRequest("Mesa", null, null, null, null)))
+                    .isInstanceOf(ConflictException.class)
+                    .hasMessageContaining("free plan");
+
+            verify(tables, never()).save(any());
+        }
+
+        @Test @DisplayName("PREMIUM plan: creates beyond the free quota and sponsors the table")
+        void premiumPlanCreatesManyAndSponsors() {
+            master.setPlan(User.Plan.PREMIUM);
+            when(users.findById(masterId)).thenReturn(Optional.of(master));
+            when(tables.countBySponsorId(masterId)).thenReturn(2L);
+            when(tables.existsByInviteCode(any())).thenReturn(false);
+            when(tables.save(any(GameTable.class))).thenAnswer(inv -> {
+                GameTable t = inv.getArgument(0);
+                t.setId(tableId);
+                return t;
+            });
+            when(members.save(any(GameTableMember.class))).thenAnswer(inv -> {
+                GameTableMember m = inv.getArgument(0);
+                m.setJoinedAt(Instant.now());
+                return m;
+            });
+            when(members.findByGameTableIdOrderByJoinedAtAsc(tableId)).thenReturn(List.of());
+
+            TableDetailResponse r = service.create(masterId,
+                    new CreateTableRequest("Terceira", null, null, null, null));
+
+            ArgumentCaptor<GameTable> captor = ArgumentCaptor.forClass(GameTable.class);
+            verify(tables).save(captor.capture());
+            assertThat(captor.getValue().getSponsor()).isSameAs(master);
+            assertThat(captor.getValue().getOwner()).isSameAs(master);
+            assertThat(r.canTransferHost()).isTrue();
+        }
+
+        @Test @DisplayName("PREMIUM plan: still stops at the technical cap")
+        void premiumPlanStopsAtCap() {
+            master.setPlan(User.Plan.PREMIUM);
+            when(users.findById(masterId)).thenReturn(Optional.of(master));
+            when(tables.countBySponsorId(masterId)).thenReturn(3L);
 
             assertThatThrownBy(() -> service.create(masterId,
                     new CreateTableRequest("Mesa", null, null, null, null)))
                     .isInstanceOf(ConflictException.class);
 
             verify(tables, never()).save(any());
+        }
+    }
+
+    // ── transfer host ─────────────────────────────────────────────────────────
+
+    @Nested @DisplayName("transferHost()")
+    class TransferHostTest {
+
+        @BeforeEach
+        void sponsoredByMaster() {
+            table.setSponsor(master);
+        }
+
+        private void lockTable() {
+            when(tables.findByIdForUpdate(tableId)).thenReturn(Optional.of(table));
+        }
+
+        @Test @DisplayName("premium sponsor hands the hosting over; previous host becomes moderator")
+        void sponsorTransfers() {
+            master.setPlan(User.Plan.PREMIUM);
+            asMember(masterM);
+            lockTable();
+            asMember(playerM);
+            stubMembersList(masterM, playerM);
+
+            TableDetailResponse r = service.transferHost(tableId, masterId, playerId);
+
+            assertThat(playerM.getRole()).isEqualTo(Role.MASTER);
+            assertThat(masterM.getRole()).isEqualTo(Role.MODERATOR);
+            assertThat(table.getOwner()).isSameAs(player);
+            assertThat(table.getSponsor()).isSameAs(master);
+            assertThat(r.table().ownerUsername()).isEqualTo("ply");
+            verify(tables).save(table);
+        }
+
+        @Test @DisplayName("a host who is not the sponsor cannot transfer")
+        void nonSponsorForbidden() {
+            table.setSponsor(moderator);
+            moderator.setPlan(User.Plan.PREMIUM);
+            asMember(masterM);
+            lockTable();
+
+            assertThatThrownBy(() -> service.transferHost(tableId, masterId, playerId))
+                    .isInstanceOf(ForbiddenException.class);
+            verify(tables, never()).save(any());
+        }
+
+        @Test @DisplayName("a sponsor on the free plan cannot transfer")
+        void freeSponsorForbidden() {
+            asMember(masterM);
+            lockTable();
+
+            assertThatThrownBy(() -> service.transferHost(tableId, masterId, playerId))
+                    .isInstanceOf(ForbiddenException.class)
+                    .hasMessageContaining("paid plan");
+        }
+
+        @Test @DisplayName("the new host must already be a member (404)")
+        void targetMustBeMember() {
+            master.setPlan(User.Plan.PREMIUM);
+            asMember(masterM);
+            lockTable();
+            when(members.findByGameTableIdAndUserId(tableId, playerId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> service.transferHost(tableId, masterId, playerId))
+                    .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test @DisplayName("cannot transfer to the member who already hosts the table")
+        void targetAlreadyHost() {
+            master.setPlan(User.Plan.PREMIUM);
+            asMember(masterM);
+            lockTable();
+
+            assertThatThrownBy(() -> service.transferHost(tableId, masterId, masterId))
+                    .isInstanceOf(ConflictException.class);
+        }
+
+        @Test @DisplayName("an outsider gets 404, not 403")
+        void outsiderGets404() {
+            when(members.findByGameTableIdAndUserId(tableId, playerId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> service.transferHost(tableId, playerId, masterId))
+                    .isInstanceOf(NotFoundException.class);
         }
     }
 

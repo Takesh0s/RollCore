@@ -3,6 +3,7 @@ package com.rollcore.controller;
 import com.rollcore.dto.request.ChangeRoleRequest;
 import com.rollcore.dto.request.CreateTableRequest;
 import com.rollcore.dto.request.JoinTableRequest;
+import com.rollcore.dto.request.TransferHostRequest;
 import com.rollcore.dto.request.UpdateMemberProfileRequest;
 import com.rollcore.dto.request.UpdateTableRequest;
 import com.rollcore.dto.response.InviteCodeResponse;
@@ -40,6 +41,7 @@ import java.util.UUID;
  * DELETE /tables/{id}/members/me              → leave the table
  * DELETE /tables/{id}/members/{userId}        → remove a member (master / moderator)
  * PATCH  /tables/{id}/members/{userId}/role   → promote / demote (master)
+ * POST   /tables/{id}/transfer-host           → hand the hosting to a member (paid plan sponsor)
  * </pre>
  *
  * All endpoints require a valid access token; the user id comes from the security
@@ -116,6 +118,15 @@ public class TableController {
             @PathVariable UUID id,
             @AuthenticationPrincipal UUID userId) {
         return new InviteCodeResponse(tableService.regenerateInviteCode(id, userId));
+    }
+
+    @Operation(summary = "Hand the hosting (master role) to another member — paid plan, table creator only")
+    @PostMapping("/{id}/transfer-host")
+    public TableDetailResponse transferHost(
+            @PathVariable UUID id,
+            @Valid @RequestBody TransferHostRequest body,
+            @AuthenticationPrincipal UUID userId) {
+        return tableService.transferHost(id, userId, body.userId());
     }
 
     @Operation(summary = "Update my per-table profile (display name, avatar, mute)")

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rollcore.config.SecurityConfig;
 import com.rollcore.dto.request.CreateTableRequest;
 import com.rollcore.dto.request.JoinTableRequest;
+import com.rollcore.dto.request.TransferHostRequest;
 import com.rollcore.dto.response.MemberSelfResponse;
 import com.rollcore.dto.response.TableDetailResponse;
 import com.rollcore.dto.response.TableSummaryResponse;
@@ -80,7 +81,7 @@ class TableControllerTest {
                 TABLE_ID, "Em busca dos esquecidos", "D&D 5e", null, 5, 1, null,
                 "MASTER", "gm", Instant.now());
         fakeDetail = new TableDetailResponse(summary, "ABCD2345", List.of(),
-                new MemberSelfResponse(null, null, false, "MASTER"));
+                new MemberSelfResponse(null, null, false, "MASTER"), true);
 
         doAnswer(inv -> {
             ((FilterChain) inv.getArgument(2)).doFilter(inv.getArgument(0), inv.getArgument(1));
@@ -176,5 +177,37 @@ class TableControllerTest {
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(tableService);
+    }
+
+    @Test @DisplayName("POST /tables/{id}/transfer-host → 200 for the paying creator")
+    void transferHostOk() throws Exception {
+        UUID target = UUID.randomUUID();
+        when(tableService.transferHost(TABLE_ID, USER_ID, target)).thenReturn(fakeDetail);
+
+        mvc.perform(post("/tables/{id}/transfer-host", TABLE_ID)
+                        .with(authentication(uuidAuth())).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(new TransferHostRequest(target))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.canTransferHost").value(true));
+    }
+
+    @Test @DisplayName("POST /tables/{id}/transfer-host → 400 without a target and 403 from the service")
+    void transferHostRules() throws Exception {
+        mvc.perform(post("/tables/{id}/transfer-host", TABLE_ID)
+                        .with(authentication(uuidAuth())).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+
+        UUID target = UUID.randomUUID();
+        when(tableService.transferHost(TABLE_ID, USER_ID, target))
+                .thenThrow(new ForbiddenException("Transferring the hosting requires the paid plan."));
+
+        mvc.perform(post("/tables/{id}/transfer-host", TABLE_ID)
+                        .with(authentication(uuidAuth())).with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(new TransferHostRequest(target))))
+                .andExpect(status().isForbidden());
     }
 }
