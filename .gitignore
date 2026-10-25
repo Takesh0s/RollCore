@@ -1,13 +1,23 @@
-# ── Dependências ────────────────────────────────────────────────────────────
+# ------------------------------------------------------------------------------
+# RollCore — .gitignore
+# Monorepo: backend (Spring Boot) + web (React/Vite) + mobile (Expo / React Native)
+# ------------------------------------------------------------------------------
+
+# ── Dependências ──────────────────────────────────────────────────────────────
 node_modules/
 
-# ── Builds ──────────────────────────────────────────────────────────────────
+# ── Builds ────────────────────────────────────────────────────────────────────
 dist/
+dist-ssr/
+.vite/
 web-build/
 *.tsbuildinfo
 backend/target/
+target/
 
-# ── Mobile (Expo / React Native) ────────────────────────────────────────────
+# Maven Wrapper: manter versionado (não ignorar .mvn/, mvnw, mvnw.cmd)
+
+# ── Mobile (Expo / React Native) ──────────────────────────────────────────────
 .expo/
 expo-env.d.ts
 .kotlin/
@@ -18,28 +28,73 @@ expo-env.d.ts
 /mobile/ios
 /mobile/android
 
-# ── Web (Vite / Playwright) ─────────────────────────────────────────────────
-playwright-report/
-test-results/
+# ── Capacitor (web antigo) ────────────────────────────────────────────────────
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties
+ios/App/build/
+ios/Pods/
+ios/.symlinks/
 
-# ── Segredos e certificados ─────────────────────────────────────────────────
+# ── Variáveis de ambiente / config local ──────────────────────────────────────
 .env
 .env.*
 !.env.example
+*.local
+
+# ── Segredos e certificados ───────────────────────────────────────────────────
 *.pem
 *.jks
 *.p8
 *.p12
 *.key
+*.keystore
 *.mobileprovision
 *.orig.*
 
-# ── Logs ────────────────────────────────────────────────────────────────────
+# ── Vercel ────────────────────────────────────────────────────────────────────
+.vercel/
+
+# ── Playwright (E2E) ──────────────────────────────────────────────────────────
+playwright-report/
+test-results/
+blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# ── Cobertura (JaCoCo) ────────────────────────────────────────────────────────
+backend/target/site/jacoco/
+jacoco.exec
+*.exec
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+# overrides locais nunca vão para o repositório
+docker-compose.override.yml
+
+# ── Logs e arquivos de execução ───────────────────────────────────────────────
+*.log
+logs/
+backend/logs/
+spring.pid
+spring.log
 npm-debug.*
 yarn-debug.*
 yarn-error.*
 
-# ── Sistema ─────────────────────────────────────────────────────────────────
-.DS_Store
+# ── IDEs / Editores ───────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-example
+# ── Sistema operacional ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Arquivos temporários internos ─────────────────────────────────────────────
+texto.txt
+commits.sh

@@ -315,15 +315,20 @@ npx playwright test --ui          # Visual GUI for testing
 
 ## 📁 Documentação
 
-| Documento | Versão | Pasta |
+| Documento | Versão | Link |
 |---|---|---|
-| Documento de Visão | v1.0 | `docs/requirements/` |
-| Especificação de Casos de Uso | v1.0 | `docs/requirements/` |
-| Documento de Arquitetura (4+1) | v1.0 | `docs/architecture/` |
-| Plano de Testes | v1.2 | `docs/testing/` |
-| Documentação de Interface e Prototipação | v1.1 | `docs/ui-design/` |
-| Design System | v1.0 | `design-system.md` |
-| User Flow | v1.0 | `user-flow.md` |
+| Documento de Visão | v1.0 | [📄 RPG_Skill_Checker_Visao.pdf](docs/requirements/RPG_Skill_Checker_Visao.pdf) |
+| Especificação de Casos de Uso | v1.0 | [📄 RPG_CasosDeUso.pdf](docs/requirements/RPG_CasosDeUso.pdf) |
+| Documento de Arquitetura (4+1) | v1.0 | [📄 RollCore_Arquitetura_v1.0.pdf](docs/architecture/RollCore_Arquitetura_v1.0.pdf) |
+| Plano de Testes | v1.2 | [📄 Plano_de_Testes_v1.2_Equipe8.pdf](docs/testing/Plano_de_Testes_v1.2_Equipe8.pdf) |
+| Relatório Final de Testes | v1.0 | [📄 Relatorio Final Grupo 8.pdf](<docs/testing/Relatorio Final Grupo 8.pdf>) |
+| Resultados de Testes | v1.2 | [📋 test-results.md](docs/testing/test-results.md) |
+| Slides — Teste de Software | v1.0 | [📊 Teste de Software RollCore.pptx](<docs/testing/Teste de Software RollCore.pptx>) |
+| Documentação de Interface e Prototipação | v1.1 | [📄 RollCore-Documentacao-Interface.pdf](docs/ui-design/RollCore-Documentacao-Interface.pdf) |
+| Design System | v1.0 | [📋 design-system.md](docs/ui-design/design-system/design-system.md) |
+| User Flow | v1.0 | [📋 user-flow.md](docs/ui-design/user-flow/user-flow.md) |
+| Frames Figma — PC | v1.1 | [🖼️ figma-frames/PC/](docs/ui-design/figma-frames/PC) |
+| Frames Figma — Mobile | v1.1 | [🖼️ figma-frames/Mobile/](docs/ui-design/figma-frames/Mobile) |
 
 ---
 
@@ -332,10 +337,10 @@ npx playwright test --ui          # Visual GUI for testing
 | Nome |
 |---|
 | João Pedro Nunes Neto |
+| Leonardo Dos Santos Silva |
 | Lucas Gabriel Pereira Guerra |
 | Luis Felipe Nunes da Fonseca Figueiredo |
 | Luiz Phillipe de Souza Santos |
-| Leonardo Dos Santos Silva |
 
 ---
 
