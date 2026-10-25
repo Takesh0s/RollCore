@@ -16,7 +16,8 @@ public interface GameTableRepository extends JpaRepository<GameTable, UUID> {
 
     boolean existsByInviteCode(String inviteCode);
 
-    long countByOwnerId(UUID ownerId);
+    /** Tables whose plan quota this user is consuming (see migration V8). */
+    long countBySponsorId(UUID sponsorId);
 
     /** Row lock: serialises joins / edits so the player cap cannot be exceeded by a race. */
     @Lock(LockModeType.PESSIMISTIC_WRITE)

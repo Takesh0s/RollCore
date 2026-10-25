@@ -10,5 +10,6 @@ public record TableDetailResponse(
     TableSummaryResponse   table,
     String                 inviteCode,
     List<MemberResponse>   members,
-    MemberSelfResponse     me
+    MemberSelfResponse     me,
+    boolean                canTransferHost
 ) {}
