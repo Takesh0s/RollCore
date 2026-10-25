@@ -46,7 +46,8 @@ O RollCore reúne em um único lugar o que um grupo de RPG de mesa usa durante a
 | Mesas, convites, papéis e planos | Implementado |
 | Cliente web (personagens, dados, dashboard) | Implementado |
 | Aplicativo mobile integrado à API (login, cadastro, mesas) | Implementado |
-| Sessão ao vivo (WebSocket) | Planejado |
+| Sessão ao vivo: rolagens compartilhadas e presença (API) | Implementado |
+| Sessão ao vivo nos clientes web e mobile | Planejado |
 | Biblioteca de sistemas e bestiário | Planejado |
 | Chat, calendário e notificações | Planejado |
 | Recuperação de senha por e-mail | Planejado |
@@ -83,7 +84,7 @@ Decisões principais:
 - **Camadas:** `controller` expõe HTTP e valida entrada; `service` concentra regras de negócio e transações; `repository` isola o acesso a dados. Entidades JPA não saem da API, que responde com DTOs.
 - **Stateless:** a API não mantém sessão. O access token dura 15 minutos e o refresh token 7 dias.
 - **Refresh tokens:** guardados apenas como hash SHA-256, com rotação a cada uso e detecção de reutilização por família de tokens (uma reutilização revoga a família inteira). Há uma janela curta de tolerância para requisições concorrentes.
-- **Esquema versionado:** o Hibernate roda em `ddl-auto: validate`; toda mudança de banco passa por uma migração Flyway (`V1` a `V9`).
+- **Esquema versionado:** o Hibernate roda em `ddl-auto: validate`; toda mudança de banco passa por uma migração Flyway (`V1` a `V10`).
 - **Isolamento de recursos:** quem não é membro de uma mesa recebe `404`, não `403`, para não revelar que ela existe. A entrada em mesas usa lock pessimista na linha para respeitar o limite de membros sob concorrência.
 - **Planos:** o limite de mesas é aplicado por patrocinador (`sponsor_id`), de forma que a hospedagem de uma mesa pode ser transferida sem burlar a cota.
 - **Rate limiting:** Bucket4j, com limite mais restrito nas rotas de autenticação.
@@ -218,6 +219,7 @@ Visão geral dos grupos de rotas (detalhes e esquemas no Swagger UI):
 | Magias | `GET /spells`, `GET /spells/{id}` (públicas) |
 | Dados | `POST /dice/roll`, `POST /dice/save`, `GET /dice/history` |
 | Mesas | `/tables` (criar, listar, entrar, detalhar, editar, excluir), código de convite, transferência de anfitrião, gestão de membros e papéis |
+| Sessão ao vivo | `POST/GET /tables/{id}/rolls`, `GET /tables/{id}/presence` e STOMP em `/ws` |
 | Operação | `GET /actuator/health` |
 
 Requisições sem token válido recebem `401`. Documentação específica:
@@ -225,6 +227,7 @@ Requisições sem token válido recebem `401`. Documentação específica:
 - [Mesas](docs/api/mesas.md)
 - [Planos e limites](docs/api/planos.md)
 - [Login com Google](docs/api/auth-google.md)
+- [Sessão ao vivo (WebSocket)](docs/api/sessao-ao-vivo.md)
 - Coleção Postman: [`RollCore.postman_collection.json`](RollCore.postman_collection.json)
 
 ## Testes
@@ -235,7 +238,7 @@ Requisições sem token válido recebem `401`. Documentação específica:
 ./mvnw -f backend/pom.xml test
 ```
 
-No Windows: `.\mvnw.cmd -f backend/pom.xml test`. A suíte tem mais de 190 testes e o pipeline exige cobertura de linhas mínima de 80% (JaCoCo).
+No Windows: `.\mvnw.cmd -f backend/pom.xml test`. A suíte tem mais de 200 testes e o pipeline exige cobertura de linhas mínima de 80% (JaCoCo).
 
 **Web:**
 
@@ -272,7 +275,7 @@ Pontos de atenção em produção:
 
 ## Roadmap
 
-- Sessão ao vivo por WebSocket, com rolagens compartilhadas na mesa
+- Sessão ao vivo nos clientes web e mobile (a API de WebSocket já existe), mapa e cenas
 - Biblioteca de sistemas (Quilombo Zero, City of Myst, Ordem Paranormal, Pathfinder) e criação de sistemas próprios
 - Bestiário e livraria
 - Chat, calendário de sessões e notificações

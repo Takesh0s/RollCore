@@ -85,6 +85,8 @@ public class SecurityConfig {
                 // ── OpenAPI / Swagger — RNF-06 ────────────────────────────
                 .requestMatchers(
                         "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                // ── WebSocket handshake — the STOMP CONNECT frame carries the JWT ──
+                .requestMatchers("/ws", "/ws/**").permitAll()
                 // ── Actuator health — RNF-02 ──────────────────────────────
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 // ── All other requests require authentication ─────────────

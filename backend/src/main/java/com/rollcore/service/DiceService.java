@@ -68,6 +68,19 @@ public class DiceService {
      */
     @Transactional
     public RollResponse roll(UUID userId, RollRequest request) {
+        return doRoll(userId, null, request);
+    }
+
+    /**
+     * Same as {@link #roll} but records the roll as made in a table, so it shows up in
+     * the table's shared history. The caller must have checked the table membership.
+     */
+    @Transactional
+    public RollResponse rollInTable(UUID userId, UUID tableId, RollRequest request) {
+        return doRoll(userId, tableId, request);
+    }
+
+    private RollResponse doRoll(UUID userId, UUID tableId, RollRequest request) {
         String formula = request.formula().trim();
         ParsedFormula parsed = parse(formula);
 
@@ -84,6 +97,7 @@ public class DiceService {
 
         DiceRoll entity = DiceRoll.builder()
                 .user(user)
+                .gameTableId(tableId)
                 .formula(formula)
                 .individualResults(rolls)
                 .total(total)
@@ -146,7 +160,7 @@ public class DiceService {
                         r.getId(),
                         r.getFormula(),
                         r.getIndividualResults(),
-                        extractMod(r.getFormula()),
+                        modifierOf(r.getFormula()),
                         r.getTotal(),
                         r.getRolledAt()))
                 .toList();
@@ -170,7 +184,7 @@ public class DiceService {
     }
 
     /** Re-parses a stored formula to extract the modifier for the response. */
-    private int extractMod(String formula) {
+    public static int modifierOf(String formula) {
         Matcher m = FORMULA_PATTERN.matcher(formula);
         if (m.matches() && m.group(3) != null) {
             return Integer.parseInt(m.group(3));
