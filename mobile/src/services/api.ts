@@ -53,6 +53,16 @@ export async function hasStoredSession(): Promise<boolean> {
   return (await currentTokens()) !== null;
 }
 
+/** Access token for the WebSocket handshake. */
+export async function currentAccessToken(): Promise<string | null> {
+  return (await currentTokens())?.accessToken ?? null;
+}
+
+/** Renews the session and returns the new access token, or null when it cannot be renewed. */
+export async function renewAccessToken(): Promise<string | null> {
+  return (await refreshSession()) ? currentAccessToken() : null;
+}
+
 export async function currentRefreshToken(): Promise<string | null> {
   return (await currentTokens())?.refreshToken ?? null;
 }
