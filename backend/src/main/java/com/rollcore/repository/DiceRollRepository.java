@@ -3,8 +3,10 @@ package com.rollcore.repository;
 import com.rollcore.entity.DiceRoll;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface DiceRollRepository extends JpaRepository<DiceRoll, UUID> {
@@ -14,4 +16,8 @@ public interface DiceRollRepository extends JpaRepository<DiceRoll, UUID> {
      * Caller passes {@code PageRequest.of(0, 50)} to get the last 50 rolls.
      */
     Page<DiceRoll> findByUserIdOrderByRolledAtDesc(UUID userId, Pageable pageable);
+
+    /** Rolls made in a table, newest first, with the roller loaded. */
+    @EntityGraph(attributePaths = {"user"})
+    List<DiceRoll> findByGameTableIdOrderByRolledAtDesc(UUID gameTableId, Pageable pageable);
 }

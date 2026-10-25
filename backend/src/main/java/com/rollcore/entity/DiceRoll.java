@@ -39,6 +39,10 @@ public class DiceRoll {
     @Column(name = "session_id")
     private UUID sessionId;
 
+    /** Table the roll was made in; null for solo rolls (migration V10). */
+    @Column(name = "game_table_id")
+    private UUID gameTableId;
+
     /**
      * Validated dice formula — e.g. "2d6+3".
      * Format: NdX | NdX+M | NdX-M (N=1-99, X ∈ {4,6,8,10,12,20,100}).
