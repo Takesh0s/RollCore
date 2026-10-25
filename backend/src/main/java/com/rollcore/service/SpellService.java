@@ -6,7 +6,6 @@ import com.rollcore.entity.CharacterSpell;
 import com.rollcore.entity.CharacterSpellId;
 import com.rollcore.entity.Spell;
 import com.rollcore.exception.ConflictException;
-import com.rollcore.exception.ForbiddenException;
 import com.rollcore.exception.NotFoundException;
 import com.rollcore.repository.CharacterRepository;
 import com.rollcore.repository.CharacterSpellRepository;
@@ -68,7 +67,7 @@ public class SpellService {
      * Adds a spell to a character's known/prepared list.
      *
      * @throws ConflictException  if the character already knows this spell.
-     * @throws ForbiddenException if the character doesn't belong to the user.
+     * @throws NotFoundException if the character doesn't exist or doesn't belong to the user.
      */
     @Transactional
     public SpellResponse addToCharacter(UUID characterId, UUID spellId, UUID userId) {
@@ -93,7 +92,7 @@ public class SpellService {
      * Removes a spell from a character's list.
      *
      * @throws NotFoundException  if the character doesn't have this spell.
-     * @throws ForbiddenException if the character doesn't belong to the user.
+     * @throws NotFoundException if the character doesn't exist or doesn't belong to the user.
      */
     @Transactional
     public void removeFromCharacter(UUID characterId, UUID spellId, UUID userId) {
@@ -115,10 +114,7 @@ public class SpellService {
 
     private Character verifyOwnership(UUID characterId, UUID userId) {
         return characterRepository.findByIdAndUserId(characterId, userId)
-                .orElseThrow(() -> {
-                    boolean exists = characterRepository.existsById(characterId);
-                    if (exists) throw new ForbiddenException("Access denied to character.");
-                    return new NotFoundException("Character not found.");
-                });
+                // 404 for both "missing" and "not yours" — no ownership enumeration.
+                .orElseThrow(() -> new NotFoundException("Character not found."));
     }
 }

@@ -2,7 +2,7 @@
 # RollCore — Playwright E2E Pipeline
 # Architecture Reference: Section 7 · Test Plan Section 2.3.4
 #
-# Starts a full stack (PostgreSQL → Spring Boot → Vite) on the CI runner,
+# Starts a full stack (PostgreSQL → Spring Boot → Vite, em web/) on the CI runner,
 # then runs all E2E tests against Chromium only.
 #
 # Concurrency: push and pull_request events use separate groups so a PR run
@@ -60,11 +60,14 @@ jobs:
         with:
           node-version: 'lts/*'
           cache: 'npm'
+          cache-dependency-path: web/package-lock.json
 
       - name: Install Node dependencies
+        working-directory: web
         run: npm ci
 
       - name: Install Playwright Chromium
+        working-directory: web
         run: npx playwright install chromium --with-deps
 
       - name: Build backend (skip tests)
@@ -85,6 +88,9 @@ jobs:
           CORS_ORIGINS: http://localhost:5173
           SPRING_PROFILES_ACTIVE: default
           PORT: 8080
+          E2E_CLEANUP_ENABLED: 'true'
+          RATE_LIMIT_AUTH_RPM: '1000'
+          RATE_LIMIT_RPM: '10000'
         run: |
           java -jar backend/target/*.jar > spring.log 2>&1 &
           SPRING_PID=$!
@@ -109,6 +115,7 @@ jobs:
           exit 1
 
       - name: Start Vite dev server
+        working-directory: web
         run: npm run dev &
 
       # Uses wait-on instead of a plain curl loop — curl returns 200 as soon as Vite
@@ -118,6 +125,7 @@ jobs:
         run: npx wait-on http://localhost:5173 --timeout 60000
 
       - name: Run Playwright E2E tests
+        working-directory: web
         env:
           CI: true
           BASE_URL: http://localhost:5173
@@ -128,5 +136,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ github.run_id }}
-          path: playwright-report/
+          path: web/playwright-report/
           retention-days: 30

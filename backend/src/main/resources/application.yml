@@ -43,6 +43,8 @@ spring:
 # ── Server ──────────────────────────────────────────────────────────────────
 server:
   port: ${PORT:8080}
+  # Resolve client IP from X-Forwarded-For only for trusted (private-range) proxies — used by RateLimitFilter
+  forward-headers-strategy: native
   compression:
     enabled: true
     mime-types: application/json
@@ -53,13 +55,19 @@ server:
 
 # ── JWT (RNF-03 / UC-01 RN-02 / Arquitetura §3) ─────────────────────────────
 jwt:
-  secret: ${JWT_SECRET:CHANGE_THIS_TO_A_SECURE_256BIT_SECRET_KEY_IN_PRODUCTION!!}
+  secret: ${JWT_SECRET}   # no default on purpose — the app refuses to start without a strong secret
   access-token-expiration-ms: 900000      # 15 minutes
   refresh-token-expiration-ms: 604800000  # 7 days
 
 # ── Rate Limiting (RNF-03 / UC-01 RE-03) ────────────────────────────────────
 rate-limit:
   requests-per-minute: ${RATE_LIMIT_RPM:60}
+  auth-requests-per-minute: ${RATE_LIMIT_AUTH_RPM:10}
+
+# ── E2E cleanup endpoint (DELETE /auth/deleteall) — OFF unless E2E_CLEANUP_ENABLED=true ──
+rollcore:
+  e2e-cleanup:
+    enabled: ${E2E_CLEANUP_ENABLED:false}
 
 # ── CORS ────────────────────────────────────────────────────────────────────
 cors:
