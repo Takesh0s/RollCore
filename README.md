@@ -1,349 +1,160 @@
-# 🎲 RollCore — RPG Skill Checker & Companion
+# 🎓 Risco de Evasão Acadêmica — ML + Lógica Fuzzy
 
-Plataforma **multiplataforma (Mobile + Steam para PC + API)** para **rolagem de dados e gerenciamento de personagens de RPG de mesa**, com identidade visual medieval fiel ao design system do Figma.
+**Disciplina:** Inteligência Artificial  
+**Professor:** William Malvezzi  
+**Grupo 2**
 
-> Desenvolvido pela **Equipe 9** — Universidade Católica de Brasília  
-> Disciplina: Análise e Projeto de Software
+**Integrantes:**
+- João Pedro Nunes Neto
+- Leonardo dos Santos Silva
+- Lucas Gabriel Pereira Guerra
+- Luis Felipe Nunes da Fonseca Figueiredo
+- Luiz Phillipe de Souza Santos
+
+**Prazo de Entrega:** 25 de Junho de 2025
 
 ---
 
-## 📌 Sobre o Projeto
+## 📋 Descrição do Projeto
 
-O **RollCore** é uma ferramenta para jogadores e mestres de RPG de mesa composta por:
+Sistema inteligente para estimação de **risco de evasão acadêmica** combinando:
 
-- 🎨 **Frontend** — React 18 + TypeScript + Capacitor (Mobile + Steam)
-- ⚙️ **Backend** — Spring Boot 3 + PostgreSQL 16 (API REST)
+- **Machine Learning** (Árvore de Decisão + Naive Bayes Gaussiano)
+- **Lógica Fuzzy** (Sistema de Inferência Mamdani com 8 regras)
+- **Integração em Pipeline** — Abordagem B: saída do ML alimenta o sistema Fuzzy
 
-### Casos de uso (Fase 1 MVP)
+---
 
-| UC | Funcionalidade | Status |
+## 📁 Estrutura dos Arquivos
+
+```
+.
+├── evasao_academica_ml_fuzzy.ipynb   ← Notebook principal (Google Colab)
+├── base_evasao_academica.csv         ← Base de dados (gerada ao executar)
+├── resultados_integracao.csv         ← Resultados do pipeline ML+Fuzzy
+├── README.md                         ← Este arquivo
+└── *.png                             ← Gráficos gerados automaticamente
+```
+
+---
+
+## ▶️ Como Executar no Google Colab
+
+### Opção 1 — Upload direto (recomendado)
+
+1. Acesse [colab.research.google.com](https://colab.research.google.com)
+2. Clique em **Arquivo → Fazer upload de notebook**
+3. Selecione o arquivo `evasao_academica_ml_fuzzy.ipynb`
+4. Clique em **Ambiente de execução → Executar tudo** (`Ctrl+F9`)
+5. Aguarde a instalação das dependências (célula 1 instala o `scikit-fuzzy`)
+
+### Opção 2 — Pelo Google Drive
+
+1. Faça upload do `.ipynb` para o Google Drive
+2. Clique com o botão direito → **Abrir com → Google Colaboratory**
+3. Execute todas as células (`Ctrl+F9`)
+
+---
+
+## 📦 Dependências
+
+Todas as bibliotecas são instaladas automaticamente na **primeira célula** do notebook:
+
+| Biblioteca | Versão testada | Uso |
 |---|---|---|
-| **UC-01** | Cadastrar e Autenticar Usuário (JWT + BCrypt) | ✅ Implementado |
-| **UC-02** | Criar e Gerenciar Ficha de Personagem D&D 5e | ✅ Implementado |
-| **UC-03** | Rolar Dados Virtuais (SecureRandom server-side) | ✅ Implementado |
-| **UC-04** | Sessão Online via WebSocket (STOMP) | 🚧 Fase 2 |
+| `numpy` | ≥ 1.24 | Operações numéricas |
+| `pandas` | ≥ 1.5 | Manipulação de dados |
+| `matplotlib` | ≥ 3.6 | Visualizações |
+| `seaborn` | ≥ 0.12 | Gráficos estatísticos |
+| `scikit-learn` | ≥ 1.2 | Machine Learning |
+| `scikit-fuzzy` | ≥ 0.4 | Sistema fuzzy (**instalado via pip**) |
+
+> ⚠️ O `scikit-fuzzy` não vem pré-instalado no Colab.  
+> A primeira célula executa `!pip install scikit-fuzzy --quiet` automaticamente.
 
 ---
 
-## 🖥️ Plataformas
+## 🏗️ Arquitetura do Sistema
 
-| Plataforma | Distribuição | Tecnologia |
+```
+[Dados Brutos (6 variáveis)]
+         │
+         ▼
+[Pré-processamento]
+  ├── Normalização (StandardScaler)
+  └── Divisão Treino/Teste 70/30 estratificado
+         │
+         ▼
+[PARTE 1 — Machine Learning]
+  ├── Árvore de Decisão (max_depth=6, Gini)
+  └── Naive Bayes Gaussiano
+         │
+         ▼ predict_proba → prob_evasao_alto
+         │
+         ▼
+[PARTE 2 — Sistema Fuzzy Mamdani]
+  Entradas:
+    ├── prob_evasao_ml  (0–1)       ← saída do ML
+    ├── frequencia      (0–100%)    ← dado original
+    └── engajamento_ava (0–30)      ← dado original
+  Saída:
+    └── risco_final (score 0–100 + rótulo: baixo/médio/alto/crítico)
+         │
+         ▼
+[PARTE 3 — Análise de Coerência ML ↔ Fuzzy]
+  └── Concordância, tabela cruzada, visualizações
+```
+
+---
+
+## 📊 Resultados Esperados
+
+| Métrica | Árvore de Decisão | Naive Bayes |
 |---|---|---|
-| **Android** | Google Play Store (Fase 2) | Capacitor → APK nativo |
-| **iOS** | Apple App Store (Fase 2) | Capacitor → build Xcode |
-| **PC (Windows / macOS / Linux)** | **Steam** | Capacitor + Electron |
-| **API (backend)** | Render (produção) | Spring Boot 3 / Docker |
+| Acurácia (teste) | ~84% | ~92% |
+| F1-score (macro) | ~0.84 | ~0.92 |
+| CV F1 (5-fold) | ~0.80 ± 0.04 | ~0.93 ± 0.02 |
+
+| Integração ML+Fuzzy | Valor |
+|---|---|
+| Concordância ML ↔ Fuzzy | ~82% |
+| Score médio — alto risco | ~72/100 |
+| Score médio — baixo risco | ~18/100 |
 
 ---
 
-## 🎨 Design System — Figma v1.1
+## 📐 Sistema Fuzzy — Regras Implementadas
 
-O visual segue fielmente os frames do Figma (Desktop 1–12, Mobile). A identidade visual é **medieval/fantasia** com:
-
-### Paleta de cores
-
-| Token CSS | Hex | Uso |
+| Regra | Condição SE | Consequente ENTÃO |
 |---|---|---|
-| `--card` | `#400101` | Fundo principal — vinho escuro |
-| `--card-raised` | `#461615` | Header, seções internas — vinho médio |
-| `--gold` | `#C8963E` | Dourado Principal — títulos, ícones, bordas |
-| `--gold-dim` | `#997733` | Dourado Escuro — bordas sutis, estado inativo |
-| `--gold-light` (alias `--text-muted`) | `#E8B86D` | Dourado Claro — labels, texto secundário |
-| `--input-bg` | `#624A2E` | Marrom claro — fundo dos campos |
-| `--bg` / body | `#7A6040` | Marrom neutro — fundo externo (desktop) |
-| `--sapphire` | `#227BFF` | HP temporário (barra azul) |
-| `--success` / crit verde | `#53A653` | Sucesso crítico |
-| `--fail` / crit vermelho | `#BC0E0E` | Falha crítica / HP crítico |
-
-### Frame de estandarte medieval
-
-Todas as telas são exibidas dentro de um **frame de estandarte medieval**: card central com borda dourada fina de 2px, borda interna decorativa, e **franjas medievais** na base (tabs verticais douradas). O fundo externo é o marrom neutro `#7A6040`.
-
-```
-┌─────────────────────────────────────────┐  ← borda dourada 2px (#997733)
-│ ┌─────────────────────────────────────┐ │  ← borda interna decorativa
-│ │           CONTEÚDO DA TELA         │ │
-│ │   Header: ≡  Título  👤            │ │
-│ │   (background: #461615)            │ │
-│ │   ...                              │ │
-│ └─────────────────────────────────────┘ │
-└─────────────────────────────────────────┘
-    ▮▮  ▮▮  ▮▮  ▮▮  ▮▮  ▮▮  ▮▮           ← franjas medievais (#997733)
-```
-
-### Tipografia
-
-| Tipo | Fonte | Uso |
-|---|---|---|
-| Display | Cinzel Decorative | Logo, títulos de tela (Mesas, Fichas, Dados…) |
-| Títulos | Cinzel | Seções, botões, labels em caps |
-| Corpo | Crimson Pro | Texto geral, campos, descrições |
-
-### Componentes principais
-
-**Botão CTA (principal):**
-- Fundo `#3D1A0A`, borda dourada, texto dourado itálico, border-radius 24px (pílula)
-- Glow laranja-dourado: `box-shadow: 0 0 18px rgba(200,120,30,0.6), 0 0 40px rgba(200,100,20,0.25)`
-
-**Header de todas as telas internas:**
-- `background: #461615` · `border-bottom: 2px solid #997733`
-- Hambúrguer (≡) à esquerda · Título (Cinzel Decorative, dourado) centralizado · Ícone 👤 à direita
-- **Não há barra de navegação inferior** — toda navegação é pelo menu hambúrguer
-
-**Campos de input:**
-- Fundo `#624A2E`, sem borda visível, texto dourado claro `#E8B86D`, placeholder dourado escuro
+| R1 | prob_alta E freq_baixa | risco CRÍTICO |
+| R2 | prob_alta E eng_baixo | risco CRÍTICO |
+| R3 | prob_alta E freq_média | risco ALTO |
+| R4 | prob_média E freq_baixa | risco ALTO |
+| R5 | prob_média E eng_médio | risco MÉDIO |
+| R6 | prob_média E freq_alta E eng_médio | risco MÉDIO |
+| R7 | prob_baixa E freq_alta | risco BAIXO |
+| R8 | prob_baixa E eng_alto | risco BAIXO |
 
 ---
 
-## 🏗️ Arquitetura
+## 📤 Entregáveis para o AVA
 
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                      CAMADA DE APRESENTAÇÃO                          │
-│  📱 Mobile (iOS / Android)            🖥️ PC via Steam               │
-│  Capacitor → APK / IPA                Capacitor + Electron           │
-│  React 18 + TypeScript + Vite · Zustand (estado global)              │
-└────────────────────────────┬─────────────────────────────────────────┘
-                             │  HTTPS / REST + JSON
-                             ↕  (Fase 2: WSS / STOMP)
-┌────────────────────────────┴─────────────────────────────────────────┐
-│                    CAMADA DE APLICAÇÃO / API                         │
-│  Spring Boot 3 / Java 21                                             │
-│  REST Controllers · Spring Security + JWT · Rate Limiting (60/min)  │
-│  Engine D&D 5e (Java puro) · Dice Service (SecureRandom)            │
-│  WebSocket Controller STOMP — Fase 2                                 │
-└──────────┬──────────────────────────────────────────┬───────────────┘
-           │ JDBC / JPA                               │ Redis Client
-           ↕                                          ↕
-  ┌────────┴───────┐                      ┌───────────┴──────────────┐
-  │ PostgreSQL 16  │                      │ Redis 7                  │
-  │ users          │                      │ refresh tokens (TTL 7d)  │
-  │ characters     │                      │ sessões ao vivo (Fase 2) │
-  │ dice_rolls     │                      └──────────────────────────┘
-  │ sessions       │
-  └────────────────┘
-[ Docker + Docker Compose | GitHub Actions CI/CD | Render (backend) | Steam (PC) ]
-```
-
-### Estrutura de pastas
-
-```
-RollCore/
-├── src/
-│   ├── App.tsx                     Roteamento + frame estandarte + franjas
-│   ├── index.css                   Design System completo (tokens Figma v1.1)
-│   ├── types/index.ts
-│   ├── lib/
-│   │   ├── engine.ts               Regras D&D 5e (calcMod, profBonus, slots, raças)
-│   │   ├── engine-hp.ts            HP máximo, CA
-│   │   ├── dice.ts                 Parser de fórmulas NdX+M, validação, histórico
-│   │   ├── spells.ts               Compêndio de magias SRD
-│   │   └── storage.ts
-│   ├── store/useAppStore.ts        Zustand — estado global
-│   └── components/
-│       ├── ui/                     Toast · Modal · DiceLogo · AvatarUpload · SpellDetail
-│       ├── auth/                   LoginScreen · RegisterScreen · ProfileScreen
-│       ├── dashboard/              DashboardScreen (Mesas + D20 + Fichas)
-│       ├── characters/             CharacterListScreen · CharacterFormScreen · CharacterSheetScreen
-│       └── dice/                   DiceRollerScreen
-├── backend/                        API REST Spring Boot 3
-│   ├── src/main/java/com/rollcore/
-│   │   ├── controller/             Auth · Character · Dice · Spell · (WebSocket Fase 2)
-│   │   ├── service/                AuthService · CharacterService · DiceService · SpellService · DndEngine
-│   │   ├── security/               JwtService · UserDetailsServiceImpl
-│   │   ├── filter/                 JwtAuthFilter · RateLimitFilter
-│   │   ├── config/                 SecurityConfig · OpenApiConfig
-│   │   ├── exception/              GlobalExceptionHandler · ForbiddenException · NotFoundException · InvalidFormulaException
-│   │   ├── dto/                    request/ · response/
-│   │   ├── repository/             JPA repositories
-│   │   └── entity/                 User · Character · DiceRoll · Spell · Session
-│   ├── Dockerfile
-│   └── pom.xml
-├── android/                        Projeto Android (Capacitor)
-├── ios/                            Projeto iOS (Capacitor)
-├── docs/                           Documentação oficial do projeto
-│   ├── architecture/               Documento de Arquitetura (4+1) v1.0
-│   ├── requirements/               Documento de Visão v1.0 · Casos de Uso v1.0
-│   ├── testing/                    Plano de Testes v1.2
-│   └── ui-design/                  Documentação de Interface v1.1 · Figma frames
-├── E2E/
-│   └── RollCore.spec.ts            Testes de E2E Implementado por Playwright
-├── docker-compose.yml
-├── render.yaml
-├── capacitor.config.ts
-├── design-system.md
-├── user-flow.md
-├── RollCore.postman_collection.json Testes do postman prontso para importar para a ferramenta.
-└── README.md
-```
+- [x] `evasao_academica_ml_fuzzy.ipynb` — Notebook com código completo e comentado
+- [x] `base_evasao_academica.csv` — Base de dados (gerada ao executar o notebook)
+- [x] `README.md` — Este arquivo com instruções
+- [ ] Relatório final em PDF (10–20 páginas) — elaborar com base no notebook
+- [ ] Apresentação (PDF ou PPTX) — usar os gráficos gerados
 
 ---
 
-## 🎲 Telas implementadas (Figma → Código)
+## ⚠️ Observações Importantes
 
-| Frame | Tela | Componente |
-|---|---|---|
-| Desktop-1 | Login | `LoginScreen.tsx` |
-| Desktop-2 | Cadastro | `RegisterScreen.tsx` |
-| Desktop-3 | Home / Dashboard | `DashboardScreen.tsx` |
-| Desktop-3.2 | Menu Lateral (hambúrguer) | `DashboardScreen.tsx` (inline) |
-| Desktop-4 | Meu Perfil | `ProfileScreen.tsx` |
-| Desktop-5 | Configurações | *(Fase 2)* |
-| Desktop-6 | Lista de Mesas | `DashboardScreen.tsx` (seção Mesas) |
-| Desktop-7 / 7.2 | Criar / Editar Mesa | *(Fase 2 — CRUD de mesas)* |
-| Desktop-8 | Lista de Fichas | `CharacterListScreen.tsx` |
-| Desktop-9 / 9.2 | Ficha / Criar Ficha | `CharacterFormScreen.tsx` |
-| Desktop-10 | Inventário | `CharacterSheetScreen.tsx` |
-| Desktop-11 | Grimório | `CharacterSheetScreen.tsx` (aba Magias) |
-| Desktop-12 | Dados (rolador) | `DiceRollerScreen.tsx` |
+1. **Reprodutibilidade:** `random_state=42` garante resultados idênticos em cada execução
+2. **Ordem das células:** execute sempre do início ao fim (`Ctrl+F9`)
+3. **Base de dados:** gerada automaticamente na célula 3 — não precisa de upload externo
+4. **Gráficos:** salvos automaticamente como `.png` no mesmo diretório
 
 ---
 
-## ⚙️ Backend
-
-### Endpoints REST
-
-| Método | Endpoint | Auth | Descrição |
-|---|---|---|---|
-| POST | `/auth/register` | público | Cadastrar usuário |
-| POST | `/auth/login` | público | Login → JWT access + refresh |
-| POST | `/auth/refresh` | público | Renovar access token |
-| GET | `/characters` | ✅ JWT | Listar personagens |
-| POST | `/characters` | ✅ JWT | Criar personagem |
-| GET | `/characters/{id}` | ✅ JWT | Buscar ficha |
-| PUT | `/characters/{id}` | ✅ JWT | Atualizar ficha |
-| DELETE | `/characters/{id}` | ✅ JWT | Excluir ficha |
-| GET | `/spells` | público | Compêndio SRD |
-| POST | `/dice/roll` | ✅ JWT | Rolar dados (SecureRandom) |
-| GET | `/dice/history` | ✅ JWT | Últimas 50 rolagens |
-| GET | `/actuator/health` | público | Health check |
-
-### Variáveis de ambiente
-
-| Variável | Padrão (dev) | Descrição |
-|---|---|---|
-| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://db:5432/rollcore` | URL JDBC |
-| `SPRING_DATASOURCE_USERNAME` | `rollcore` | Usuário do banco |
-| `SPRING_DATASOURCE_PASSWORD` | `rollcore` | Senha do banco |
-| `JWT_SECRET` | *(dev only)* | **Obrigatório em produção** — mín. 256 bits |
-| `PORT` | `8080` | Porta da API |
-| `CORS_ORIGINS` | `http://localhost:5173` | Origins permitidas |
-
----
-
-## 🚀 Rodando localmente
-
-### Backend (Docker)
-
-```bash
-# Sobe PostgreSQL 16 + API Spring Boot
-docker compose up -d
-
-# Logs
-docker compose logs -f api
-
-# Swagger UI
-open http://localhost:8080/swagger-ui.html
-```
-
-### Frontend (dev server)
-
-```bash
-npm install
-npm run dev
-# → http://localhost:5173
-```
-
-### Build mobile
-
-```bash
-npm run build
-
-# Android
-npx cap sync android && npx cap open android
-
-# iOS
-npx cap sync ios && npx cap open ios
-```
-
-### Build Steam (PC)
-
-```bash
-npm run build
-npm run build:steam    # Electron + Capacitor → executável nativo
-# Publicar via Steamworks SDK
-```
-
-### Tests (JaCoCo coverage ≥ 80%)
-
-**Test suite — 120 cases across 7 Java files + 1 Postman collection:**
-
-| File | Type | Cases | HU |
-|---|---|---|---|
-| `AuthControllerTest` | API / WebMvcTest | 8 | HU-01 |
-| `CharacterControllerTest` | API / WebMvcTest | 7 | HU-02 |
-| `DndEngineTest` | Unit (no Spring context) | 45 | HU-02 |
-| `CharacterServiceTest` | Unit (Mockito) | 21 | HU-02 |
-| `RollCoreE2E` | E2E (Playwright) | 6 | HU-01, HU-02 |
-| `DiceServiceTest` | Unit (Mockito) | 17 | HU-03 |
-| `SpellServiceTest` | Unit (Mockito) | 9 | HU-02 |
-| `RollCore.postman_collection.json` | API (live environment) | 6 | HU-01, HU-03 |
-
-JUnit
-```bash
-cd backend && ./mvnw verify
-open target/site/jacoco/index.html
-```
-
-Playwright
-```bash
-npx playwright test --trace on   # Run all tests and record the trace
-npx playwright test --ui          # Visual GUI for testing
-```
-
----
-
-## 🗺️ Roadmap
-
-| Fase | Escopo | Status |
-|---|---|---|
-| **Fase 1 MVP** | UC-01/02/03 · Backend REST + JWT · Compêndio SRD · Deploy Render · Capacitor Mobile + Steam | ✅ Concluído |
-| **Fase 2** | UC-04 WebSocket/STOMP · Sessões online · Lojas mobile · Histórico de sessões · CRUD de mesas completo | 🚧 Em desenvolvimento |
-| **Fase 3** | Suporte Ordem Paranormal · Parser PDF de regras · Testes WCAG | 📋 Planejado |
-
----
-
-## 📁 Documentação
-
-| Documento | Versão | Link |
-|---|---|---|
-| Documento de Visão | v1.0 | [📄 RPG_Skill_Checker_Visao.pdf](docs/requirements/RPG_Skill_Checker_Visao.pdf) |
-| Especificação de Casos de Uso | v1.0 | [📄 RPG_CasosDeUso.pdf](docs/requirements/RPG_CasosDeUso.pdf) |
-| Documento de Arquitetura (4+1) | v1.0 | [📄 RollCore_Arquitetura_v1.0.pdf](docs/architecture/RollCore_Arquitetura_v1.0.pdf) |
-| Plano de Testes | v1.2 | [📄 Plano_de_Testes_v1.2_Equipe8.pdf](docs/testing/Plano_de_Testes_v1.2_Equipe8.pdf) |
-| Relatório Final de Testes | v1.0 | [📄 Relatorio Final Grupo 8.pdf](<docs/testing/Relatorio Final Grupo 8.pdf>) |
-| Resultados de Testes | v1.2 | [📋 test-results.md](docs/testing/test-results.md) |
-| Slides — Teste de Software | v1.0 | [📊 Teste de Software RollCore.pptx](<docs/testing/Teste de Software RollCore.pptx>) |
-| Documentação de Interface e Prototipação | v1.1 | [📄 RollCore-Documentacao-Interface.pdf](docs/ui-design/RollCore-Documentacao-Interface.pdf) |
-| Design System | v1.0 | [📋 design-system.md](docs/ui-design/design-system/design-system.md) |
-| User Flow | v1.0 | [📋 user-flow.md](docs/ui-design/user-flow/user-flow.md) |
-| Frames Figma — PC | v1.1 | [🖼️ figma-frames/PC/](docs/ui-design/figma-frames/PC) |
-| Frames Figma — Mobile | v1.1 | [🖼️ figma-frames/Mobile/](docs/ui-design/figma-frames/Mobile) |
-
----
-
-## 👥 Equipe
-
-| Nome |
-|---|
-| João Pedro Nunes Neto |
-| Leonardo Dos Santos Silva |
-| Lucas Gabriel Pereira Guerra |
-| Luis Felipe Nunes da Fonseca Figueiredo |
-| Luiz Phillipe de Souza Santos |
-
----
-
-## 📄 Licença
-
-Conteúdo de regras D&D 5e derivado do **System Reference Document (SRD)** da Wizards of the Coast, licenciado sob **CC BY 4.0**.
+*Trabalho elaborado para a disciplina de Inteligência Artificial — Prof. William Malvezzi — 2025*
