@@ -5,6 +5,8 @@ import { KeyboardAvoidingView, Platform, Pressable as NativePressable, ScrollVie
 import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AUTH_COLORS, useAppFonts, appFontSize } from '../design/shared';
+import { mensagemDeErro } from '../services/api';
+import { SLOW_HINT_TEXT, useSlowHint } from '../services/useSlowHint';
 import { cadastrarConta } from '../store/conta';
 import { useAcessibilidade } from '../store/acessibilidade';
 
@@ -56,14 +58,17 @@ export default function CadastroScreen() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
   const [erro, setErro] = useState('');
+  const [carregando, setCarregando] = useState(false);
+  const lento = useSlowHint(carregando);
 
   if (!fontsLoaded) return null;
 
-  const criarConta = () => {
+  const criarConta = async () => {
+    if (carregando) return;
     const apelidoLimpo = apelido.trim();
     const emailLimpo = email.trim();
-    if (!/^[\p{L}\p{N}_]{3,20}$/u.test(apelidoLimpo)) {
-      setErro('O nome de usuário deve ter de 3 a 20 caracteres: letras, números ou _.');
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(apelidoLimpo)) {
+      setErro('O nome de usuário deve ter de 3 a 20 caracteres: letras sem acento, números ou _.');
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpo)) {
@@ -79,8 +84,15 @@ export default function CadastroScreen() {
       return;
     }
     setErro('');
-    cadastrarConta({ apelido: apelidoLimpo, email: emailLimpo, senha });
-    router.replace('/mesas');
+    setCarregando(true);
+    try {
+      await cadastrarConta({ apelido: apelidoLimpo, email: emailLimpo, senha });
+      router.replace('/mesas');
+    } catch (error) {
+      setErro(mensagemDeErro(error));
+    } finally {
+      setCarregando(false);
+    }
   };
 
   const regras = [
@@ -124,9 +136,10 @@ export default function CadastroScreen() {
                 <Text style={{ flex: 1, color: '#FFFFFF', fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>{erro}</Text>
               </View> : null}
 
-              <Pressable onPress={criarConta} accessibilityRole="button" style={({ pressed }) => ({ minHeight: 52, alignItems: 'center', justifyContent: 'center', marginTop: 18, borderRadius: 10, backgroundColor: AUTH_COLORS.button, borderWidth: 1, borderColor: AUTH_COLORS.mint, opacity: pressed ? 0.78 : 1 })}>
-                <Text style={{ color: AUTH_COLORS.mint, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(17) }}>Criar conta e continuar</Text>
+              <Pressable onPress={criarConta} disabled={carregando} accessibilityRole="button" accessibilityState={{ busy: carregando, disabled: carregando }} style={({ pressed }) => ({ minHeight: 52, alignItems: 'center', justifyContent: 'center', marginTop: 18, borderRadius: 10, backgroundColor: AUTH_COLORS.button, borderWidth: 1, borderColor: AUTH_COLORS.mint, opacity: carregando ? 0.6 : pressed ? 0.78 : 1 })}>
+                <Text style={{ color: AUTH_COLORS.mint, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(17) }}>{carregando ? 'Criando conta…' : 'Criar conta e continuar'}</Text>
               </Pressable>
+              {lento ? <Text accessibilityLiveRegion="polite" style={{ marginTop: 10, textAlign: 'center', color: AUTH_COLORS.gray, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>{SLOW_HINT_TEXT}</Text> : null}
 
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 5, marginTop: 16 }}>
                 <Text style={{ color: AUTH_COLORS.gray, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>Já tem uma conta?</Text>
