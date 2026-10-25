@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { DiceLogo } from '@/components/ui/DiceLogo'
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 
 export function LoginScreen() {
-  const { navigate, login } = useAppStore()
+  const { navigate, login, loginWithGoogle } = useAppStore()
 
   const [email,         setEmail]         = useState('')
   const [password,      setPassword]      = useState('')
@@ -94,6 +95,8 @@ export function LoginScreen() {
       >
         {loading ? '…' : 'Entrar'}
       </button>
+
+      <GoogleSignInButton onCredential={idToken => loginWithGoogle(idToken).catch(() => undefined)} />
 
       <button className="link-btn" onClick={() => navigate('cadastro')}>
         Criar conta

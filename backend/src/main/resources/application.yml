@@ -69,6 +69,11 @@ rollcore:
   e2e-cleanup:
     enabled: ${E2E_CLEANUP_ENABLED:false}
 
+# ── Google sign-in ──────────────────────────────────────────────────────────
+google:
+  # Comma-separated OAuth client ids accepted for Google sign-in. Empty = feature off.
+  client-ids: ${GOOGLE_CLIENT_ID:}
+
 # ── CORS ────────────────────────────────────────────────────────────────────
 cors:
   allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000,http://localhost:4173,https://rollcore.vercel.app}

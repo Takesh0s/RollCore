@@ -1,5 +1,6 @@
 package com.rollcore.service;
 
+import com.rollcore.dto.request.GoogleLoginRequest;
 import com.rollcore.dto.request.LoginRequest;
 import com.rollcore.dto.request.RefreshRequest;
 import com.rollcore.dto.request.RegisterRequest;
@@ -9,6 +10,8 @@ import com.rollcore.entity.User;
 import com.rollcore.exception.ConflictException;
 import com.rollcore.exception.NotFoundException;
 import com.rollcore.repository.UserRepository;
+import com.rollcore.security.GoogleIdentity;
+import com.rollcore.security.GoogleTokenVerifier;
 import com.rollcore.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -38,6 +41,7 @@ public class AuthService {
     private final PasswordEncoder      passwordEncoder;
     private final JwtService           jwtService;
     private final RefreshTokenService  refreshTokenService;
+    private final GoogleTokenVerifier  googleTokenVerifier;
 
     /**
      * Creates a new user account and returns a token pair.
@@ -82,6 +86,69 @@ public class AuthService {
         }
 
         return newSession(user);
+    }
+
+    /**
+     * Signs in with a Google ID token, creating the account on first use.
+     *
+     * <ol>
+     *   <li>Known Google subject: log that user in.
+     *   <li>Unknown subject but the (Google-verified) e-mail belongs to a password
+     *       account: link the Google id to it.
+     *   <li>Otherwise: create a new account with a generated username and an
+     *       unusable random password.
+     * </ol>
+     *
+     * @throws BadCredentialsException if the token is invalid, or the e-mail is already
+     *         linked to a different Google account.
+     */
+    @Transactional
+    public AuthResponse loginWithGoogle(GoogleLoginRequest req) {
+        GoogleIdentity identity = googleTokenVerifier.verify(req.idToken());
+
+        User user = userRepository.findByGoogleSub(identity.subject())
+                .orElseGet(() -> linkOrCreate(identity));
+
+        return newSession(user);
+    }
+
+    private User linkOrCreate(GoogleIdentity identity) {
+        return userRepository.findByEmail(identity.email())
+                .map(existing -> {
+                    if (existing.getGoogleSub() != null) {
+                        throw new BadCredentialsException("Invalid credentials.");
+                    }
+                    existing.setGoogleSub(identity.subject());
+                    return userRepository.save(existing);
+                })
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .email(identity.email())
+                        .username(generateUsername(identity.email()))
+                        .passwordHash(passwordEncoder.encode(UUID.randomUUID().toString()))
+                        .googleSub(identity.subject())
+                        .build()));
+    }
+
+    /** Derives a valid, unused username (3-20 chars, [a-zA-Z0-9_]) from the e-mail local part. */
+    private String generateUsername(String email) {
+        String base = email.substring(0, email.indexOf('@')).replaceAll("[^a-zA-Z0-9_]", "_");
+        if (base.length() < 3) {
+            base = (base + "user").substring(0, 4);
+        }
+        if (base.length() > 20) {
+            base = base.substring(0, 20);
+        }
+        if (!userRepository.existsByUsername(base)) {
+            return base;
+        }
+        String stem = base.length() > 15 ? base.substring(0, 15) : base;
+        for (int i = 0; i < 10; i++) {
+            String candidate = stem + "_" + (1000 + java.util.concurrent.ThreadLocalRandom.current().nextInt(9000));
+            if (!userRepository.existsByUsername(candidate)) {
+                return candidate;
+            }
+        }
+        return "u" + UUID.randomUUID().toString().replace("-", "").substring(0, 15);
     }
 
     /**

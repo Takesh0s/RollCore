@@ -77,7 +77,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // ── Public auth endpoints ─────────────────────────────────
                 .requestMatchers(HttpMethod.POST,
-                        "/auth/register", "/auth/login", "/auth/refresh", "/auth/logout").permitAll()
+                        "/auth/register", "/auth/login", "/auth/google", "/auth/refresh", "/auth/logout").permitAll()
                 // ── Spell compendium — public read (SRD CC BY 4.0) ───────
                 // GET /spells and GET /spells/{id} are unauthenticated.
                 // POST/DELETE /characters/{id}/spells/** remain protected.

@@ -60,6 +60,7 @@ interface AppState {
   registeredEmails: string[]
   login:            (email: string, password: string, keepConnected: boolean) => Promise<void>
   register:         (email: string, username: string, password: string) => Promise<void>
+  loginWithGoogle:  (idToken: string) => Promise<void>
   logout:           () => void
   updateProfile:    (updates: Partial<Pick<User, 'username' | 'avatar_url'>>) => Promise<void>
 
@@ -122,6 +123,30 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (err: any) {
       const msg = err.response?.data?.detail ?? 'E-mail ou senha incorretos.'
       get().showToast(msg, 'error')
+      throw err
+    }
+  },
+
+  async loginWithGoogle(idToken) {
+    try {
+      const { data } = await api.post<AuthTokens>('/auth/google', { idToken })
+      tokenStorage.set(data.accessToken, data.refreshToken)
+
+      const user: User = {
+        isLogged:      true,
+        email:         data.email,
+        username:      data.username,
+        keepConnected: true,
+        avatar_url:    storage.getUser()?.avatar_url,
+      }
+
+      storage.setUser(user)
+      set({ user, screen: 'dashboard' })
+
+      get().loadCharacters()
+      get().loadHistory()
+    } catch (err: any) {
+      get().showToast('Não foi possível entrar com o Google. Tente novamente.', 'error')
       throw err
     }
   },

@@ -46,6 +46,7 @@ services:
 
       JWT_SECRET: local-dev-secret-change-before-deploy-must-be-256-bits-long!!
       PORT: 8080
+      GOOGLE_CLIENT_ID: 6441366899-rajs6jj2mmclodmq857n9ahgjn5fjl94.apps.googleusercontent.com
       # Local dev only: exposes DELETE /auth/deleteall (Postman/Playwright cleanup). NEVER set in production.
       E2E_CLEANUP_ENABLED: "true"
       CORS_ORIGINS: http://localhost:5173,http://localhost:3000,http://localhost:4173,http://localhost:8081,https://rollcore.vercel.app

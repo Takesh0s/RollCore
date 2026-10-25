@@ -2,6 +2,7 @@ package com.rollcore.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rollcore.config.SecurityConfig;
+import com.rollcore.dto.request.GoogleLoginRequest;
 import com.rollcore.dto.request.LoginRequest;
 import com.rollcore.dto.request.RefreshRequest;
 import com.rollcore.dto.request.RegisterRequest;
@@ -87,6 +88,47 @@ class AuthControllerTest {
             UUID.randomUUID(),
             "player@rollcore.com",
             "PlayerOne");
+
+    // ── POST /auth/google ─────────────────────────────────────────────────────
+
+    @Nested
+    @DisplayName("POST /auth/google")
+    class GoogleTest {
+
+        @Test
+        @DisplayName("200 with a valid Google token, without authentication")
+        void googleSuccess() throws Exception {
+            when(authService.loginWithGoogle(any())).thenReturn(FAKE_RESPONSE);
+
+            mvc.perform(post("/auth/google").with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(new GoogleLoginRequest("google.id.token"))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                    .andExpect(jsonPath("$.username").value("PlayerOne"));
+        }
+
+        @Test
+        @DisplayName("401 when the Google token is invalid")
+        void googleInvalid() throws Exception {
+            when(authService.loginWithGoogle(any()))
+                    .thenThrow(new BadCredentialsException("Invalid Google token."));
+
+            mvc.perform(post("/auth/google").with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(new GoogleLoginRequest("bad"))))
+                    .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("400 when idToken is blank")
+        void googleBlank() throws Exception {
+            mvc.perform(post("/auth/google").with(csrf())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"idToken\":\"\"}"))
+                    .andExpect(status().isBadRequest());
+        }
+    }
 
     // ── POST /auth/register ───────────────────────────────────────────────────
 

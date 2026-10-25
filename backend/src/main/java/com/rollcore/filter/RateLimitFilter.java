@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <ul>
  *   <li>General bucket: {@code rate-limit.requests-per-minute} per IP (default 60).
- *   <li>Stricter bucket for credential endpoints ({@code /auth/login|register|refresh}):
+ *   <li>Stricter bucket for credential endpoints ({@code /auth/login|google|register|refresh}):
  *       {@code rate-limit.auth-requests-per-minute} per IP (default 10) — slows brute force.
  *   <li>The client IP is {@link HttpServletRequest#getRemoteAddr()}. Behind a proxy,
  *       {@code server.forward-headers-strategy: native} makes Tomcat resolve it from
@@ -92,7 +92,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private boolean isCredentialEndpoint(HttpServletRequest request) {
         if (!"POST".equalsIgnoreCase(request.getMethod())) return false;
         String path = request.getRequestURI();
-        return "/auth/login".equals(path) || "/auth/register".equals(path) || "/auth/refresh".equals(path);
+        return "/auth/login".equals(path) || "/auth/google".equals(path) || "/auth/register".equals(path) || "/auth/refresh".equals(path);
     }
 
     private Bucket newBucket(int perMinute) {
