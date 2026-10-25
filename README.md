@@ -288,11 +288,11 @@ Pontos de atenção em produção:
 
 ## Equipe
 
-- João Pedro Nunes Neto
-- Leonardo Dos Santos Silva
-- Lucas Gabriel Pereira Guerra
-- Luis Felipe Nunes da Fonseca Figueiredo
-- Luiz Phillipe de Souza Santos
+| Integrante | Atuação |
+| --- | --- |
+| Luiz Phillipe de Souza Santos | Arquitetura, backend, aplicativo mobile e infraestrutura |
+| Lucas Gabriel Pereira Guerra | Product Owner: visão do produto, requisitos e design no Figma |
+| Luis Felipe Nunes da Fonseca Figueiredo | Cliente web (versão inicial) |
 
 ## Licença
 
