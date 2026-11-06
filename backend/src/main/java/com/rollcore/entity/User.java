@@ -48,6 +48,10 @@ public class User {
     @Column(name = "google_sub", unique = true, length = 64)
     private String googleSub;
 
+    /** Profile photo: small data URL or http(s) URL; null when the user has none (migration V14). */
+    @Column(name = "avatar_url", columnDefinition = "TEXT")
+    private String avatarUrl;
+
     /** Subscription plan — FREE until a payment flow exists (see migration V8). */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)

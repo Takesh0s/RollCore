@@ -4,7 +4,7 @@ import { storage } from '@/lib/storage'
 import { getMaxSpellSlots, getWarlockSlots } from '@/lib/engine'
 import type {
   User, Character, HistoryEntry, Screen, RollResult,
-  AuthTokens, CharacterApiResponse, DiceRollApiResponse,
+  AuthTokens, CharacterApiResponse, UserProfileApiResponse, DiceRollApiResponse,
   TableSummary, TableDetail, CreateTableInput, DiceMode, DiceShortcut,
 } from '@/types'
 
@@ -65,6 +65,7 @@ interface AppState {
   register:         (email: string, username: string, password: string) => Promise<void>
   loginWithGoogle:  (idToken: string) => Promise<void>
   logout:           () => void
+  loadProfile:      () => Promise<void>
   updateProfile:    (updates: Partial<Pick<User, 'username' | 'avatar_url'>>) => Promise<void>
 
   // Character management
@@ -129,6 +130,12 @@ function apiRollToEntry(r: DiceRollApiResponse, sides: number): HistoryEntry {
 }
 
 // Store implementation
+/** Photo cached in this browser, but only if it belongs to the account that is signing in. */
+function cachedAvatar(email: string): string | undefined {
+  const cached = storage.getUser()
+  return cached && cached.email.toLowerCase() === email.toLowerCase() ? cached.avatar_url : undefined
+}
+
 export const useAppStore = create<AppState>((set, get) => ({
   screen: 'login',
 
@@ -153,13 +160,14 @@ export const useAppStore = create<AppState>((set, get) => ({
         email:         data.email,
         username:      data.username,
         keepConnected,
-        avatar_url:    storage.getUser()?.avatar_url,   // preserve local avatar until backend supports it
+        avatar_url:    cachedAvatar(data.email),
       }
 
       if (keepConnected) storage.setUser(user)
       set({ user, screen: 'dashboard' })
 
       // Load characters and history in background after login
+      get().loadProfile()
       get().loadCharacters()
       get().loadHistory()
       get().loadShortcuts()
@@ -181,12 +189,13 @@ export const useAppStore = create<AppState>((set, get) => ({
         email:         data.email,
         username:      data.username,
         keepConnected: true,
-        avatar_url:    storage.getUser()?.avatar_url,
+        avatar_url:    cachedAvatar(data.email),
       }
 
       storage.setUser(user)
       set({ user, screen: 'dashboard' })
 
+      get().loadProfile()
       get().loadCharacters()
       get().loadHistory()
       get().loadTables()
@@ -225,19 +234,44 @@ export const useAppStore = create<AppState>((set, get) => ({
     })
   },
 
+  /** Pulls username and photo from the account so every device shows the same profile. */
+  async loadProfile() {
+    try {
+      const { data } = await api.get<UserProfileApiResponse>('/users/me')
+      const { user } = get()
+      let avatar = data.avatarUrl ?? undefined
+
+      // One-time migration: a photo chosen before profiles were synced only exists in this browser.
+      if (!avatar && user.avatar_url?.startsWith('data:image/')) {
+        try {
+          await api.put('/users/me', { avatarUrl: user.avatar_url })
+          avatar = user.avatar_url
+        } catch { /* too large or offline: keep the local copy */ }
+      }
+
+      const updated: User = { ...user, username: data.username, email: data.email, avatar_url: avatar }
+      if (user.keepConnected) storage.setUser(updated)
+      set({ user: updated })
+    } catch {
+      // Offline: keep the cached profile.
+    }
+  },
+
   async updateProfile(updates) {
     const { user } = get()
+    const body: { username?: string; avatarUrl?: string } = {}
+    if (updates.username && updates.username !== user.username) body.username = updates.username
+    if ('avatar_url' in updates && updates.avatar_url !== user.avatar_url) body.avatarUrl = updates.avatar_url ?? ''
 
-    // Avatar is stored locally only in Fase 1 — no backend endpoint yet
-    const updatedUser: User = { ...user, ...updates }
-    storage.setUser(updatedUser)
-    set({ user: updatedUser })
-
-    // Username change: update backend too if it's not just the avatar
-    if (updates.username && updates.username !== user.username) {
-      storage.removeUsername(user.username)
-      storage.addUsername(updates.username)
-      // NOTE: POST /users/profile will be added when the backend endpoint is ready
+    if (Object.keys(body).length > 0) {
+      const { data } = await api.put<UserProfileApiResponse>('/users/me', body)
+      if (body.username) {
+        storage.removeUsername(user.username)
+        storage.addUsername(data.username)
+      }
+      const updatedUser: User = { ...user, username: data.username, avatar_url: data.avatarUrl ?? undefined }
+      if (user.keepConnected) storage.setUser(updatedUser)
+      set({ user: updatedUser })
     }
   },
 
@@ -530,6 +564,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 const saved = storage.getUser()
 if (saved?.keepConnected && tokenStorage.getAccess()) {
   useAppStore.setState({ user: { ...saved, isLogged: true }, screen: 'dashboard' })
+  useAppStore.getState().loadProfile()
   useAppStore.getState().loadCharacters()
   useAppStore.getState().loadHistory()
   useAppStore.getState().loadTables()

@@ -145,6 +145,14 @@ export interface AuthTokens {
   username:     string
 }
 
+export interface UserProfileApiResponse {
+  userId:      string
+  username:    string
+  email:       string
+  plan:        string
+  avatarUrl?:  string | null
+}
+
 export interface CharacterApiResponse {
   id:             string
   name:           string
