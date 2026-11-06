@@ -8,6 +8,7 @@ import {
 } from '@/lib/engine'
 import { calcMaxHp, calcUnarmoredAC, ATTR_INPUT_MAX, ATTR_INPUT_MIN } from '@/lib/engine-hp'
 import { SYSTEMS, getSystem, DEFAULT_SYSTEM, allSubclassOptions } from '@/lib/systems'
+import { downloadCharacter } from '@/lib/characterIO'
 import type { AttrKey, Attributes } from '@/types'
 import { AppHeader } from '@/components/ui/AppHeader'
 
@@ -508,6 +509,7 @@ export function CharacterFormScreen({ mode }: Props) {
           {isEdit ? (
             <>
               <button className="btn side-btn" onClick={() => navigate('ficha')} disabled={loading}>Abrir ficha</button>
+              {existing && <button className="btn side-btn" onClick={() => downloadCharacter(existing)}>Exportar ficha</button>}
               <button className="btn side-btn danger" onClick={() => setShowDelete(true)} disabled={loading}>Excluir ficha</button>
             </>
           ) : (

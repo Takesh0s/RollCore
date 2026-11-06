@@ -2,6 +2,8 @@ import { useAppStore } from '@/store/useAppStore'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { IconPlus } from '@/components/ui/icons'
 import { useDesktop } from '@/hooks/useDesktop'
+import { parseCharacterFile, MAX_IMPORT_BYTES } from '@/lib/characterIO'
+import { useRef } from 'react'
 import type { Character } from '@/types'
 
 /** Lista de fichas do usuário autenticado — RF0002.5. Layout do Figma: avatar, nome e "Editar". */
@@ -37,7 +39,22 @@ function CharCard({ char, onOpen, onEdit }: { char: Character; onOpen: () => voi
 }
 
 function DesktopCharacterList() {
-  const { navigate, characters, selectCharacter } = useAppStore()
+  const { navigate, characters, selectCharacter, addCharacter, showToast } = useAppStore()
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  /** Reads a sheet exported by RollCore (.rollcore.json), validates it and creates it. */
+  async function importFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''                       // lets the same file be picked again
+    if (!file) return
+    if (file.size > MAX_IMPORT_BYTES) { showToast('Arquivo grande demais para ser uma ficha.', 'error'); return }
+    const result = parseCharacterFile(await file.text())
+    if (!result.ok) { showToast(result.error, 'error'); return }
+    try {
+      await addCharacter(result.data)
+      showToast(`Ficha "${result.data.name}" importada!`, 'success')
+    } catch { /* addCharacter already shows the error toast */ }
+  }
   const go = (id: number, screen: 'ficha' | 'editar-personagem') => { selectCharacter(id); navigate(screen) }
 
   return (
@@ -52,7 +69,9 @@ function DesktopCharacterList() {
             <span className="soon" title="Em breve">Rascunhos</span>
           </div>
           <div className="sheet-toolbar-actions">
-            <button className="btn sheet-btn import" disabled title="Em breve">Importar</button>
+            <input ref={fileRef} type="file" accept=".json,application/json" hidden onChange={importFile} />
+            <button className="btn sheet-btn import" title="Importar uma ficha exportada do RollCore (.json)"
+                    onClick={() => fileRef.current?.click()}>Importar</button>
             <button className="btn sheet-btn new" onClick={() => navigate('novo-personagem')}>
               <IconPlus /> Nova ficha
             </button>
