@@ -63,6 +63,20 @@ public class DiceRoll {
     @Column(nullable = false)
     private int total;
 
+    /** Optional reason shown next to the result, e.g. "Ataque com espada longa". */
+    @Column(length = 80)
+    private String label;
+
+    /** normal | advantage | disadvantage (migration V12). */
+    @Column(nullable = false, length = 12)
+    @Builder.Default
+    private String mode = "normal";
+
+    /** With advantage/disadvantage: the set of dice that was NOT kept. */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "discarded_results", columnDefinition = "jsonb")
+    private List<Integer> discardedResults;
+
     @Column(name = "rolled_at", nullable = false, updatable = false)
     @Builder.Default
     private Instant rolledAt = Instant.now();

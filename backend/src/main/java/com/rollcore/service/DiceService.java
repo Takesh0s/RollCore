@@ -7,6 +7,8 @@ import com.rollcore.entity.DiceRoll;
 import com.rollcore.entity.User;
 import com.rollcore.exception.InvalidFormulaException;
 import com.rollcore.repository.DiceRollRepository;
+import com.rollcore.repository.GameTableRepository;
+import com.rollcore.entity.GameTable;
 import com.rollcore.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,8 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,6 +61,7 @@ public class DiceService {
 
     private final DiceRollRepository diceRollRepository;
     private final UserRepository     userRepository;
+    private final GameTableRepository gameTableRepository;
 
     // ── Roll ──────────────────────────────────────────────────────────────────
 
@@ -83,14 +88,27 @@ public class DiceService {
     private RollResponse doRoll(UUID userId, UUID tableId, RollRequest request) {
         String formula = request.formula().trim();
         ParsedFormula parsed = parse(formula);
+        String mode  = normalizeMode(request.mode());
+        String label = normalizeLabel(request.label());
 
-        // Generate individual die results with SecureRandom — UC-03 RE-01
-        List<Integer> rolls = new ArrayList<>(parsed.n());
-        for (int i = 0; i < parsed.n(); i++) {
-            rolls.add(secureRandom.nextInt(parsed.sides()) + 1);
+        // Generate individual die results with SecureRandom — UC-03 RE-01.
+        // Advantage/disadvantage: roll the whole formula twice and keep the higher/lower total.
+        List<Integer> rolls = rollDice(parsed);
+        List<Integer> discarded = null;
+        if (!"normal".equals(mode)) {
+            List<Integer> second = rollDice(parsed);
+            boolean keepFirst = "advantage".equals(mode)
+                    ? sum(rolls) >= sum(second)
+                    : sum(rolls) <= sum(second);
+            if (!keepFirst) {
+                discarded = rolls;
+                rolls = second;
+            } else {
+                discarded = second;
+            }
         }
 
-        int total = rolls.stream().mapToInt(Integer::intValue).sum() + parsed.mod();
+        int total = sum(rolls) + parsed.mod();
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found."));
@@ -101,12 +119,41 @@ public class DiceService {
                 .formula(formula)
                 .individualResults(rolls)
                 .total(total)
+                .label(label)
+                .mode(mode)
+                .discardedResults(discarded)
                 .build();
 
         DiceRoll saved = diceRollRepository.save(entity);
 
         return new RollResponse(saved.getId(), formula, rolls, parsed.mod(), total,
-                saved.getRolledAt());
+                saved.getRolledAt(), label, mode, discarded, tableId, null);
+    }
+
+    private List<Integer> rollDice(ParsedFormula parsed) {
+        List<Integer> rolls = new ArrayList<>(parsed.n());
+        for (int i = 0; i < parsed.n(); i++) {
+            rolls.add(secureRandom.nextInt(parsed.sides()) + 1);
+        }
+        return rolls;
+    }
+
+    private static int sum(List<Integer> values) {
+        return values.stream().mapToInt(Integer::intValue).sum();
+    }
+
+    private static String normalizeMode(String mode) {
+        if (mode == null || mode.isBlank()) return "normal";
+        return switch (mode) {
+            case "advantage", "disadvantage" -> mode;
+            default -> "normal";
+        };
+    }
+
+    private static String normalizeLabel(String label) {
+        if (label == null) return null;
+        String trimmed = label.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
 
@@ -151,18 +198,43 @@ public class DiceService {
      */
     @Transactional(readOnly = true)
     public List<RollResponse> getHistory(UUID userId) {
-        Page<DiceRoll> page = diceRollRepository
-                .findByUserIdOrderByRolledAtDesc(userId,
-                        PageRequest.of(0, HISTORY_LIMIT));
+        return getHistory(userId, null);
+    }
 
-        return page.stream()
+    /**
+     * Same as {@link #getHistory(UUID)} but, when {@code tableId} is given, only the
+     * caller's own rolls made in that table. Table names are resolved for the response.
+     */
+    @Transactional(readOnly = true)
+    public List<RollResponse> getHistory(UUID userId, UUID tableId) {
+        PageRequest page = PageRequest.of(0, HISTORY_LIMIT);
+        List<DiceRoll> rolls = (tableId == null
+                ? diceRollRepository.findByUserIdOrderByRolledAtDesc(userId, page)
+                : diceRollRepository.findByUserIdAndGameTableIdOrderByRolledAtDesc(userId, tableId, page))
+                .getContent();
+
+        Set<UUID> tableIds = rolls.stream()
+                .map(DiceRoll::getGameTableId)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<UUID, String> names = tableIds.isEmpty()
+                ? Map.of()
+                : gameTableRepository.findAllById(tableIds).stream()
+                        .collect(Collectors.toMap(GameTable::getId, GameTable::getName));
+
+        return rolls.stream()
                 .map(r -> new RollResponse(
                         r.getId(),
                         r.getFormula(),
                         r.getIndividualResults(),
                         modifierOf(r.getFormula()),
                         r.getTotal(),
-                        r.getRolledAt()))
+                        r.getRolledAt(),
+                        r.getLabel(),
+                        r.getMode(),
+                        r.getDiscardedResults(),
+                        r.getGameTableId(),
+                        r.getGameTableId() == null ? null : names.get(r.getGameTableId())))
                 .toList();
     }
 

@@ -43,6 +43,8 @@ export interface RollResult {
   formula?: string
 }
 
+export type DiceMode = 'normal' | 'advantage' | 'disadvantage'
+
 export interface HistoryEntry {
   type:     'formula' | 'skill' | 'dice'
   formula?: string
@@ -50,6 +52,20 @@ export interface HistoryEntry {
   sides?:   number
   result:   RollResult
   timestamp: number
+  /** Motivo da rolagem ("Ataque com espada longa"), quando informado. */
+  label?:     string
+  mode?:      DiceMode
+  /** Dados descartados em vantagem/desvantagem. */
+  discarded?: number[]
+  tableId?:   string
+  tableName?: string
+}
+
+/** Atalho de rolagem salvo pelo usuário ("Atalhos salvos"). */
+export interface DiceShortcut {
+  id:      string
+  name:    string
+  formula: string
 }
 
 // ─── Auth Types ───────────────────────────────────────────────────────────────
@@ -154,6 +170,11 @@ export interface DiceRollApiResponse {
   mod:      number
   total:    number
   rolledAt: string
+  label?:          string | null
+  mode?:           DiceMode
+  discardedRolls?: number[] | null
+  tableId?:        string | null
+  tableName?:      string | null
 }
 
 // ─── Spell Types (Sprint 8) ───────────────────────────────────────────────────

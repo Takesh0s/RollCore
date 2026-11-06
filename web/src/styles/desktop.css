@@ -507,3 +507,73 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
   .side-list { gap: 0; }
   .side-menu.docked .side-menu-item { padding: 6px 12px; }
 }
+
+/* ── Dados (desktop): rolador, última rolagem, atalhos e histórico — Figma 05.4 ── */
+@media (min-width: 1024px) {
+  .dice-page { display: grid; grid-template-columns: minmax(0, 1fr) 464px; gap: 36px; align-items: start; }
+  .dice-main, .dice-side { min-width: 0; display: flex; flex-direction: column; }
+  .dice-page .section-title { margin: 6px 0 14px; font-family: 'Source Serif 4', serif; font-size: 14px; letter-spacing: 0; text-transform: none; font-weight: 700; color: var(--text); }
+  .dice-page .badge-crit { background: #6dbf94; color: #0f2a1c; border: 0; font-weight: 700; font-size: 10px; letter-spacing: .5px; padding: 3px 10px; border-radius: 999px; }
+  .dice-page .badge-fail { background: #e8878a; color: #3a1010; border: 0; font-weight: 700; font-size: 10px; letter-spacing: .5px; padding: 3px 10px; border-radius: 999px; }
+
+  .dice-tiles { display: grid; grid-template-columns: repeat(7, 1fr); gap: 14px; margin-bottom: 20px; }
+  .dice-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 92px; border-radius: 14px; border: 1px solid var(--card-border); background: transparent; color: var(--text); cursor: pointer; font-family: inherit; transition: background .15s, transform .1s; }
+  .dice-tile strong { font-family: 'Source Serif 4', serif; font-size: 32px; font-weight: 700; line-height: 1.1; }
+  .dice-tile span { font-size: 11px; color: var(--text-muted); }
+  .dice-tile:hover { background: rgba(255,255,255,.05); }
+  .dice-tile:active { transform: scale(.97); }
+  .dice-tile.on { background: var(--sapphire); border-color: var(--sapphire); color: #10202e; }
+  .dice-tile.on span { color: #1f3a52; }
+
+  .dice-panel { border: 1px solid var(--card-border); border-radius: 14px; padding: 16px 24px 18px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .dice-panel-top { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+  .dice-panel-bottom { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+  .dice-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 12px; color: var(--text-muted); }
+  .dice-field .form-input { height: 42px; font-size: 14px; }
+  .dice-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .dice-chip { font-family: inherit; font-size: 12px; padding: 6px 15px; border-radius: 999px; border: 1px solid var(--card-border); background: transparent; color: var(--text); cursor: pointer; }
+  .dice-chip:hover { background: rgba(255,255,255,.05); }
+  .dice-chip.on { background: var(--sapphire); border-color: var(--sapphire); color: #10202e; }
+  .dice-roll-btn { flex: none; width: 216px; height: 56px; font-size: 15px; }
+
+  .dice-last { border: 1px solid var(--card-border); border-radius: 14px; min-height: 414px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; }
+  .dice-last-title { font-size: 13px; color: var(--text-muted); align-self: stretch; }
+  .dice-last-num { font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 168px; line-height: 1; color: var(--sapphire); margin: auto 0 0; }
+  .dice-last-num.crit { color: var(--sapphire); }
+  .dice-last-num.fail { color: #e8878a; }
+  .dice-last-num.none { color: var(--text-muted); opacity: .5; }
+  .dice-last-detail { font-size: 14px; color: var(--text); margin: 0 0 auto; }
+
+  .dice-shortcuts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .dice-shortcut { position: relative; display: flex; flex-direction: column; gap: 6px; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px 16px; min-height: 100px; background: transparent; color: var(--text); text-align: left; font-family: inherit; min-width: 0; }
+  .dice-shortcut strong { font-family: 'Source Serif 4', serif; font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 18px; }
+  .dice-shortcut em { font-style: normal; font-size: 13px; color: var(--sapphire); }
+  .dice-shortcut-go { margin-top: auto; align-self: flex-start; background: none; border: 0; padding: 0; font: inherit; font-size: 12px; color: var(--text-muted); cursor: pointer; }
+  .dice-shortcut-go:hover:not(:disabled) { color: var(--text); }
+  .dice-shortcut-del { position: absolute; top: 8px; right: 10px; background: none; border: 0; color: var(--text-muted); font-size: 18px; line-height: 1; cursor: pointer; opacity: 0; transition: opacity .15s; }
+  .dice-shortcut:hover .dice-shortcut-del, .dice-shortcut-del:focus-visible { opacity: 1; }
+  .dice-shortcut-add { border: 1.5px dashed var(--card-border); cursor: pointer; justify-content: center; }
+  .dice-shortcut-add strong { white-space: normal; padding-right: 0; }
+  .dice-shortcut-add:disabled { opacity: .5; cursor: not-allowed; }
+  .dice-shortcut-add:hover:not(:disabled) { background: rgba(255,255,255,.04); }
+  .dice-shortcut-new .form-input { height: 34px; font-size: 13px; }
+  .dice-shortcut-actions { display: flex; gap: 8px; margin-top: auto; }
+
+  .dice-side .dice-chips { margin-bottom: 14px; }
+  .dice-history { display: flex; flex-direction: column; gap: 12px; }
+  .dice-history-empty { color: var(--text-muted); font-size: 14px; padding: 12px 0; }
+  .dice-hist { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px 16px; min-height: 68px; min-width: 0; }
+  .dice-hist-formula { font-weight: 600; font-size: 14px; color: var(--text); }
+  .dice-hist-meta { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .dice-hist-total { font-family: 'Source Serif 4', serif; font-size: 28px; font-weight: 700; color: var(--sapphire); min-width: 44px; text-align: right; }
+  .dice-hist.fail .dice-hist-total { color: #e8878a; }
+  .dice-hist-more { margin-top: 18px; width: 100%; height: 44px; border-radius: 999px; border: 1px solid var(--sapphire); background: transparent; color: var(--sapphire); font-weight: 700; cursor: pointer; }
+  .dice-hist-more:hover { background: rgba(138,176,214,.1); }
+}
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .dice-page { grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; }
+  .dice-panel-top { grid-template-columns: 1fr; }
+  .dice-shortcuts { grid-template-columns: repeat(2, 1fr); }
+  .dice-last { min-height: 320px; }
+  .dice-last-num { font-size: 128px; }
+}

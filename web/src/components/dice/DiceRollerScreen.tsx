@@ -7,10 +7,17 @@ import {
 import type { RollResult } from '@/types'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { DiceLogo } from '@/components/ui/DiceLogo'
+import { useDesktop } from '@/hooks/useDesktop'
+import { DesktopDice } from './DesktopDice'
 
 type DiceState = 'neutral' | 'crit' | 'fail'
 
+/** Rolador de dados — layout do Figma no computador, o antigo no celular. */
 export function DiceRollerScreen() {
+  return useDesktop() ? <DesktopDice /> : <MobileDice />
+}
+
+function MobileDice() {
   const { history, addHistory, showToast } = useAppStore()
 
   const [formula,    setFormula]    = useState('')

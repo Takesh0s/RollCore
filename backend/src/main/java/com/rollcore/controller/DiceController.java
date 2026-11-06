@@ -1,9 +1,12 @@
 package com.rollcore.controller;
 
+import com.rollcore.dto.request.DiceShortcutRequest;
 import com.rollcore.dto.request.RollRequest;
 import com.rollcore.dto.request.SaveRollRequest;
+import com.rollcore.dto.response.DiceShortcutResponse;
 import com.rollcore.dto.response.RollResponse;
 import com.rollcore.service.DiceService;
+import com.rollcore.service.DiceShortcutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +24,8 @@ import java.util.UUID;
  *
  * <pre>
  * POST /dice/roll     → roll dice formula, persist and return result
- * GET  /dice/history  → last 50 rolls for the authenticated user
+ * GET  /dice/history  → last 50 rolls for the authenticated user (optional ?tableId=)
+ * GET/POST/DELETE /dice/shortcuts → saved dice formulas
  * </pre>
  *
  * Rolling is processed server-side with {@link java.security.SecureRandom}
@@ -34,7 +38,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DiceController {
 
-    private final DiceService diceService;
+    private final DiceService         diceService;
+    private final DiceShortcutService shortcutService;
 
     @Operation(summary = "Roll dice with formula NdX+M — UC-03 §3.1")
     @PostMapping("/roll")
@@ -57,7 +62,33 @@ public class DiceController {
 
     @Operation(summary = "Get history of the last 50 rolls — UC-03 S02 / RN-04")
     @GetMapping("/history")
-    public List<RollResponse> history(@AuthenticationPrincipal UUID userId) {
-        return diceService.getHistory(userId);
+    public List<RollResponse> history(
+            @AuthenticationPrincipal UUID userId,
+            @RequestParam(required = false) UUID tableId) {
+        return diceService.getHistory(userId, tableId);
+    }
+
+    @Operation(summary = "List the caller's saved dice shortcuts")
+    @GetMapping("/shortcuts")
+    public List<DiceShortcutResponse> shortcuts(@AuthenticationPrincipal UUID userId) {
+        return shortcutService.list(userId);
+    }
+
+    @Operation(summary = "Save a dice shortcut (max 12 per user)")
+    @PostMapping("/shortcuts")
+    @ResponseStatus(HttpStatus.CREATED)
+    public DiceShortcutResponse createShortcut(
+            @Valid @RequestBody DiceShortcutRequest request,
+            @AuthenticationPrincipal UUID userId) {
+        return shortcutService.create(userId, request);
+    }
+
+    @Operation(summary = "Delete one of the caller's dice shortcuts")
+    @DeleteMapping("/shortcuts/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteShortcut(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UUID userId) {
+        shortcutService.delete(userId, id);
     }
 }

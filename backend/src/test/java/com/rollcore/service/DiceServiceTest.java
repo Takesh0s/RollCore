@@ -3,9 +3,11 @@ package com.rollcore.service;
 import com.rollcore.dto.request.RollRequest;
 import com.rollcore.dto.response.RollResponse;
 import com.rollcore.entity.DiceRoll;
+import com.rollcore.entity.GameTable;
 import com.rollcore.entity.User;
 import com.rollcore.exception.InvalidFormulaException;
 import com.rollcore.repository.DiceRollRepository;
+import com.rollcore.repository.GameTableRepository;
 import com.rollcore.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,6 +43,7 @@ class DiceServiceTest {
 
     @Mock  DiceRollRepository diceRollRepository;
     @Mock  UserRepository     userRepository;
+    @Mock  GameTableRepository gameTableRepository;
     @InjectMocks DiceService  diceService;
 
     private final UUID   userId = UUID.randomUUID();
@@ -232,5 +235,126 @@ class DiceServiceTest {
                 .thenReturn(new PageImpl<>(List.of()));
 
         assertThat(diceService.getHistory(userId)).isEmpty();
+    }
+
+    // ── label and mode (Dados screen) ─────────────────────────────────────────
+
+    private void stubSave() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(diceRollRepository.save(any())).thenAnswer(inv -> {
+            DiceRoll r = inv.getArgument(0);
+            r.setId(UUID.randomUUID());
+            return r;
+        });
+    }
+
+    @Test
+    @DisplayName("roll stores a trimmed label and treats a blank one as none")
+    void rollStoresTrimmedLabel() {
+        stubSave();
+
+        RollResponse labelled = diceService.roll(userId,
+                new RollRequest("1d20+5", "  Ataque com espada longa  ", null));
+        RollResponse blank = diceService.roll(userId, new RollRequest("1d20", "   ", null));
+
+        assertThat(labelled.label()).isEqualTo("Ataque com espada longa");
+        assertThat(labelled.mode()).isEqualTo("normal");
+        assertThat(blank.label()).isNull();
+        assertThat(labelled.discardedRolls()).isNull();
+    }
+
+    @Test
+    @DisplayName("advantage keeps the higher set and discards the lower one")
+    void advantageKeepsHigher() {
+        stubSave();
+
+        for (int i = 0; i < 100; i++) {
+            RollResponse r = diceService.roll(userId, new RollRequest("1d20", null, "advantage"));
+            assertThat(r.mode()).isEqualTo("advantage");
+            assertThat(r.discardedRolls()).hasSize(1);
+            assertThat(r.rolls().get(0)).isGreaterThanOrEqualTo(r.discardedRolls().get(0));
+            assertThat(r.total()).isEqualTo(r.rolls().get(0));
+        }
+    }
+
+    @Test
+    @DisplayName("disadvantage keeps the lower set and discards the higher one")
+    void disadvantageKeepsLower() {
+        stubSave();
+
+        for (int i = 0; i < 100; i++) {
+            RollResponse r = diceService.roll(userId, new RollRequest("1d20+2", null, "disadvantage"));
+            assertThat(r.mode()).isEqualTo("disadvantage");
+            assertThat(r.rolls().get(0)).isLessThanOrEqualTo(r.discardedRolls().get(0));
+            assertThat(r.total()).isEqualTo(r.rolls().get(0) + 2);
+        }
+    }
+
+    @Test
+    @DisplayName("an unknown mode falls back to a normal roll")
+    void unknownModeIsNormal() {
+        stubSave();
+
+        RollResponse r = diceService.roll(userId, new RollRequest("1d6", null, "whatever"));
+
+        assertThat(r.mode()).isEqualTo("normal");
+        assertThat(r.discardedRolls()).isNull();
+    }
+
+    @Test
+    @DisplayName("rollInTable records the table id on the roll")
+    void rollInTableRecordsTable() {
+        stubSave();
+        UUID tableId = UUID.randomUUID();
+
+        RollResponse r = diceService.rollInTable(userId, tableId, new RollRequest("1d8"));
+
+        assertThat(r.tableId()).isEqualTo(tableId);
+        ArgumentCaptor<DiceRoll> saved = ArgumentCaptor.forClass(DiceRoll.class);
+        verify(diceRollRepository).save(saved.capture());
+        assertThat(saved.getValue().getGameTableId()).isEqualTo(tableId);
+    }
+
+    @Test
+    @DisplayName("getHistory(userId, tableId) filters by table and resolves its name")
+    void getHistoryByTableResolvesName() {
+        UUID tableId = UUID.randomUUID();
+        DiceRoll roll = DiceRoll.builder()
+                .id(UUID.randomUUID()).user(user).gameTableId(tableId)
+                .formula("1d20+7").individualResults(List.of(13)).total(20)
+                .label("Ataque").mode("advantage").discardedResults(List.of(4))
+                .rolledAt(Instant.now()).build();
+        GameTable table = GameTable.builder().id(tableId).name("Cripta").build();
+
+        when(diceRollRepository.findByUserIdAndGameTableIdOrderByRolledAtDesc(
+                eq(userId), eq(tableId), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(roll)));
+        when(gameTableRepository.findAllById(any())).thenReturn(List.of(table));
+
+        List<RollResponse> history = diceService.getHistory(userId, tableId);
+
+        assertThat(history).hasSize(1);
+        RollResponse r = history.get(0);
+        assertThat(r.tableId()).isEqualTo(tableId);
+        assertThat(r.tableName()).isEqualTo("Cripta");
+        assertThat(r.label()).isEqualTo("Ataque");
+        assertThat(r.mode()).isEqualTo("advantage");
+        assertThat(r.discardedRolls()).containsExactly(4);
+        assertThat(r.mod()).isEqualTo(7);
+    }
+
+    @Test
+    @DisplayName("getHistory leaves tableName null for solo rolls and does not query tables")
+    void getHistorySoloRollNoTableLookup() {
+        DiceRoll roll = DiceRoll.builder()
+                .id(UUID.randomUUID()).user(user).formula("1d6")
+                .individualResults(List.of(3)).total(3).rolledAt(Instant.now()).build();
+        when(diceRollRepository.findByUserIdOrderByRolledAtDesc(eq(userId), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(roll)));
+
+        List<RollResponse> history = diceService.getHistory(userId);
+
+        assertThat(history.get(0).tableName()).isNull();
+        verifyNoInteractions(gameTableRepository);
     }
 }
