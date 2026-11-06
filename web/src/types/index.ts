@@ -66,7 +66,7 @@ export type Screen =
   | 'login' | 'cadastro' | 'esqueci-senha'
   | 'dashboard' | 'personagens'
   | 'novo-personagem' | 'editar-personagem' | 'ficha'
-  | 'dados' | 'perfil'
+  | 'dados' | 'perfil' | 'tema'
   | 'mesas' | 'nova-mesa' | 'mesa' | 'mapas'
 
 // ─── Tables (mesas) ───────────────────────────────────────────────────────────

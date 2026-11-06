@@ -26,7 +26,7 @@ const MENU: MenuItem[] = [
   { label: 'Bestiário',     icon: <IconPaw /> },
   { label: 'Tutoriais',     icon: <IconChat /> },
   { label: 'Créditos',      icon: <DiceLogo className="menu-logo" /> },
-  { label: 'Configurações', icon: <IconGear /> },
+  { label: 'Configurações', icon: <IconGear />, screen: 'tema' },
 ]
 
 interface AppHeaderProps {

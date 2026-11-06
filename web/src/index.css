@@ -410,7 +410,7 @@ select.form-input option { background: var(--card-raised); }
   border: 1px solid rgba(192,57,43,0.4);
   color: var(--danger);
 }
-.btn-danger:hover { background: var(--danger); color: white; box-shadow: 0 4px 16px rgba(192,57,43,0.3); }
+.btn-danger:hover { background: var(--danger); color: var(--text-bright); box-shadow: 0 4px 16px rgba(192,57,43,0.3); }
 
 .btn-roll {
   padding: 10px 22px;
@@ -1800,7 +1800,7 @@ select.form-input option { background: var(--card-raised); }
   justify-content: center;
   font-size: 10px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-bright);
   flex-shrink: 0;
   font-family: var(--font-display);
 }
@@ -1977,7 +1977,7 @@ select.form-input option { background: var(--card-raised); }
 .spell-school-badge {
   font-size: 10px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-bright);
   padding: 2px 8px;
   border-radius: 10px;
   letter-spacing: 0.5px;
@@ -2070,3 +2070,55 @@ select.form-input option { background: var(--card-raised); }
   letter-spacing: 1px;
 }
 .google-signin-button { min-height: 44px; }
+
+/* ── Temas: tela "Tema e paleta" ───────────────────────────────── */
+.theme-screen { display: flex; flex-direction: column; gap: 14px; }
+.theme-section-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--text-bright);
+}
+.theme-modes, .theme-grid { display: grid; gap: 10px; }
+.theme-modes { grid-template-columns: repeat(3, 1fr); }
+.theme-grid  { grid-template-columns: repeat(2, 1fr); margin-bottom: 8px; }
+.theme-mode, .theme-card {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 12px 14px;
+  text-align: left;
+  color: var(--text);
+  background: var(--card-raised);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.theme-mode span, .theme-status { font-size: .78rem; color: var(--text-faint); }
+.theme-mode:hover, .theme-card:hover { border-color: var(--border-gold); }
+.theme-mode.active, .theme-card.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), 0 0 14px var(--gold-glow);
+}
+.theme-card.active .theme-status { color: var(--success); }
+.theme-swatches { display: flex; gap: 6px; }
+.theme-swatches i {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--card-border);
+}
+@media (max-width: 420px) { .theme-modes { grid-template-columns: 1fr; } }
+
+/* ── Temas: Terror Cósmico (rastro de sangue no topo da tela) ──── */
+html[data-theme="terror"] body::before {
+  content: '';
+  position: fixed; top: 0; left: 0; right: 0; height: 46px;
+  pointer-events: none; z-index: 50;
+  background:
+    radial-gradient(circle at 6% 100%,  #8e0e14 0 9px, transparent 10px),
+    radial-gradient(circle at 21% 100%, #8e0e14 0 6px, transparent 7px),
+    radial-gradient(circle at 37% 100%, #8e0e14 0 11px, transparent 12px),
+    radial-gradient(circle at 58% 100%, #8e0e14 0 7px, transparent 8px),
+    radial-gradient(circle at 79% 100%, #8e0e14 0 10px, transparent 11px),
+    radial-gradient(circle at 93% 100%, #8e0e14 0 6px, transparent 7px),
+    linear-gradient(#8e0e14, #8e0e14) top / 100% 14px no-repeat;
+  opacity: .9;
+}
+html[data-theme="terror"] .device { box-shadow: 0 0 0 1px var(--card-border), var(--shadow-deep); }
