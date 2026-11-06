@@ -9,6 +9,8 @@ import bestiary from '@/assets/nav/bestiary.svg?raw'
 import tools from '@/assets/nav/tools.svg?raw'
 import store from '@/assets/nav/store.svg?raw'
 import tutorials from '@/assets/nav/tutorials.svg?raw'
+import { NEON_ICONS } from '@/assets/nav/neonIcons'
+import { useThemePrefs } from '@/theme/applyTheme'
 
 /**
  * Ícones do menu lateral do computador, exportados do Figma (32×32).
@@ -29,6 +31,9 @@ const ICONS: Record<string, string> = {
 
 export type NavIconName = keyof typeof FIGMA | 'settings'
 
+/** Cada tema pode ter o próprio conjunto: o Neon usa ícones pixel-art; os demais, os do Medieval. */
 export function NavIcon({ name }: { name: NavIconName }) {
-  return <span className="nav-svg" aria-hidden="true" dangerouslySetInnerHTML={{ __html: ICONS[name] }} />
+  const { theme } = useThemePrefs()
+  const svg = (theme === 'neon' ? NEON_ICONS[name] : undefined) ?? ICONS[name]
+  return <span className="nav-svg" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg }} />
 }

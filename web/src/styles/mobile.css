@@ -59,12 +59,12 @@
   }
   .side-avatar svg { width: 100%; height: 100%; }
   .side-profile-text { display: flex; flex-direction: column; min-width: 0; }
-  .side-profile-text strong { font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 17px; font-weight: 700; color: var(--text-bright); }
+  .side-profile-text strong { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--text-bright); }
   .side-profile-text small { font-size: 12px; color: var(--text-faint); }
   .side-menu.sheet .side-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
   .side-menu.sheet .side-item, .side-menu.sheet .side-menu-item {
     padding: 10px 14px; gap: 16px; min-height: 48px; border-radius: 12px;
-    font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 16px; font-weight: 700; color: var(--text-muted);
+    font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text-muted);
   }
   .side-menu.sheet .side-menu-icon { width: 28px; height: 28px; color: inherit; }
   .side-menu.sheet .side-menu-item.soon { opacity: 1; }
@@ -75,7 +75,7 @@
   }
   .side-logout {
     display: block; margin: 4px 0 0 64px; padding: 8px 0; background: none; border: none; cursor: pointer;
-    font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 13px; font-weight: 700; color: #e58a8a;
+    font-family: var(--font-display); font-size: 13px; font-weight: 700; color: #e58a8a;
   }
 
   /* ── Login ── */
@@ -101,16 +101,16 @@
   .google-signin-divider { display: flex; align-items: center; gap: 12px; width: 100%; font-size: 11px; color: var(--text-faint); margin-bottom: 14px; }
   .google-signin-divider::before, .google-signin-divider::after { content: ''; flex: 1; height: 1px; background: rgba(192, 192, 192, 0.5); }
   .auth-switch { order: 99; margin-top: 22px; font-size: 13px; }
-  .auth-switch .link-btn { font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 13px; }
+  .auth-switch .link-btn { font-family: var(--font-display); font-size: 13px; }
 
   /* ── Dashboard ── */
   .md-dash { display: flex; flex-direction: column; gap: 0; }
   .md-dash > * { flex: none; }
-  .md-hello { font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 20px; font-weight: 700; color: var(--text-bright); margin-top: 6px; }
+  .md-hello { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-bright); margin-top: 6px; }
   .md-date { font-size: 12px; color: var(--text-faint); margin: 2px 0 8px; }
   .md-dash .dash-sec-title { display: flex; align-items: center; gap: 12px; margin: 14px 0 8px; }
   .md-dash .dash-sec-title::before, .md-dash .dash-sec-title::after { content: ''; flex: 1; height: 1px; background: rgba(192, 192, 192, 0.55); }
-  .md-dash .dash-sec-title span { font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 15px; font-weight: 700; color: var(--text-muted); }
+  .md-dash .dash-sec-title span { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-muted); }
   .md-card {
     display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin-bottom: 8px;
     background: rgba(0, 0, 0, 0.14); border: 1px solid rgba(192, 192, 192, 0.18); border-radius: 12px;
@@ -159,4 +159,61 @@
     padding: 5px 8px; background: #a8121a; color: #f6d9d9; border-radius: 2px;
     font: 700 9px/10px 'Courier Prime', 'Courier New', monospace; letter-spacing: 0.6px;
   }
+
+  /* ── Neon: moldura roxa, cantos HUD ciano, sem dentes ── */
+  html[data-theme="neon"] .device::before, html[data-theme="neon"] .login-device::before { border-color: #9d5cff; }
+  html[data-theme="neon"] .device::after,  html[data-theme="neon"] .login-device::after  { background: none; }
+  html[data-theme="neon"] .app-header, html[data-theme="neon"] .side-profile { border-bottom-color: rgba(157, 92, 255, 0.85); }
+  html[data-theme="neon"] .side-menu.sheet .side-foot { border-top-color: rgba(157, 92, 255, 0.85); }
+  html[data-theme="neon"] .side-menu.sheet { background: #25254a; border-right-color: #9d5cff; }
+  html[data-theme="neon"] .md-dash .dash-sec-title::before, html[data-theme="neon"] .md-dash .dash-sec-title::after { background: rgba(157, 92, 255, 0.6); }
+  html[data-theme="neon"] .side-avatar { border-color: #ff2e97; }
+  html[data-theme="neon"] .side-menu.sheet .side-menu-item.active { background: rgba(255, 46, 151, 0.22); color: #00f0ff; }
+  html[data-theme="neon"] .side-menu.sheet .side-menu-item.active .side-menu-icon { color: #ff2e97; }
+  html[data-theme="neon"] .side-logout { color: #ff5fae; }
+  html[data-theme="neon"] body::before, html[data-theme="neon"] body::after {
+    content: ''; position: fixed; width: 28px; height: 28px; z-index: 50; pointer-events: none;
+  }
+  html[data-theme="neon"] body::before {
+    left: 0; top: 0;
+    background: linear-gradient(#00f0ff, #00f0ff) 0 0 / 28px 2px no-repeat, linear-gradient(#00f0ff, #00f0ff) 0 0 / 2px 28px no-repeat;
+  }
+  html[data-theme="neon"] body::after {
+    right: 0; bottom: 0;
+    background: linear-gradient(#00f0ff, #00f0ff) 100% 100% / 28px 2px no-repeat, linear-gradient(#00f0ff, #00f0ff) 100% 100% / 2px 28px no-repeat;
+  }
+
+  /* ── Steampunk: engrenagens e rebites no lugar dos dentes ── */
+  html[data-theme="steampunk"] .device::after, html[data-theme="steampunk"] .login-device::after { background: none; }
+  html[data-theme="steampunk"] body::before {
+    content: ''; position: fixed; z-index: 50; pointer-events: none;
+    left: 0.25%; width: 99.5%; top: 2.5%; height: 96.9%;
+    background: url('../assets/theme/steampunk-gears.svg') 0 0 / 100% 100% no-repeat;
+  }
+  html[data-theme="steampunk"] .side-avatar { border-color: #cf7a3a; }
+  html[data-theme="steampunk"] .side-menu.sheet .side-menu-item.active { background: rgba(207, 122, 58, 0.2); color: #e0803a; }
+  html[data-theme="steampunk"] .side-logout { color: #f08a63; }
+
+  /* ── Pergaminho: moldura dupla dourada com losangos nos cantos ── */
+  html[data-theme="pergaminho"] .device::before, html[data-theme="pergaminho"] .login-device::before { border-color: #c9a13b; }
+  html[data-theme="pergaminho"] .app-header, html[data-theme="pergaminho"] .side-profile { border-bottom-color: rgba(201, 161, 59, 0.85); }
+  html[data-theme="pergaminho"] .side-menu.sheet .side-foot { border-top-color: rgba(201, 161, 59, 0.85); }
+  html[data-theme="pergaminho"] .md-dash .dash-sec-title::before, html[data-theme="pergaminho"] .md-dash .dash-sec-title::after { background: rgba(201, 161, 59, 0.55); }
+  html[data-theme="pergaminho"] .side-avatar { border-color: #c9a13b; }
+  html[data-theme="pergaminho"] .side-menu.sheet .side-menu-item.active { background: rgba(201, 161, 59, 0.18); color: #e8c25a; }
+  html[data-theme="pergaminho"] .side-logout { color: #e8a25a; }
+  html[data-theme="pergaminho"] body::before {
+    content: ''; position: fixed; z-index: 50; pointer-events: none;
+    left: 26px; right: 25px; top: 48px; bottom: 56px;
+    border: 1px solid rgba(201, 161, 59, 0.55); border-radius: 2px;
+  }
+  html[data-theme="pergaminho"] body::after {
+    content: ''; position: fixed; z-index: 50; pointer-events: none;
+    left: 20px; right: 14px; top: 34px; bottom: 53px;
+    --d: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M8 0L16 8L8 16L0 8Z' fill='%23C9A13B'/%3E%3C/svg%3E");
+    background: var(--d) 0 0 / 16px 16px no-repeat, var(--d) 100% 0 / 16px 16px no-repeat,
+                var(--d) 0 100% / 16px 16px no-repeat, var(--d) 100% 100% / 16px 16px no-repeat;
+  }
+
+  html[data-theme="pergaminho"] .app-header-title { text-transform: uppercase; }
 }
