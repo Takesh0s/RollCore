@@ -1,3 +1,4 @@
+import { AuthBrand } from '@/components/auth/AuthBrand'
 import { DiceLogo } from '@/components/ui/DiceLogo'
 import { useAppStore } from '@/store/useAppStore'
 
@@ -11,6 +12,7 @@ export function ForgotPasswordScreen() {
 
   return (
     <div className="login-device">
+      <AuthBrand />
       <div className="auth-body">
       <div className="logo-wrap">
         <DiceLogo className="logo-svg" />

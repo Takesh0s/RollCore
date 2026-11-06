@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import type { Screen } from '@/types'
 import { DiceLogo } from '@/components/ui/DiceLogo'
+import { useDesktop } from '@/hooks/useDesktop'
 import {
   IconMenu, IconBack, IconUser, IconHome, IconBell, IconCommunity, IconCalendar,
   IconSystems, IconGrimoire, IconWand, IconPaw, IconChat, IconGear, IconSheets, IconSearch,
@@ -52,19 +53,6 @@ const SIDEBAR: NavItem[] = [
   { label: 'Tutoriais',   icon: <IconChat /> },
 ]
 const SIDEBAR_FOOT: NavItem = { label: 'Configurações', icon: <IconGear />, screen: 'tema' }
-
-/** true quando a janela é larga o bastante para o layout de computador (sidebar fixa). */
-function useDesktop(): boolean {
-  const q = '(min-width: 1024px)'
-  const [match, setMatch] = useState(() => typeof window !== 'undefined' && window.matchMedia(q).matches)
-  useEffect(() => {
-    const mq = window.matchMedia(q)
-    const on = () => setMatch(mq.matches)
-    mq.addEventListener('change', on)
-    return () => mq.removeEventListener('change', on)
-  }, [])
-  return match
-}
 
 interface AppHeaderProps {
   title: string

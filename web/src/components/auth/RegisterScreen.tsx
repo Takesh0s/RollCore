@@ -1,3 +1,4 @@
+import { AuthBrand } from '@/components/auth/AuthBrand'
 import { useState, useCallback } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { storage } from '@/lib/storage'
@@ -135,6 +136,7 @@ export function RegisterScreen() {
 
   return (
     <div className="login-device">
+      <AuthBrand />
       <div className="auth-body">
       <div className="logo-wrap"><DiceLogo className="logo-svg" /></div>
       <div className="login-header">

@@ -3,6 +3,9 @@ import { useAppStore } from '@/store/useAppStore'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { DiceLogo } from '@/components/ui/DiceLogo'
 import { TableBanner } from '@/components/tables/TableBanner'
+import { useDesktop } from '@/hooks/useDesktop'
+import { calcMod, formatMod, profBonus } from '@/lib/engine'
+import { formatTimestamp } from '@/lib/dice'
 import { IconScroll, IconPlus, IconSheets, IconCommunity, IconWand, IconNotes } from '@/components/ui/icons'
 
 /** Atalhos que já existem no Figma mas ainda não têm tela no web. */
@@ -16,7 +19,145 @@ const COMING_SOON = [
  * Tela inicial, no layout do Figma: faixa de Mesas e os atalhos grandes
  * (Rolar Dados, Fichas, Comunidade, GM Tools e Anotações).
  */
+/** Título de seção com linhas dos dois lados, como nos blocos do dashboard do Figma. */
+function SectionTitle({ children }: { children: string }) {
+  return <h3 className="dash-sec-title"><span>{children}</span></h3>
+}
+
+/** Cartão vazio dos blocos que ainda dependem de recursos futuros (chat, notas, rascunhos). */
+function SoonCard({ text }: { text: string }) {
+  return (
+    <div className="dash-panel dash-panel-empty">
+      <strong>Em breve</strong>
+      <span>{text}</span>
+    </div>
+  )
+}
+
+/**
+ * Dashboard do computador (Figma PC): saudação e blocos de resumo.
+ * Usa só dados que o app já tem (mesas, fichas e rolagens); o resto aparece como "Em breve".
+ */
+function DesktopDashboard() {
+  const { navigate, tables, loadTables, openTable, characters, selectCharacter, history, user } = useAppStore()
+  useEffect(() => { loadTables() }, [loadTables])
+
+  const next = tables[0] ?? null
+  const char = characters[characters.length - 1] ?? null
+  const today = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })
+  const tablesText = tables.length === 0 ? 'nenhuma mesa ainda' : tables.length === 1 ? '1 mesa' : `${tables.length} mesas`
+
+  return (
+    <div className="device">
+      <AppHeader title="Dashboard" />
+      <div className="page-body dash-desk">
+        <h2 className="dash-hello">Olá, {user.username || 'aventureiro'}</h2>
+        <p className="dash-hello-sub">{today.charAt(0).toUpperCase() + today.slice(1)} · {tablesText}</p>
+
+        <div className="dash-cols">
+          <section>
+            <SectionTitle>Próxima sessão</SectionTitle>
+            {next ? (
+              <div className="dash-panel dash-next">
+                <div className="dash-next-cover"><IconCommunity /></div>
+                <div className="dash-next-info">
+                  <strong>{next.name}</strong>
+                  <span>{next.gameSystem} · {next.myRole === 'MASTER' ? 'Você é o mestre' : `Mestre ${next.ownerUsername}`}</span>
+                  <button className="btn btn-primary btn-pill" onClick={() => openTable(next.id)}>Entrar</button>
+                </div>
+              </div>
+            ) : (
+              <div className="dash-panel dash-panel-empty">
+                <strong>Nenhuma mesa por aqui</strong>
+                <button className="btn btn-primary btn-pill" onClick={() => navigate('nova-mesa')}>Criar mesa</button>
+              </div>
+            )}
+          </section>
+
+          <section>
+            <SectionTitle>Personagem recente</SectionTitle>
+            {char ? (
+              <div className="dash-panel dash-char">
+                <div className="dash-char-head">
+                  {char.avatar_url
+                    ? <img className="dash-char-avatar" src={char.avatar_url} alt="" />
+                    : <span className="dash-char-avatar" aria-hidden="true">{char.name.charAt(0).toUpperCase()}</span>}
+                  <div>
+                    <strong>{char.name}</strong>
+                    <span>{char.class} · {char.race} · Nível {char.level}</span>
+                  </div>
+                </div>
+                <div className="dash-char-stats">
+                  Iniciativa {formatMod(calcMod(char.attributes.DEX))} · Prof {formatMod(profBonus(char.level))} · CA {char.ac}
+                </div>
+                <button className="btn btn-primary btn-pill" onClick={() => { selectCharacter(char.id); navigate('ficha') }}>
+                  Abrir ficha
+                </button>
+              </div>
+            ) : (
+              <div className="dash-panel dash-panel-empty">
+                <strong>Nenhuma ficha ainda</strong>
+                <button className="btn btn-primary btn-pill" onClick={() => navigate('novo-personagem')}>Criar ficha</button>
+              </div>
+            )}
+          </section>
+
+          <section>
+            <SectionTitle>Situação na mesa</SectionTitle>
+            {next ? (
+              <div className="dash-panel dash-status">
+                <strong>{next.name}</strong>
+                <span className="dash-status-badge">{next.myRole === 'MASTER' ? 'MESTRE' : next.myRole === 'MODERATOR' ? 'MODERADOR' : 'JOGADOR'}</span>
+                <span>{next.playerCount} de {next.maxPlayers} jogadores</span>
+              </div>
+            ) : (
+              <SoonCard text="Entre em uma mesa para ver a situação dela aqui." />
+            )}
+          </section>
+
+          <section>
+            <SectionTitle>Mensagens recentes</SectionTitle>
+            <SoonCard text="O chat das mesas chega junto com a comunidade." />
+          </section>
+          <section>
+            <SectionTitle>Criações inacabadas</SectionTitle>
+            <SoonCard text="Fichas, mapas e NPCs em andamento vão aparecer aqui." />
+          </section>
+          <section>
+            <SectionTitle>Notas recentes</SectionTitle>
+            <SoonCard text="As anotações chegam com a tela de Anotações." />
+          </section>
+        </div>
+
+        <SectionTitle>Rolagens recentes</SectionTitle>
+        {history.length === 0 ? (
+          <div className="dash-panel dash-panel-empty">
+            <strong>Nenhuma rolagem ainda</strong>
+            <button className="btn btn-primary btn-pill" onClick={() => navigate('dados')}>Rolar dados</button>
+          </div>
+        ) : (
+          <div className="dash-rolls">
+            {history.slice(0, 4).map((h, i) => (
+              <div key={i} className="dash-roll">
+                <div>
+                  <strong>{h.formula ?? h.skill ?? `d${h.result.sides}`}</strong>
+                  <span>{formatTimestamp(h.timestamp)}</span>
+                </div>
+                <b>{h.result.total}</b>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export function DashboardScreen() {
+  return useDesktop() ? <DesktopDashboard /> : <MobileDashboard />
+}
+
+function MobileDashboard() {
   const { navigate, tables, loadTables, openTable, characters, history, showToast } = useAppStore()
   const lastRoll = history[0] ?? null
 

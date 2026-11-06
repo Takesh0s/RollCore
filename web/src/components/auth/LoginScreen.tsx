@@ -1,3 +1,4 @@
+import { AuthBrand } from '@/components/auth/AuthBrand'
 import { useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { DiceLogo } from '@/components/ui/DiceLogo'
@@ -40,6 +41,7 @@ export function LoginScreen() {
 
   return (
     <div className="login-device">
+      <AuthBrand />
       <div className="auth-body">
 
       <div className="logo-wrap">
