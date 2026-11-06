@@ -1,38 +1,28 @@
 /**
- * RollCore logo — d20 silhouette with inner detail lines.
- * Redesigned for v2: more geometric, more presence.
+ * Logo oficial do RollCore (a mesma do app mobile, em mobile/assets/logo).
+ * Hexágono com as duas linhas horizontais e o zigue-zague da face do dado.
+ * Usa `currentColor`, então a cor vem do CSS do elemento pai.
  */
 export function DiceLogo({ className = '' }: { className?: string }) {
   return (
     <svg
       className={className}
-      viewBox="0 0 80 80"
+      viewBox="0 0 56.14 65.07"
       fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
-      aria-label="RollCore logo"
+      role="img"
+      aria-label="RollCore"
     >
-      {/* Outer d20 pentagon shape — top half */}
       <polygon
-        points="40,4 72,26 60,62 20,62 8,26"
-        fill="rgba(212,168,67,0.06)"
-        stroke="#D4A843"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
+        points="28.07,1.83 54.32,17.18 54.32,47.89 28.07,63.24 1.83,47.89 1.83,17.18"
+        strokeWidth="3.65"
       />
-      {/* Inner geometric lines — face divisions */}
-      <line x1="40" y1="4"  x2="40" y2="62" stroke="#D4A843" strokeWidth="0.8" opacity="0.3" />
-      <line x1="8"  y1="26" x2="60" y2="62" stroke="#D4A843" strokeWidth="0.8" opacity="0.3" />
-      <line x1="72" y1="26" x2="20" y2="62" stroke="#D4A843" strokeWidth="0.8" opacity="0.3" />
-      {/* Horizontal mid-line */}
-      <line x1="8"  y1="26" x2="72" y2="26" stroke="#D4A843" strokeWidth="0.8" opacity="0.25" />
-      {/* Center glow dot */}
-      <circle cx="40" cy="35" r="4" fill="#D4A843" opacity="0.9" />
-      <circle cx="40" cy="35" r="7" fill="none" stroke="#D4A843" strokeWidth="0.8" opacity="0.3" />
-      {/* Top accent */}
-      <polygon
-        points="40,4 52,20 28,20"
-        fill="rgba(212,168,67,0.15)"
-        stroke="none"
+      <path
+        d="M1.83 17.18 L54.32 17.18 M1.83 44.88 L54.32 44.88 M3.63 17.18 L15.89 44.88 M15.89 44.88 L28.07 17.18 M28.07 17.18 L40.25 44.88 M40.25 44.88 L52.51 17.18 M15.89 44.88 L28.07 59.48 M40.25 44.88 L28.07 59.48"
+        strokeWidth="1.65"
       />
     </svg>
   )

@@ -2,40 +2,42 @@ import { DiceLogo } from '@/components/ui/DiceLogo'
 import { useAppStore } from '@/store/useAppStore'
 
 /**
- * Placeholder screen for password recovery — UC-01 NR-06.
- * Full implementation (e-mail link flow) is scoped to Phase 2.
+ * Recuperação de senha — UC-01 NR-06.
+ * O layout segue o Figma. O envio do link por e-mail ainda depende do backend
+ * (Fase 2), então a tela explica isso em vez de simular um envio.
  */
 export function ForgotPasswordScreen() {
   const { navigate } = useAppStore()
 
   return (
-    <div className="device login-device">
-      <div className="login-header">
-        <div className="logo-wrap">
-          <DiceLogo className="logo-svg" />
-        </div>
-        <h1>Recuperar Senha</h1>
-        <p>Disponível na Fase 2</p>
+    <div className="login-device">
+      <div className="auth-body">
+      <div className="logo-wrap">
+        <DiceLogo className="logo-svg" />
       </div>
 
-      <div className="narrow">
-        <div className="forgot-placeholder">
-          <p>
-            A recuperação de senha por e-mail será implementada na <strong>Fase 2</strong> do projeto,
-            junto ao backend Spring Boot e ao serviço de envio de e-mails.
-          </p>
-          <p style={{ marginTop: 12 }}>
-            Por enquanto, crie uma nova conta para acessar o sistema.
-          </p>
-        </div>
+      <div className="login-header">
+        <h1>RollCore</h1>
+        <p>Recuperar senha</p>
+      </div>
 
-        <button className="btn btn-primary" onClick={() => navigate('login')}>
-          Voltar ao Login
-        </button>
+      <div className="forgot-placeholder">
+        <p>
+          O envio do link de redefinição por e-mail chega na <strong>Fase 2</strong>,
+          junto ao serviço de e-mails do backend.
+        </p>
+        <p style={{ marginTop: 12 }}>
+          Por enquanto, crie uma nova conta para acessar o sistema.
+        </p>
+      </div>
 
-        <button className="link-btn" onClick={() => navigate('cadastro')}>
-          Criar nova conta
-        </button>
+      <button className="btn btn-primary" onClick={() => navigate('cadastro')}>
+        Criar conta
+      </button>
+
+      <button className="link-btn" onClick={() => navigate('login')}>
+        Voltar para o login
+      </button>
       </div>
     </div>
   )

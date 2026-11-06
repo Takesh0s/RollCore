@@ -5,6 +5,7 @@ import { getMaxSpellSlots, getWarlockSlots } from '@/lib/engine'
 import type {
   User, Character, HistoryEntry, Screen, RollResult,
   AuthTokens, CharacterApiResponse, DiceRollApiResponse,
+  TableSummary, TableDetail, CreateTableInput,
 } from '@/types'
 
 // Data transformation helpers
@@ -80,6 +81,14 @@ interface AppState {
   addHistory: (entry: Omit<HistoryEntry, 'timestamp'>) => Promise<void>
   loadHistory: () => Promise<void>
 
+  // Tables (mesas)
+  tables:          TableSummary[]
+  isLoadingTables: boolean
+  tableDetail:     TableDetail | null
+  loadTables:      () => Promise<void>
+  createTable:     (input: CreateTableInput) => Promise<TableDetail>
+  openTable:       (id: string) => Promise<void>
+
   // UI notifications
   toast:      { message: string; type: 'success' | 'error' | '' } | null
   showToast:  (message: string, type?: 'success' | 'error' | '') => void
@@ -120,6 +129,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       // Load characters and history in background after login
       get().loadCharacters()
       get().loadHistory()
+      get().loadTables()
     } catch (err: any) {
       const msg = err.response?.data?.detail ?? 'E-mail ou senha incorretos.'
       get().showToast(msg, 'error')
@@ -145,6 +155,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       get().loadCharacters()
       get().loadHistory()
+      get().loadTables()
     } catch (err: any) {
       get().showToast('Não foi possível entrar com o Google. Tente novamente.', 'error')
       throw err
@@ -173,6 +184,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       user:       { isLogged: false, email: '', username: '', keepConnected: false },
       characters: [],
       history:    [],
+      tables:     [],
+      tableDetail: null,
       screen:     'login',
     })
   },
@@ -372,6 +385,52 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
+  // Table (mesa) handlers
+  tables:          [],
+  isLoadingTables: false,
+  tableDetail:     null,
+
+  async loadTables() {
+    set({ isLoadingTables: true })
+    try {
+      const { data } = await api.get<TableSummary[]>('/tables')
+      if (Array.isArray(data)) set({ tables: data })
+    } catch {
+      // Keep whatever is on screen; the list reloads on the next login or visit.
+    } finally {
+      set({ isLoadingTables: false })
+    }
+  },
+
+  async createTable(input) {
+    try {
+      const { data } = await api.post<TableDetail>('/tables', {
+        name:        input.name.trim(),
+        gameSystem:  input.gameSystem?.trim() || undefined,
+        description: input.description?.trim() || undefined,
+        maxPlayers:  input.maxPlayers,
+      })
+      if (input.cover) storage.setTableCover(data.table.id, input.cover)
+      set(s => ({ tables: [data.table, ...s.tables.filter(t => t.id !== data.table.id)] }))
+      return data
+    } catch (err: any) {
+      const msg = err.response?.data?.detail ?? err.response?.data?.message ?? 'Não foi possível criar a mesa.'
+      get().showToast(msg, 'error')
+      throw err
+    }
+  },
+
+  async openTable(id) {
+    set({ tableDetail: null, screen: 'mesa' })
+    try {
+      const { data } = await api.get<TableDetail>(`/tables/${id}`)
+      set({ tableDetail: data })
+    } catch {
+      get().showToast('Não foi possível abrir a mesa.', 'error')
+      set({ screen: 'dashboard' })
+    }
+  },
+
   // Toast notification handlers
   toast: null,
   showToast(message, type = '') {
@@ -387,6 +446,7 @@ if (saved?.keepConnected && tokenStorage.getAccess()) {
   useAppStore.setState({ user: { ...saved, isLogged: true }, screen: 'dashboard' })
   useAppStore.getState().loadCharacters()
   useAppStore.getState().loadHistory()
+  useAppStore.getState().loadTables()
 }
 
 // Store selector hooks

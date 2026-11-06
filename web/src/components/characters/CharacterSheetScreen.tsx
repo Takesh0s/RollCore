@@ -12,6 +12,8 @@ import { SpellSearchModal } from './SpellSearchModal'
 import { SpellDetail } from '@/components/ui/SpellDetail'
 import type { Spell, SpellSlots, WarlockSlots } from '@/types'
 import { SCHOOL_COLORS, LEVEL_LABELS } from '@/types'
+import { AppHeader } from '@/components/ui/AppHeader'
+import { IconFeather } from '@/components/ui/icons'
 
 type SheetTab = 'combat' | 'skills' | 'spells' | 'traits'
 
@@ -174,16 +176,18 @@ export function CharacterSheetScreen() {
   return (
     <div className="device">
       {/* Character header with navigation */}
-      <div className="topbar">
-        <button className="topbar-back" onClick={() => navigate('personagens')}>←</button>
-        <div className="topbar-info">
-          <div className="top-title">{char.name}</div>
-          <div className="top-sub">
+      <AppHeader title="Ficha" onBack={() => navigate('personagens')} />
+
+      <div className="scroll-area">
+      <div className="sheet-title-row">
+        <div className="sheet-title-info">
+          <div className="sheet-title-name">{char.name}</div>
+          <div className="sheet-title-sub">
             {char.class}{char.subclass ? ` · ${char.subclass}` : ''} · {char.race} · Nível {char.level}
           </div>
         </div>
-        <button className="topbar-action" onClick={() => navigate('editar-personagem')} title="Editar">
-          ✎
+        <button className="home-icon-btn" onClick={() => navigate('editar-personagem')} aria-label="Editar ficha" title="Editar">
+          <IconFeather />
         </button>
       </div>
 
@@ -482,6 +486,7 @@ export function CharacterSheetScreen() {
           </>
         )}
 
+      </div>
       </div>
 
       {/* Spell search and addition modal */}

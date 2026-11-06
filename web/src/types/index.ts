@@ -67,6 +67,50 @@ export type Screen =
   | 'dashboard' | 'personagens'
   | 'novo-personagem' | 'editar-personagem' | 'ficha'
   | 'dados' | 'perfil'
+  | 'mesas' | 'nova-mesa' | 'mesa' | 'mapas'
+
+// ─── Tables (mesas) ───────────────────────────────────────────────────────────
+
+export type TableRole = 'MASTER' | 'MODERATOR' | 'PLAYER'
+
+/** Mirrors TableSummaryResponse from the backend. */
+export interface TableSummary {
+  id:            string
+  name:          string
+  gameSystem:    string
+  description:   string | null
+  maxPlayers:    number
+  playerCount:   number
+  coverUrl:      string | null
+  myRole:        TableRole
+  ownerUsername: string
+  createdAt:     string
+}
+
+export interface TableMember {
+  userId:      string
+  username:    string
+  displayName: string | null
+  avatarUrl:   string | null
+  role:        TableRole
+  joinedAt:    string
+}
+
+/** Mirrors TableDetailResponse (inviteCode only comes for master/moderators). */
+export interface TableDetail {
+  table:      TableSummary
+  inviteCode: string | null
+  members:    TableMember[]
+}
+
+export interface CreateTableInput {
+  name:         string
+  gameSystem?:  string
+  description?: string
+  maxPlayers?:  number
+  /** Local photo (data URL). The API only takes a URL, so it stays on this device. */
+  cover?:       string
+}
 
 // ─── Form Types ───────────────────────────────────────────────────────────────
 
