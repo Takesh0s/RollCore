@@ -222,6 +222,41 @@ class CharacterServiceTest {
 
             assertThat(resp.tempHp()).isEqualTo(0);
         }
+
+        @Test
+        @DisplayName("Missing or blank game system defaults to D&D 5e")
+        void gameSystemDefaultsToDnd() {
+            Map<String, Integer> attrs = Map.of(
+                    "STR", 10, "DEX", 10, "CON", 10,
+                    "INT", 10, "WIS", 10, "CHA", 10
+            );
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            mockSave();
+
+            CharacterResponse noSystem = service.create(request("Guerreiro", 1, attrs), userId);
+            CharacterResponse blank = service.create(new CharacterRequest(
+                    "Gimli", "Guerreiro", "", "Anão", 1, attrs, 12, 12, 0, "  "), userId);
+
+            assertThat(noSystem.gameSystem()).isEqualTo("D&D 5e");
+            assertThat(blank.gameSystem()).isEqualTo("D&D 5e");
+        }
+
+        @Test
+        @DisplayName("A custom system and free-text class/race are stored as sent")
+        void customSystemIsStored() {
+            Map<String, Integer> attrs = Map.of(
+                    "STR", 10, "DEX", 10, "CON", 10,
+                    "INT", 10, "WIS", 10, "CHA", 10
+            );
+            when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+            mockSave();
+
+            CharacterResponse resp = service.create(new CharacterRequest(
+                    "Nyx", "Sombra Errante", "", "Autômato", 3, attrs, 20, 20, 0, " Personalizado "), userId);
+
+            assertThat(resp.gameSystem()).isEqualTo("Personalizado");
+            assertThat(resp.characterClass()).isEqualTo("Sombra Errante");
+        }
     }
 
     // Character listing and filtering

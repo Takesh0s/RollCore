@@ -4,12 +4,16 @@
    layout de celular de figma.css.
 ════════════════════════════════════════════════════════════════ */
 
+/* Faixa de dentes: só existe no layout de computador (veja a media query abaixo) */
+.crenellation { display: none; }
+
 /* Grade de mesas: uma coluna no celular, várias no computador */
 .table-grid { display: grid; grid-template-columns: 1fr; gap: 0 16px; }
 .table-grid .table-banner { margin-bottom: 14px; }
 
 @media (min-width: 1024px) {
-  :root { --side-w: 268px; }
+  /* --side-w = onde a sidebar termina (a partir da borda da janela); --frame = recuo da moldura prateada */
+  :root { --side-w: 288px; --frame: 20px; }
 
   /* Só as telas logadas ocupam a janela toda; login/cadastro seguem centralizados. */
   .app-shell:has(.device) { max-width: none; padding: 0; }
@@ -19,24 +23,27 @@
     height: 100dvh;
     border-radius: 0;
     box-shadow: none;
-    padding-left: var(--side-w);
+    /* sem menu: só o recuo da moldura; com menu aberto: espaço da barra lateral (veja abaixo) */
+    padding-left: var(--frame);
+    padding-bottom: var(--notch);   /* reserva a faixa de dentes */
   }
-  /* Moldura prateada só em volta do conteúdo (a sidebar fica de fora) */
-  .device::before { left: calc(var(--side-w) + 20px); top: 20px; right: 20px; bottom: calc(var(--notch) + 20px); }
-  .device::after  { margin-top: auto; }
+  html[data-desk-menu="open"] .device { padding-left: var(--side-w); }
+  html[data-desk-menu="open"] .device::before { left: var(--side-w); }
+  /* Moldura prateada em volta do conteúdo; a barra lateral (quando aberta) fica fora dela, como no Figma */
+  .device::before { left: var(--frame); top: var(--frame); right: var(--frame); bottom: calc(var(--notch) + var(--frame)); }
 
-  /* ── Sidebar ── */
+  /* ── Menu lateral (gaveta) ── */
   .side-menu.docked {
+    /* painel à esquerda, recuado da borda da janela; empurra o conteúdo (o .device ganha padding) */
     position: absolute;
-    top: 0; left: 0; bottom: var(--notch);
+    top: var(--frame); left: var(--frame); bottom: calc(var(--notch) + var(--frame));
     z-index: 6;
-    width: var(--side-w);
+    width: calc(var(--side-w) - var(--frame) - 20px);
     display: flex; flex-direction: column;
     padding: 22px 16px 16px;
     background: color-mix(in srgb, #000 14%, var(--card));
-    border-right: 1px solid rgba(192, 192, 192, 0.25);
-    box-shadow: none;
-    animation: none;
+    border: 1px solid rgba(192, 192, 192, 0.25);
+    animation: menu-in 0.16s ease-out;
     overflow-y: auto;
   }
   .side-brand { display: flex; flex-direction: column; margin: 0 8px 26px; }
@@ -60,7 +67,7 @@
   /* ── Cabeçalho do conteúdo ── */
   .app-header.desk {
     display: flex; align-items: center; gap: 14px;
-    margin: 36px 44px 0 44px;
+    margin: 36px calc(var(--frame) + 44px) 0 44px;
     padding: 0 0 12px;
     border-bottom: 1px solid rgba(192, 192, 192, 0.35);
   }
@@ -97,8 +104,8 @@
 
   /* ── Corpo ocupa toda a moldura ── */
   .page-body,
-  .scroll-area { margin: 0 20px 0 20px; padding: 22px 24px 24px; }
-  .page-body.wide { padding-inline: 24px; }
+  .scroll-area { margin: 0 var(--frame) 0 0; padding: 22px 44px 24px; }
+  .page-body.wide { padding-inline: 44px; }
   .scroll-area > .page-body { margin: 0; }
 
   .table-grid { grid-template-columns: repeat(3, 1fr); }
@@ -187,7 +194,7 @@
     height: 100dvh; border-radius: 0; box-shadow: none;
     flex-direction: row; align-items: center; justify-content: center; gap: 0;
   }
-  .login-device::before { top: 20px; left: 20px; right: 20px; bottom: calc(var(--notch) + 20px); }
+  .login-device::before { top: var(--frame); left: var(--frame); right: var(--frame); bottom: calc(var(--notch) + var(--frame)); }
   .auth-brand {
     position: relative; z-index: 4;
     display: flex; flex-direction: column; align-items: center; text-align: center;
@@ -300,16 +307,19 @@ html[data-theme]:not([data-theme="medieval"]) { --font-brand: var(--font-display
 html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 700; }
 
 @media (min-width: 1024px) {
-  /* Dentes de 64×40 com vão de 64, pendurados na base do painel (Figma: "Dente") */
+  /* Dentes de 64×40 (Figma: "Dente"): componente <Crenellation/> — começa e termina com vão e
+     reparte o espaço igualmente, então todos os dentes têm o mesmo tamanho e a mesma distância. */
   :root { --notch: 40px; }
-  .device::after, .login-device::after {
-    background: repeating-linear-gradient(90deg, var(--card) 0 64px, var(--canvas) 64px 128px);
-    background-position: 0 0;
+  /* figma.css define --notch: 26px em .device/.login-device (celular); no PC vale a altura real dos dentes */
+  .device, .login-device { --notch: 40px; }
+  html[data-theme="neon"] .device, html[data-theme="neon"] .login-device { --notch: 0px; }
+  .device::after, .login-device::after { display: none; }
+  .crenellation {
+    display: flex; justify-content: space-evenly; align-items: stretch;
+    position: fixed; left: 0; right: 0; bottom: 0; height: var(--notch); z-index: 5;
+    background: var(--card); pointer-events: none;
   }
-  /* o primeiro dente começa na borda da janela, por baixo da sidebar também */
-  .device::after { margin-left: calc(-1 * var(--side-w)); }
-  /* login/cadastro: layout em linha, então os dentes ficam presos à base da janela */
-  .login-device::after { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; z-index: 1; }
+  .crenellation span { flex: none; width: 64px; background: var(--canvas); }
   .app-header.desk .app-header-title { font-size: 44px; line-height: 1.1; }
   .side-brand-name { font-size: 34px; }
   .side-brand-sub { font-family: var(--font-body); }
@@ -333,13 +343,11 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
 /* ══ Frufru dos temas no computador (Figma PC) ═════════════════════ */
 @media (min-width: 1024px) {
   /* Neon: moldura roxa fina, cantos HUD ciano, sem a faixa de dentes */
-  html[data-theme="neon"] { --notch: 0px; --side-w: 288px; }
+  html[data-theme="neon"] { --notch: 0px; --frame: 12px; }
   html[data-theme="neon"] .device::before,
-  html[data-theme="neon"] .login-device::before { top: 12px; left: 12px; right: 12px; bottom: 12px; border: 1px solid #9d5cff; }
-  html[data-theme="neon"] .device::after, html[data-theme="neon"] .login-device::after { display: none; }
-  html[data-theme="neon"] .side-menu.docked { top: 12px; left: 12px; bottom: 12px; width: calc(var(--side-w) - 12px); border-right: 1px solid rgba(157, 92, 255, .6); z-index: 6; }
-  html[data-theme="neon"] .app-header.desk { margin-left: 24px; }
-  html[data-theme="neon"] .page-body, html[data-theme="neon"] .scroll-area { margin-left: 0; }
+  html[data-theme="neon"] .login-device::before { border: 1px solid #9d5cff; }
+  html[data-theme="neon"] .crenellation { display: none; }
+  html[data-theme="neon"] .side-menu.docked { border-color: rgba(157, 92, 255, .6); }
   html[data-theme="neon"] .page-body, html[data-theme="neon"] .scroll-area { margin-bottom: 14px; }
   html[data-theme="neon"] .side-menu.docked .side-menu-item.active {
     background: #0b3b40; color: #00f0ff; border: 1px solid rgba(0, 240, 255, .6);
@@ -365,7 +373,7 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
 
   /* Terror: rastro de sangue pingando no topo, etiqueta de dossiê e respingos na base */
   html[data-theme="terror"] { --notch: 40px; }
-  html[data-theme="terror"] .device::after, html[data-theme="terror"] .login-device::after { background: #060a08; }
+  html[data-theme="terror"] .crenellation, html[data-theme="terror"] .crenellation span { background: #060a08; }
   html[data-theme="terror"] .device::before { border-color: #5d5c4c; border-width: 1.5px; }
   html[data-theme="terror"] .side-menu.docked .side-menu-item.active { background: rgba(179, 18, 27, .16); color: #e5474f; }
   html[data-theme="terror"] .side-menu.docked .side-menu-item.active .menu-logo { color: #e5474f; }
@@ -375,7 +383,7 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
     opacity: 1;
   }
   html[data-theme="terror"] body::after {
-    content: 'DOSSIÊ · CASO Nº 0427'; position: fixed; top: 0; left: calc(var(--side-w) + 68px); z-index: 61;
+    content: 'DOSSIÊ · CASO Nº 0427'; position: fixed; top: 0; left: 420px; z-index: 61;
     padding: 2px 10px; background: #cf2a33; color: #fff; border-radius: 0 0 3px 3px;
     font: 400 9px/14px 'Special Elite', 'Courier Prime', monospace; letter-spacing: .6px; pointer-events: none;
   }
@@ -398,3 +406,104 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
 
 .nav-svg { display: inline-flex; width: 100%; height: 100%; }
 .nav-svg svg { width: 100%; height: 100%; }
+
+/* ── Fichas (desktop): chips, ações, grade de cartões — Figma 05.1 ── */
+@media (min-width: 1024px) {
+  .sheet-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 4px 0 8px; flex-wrap: wrap; }
+  .sheet-chips { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sheet-chips span { font-size: 12px; padding: 4px 14px; border-radius: 999px; border: 1px solid var(--card-border); color: var(--text-muted); }
+  .sheet-chips span.on { background: var(--sapphire); color: #10202e; border-color: var(--sapphire); }
+  .sheet-chips span.soon { opacity: .6; cursor: default; }
+  .sheet-toolbar-actions { display: flex; gap: 12px; }
+  .sheet-count { font-size: 11px; color: var(--text-faint); margin: 0 0 14px; }
+
+  .sheet-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; padding-bottom: 8px; }
+  @media (max-width: 1399px) { .sheet-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
+
+  .sheet-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px 12px 14px; display: flex; flex-direction: column; min-width: 0; }
+  .sheet-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; min-width: 0; }
+  .sheet-card-avatar { width: 62px; height: 62px; border-radius: 50%; flex: none; object-fit: cover; display: grid; place-items: center; background: #6b88a3; color: #10202e; font-weight: 700; font-size: 24px; border: 2px solid var(--card-border); }
+  .sheet-card-id { min-width: 0; }
+  .sheet-card-id h3 { margin: 0 0 4px; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 17px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sheet-card-id p { margin: 0; font-size: 11px; color: var(--text-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sheet-card-stats { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .sheet-card-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; margin-bottom: 16px; }
+  .sheet-card-bar div { height: 100%; border-radius: 3px; background: var(--sapphire); }
+  .sheet-card-bar.low div { background: #e0b04a; }
+  .sheet-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .sheet-btn { height: 38px; padding: 0 16px; border-radius: 999px; background: #1f2528; color: var(--sapphire); border: 1px solid transparent; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+  .sheet-btn.open { border-color: var(--sapphire); }
+  .sheet-btn.import { background: transparent; border-color: var(--card-border); }
+  .sheet-btn.new { border-color: var(--sapphire); }
+  .sheet-btn svg { width: 16px; height: 16px; }
+  .sheet-btn:disabled { opacity: .6; cursor: default; }
+  .sheet-btn:not(:disabled):hover { filter: brightness(1.2); }
+
+  .sheet-new-card { border: 1.5px dashed var(--card-border); background: transparent; border-radius: 14px; min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: var(--text); font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .sheet-new-card svg { width: 40px; height: 40px; color: var(--sapphire); }
+  .sheet-new-card:hover { background: rgba(255,255,255,.04); }
+}
+
+/* ── Criar / Editar ficha — base (mobile) ── */
+.char-form-side { display: none; }
+.level-stepper { display: block; }
+.level-stepper button { display: none; }
+.form-row-3 > :nth-child(3) { grid-column: 1 / -1; }
+
+/* ── Criar / Editar ficha (desktop) — Figma 05.2 / 05.3 ── */
+@media (min-width: 1024px) {
+  .char-form-layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; padding-bottom: 8px; }
+  .char-form-main { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 20px 22px 22px; min-width: 0; }
+  .char-form-avatar-wrap { display: none; }
+  .form-delete-mobile { display: none; }
+  .char-form-main .section-title { text-align: left; font-size: 15px; }
+  .form-row-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .form-row-3 > :nth-child(3) { grid-column: auto; }
+  .char-form-main .attr-form-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .char-form-main .form-actions { justify-content: flex-start; margin-top: 28px; }
+  .char-form-main .form-actions .btn { margin: 0; }
+  .char-form-main .form-actions .btn-primary { order: -1; }
+
+  .level-stepper { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 10px; align-items: stretch; max-width: 360px; }
+  .level-stepper button { display: block; border: 1px solid var(--card-border); border-radius: 10px; background: color-mix(in srgb, var(--sapphire) 55%, var(--card)); color: #10202e; font-size: 20px; cursor: pointer; }
+  .level-stepper input { -moz-appearance: textfield; }
+  .level-stepper input::-webkit-outer-spin-button, .level-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .char-form-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 0; }
+  .side-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 22px 20px; }
+  .char-preview { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .char-preview h3 { margin: 14px 0 2px; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 24px; color: var(--text); max-width: 100%; overflow-wrap: anywhere; }
+  .char-preview-meta { margin: 0 0 18px; font-size: 12px; color: var(--text-muted); }
+  .char-preview-stats { display: flex; justify-content: space-between; width: 100%; font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .char-preview-bar { width: 100%; height: 6px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; margin-bottom: 18px; }
+  .char-preview-bar div { height: 100%; background: var(--sapphire); border-radius: 3px; }
+  .char-preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; gap: 8px; }
+  .char-preview-grid strong { display: block; font-family: 'Source Serif 4', serif; font-size: 20px; color: var(--sapphire); overflow-wrap: anywhere; }
+  .char-preview-grid small { font-size: 11px; color: var(--text-faint); }
+  .char-tip strong { font-family: 'Source Serif 4', serif; font-size: 15px; color: var(--text); }
+  .char-tip p { margin: 6px 0 0; font-size: 12px; color: var(--text-muted); }
+  .side-btn { width: 100%; height: 40px; border-radius: 999px; background: transparent; border: 1px solid var(--card-border); color: var(--sapphire); cursor: pointer; font-size: 14px; }
+  .side-btn.danger { background: #4a0000; border-color: #4a0000; color: #fff; }
+  .side-btn:disabled { opacity: .6; }
+
+  /* Campos preenchidos no azul do Figma (só no tema Medieval; os outros temas mantêm o campo escuro) */
+  html[data-theme="medieval"] .char-form-main .form-input { background: #6b8aa8; color: #10202e; border-color: transparent; }
+  html[data-theme="medieval"] .char-form-main .form-input::placeholder { color: rgba(16,32,46,.55); }
+}
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .char-form-layout { grid-template-columns: minmax(0, 1fr) 320px; }
+  .char-form-main .attr-form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.char-preview-system { font-size: 11px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--card-border); color: var(--text-muted); margin-bottom: 6px; }
+.char-form-main .field-hint { display: block; }
+
+
+/* Janelas baixas: aperta o menu para a engrenagem de Configurações continuar visível */
+@media (min-width: 1024px) and (max-height: 860px) {
+  .side-menu.docked { padding-top: 14px; }
+  .side-brand { margin-bottom: 12px; }
+  .side-list { gap: 0; }
+  .side-menu.docked .side-menu-item { padding: 6px 12px; }
+}

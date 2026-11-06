@@ -33,6 +33,7 @@ function mapCharacter(r: CharacterApiResponse, localAvatarUrl?: string): Charact
     warlock_slots: r.warlockSlots ?? undefined,
     // Preserve local avatar — backend has no avatar_url column (Fase 1 local-only)
     avatar_url:    localAvatarUrl ?? r.avatar_url,
+    game_system:   r.gameSystem ?? 'D&D 5e',
   }
 }
 
@@ -48,6 +49,7 @@ function mapCharacterRequest(c: Omit<Character, 'id'>) {
     hp:             c.hp,
     maxHp:          c.max_hp,
     tempHp:         c.temp_hp ?? 0,
+    gameSystem:     c.game_system ?? 'D&D 5e',
   }
 }
 

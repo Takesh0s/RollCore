@@ -4,10 +4,11 @@ import { Modal } from '@/components/ui/Modal'
 import { AvatarUpload } from '@/components/ui/AvatarUpload'
 import {
   calcMod, formatMod, profBonus,
-  ATTR_KEYS, ATTR_LABELS, CLASSES, RACES,
-  SUBCLASSES, getRaceBonuses,
+  ATTR_KEYS, ATTR_LABELS, getRaceBonuses,
 } from '@/lib/engine'
 import { calcMaxHp, calcUnarmoredAC, ATTR_INPUT_MAX, ATTR_INPUT_MIN } from '@/lib/engine-hp'
+import { SYSTEMS, getSystem, DEFAULT_SYSTEM, allSubclassOptions } from '@/lib/systems'
+import { downloadCharacter } from '@/lib/characterIO'
 import type { AttrKey, Attributes } from '@/types'
 import { AppHeader } from '@/components/ui/AppHeader'
 
@@ -47,11 +48,38 @@ function AttrField({ attrKey, value, onChange, error, bonus }: AttrFieldProps) {
   )
 }
 
+interface PickProps {
+  id: string; custom: boolean; value: string; options: string[]
+  onChange: (v: string) => void; className: string
+  disabled?: boolean; title?: string; placeholder?: string
+}
+
+/** Closed list (select) for a real system; list with suggestions + free text for "Personalizado". */
+function Pick({ id, custom, value, options, onChange, className, disabled, title, placeholder = 'Selecione...' }: PickProps) {
+  if (custom) {
+    return (
+      <>
+        <input className={className} list={`dl-${id}`} value={value} maxLength={50}
+               placeholder="Escolha ou digite" disabled={disabled} title={title}
+               onChange={e => onChange(e.target.value)} />
+        <datalist id={`dl-${id}`}>{options.map(o => <option key={o} value={o} />)}</datalist>
+      </>
+    )
+  }
+  return (
+    <select className={className} value={value} disabled={disabled} title={title} onChange={e => onChange(e.target.value)}>
+      <option value="">{placeholder}</option>
+      {options.map(o => <option key={o} value={o}>{o}</option>)}
+    </select>
+  )
+}
+
 export function CharacterFormScreen({ mode }: Props) {
   const { navigate, addCharacter, updateCharacter, deleteCharacter, showToast } = useAppStore()
   const existing = useSelectedCharacter()
   const isEdit   = mode === 'edit'
 
+  const [system,   setSystem]   = useState(DEFAULT_SYSTEM)
   const [name,     setName]     = useState('')
   const [level,    setLevel]    = useState('')
   const [cls,      setCls]      = useState('')
@@ -72,6 +100,7 @@ export function CharacterFormScreen({ mode }: Props) {
   // Pre-fill on edit
   useEffect(() => {
     if (isEdit && existing) {
+      setSystem(existing.game_system ?? DEFAULT_SYSTEM)
       setName(existing.name)
       setLevel(String(existing.level))
       setCls(existing.class)
@@ -90,10 +119,32 @@ export function CharacterFormScreen({ mode }: Props) {
     }
   }, [isEdit, existing])
 
-  const raceBonuses  = getRaceBonuses(race)
-  const subclassInfo = SUBCLASSES[cls]
+  const sys          = getSystem(system)
+  const isCustom     = !!sys.custom
+  // "Personalizado" does not add racial bonuses automatically: the player builds the sheet by hand
+  const raceBonuses  = isCustom ? {} : getRaceBonuses(race)
+  const subclassInfo = sys.subclasses[cls]
   const lvlNum       = parseInt(level, 10)
-  const showSubclass = !!subclassInfo && !isNaN(lvlNum) && lvlNum >= subclassInfo.choiceLevel
+  const showSubclass = isCustom || (!!subclassInfo && !isNaN(lvlNum) && lvlNum >= subclassInfo.choiceLevel)
+  const subclassOptions = isCustom
+    ? Array.from(new Set([...(subclassInfo?.options ?? []), ...allSubclassOptions()]))
+    : (subclassInfo?.options ?? [])
+
+  /** Switching to a stricter system drops values it does not know. */
+  function changeSystem(next: string) {
+    const target = getSystem(next)
+    setSystem(next)
+    if (!target.custom) {
+      if (cls && !target.classes.includes(cls))   { setCls('');   setSubclass('') }
+      if (race && !target.races.includes(race))   setRace('')
+    }
+  }
+
+  function stepLevel(delta: number) {
+    const cur = parseInt(level, 10)
+    const next = Math.min(20, Math.max(1, (isNaN(cur) ? 0 : cur) + delta))
+    setLevel(String(next)); setErrors(p => ({ ...p, level: '' }))
+  }
 
   // ── Auto-calculate HP and CA ────────────────────────────────────────────────
 
@@ -114,7 +165,11 @@ export function CharacterFormScreen({ mode }: Props) {
     // HP — requires CON
     if (!isNaN(con) && con >= 1) {
       const hp = calcMaxHp(cls, lvl, con)
-      if (hp !== null) setMaxHp(String(hp))
+      if (hp === null) {
+        showToast('Essa classe não tem fórmula automática — preencha HP e CA manualmente.', 'error')
+        return
+      }
+      setMaxHp(String(hp))
     }
 
     // CA — requires DEX (and CON for Bárbaro, WIS for Monge)
@@ -180,7 +235,7 @@ export function CharacterFormScreen({ mode }: Props) {
     setLoading(true)
 
     const lvl     = parseInt(level, 10)
-    const bonuses = getRaceBonuses(race)
+    const bonuses = isCustom ? {} : getRaceBonuses(race)
 
     // Build post-bonus attributes (player types base, system adds racial)
     const finalAttrs: Attributes = { STR: 0, DEX: 0, CON: 0, INT: 0, WIS: 0, CHA: 0 }
@@ -189,9 +244,10 @@ export function CharacterFormScreen({ mode }: Props) {
     })
 
     const charData = {
+      game_system: system,
       name:     name.trim(),
       class:    cls,
-      subclass: showSubclass ? subclass : '',
+      subclass: showSubclass ? subclass.trim() : '',
       race,
       level:    lvl,
       attributes: finalAttrs,
@@ -238,11 +294,13 @@ export function CharacterFormScreen({ mode }: Props) {
 
   return (
     <div className="device">
-      <AppHeader title={isEdit ? 'Ficha' : 'Criar Ficha'} onBack={() => navigate(isEdit ? 'ficha' : 'personagens')} />
+      <AppHeader title={isEdit ? (existing?.name || 'Ficha') : 'Criar Ficha'} onBack={() => navigate(isEdit ? 'ficha' : 'personagens')} />
 
       <div className="page-body">
+       <div className="char-form-layout">
+        <div className="char-form-main">
 
-        {/* ── Character portrait ── */}
+        {/* ── Character portrait (mobile; no desktop o retrato fica no cartão lateral) ── */}
         <div className="char-form-avatar-wrap">
           <AvatarUpload
             value={avatarUrl}
@@ -259,6 +317,23 @@ export function CharacterFormScreen({ mode }: Props) {
         <h2 className="section-title">Identidade</h2>
 
         <div className="form-group">
+          <label className="form-label">Sistema</label>
+          <select className="form-input valid" value={system} onChange={e => changeSystem(e.target.value)}>
+            {SYSTEMS.map(sy => (
+              <option key={sy.id} value={sy.id} disabled={!sy.available}>
+                {sy.id}{sy.available ? '' : ' (em breve)'}
+              </option>
+            ))}
+          </select>
+          {isCustom && (
+            <small className="field-hint">
+              Personalizado oferece as classes, raças e subclasses de todos os sistemas e aceita nomes digitados por você.
+              Bônus raciais não são aplicados automaticamente.
+            </small>
+          )}
+        </div>
+
+        <div className="form-group">
           <label className="form-label">Nome do Personagem</label>
           <input
             className={`form-input${errors.name ? ' error' : name.trim() ? ' valid' : ''}`}
@@ -269,30 +344,29 @@ export function CharacterFormScreen({ mode }: Props) {
           {errors.name && <small className="error-msg">{errors.name}</small>}
         </div>
 
-        <div className="form-row">
+        <div className="form-row form-row-3">
+          <div className="form-group form-col">
+            <label className="form-label">Raça</label>
+            <Pick id="race" custom={isCustom} value={race} options={sys.races}
+                  className={`form-input${errors.race ? ' error' : race ? ' valid' : ''}`}
+                  onChange={v => { setRace(v); setErrors(p => ({ ...p, race: '' })) }} />
+            {errors.race && <small className="error-msg">{errors.race}</small>}
+          </div>
           <div className="form-group form-col">
             <label className="form-label">Classe</label>
-            <select
-              className={`form-input${errors.cls ? ' error' : cls ? ' valid' : ''}`}
-              value={cls}
-              onChange={e => { setCls(e.target.value); setSubclass(''); setErrors(p => ({ ...p, cls: '' })) }}
-            >
-              <option value="">Selecione...</option>
-              {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <Pick id="class" custom={isCustom} value={cls} options={sys.classes}
+                  className={`form-input${errors.cls ? ' error' : cls ? ' valid' : ''}`}
+                  onChange={v => { setCls(v); if (!isCustom) setSubclass(''); setErrors(p => ({ ...p, cls: '' })) }} />
             {errors.cls && <small className="error-msg">{errors.cls}</small>}
           </div>
           <div className="form-group form-col">
-            <label className="form-label">Raça</label>
-            <select
-              className={`form-input${errors.race ? ' error' : race ? ' valid' : ''}`}
-              value={race}
-              onChange={e => { setRace(e.target.value); setErrors(p => ({ ...p, race: '' })) }}
-            >
-              <option value="">Selecione...</option>
-              {RACES.map(r => <option key={r} value={r}>{r}</option>)}
-            </select>
-            {errors.race && <small className="error-msg">{errors.race}</small>}
+            <label className="form-label">Subclasse</label>
+            <Pick id="subclass" custom={isCustom} value={subclass} options={subclassOptions}
+                  className={`form-input${subclass ? ' valid' : ''}`}
+                  disabled={!showSubclass}
+                  title={subclassInfo && !showSubclass ? `Disponível a partir do nível ${subclassInfo.choiceLevel}` : undefined}
+                  placeholder={showSubclass ? 'Selecione (opcional)' : '—'}
+                  onChange={setSubclass} />
           </div>
         </div>
 
@@ -307,42 +381,26 @@ export function CharacterFormScreen({ mode }: Props) {
 
         <div className="form-group">
           <label className="form-label">Nível</label>
-          <input
-            className={`form-input input-center${errors.level ? ' error' : level && !errors.level ? ' valid' : ''}`}
-            type="number" min={1} max={20} placeholder="1–20"
-            value={level}
-            onChange={e => { setLevel(e.target.value); setErrors(p => ({ ...p, level: '' })) }}
-          />
+          <div className="level-stepper">
+            <button type="button" aria-label="Diminuir nível" onClick={() => stepLevel(-1)}>−</button>
+            <input
+              className={`form-input input-center${errors.level ? ' error' : level && !errors.level ? ' valid' : ''}`}
+              type="number" min={1} max={20} placeholder="1–20"
+              value={level}
+              onChange={e => { setLevel(e.target.value); setErrors(p => ({ ...p, level: '' })) }}
+            />
+            <button type="button" aria-label="Aumentar nível" onClick={() => stepLevel(1)}>+</button>
+          </div>
           <small className="field-hint">
             Bônus de proficiência: {!isNaN(parseInt(level, 10)) ? `+${profBonus(parseInt(level, 10))}` : '—'}
           </small>
           {errors.level && <small className="error-msg">{errors.level}</small>}
         </div>
 
-        {/* Subclass */}
-        {showSubclass && (
-          <div className="form-group">
-            <label className="form-label">
-              Subclasse
-              <span className="field-hint" style={{ marginLeft: 6 }}>
-                (disponível a partir do nível {subclassInfo.choiceLevel})
-              </span>
-            </label>
-            <select
-              className={`form-input${subclass ? ' valid' : ''}`}
-              value={subclass}
-              onChange={e => setSubclass(e.target.value)}
-            >
-              <option value="">Selecione (opcional)</option>
-              {subclassInfo.options.map(o => <option key={o} value={o}>{o}</option>)}
-            </select>
-          </div>
-        )}
-
         {/* ── Attributes ── */}
         <h2 className="section-title" style={{ marginTop: 24 }}>Atributos</h2>
         <small className="field-hint" style={{ marginBottom: 12, display: 'block' }}>
-          Digite o valor base (1–20). Bônus raciais são aplicados automaticamente ao salvar.
+          {isCustom ? 'Digite o valor final de cada atributo (1–20).' : 'Digite o valor base (1–20). Bônus raciais são aplicados automaticamente ao salvar.'}
         </small>
         <div className="attr-form-grid">
           {ATTR_KEYS.map(k => (
@@ -401,7 +459,7 @@ export function CharacterFormScreen({ mode }: Props) {
         <div className="form-actions">
           {isEdit && (
             <button
-              className="btn btn-danger btn-auto"
+              className="btn btn-danger btn-auto form-delete-mobile"
               style={{ marginTop: 0 }}
               onClick={() => setShowDelete(true)}
               disabled={loading}
@@ -426,6 +484,42 @@ export function CharacterFormScreen({ mode }: Props) {
           </button>
         </div>
 
+        </div>{/* /char-form-main */}
+
+        {/* ── Cartão de pré-visualização (desktop) ── */}
+        <aside className="char-form-side">
+          <div className="side-card char-preview">
+            <AvatarUpload value={avatarUrl} initials={name.charAt(0) || '?'} onChange={setAvatarUrl} size={96} />
+            <h3>{name.trim() || 'Nome do personagem'}</h3>
+            <span className="char-preview-system">{system}</span>
+            <p className="char-preview-meta">
+              {cls || 'Classe'} · {race || 'Raça'} · Nível {level || 1}
+            </p>
+            <div className="char-preview-stats">
+              <span>HP {maxHp ? `${isEdit && existing ? existing.hp : maxHp} / ${maxHp}` : '— / —'}</span>
+              <span>CA {ac || '—'}</span>
+            </div>
+            <div className="char-preview-bar"><div style={{ width: maxHp ? `${isEdit && existing ? Math.min(100, (existing.hp / Math.max(1, parseInt(maxHp, 10) || 1)) * 100) : 100}%` : '0%' }} /></div>
+            <div className="char-preview-grid">
+              <div><strong>{level || 1}</strong><small>Nível</small></div>
+              <div><strong>{!isNaN(lvlNum) && lvlNum >= 1 && lvlNum <= 20 ? `+${profBonus(lvlNum)}` : '—'}</strong><small>Proficiência</small></div>
+              <div><strong>{race || '—'}</strong><small>Raça</small></div>
+            </div>
+          </div>
+          {isEdit ? (
+            <>
+              <button className="btn side-btn" onClick={() => navigate('ficha')} disabled={loading}>Abrir ficha</button>
+              {existing && <button className="btn side-btn" onClick={() => downloadCharacter(existing)}>Exportar ficha</button>}
+              <button className="btn side-btn danger" onClick={() => setShowDelete(true)} disabled={loading}>Excluir ficha</button>
+            </>
+          ) : (
+            <div className="side-card char-tip">
+              <strong>Dica</strong>
+              <p>Você pode preencher só o básico agora e completar inventário, grimório e anotações depois, na ficha.</p>
+            </div>
+          )}
+        </aside>
+       </div>
       </div>
 
       {/* Delete confirmation modal — UC-02 S02 */}

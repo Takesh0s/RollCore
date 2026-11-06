@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { Toast }                from '@/components/ui/Toast'
+import { Crenellation }         from '@/components/ui/Crenellation'
 import { LoginScreen }          from '@/components/auth/LoginScreen'
 import { RegisterScreen }       from '@/components/auth/RegisterScreen'
 import { ForgotPasswordScreen } from '@/components/auth/ForgotPasswordScreen'
@@ -82,6 +83,7 @@ export default function App() {
       <div className={`screen-wrap${fading ? ' screen-out' : ''}`}>
         <ScreenContent screen={displayed} />
       </div>
+      <Crenellation />
       <Toast />
     </div>
   )

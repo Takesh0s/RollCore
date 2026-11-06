@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import type { Screen } from '@/types'
 import { DiceLogo } from '@/components/ui/DiceLogo'
+import { useDeskMenu } from '@/hooks/useDeskMenu'
 import { useDesktop } from '@/hooks/useDesktop'
 import { NavIcon } from '@/components/ui/NavIcon'
 import {
@@ -71,6 +72,7 @@ export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
   const { navigate, showToast, user, screen } = useAppStore()
   const [open, setOpen] = useState(false)
   const desktop = useDesktop()
+  const [deskMenuOpen, setDeskMenu] = useDeskMenu()
 
   useEffect(() => {
     if (!open) return
@@ -101,16 +103,23 @@ export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
     )
     return (
       <>
-        <nav className="side-menu docked" aria-label="Menu principal">
-          <div className="side-brand">
-            <span className="side-brand-name">RollCore</span>
-            <span className="side-brand-sub">Painel do jogador</span>
-          </div>
-          <ul className="side-list">{SIDEBAR.map(renderItem)}</ul>
-          <ul className="side-foot">{renderItem(SIDEBAR_FOOT)}</ul>
-        </nav>
+        {/* No PC o hambúrguer abre/fecha a barra lateral, que ocupa o próprio espaço (a tela se ajusta)
+            e continua aberta enquanto você navega, até alternar de novo. */}
+        {deskMenuOpen && (
+          <nav className="side-menu docked" aria-label="Menu principal">
+            <div className="side-brand">
+              <span className="side-brand-name">RollCore</span>
+              <span className="side-brand-sub">Painel do jogador</span>
+            </div>
+            <ul className="side-list">{SIDEBAR.map(renderItem)}</ul>
+            <ul className="side-foot">{renderItem(SIDEBAR_FOOT)}</ul>
+          </nav>
+        )}
 
         <header className="app-header desk">
+          <button className="app-header-btn" onClick={() => setDeskMenu(!deskMenuOpen)} aria-label="Menu" aria-expanded={deskMenuOpen}>
+            <IconMenu />
+          </button>
           {onBack && (
             <button className="app-header-btn" onClick={onBack} aria-label="Voltar">
               <IconBack />
