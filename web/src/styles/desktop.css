@@ -395,3 +395,6 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
     background: rgba(143, 180, 212, .16); color: #8fb4d4;
   }
 }
+
+.nav-svg { display: inline-flex; width: 100%; height: 100%; }
+.nav-svg svg { width: 100%; height: 100%; }
