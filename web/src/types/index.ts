@@ -33,6 +33,8 @@ export interface Character {
   spell_slots?:   SpellSlots
   warlock_slots?: WarlockSlots
   avatar_url?: string
+  /** Game system of the sheet ("D&D 5e", "Personalizado", ...); D&D 5e when absent. */
+  game_system?: string
 }
 
 export interface RollResult {
@@ -141,6 +143,7 @@ export interface CharacterApiResponse {
   ac:             number
   spellSlots:     SpellSlots | null
   warlockSlots:   WarlockSlots | null
+  gameSystem?:    string
   avatar_url?:    string
 }
 

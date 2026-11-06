@@ -487,3 +487,6 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
   .char-form-layout { grid-template-columns: minmax(0, 1fr) 320px; }
   .char-form-main .attr-form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+.char-preview-system { font-size: 11px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--card-border); color: var(--text-muted); margin-bottom: 6px; }
+.char-form-main .field-hint { display: block; }
