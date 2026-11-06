@@ -40,7 +40,15 @@ public class Character {
     @Column(nullable = false, length = 100)
     private String name;
 
-    /** D&D 5e class — validated against DndEngine.CLASSES. */
+    /**
+     * Game system the sheet belongs to ("D&D 5e", "Personalizado", ...).
+     * Free text so new systems need no schema change; defaults to D&D 5e.
+     */
+    @Column(name = "game_system", nullable = false, length = 50)
+    @Builder.Default
+    private String gameSystem = "D&D 5e";
+
+    /** Class — in the D&D 5e system, one of DndEngine.CLASSES; free text in "Personalizado". */
     @Column(name = "class", nullable = false, length = 50)
     private String characterClass;
 

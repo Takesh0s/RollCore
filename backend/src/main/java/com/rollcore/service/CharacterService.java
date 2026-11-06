@@ -93,6 +93,8 @@ public class CharacterService {
         entity.setCharacterClass(req.characterClass());
         entity.setSubclass(req.subclass() != null ? req.subclass() : "");
         entity.setRace(req.race());
+        entity.setGameSystem(req.gameSystem() == null || req.gameSystem().isBlank()
+                ? "D&D 5e" : req.gameSystem().trim());
         entity.setLevel(req.level());
         entity.setAttributes(req.attributes());
         entity.setHp(req.hp());

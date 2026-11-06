@@ -45,5 +45,16 @@ public record CharacterRequest(
     int maxHp,
 
     /** May be null (treated as 0). */
-    Integer tempHp
-) {}
+    Integer tempHp,
+
+    /** Game system of the sheet. Null or blank is treated as "D&D 5e". */
+    @Size(max = 50, message = "Sistema deve ter no máximo 50 caracteres.")
+    String gameSystem
+) {
+    /** Keeps the pre-system constructor working (system defaults to D&D 5e). */
+    public CharacterRequest(String name, String characterClass, String subclass, String race,
+                            int level, Map<String, Integer> attributes, int hp, int maxHp,
+                            Integer tempHp) {
+        this(name, characterClass, subclass, race, level, attributes, hp, maxHp, tempHp, null);
+    }
+}

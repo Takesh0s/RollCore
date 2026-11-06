@@ -25,8 +25,18 @@ public record CharacterResponse(
     Map<String, Integer>    spellSlots,
     Map<String, Integer>    warlockSlots,
     Instant                 createdAt,
-    Instant                 updatedAt
+    Instant                 updatedAt,
+    String                  gameSystem
 ) {
+    /** Keeps the pre-system constructor working (system defaults to D&D 5e). */
+    public CharacterResponse(UUID id, String name, String characterClass, String subclass, String race,
+                             int level, Map<String, Integer> attributes, int hp, int maxHp, int tempHp,
+                             int ac, Map<String, Integer> spellSlots, Map<String, Integer> warlockSlots,
+                             Instant createdAt, Instant updatedAt) {
+        this(id, name, characterClass, subclass, race, level, attributes, hp, maxHp, tempHp, ac,
+             spellSlots, warlockSlots, createdAt, updatedAt, "D&D 5e");
+    }
+
     /** Factory method — keeps controllers free of mapping code. */
     public static CharacterResponse from(Character c) {
         return new CharacterResponse(
@@ -44,7 +54,8 @@ public record CharacterResponse(
             c.getSpellSlots(),
             c.getWarlockSlots(),
             c.getCreatedAt(),
-            c.getUpdatedAt()
+            c.getUpdatedAt(),
+            c.getGameSystem()
         );
     }
 }
