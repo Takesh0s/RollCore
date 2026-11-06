@@ -182,7 +182,7 @@
 .dash-roll b { font-family: var(--font-display); font-size: 28px; color: var(--text-bright); }
 
 @media (min-width: 1024px) and (max-width: 1399px) {
-  .dash-cols { grid-template-columns: repeat(2, 1fr); }
+  .dash-cols { grid-template-columns: repeat(3, 1fr); gap: 4px 16px; }
   .dash-rolls { grid-template-columns: repeat(2, 1fr); }
 }
 
@@ -273,4 +273,33 @@ html[data-theme]:not([data-theme="medieval"]) { --font-brand: var(--font-display
   .login-device .form-input { border-radius: 12px; padding: 9px 12px; font-size: 14px; }
   .login-device .form-group { margin-bottom: 12px; }
   .login-device .btn-primary { border-radius: 999px; padding: 11px; font-size: 13px; }
+}
+
+/* ── Dashboard PC: cartões com altura fixa, listas e chips como no Figma ── */
+@media (min-width: 1024px) {
+  .app-header.desk .app-header-title { font-family: var(--font-brand); font-weight: 400; letter-spacing: .5px; font-size: 34px; }
+  .dash-desk { min-height: calc(100vh - 150px); }
+  .dash-grow { flex: 1; }
+  .dash-cols { grid-auto-rows: auto; }
+  .dash-cols > section > .dash-panel { height: 168px; }
+  .dash-cols > section:nth-child(n+4) > .dash-panel { height: 272px; }
+  .dash-list { display: flex; flex-direction: column; gap: 6px; padding: 8px; overflow: hidden; }
+  .dash-item {
+    display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 10px;
+    border: 1px solid var(--card-border); background: var(--card-raised); min-width: 0;
+  }
+  .dash-item > div { flex: 1; min-width: 0; }
+  .dash-item strong { font-family: var(--font-body, inherit); font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dash-item span { display: block; font-size: 11px; color: var(--text-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dash-item em { font-style: normal; font-size: 10px; color: var(--text-faint); display: flex; align-items: center; gap: 6px; }
+  .dash-item-ico { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--text-muted); flex: none; display: grid; place-items: center; }
+  .dash-item-ico svg { width: 14px; height: 14px; }
+  .dash-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sapphire); display: inline-block; }
+  .dash-item.dash-draft { padding: 5px 10px; }
+  .dash-draft .dash-cont { color: var(--sapphire); font-size: 11px; }
+  .dash-bar { height: 4px; border-radius: 2px; background: var(--field); margin-top: 4px; }
+  .dash-bar div { height: 100%; border-radius: 2px; background: var(--sapphire); }
+  .dash-chips { display: flex; gap: 8px; margin: -2px 0 6px; flex-wrap: wrap; }
+  .dash-chips span { font-size: 11px; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--card-border); color: var(--text-muted); }
+  .dash-chips span.on { background: var(--sapphire); color: #10202e; border-color: var(--sapphire); }
 }
