@@ -1,3 +1,4 @@
+import { PasswordInput } from '@/components/ui/PasswordInput'
 import { AuthBrand } from '@/components/auth/AuthBrand'
 import { useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
@@ -69,9 +70,8 @@ export function LoginScreen() {
 
       <div className="form-group">
         <label className="form-label">senha</label>
-        <input
+        <PasswordInput
           className={`form-input${passErr ? ' error' : ''}`}
-          type="password"
           placeholder="••••••••"
           autoComplete="current-password"
           value={password}
@@ -103,9 +103,10 @@ export function LoginScreen() {
         {loading ? '…' : 'Entrar'}
       </button>
 
-      <button className="link-btn" onClick={() => navigate('cadastro')}>
-        criar conta
-      </button>
+      <p className="auth-switch">
+        Ainda não tem conta?{' '}
+        <button className="link-btn" onClick={() => navigate('cadastro')}>Criar conta</button>
+      </p>
 
       <GoogleSignInButton onCredential={idToken => loginWithGoogle(idToken).catch(() => undefined)} />
 

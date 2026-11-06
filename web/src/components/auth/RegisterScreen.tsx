@@ -1,3 +1,4 @@
+import { PasswordInput } from '@/components/ui/PasswordInput'
 import { AuthBrand } from '@/components/auth/AuthBrand'
 import { useState, useCallback } from 'react'
 import { useAppStore } from '@/store/useAppStore'
@@ -180,9 +181,8 @@ export function RegisterScreen() {
         {/* ── Password ── */}
         <div className="form-group">
           <label className="form-label">senha</label>
-          <input
+          <PasswordInput
             className={`form-input${passErr ? ' error' : passValid ? ' valid' : ''}`}
-            type="password"
             placeholder="Mín. 8 caracteres, 1 maiúscula e 1 número"
             value={pass}
             onChange={e => handlePassChange(e.target.value)}
@@ -197,9 +197,8 @@ export function RegisterScreen() {
         {/* ── Confirm ── */}
         <div className="form-group">
           <label className="form-label">confirmar senha</label>
-          <input
+          <PasswordInput
             className={`form-input${confirmErr ? ' error' : confirm && !confirmErr ? ' valid' : ''}`}
-            type="password"
             placeholder=""
             value={confirm}
             onChange={e => handleConfirmChange(e.target.value)}
@@ -212,9 +211,10 @@ export function RegisterScreen() {
           {loading ? '…' : 'Criar conta'}
         </button>
 
-        <button className="link-btn" onClick={() => navigate('login')}>
-          já tenho conta
-        </button>
+        <p className="auth-switch">
+          Já tenho conta?{' '}
+          <button className="link-btn" onClick={() => navigate('login')}>Entrar</button>
+        </p>
       </div>
       </div>
     </div>

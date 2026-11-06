@@ -230,3 +230,47 @@
   }
   .login-device .btn-primary { width: 100%; }
 }
+
+/* ══ Acabamento das telas de acesso (Figma) ═════════════════════ */
+:root { --font-brand: 'Kumar One Outline', var(--font-display); }
+html[data-theme]:not([data-theme="medieval"]) { --font-brand: var(--font-display); }
+
+.pw-wrap { position: relative; }
+.pw-wrap .form-input { padding-right: 44px; }
+.pw-eye {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  display: grid; place-items: center; width: 30px; height: 30px;
+  background: none; border: none; cursor: pointer; color: var(--field-text);
+}
+.pw-eye svg { width: 22px; height: 22px; }
+.pw-wrap + .pass-bar { margin-top: 6px; }
+
+.auth-switch { margin-top: 12px; font-size: 13px; color: var(--text-faint); text-align: center; }
+.auth-switch .link-btn { display: inline; margin: 0; padding: 0; font-style: normal; font-weight: 700; text-decoration: none; color: var(--sapphire); }
+.auth-switch .link-btn:hover { text-decoration: underline; }
+
+@media (min-width: 1024px) {
+  .auth-brand-name {
+    font-family: var(--font-brand);
+    font-weight: 400; letter-spacing: 0;
+    font-size: clamp(56px, 6.4vw, 96px);
+  }
+  .auth-brand-logo polygon { stroke-width: 2.6; }
+  .auth-brand-logo path { stroke-width: 1.1; }
+  .auth-brand-ico { color: var(--sapphire); }
+  .login-device .auth-body {
+    flex-basis: 420px;
+    background: color-mix(in srgb, #000 16%, var(--card));
+    border-color: rgba(192, 192, 192, 0.28);
+    border-radius: 16px;
+    padding: 28px 30px 22px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  }
+  .login-device .form-label {
+    font-size: 11px; font-weight: 400; color: var(--text-muted);
+    letter-spacing: 0; text-transform: none; margin-bottom: 4px;
+  }
+  .login-device .form-input { border-radius: 12px; padding: 9px 12px; font-size: 14px; }
+  .login-device .form-group { margin-bottom: 12px; }
+  .login-device .btn-primary { border-radius: 999px; padding: 11px; font-size: 13px; }
+}
