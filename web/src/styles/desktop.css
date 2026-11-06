@@ -23,24 +23,24 @@
     height: 100dvh;
     border-radius: 0;
     box-shadow: none;
-    padding-left: var(--side-w);
+    padding-left: var(--frame);
   }
-  /* Moldura prateada em volta de TUDO (sidebar + conteúdo), como no Figma */
+  /* Moldura prateada em volta do conteúdo; o menu é uma gaveta aberta pelo hambúrguer, fora dela */
   .device::before { left: var(--frame); top: var(--frame); right: var(--frame); bottom: calc(var(--notch) + var(--frame)); }
 
-  /* ── Sidebar ── */
+  /* ── Menu lateral (gaveta) ── */
   .side-menu.docked {
-    position: absolute;
-    /* dentro da moldura: nada de painel encostado na borda da janela */
-    top: calc(var(--frame) + 2px); left: calc(var(--frame) + 2px); bottom: calc(var(--notch) + var(--frame) + 2px);
-    z-index: 6;
-    width: calc(var(--side-w) - var(--frame) - 2px);
+    /* gaveta: cobre a altura toda da janela, por cima do conteúdo e dos dentes */
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 70;
+    width: var(--side-w);
     display: flex; flex-direction: column;
     padding: 22px 16px 16px;
     background: color-mix(in srgb, #000 14%, var(--card));
     border-right: 1px solid rgba(192, 192, 192, 0.25);
-    box-shadow: none;
-    animation: none;
+    animation: menu-in 0.16s ease-out;
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.45);
     overflow-y: auto;
   }
   .side-brand { display: flex; flex-direction: column; margin: 0 8px 26px; }
@@ -310,7 +310,7 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
   .device::after, .login-device::after { display: none; }
   .crenellation {
     display: flex; justify-content: space-evenly; align-items: stretch;
-    position: fixed; left: 0; right: 0; bottom: 0; height: var(--notch); z-index: 5;
+    position: fixed; left: 0; right: 0; bottom: 0; height: var(--notch); z-index: 0;
     background: var(--card); pointer-events: none;
   }
   .crenellation span { flex: none; width: 64px; background: var(--canvas); }
@@ -377,7 +377,7 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
     opacity: 1;
   }
   html[data-theme="terror"] body::after {
-    content: 'DOSSIÊ · CASO Nº 0427'; position: fixed; top: 0; left: calc(var(--side-w) + 48px); z-index: 61;
+    content: 'DOSSIÊ · CASO Nº 0427'; position: fixed; top: 0; left: 300px; z-index: 61;
     padding: 2px 10px; background: #cf2a33; color: #fff; border-radius: 0 0 3px 3px;
     font: 400 9px/14px 'Special Elite', 'Courier Prime', monospace; letter-spacing: .6px; pointer-events: none;
   }
@@ -492,3 +492,7 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
 
 .char-preview-system { font-size: 11px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--card-border); color: var(--text-muted); margin-bottom: 6px; }
 .char-form-main .field-hint { display: block; }
+
+@media (min-width: 1024px) {
+  .desk-backdrop { position: fixed; inset: 0; z-index: 65; }
+}

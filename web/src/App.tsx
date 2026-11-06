@@ -80,10 +80,11 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      {/* antes da tela: assim o menu e os modais ficam por cima dos dentes */}
+      <Crenellation />
       <div className={`screen-wrap${fading ? ' screen-out' : ''}`}>
         <ScreenContent screen={displayed} />
       </div>
-      <Crenellation />
       <Toast />
     </div>
   )
