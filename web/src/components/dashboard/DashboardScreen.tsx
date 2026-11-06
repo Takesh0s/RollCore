@@ -24,69 +24,6 @@ function SectionTitle({ children }: { children: string }) {
   return <h3 className="dash-sec-title"><span>{children}</span></h3>
 }
 
-/** Exemplos exibidos enquanto chat, rascunhos e notas não existem no app (visual igual ao Figma). */
-const DEMO_MESSAGES = [
-  { who: 'Susie (Mestre)', text: 'Role iniciativa antes de sexta!', when: '10 min', unread: true },
-  { who: 'Mesa · Noites de Sangue', text: 'Noelle: chego 10 min atrasada', when: '1 h', unread: true },
-  { who: 'Ralsei', text: 'Mandei o mapa novo no chat', when: 'ontem', unread: false },
-  { who: 'Kris', text: 'Posso trocar de classe?', when: '2 d', unread: false },
-]
-const DEMO_DRAFTS = [
-  { name: 'Thorin Punho de Ferro', kind: 'Ficha', pct: 60 },
-  { name: 'Em busca dos esquecidos', kind: 'Mapa', pct: 30 },
-  { name: 'Mercador Barnabé', kind: 'NPC', pct: 45 },
-  { name: 'Reinos de Cinza', kind: 'Mesa', pct: 80 },
-]
-const DEMO_NOTES = [
-  { title: 'Pistas do caso', text: 'O mercador mentiu sobre…', when: 'ontem' },
-  { title: 'Regras da casa', text: 'Crítico dobra os dados…', when: '2 d' },
-  { title: 'Plano da sessão 12', text: 'Cripta, andar 2…', when: '3 d' },
-  { title: 'Lore de Valdoria', text: 'Reino fundado em…', when: '5 d' },
-]
-
-function DemoMessages() {
-  return (
-    <div className="dash-panel dash-list">
-      {DEMO_MESSAGES.map(m => (
-        <div key={m.who} className="dash-item">
-          <span className="dash-item-ico" aria-hidden="true" />
-          <div><strong>{m.who}</strong><span>{m.text}</span></div>
-          <em>{m.when}{m.unread && <i className="dash-dot" />}</em>
-        </div>
-      ))}
-    </div>
-  )
-}
-function DemoDrafts() {
-  return (
-    <div className="dash-panel dash-list">
-      {DEMO_DRAFTS.map(d => (
-        <div key={d.name} className="dash-item dash-draft">
-          <div>
-            <strong>{d.name}</strong>
-            <span>{d.kind} · {d.pct}% concluída</span>
-            <div className="dash-bar"><div style={{ width: `${d.pct}%` }} /></div>
-          </div>
-          <em className="dash-cont">Continuar ›</em>
-        </div>
-      ))}
-    </div>
-  )
-}
-function DemoNotes() {
-  return (
-    <div className="dash-panel dash-list">
-      {DEMO_NOTES.map(n => (
-        <div key={n.title} className="dash-item">
-          <span className="dash-item-ico" aria-hidden="true"><IconNotes /></span>
-          <div><strong>{n.title}</strong><span>{n.text}</span></div>
-          <em>{n.when}</em>
-        </div>
-      ))}
-    </div>
-  )
-}
-
 /** Cartão vazio dos blocos que ainda dependem de recursos futuros (chat, notas, rascunhos). */
 function SoonCard({ text }: { text: string }) {
   return (
@@ -180,15 +117,15 @@ function DesktopDashboard() {
 
           <section>
             <SectionTitle>Mensagens recentes</SectionTitle>
-            <DemoMessages />
+            <SoonCard text="O chat das mesas chega junto com a comunidade." />
           </section>
           <section>
             <SectionTitle>Criações inacabadas</SectionTitle>
-            <DemoDrafts />
+            <SoonCard text="Fichas, mapas e NPCs em andamento vão aparecer aqui." />
           </section>
           <section>
             <SectionTitle>Notas recentes</SectionTitle>
-            <DemoNotes />
+            <SoonCard text="As anotações chegam com a tela de Anotações." />
           </section>
         </div>
 

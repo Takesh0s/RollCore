@@ -2107,7 +2107,7 @@ select.form-input option { background: var(--card-raised); }
 }
 @media (max-width: 420px) { .theme-modes { grid-template-columns: 1fr; } }
 
-/* ── Temas: Terror Cósmico (rastro de sangue no topo da tela) ──── */
+/* ── Temas: Terror (rastro de sangue no topo da tela) ──── */
 html[data-theme="terror"] body::before {
   content: '';
   position: fixed; top: 0; left: 0; right: 0; height: 46px;

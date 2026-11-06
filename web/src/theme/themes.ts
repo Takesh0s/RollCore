@@ -94,7 +94,7 @@ export const THEMES: ThemeDef[] = [
   },
   {
     id: 'terror',
-    label: 'Terror Cósmico',
+    label: 'Terror',
     fontDisplay: "'Special Elite', 'Courier Prime', monospace",
     swatch: ['#0A100D', '#B3121B', '#D9CFAE'],
     dark: {

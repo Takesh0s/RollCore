@@ -119,14 +119,6 @@
   .table-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* Terror Cósmico no computador: só a faixa de sangue no topo (as gotas cobririam o logo) */
-@media (min-width: 1024px) {
-  html[data-theme="terror"] body::before {
-    height: 12px;
-    background: linear-gradient(#8e0e14, #8e0e14);
-  }
-}
-
 /* ══ Dashboard do computador ═════════════════════════════════════ */
 .dash-desk { display: flex; flex-direction: column; gap: 10px; }
 .dash-hello { font-family: var(--font-display); font-size: 28px; color: var(--text-bright); }
@@ -335,4 +327,62 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
   .dash-panel .btn { align-self: flex-start; }
   .page-body, .scroll-area { margin-bottom: 21px; }
   .desk-profile, .desk-profile * { font-family: var(--font-body); font-weight: 700; }
+}
+
+
+/* ══ Frufru dos temas no computador (Figma PC) ═════════════════════ */
+@media (min-width: 1024px) {
+  /* Neon: moldura roxa fina, cantos HUD ciano, sem a faixa de dentes */
+  html[data-theme="neon"] { --notch: 0px; --side-w: 288px; }
+  html[data-theme="neon"] .device::before,
+  html[data-theme="neon"] .login-device::before { top: 12px; left: 12px; right: 12px; bottom: 12px; border: 1px solid #9d5cff; }
+  html[data-theme="neon"] .device::after, html[data-theme="neon"] .login-device::after { display: none; }
+  html[data-theme="neon"] .side-menu.docked { top: 12px; left: 12px; bottom: 12px; width: calc(var(--side-w) - 12px); border-right: 1px solid rgba(157, 92, 255, .6); z-index: 6; }
+  html[data-theme="neon"] .app-header.desk { margin-left: 24px; }
+  html[data-theme="neon"] .page-body, html[data-theme="neon"] .scroll-area { margin-left: 0; }
+  html[data-theme="neon"] .page-body, html[data-theme="neon"] .scroll-area { margin-bottom: 14px; }
+  html[data-theme="neon"] .side-menu.docked .side-menu-item.active {
+    background: #0b3b40; color: #00f0ff; border: 1px solid rgba(0, 240, 255, .6);
+  }
+  html[data-theme="neon"] .side-menu.docked .side-menu-item.active .menu-logo { color: #00f0ff; }
+  html[data-theme="neon"] .btn-primary { border: 1.5px solid #ff2e97; box-shadow: 0 0 12px rgba(255, 46, 151, .45), 0 0 8px rgba(157, 92, 255, .5); }
+  html[data-theme="neon"] .desk-search { border-color: rgba(157, 92, 255, .5); }
+  html[data-theme="neon"] .page-body { scrollbar-color: #9d5cff transparent; }
+  html[data-theme="neon"] .page-body::-webkit-scrollbar-thumb { background: #9d5cff; }
+  html[data-theme="neon"] .app-header.desk, html[data-theme="neon"] .dash-sec-title::before, html[data-theme="neon"] .dash-sec-title::after { border-color: rgba(157, 92, 255, .8); }
+  html[data-theme="neon"] .dash-sec-title::before, html[data-theme="neon"] .dash-sec-title::after { background: rgba(157, 92, 255, .6); }
+  html[data-theme="neon"] body::before, html[data-theme="neon"] body::after {
+    content: ''; position: fixed; width: 48px; height: 48px; pointer-events: none; z-index: 60;
+  }
+  html[data-theme="neon"] body::before {
+    top: 0; left: 0;
+    background: linear-gradient(#00f0ff, #00f0ff) 0 0 / 2px 48px no-repeat, linear-gradient(#00f0ff, #00f0ff) 0 0 / 48px 2px no-repeat;
+  }
+  html[data-theme="neon"] body::after {
+    right: 0; bottom: 0;
+    background: linear-gradient(#00f0ff, #00f0ff) 100% 0 / 2px 48px no-repeat, linear-gradient(#00f0ff, #00f0ff) 0 100% / 48px 2px no-repeat;
+  }
+
+  /* Terror: rastro de sangue pingando no topo, etiqueta de dossiê e respingos na base */
+  html[data-theme="terror"] { --notch: 40px; }
+  html[data-theme="terror"] .device::after, html[data-theme="terror"] .login-device::after { background: #060a08; }
+  html[data-theme="terror"] .device::before { border-color: #5d5c4c; border-width: 1.5px; }
+  html[data-theme="terror"] .side-menu.docked .side-menu-item.active { background: rgba(179, 18, 27, .16); color: #e5474f; }
+  html[data-theme="terror"] .side-menu.docked .side-menu-item.active .menu-logo { color: #e5474f; }
+  html[data-theme="terror"] body::before {
+    top: 0; left: 0; right: 0; height: 120px; z-index: 50;
+    background: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%221728%22 height=%22120%22 viewBox=%220 0 1728 120%22%3E%3Cpath d=%22M0 0 H1728 V14 Q1713 21 1698 14 Q1683 18 1668 14 Q1653 21 1638 14 Q1623 17 1608 14 Q1593 18 1578 14 Q1563 18 1548 14 Q1533 17 1518 14 Q1503 18 1488 14 Q1473 21 1458 14 Q1443 17 1428 14 Q1413 18 1398 14 Q1383 17 1368 14 Q1353 18 1338 14 Q1323 18 1308 14 Q1293 18 1278 14 Q1263 21 1248 14 Q1233 21 1218 14 Q1203 18 1188 14 Q1173 18 1158 14 Q1143 18 1128 14 Q1113 17 1098 14 Q1083 21 1068 14 Q1053 18 1038 14 Q1023 17 1008 14 Q993 18 978 14 Q963 18 948 14 Q933 17 918 14 Q903 17 888 14 Q873 17 858 14 Q843 18 828 14 Q813 17 798 14 Q783 17 768 14 Q753 21 738 14 Q723 18 708 14 Q693 18 678 14 Q663 18 648 14 Q633 17 618 14 Q603 18 588 14 Q573 21 558 14 Q543 21 528 14 Q513 18 498 14 Q483 17 468 14 Q453 18 438 14 Q423 17 408 14 Q393 21 378 14 Q363 17 348 14 Q333 17 318 14 Q303 18 288 14 Q273 18 258 14 Q243 17 228 14 Q213 17 198 14 Q183 17 168 14 Q153 18 138 14 Q123 21 108 14 Q93 18 78 14 Q63 17 48 14 Q33 17 18 14 Q3 18 -12 14 Z%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M207.5 8 C207.5 30 211 78 211 96 L219 96 C219 78 222.5 30 222.5 8 Z%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%22215%22 cy=%22104%22 rx=%227.5%22 ry=%229.5%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%22212.5%22 cy=%22101%22 rx=%221.6%22 ry=%222.6%22 fill=%22%23e0525a%22 opacity=%22.55%22/%3E%3Cpath d=%22M593.5 8 C593.5 30 596 18 596 36 L604 36 C604 18 606.5 30 606.5 8 Z%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%22600%22 cy=%2244%22 rx=%227.5%22 ry=%229.5%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%22597.5%22 cy=%2241%22 rx=%221.6%22 ry=%222.6%22 fill=%22%23e0525a%22 opacity=%22.55%22/%3E%3Cpath d=%22M753.0 8 C753.0 30 756 54 756 72 L764 72 C764 54 767.0 30 767.0 8 Z%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%22760%22 cy=%2280%22 rx=%227.5%22 ry=%229.5%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%22757.5%22 cy=%2277%22 rx=%221.6%22 ry=%222.6%22 fill=%22%23e0525a%22 opacity=%22.55%22/%3E%3Cpath d=%22M1093.5 8 C1093.5 30 1096 16 1096 34 L1104 34 C1104 16 1106.5 30 1106.5 8 Z%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%221100%22 cy=%2242%22 rx=%227.5%22 ry=%229.5%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%221097.5%22 cy=%2239%22 rx=%221.6%22 ry=%222.6%22 fill=%22%23e0525a%22 opacity=%22.55%22/%3E%3Cpath d=%22M1547.5 8 C1547.5 30 1551 66 1551 84 L1559 84 C1559 66 1562.5 30 1562.5 8 Z%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%221555%22 cy=%2292%22 rx=%227.5%22 ry=%229.5%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%221552.5%22 cy=%2289%22 rx=%221.6%22 ry=%222.6%22 fill=%22%23e0525a%22 opacity=%22.55%22/%3E%3Cpath d=%22M1693.5 8 C1693.5 30 1696 26 1696 44 L1704 44 C1704 26 1706.5 30 1706.5 8 Z%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%221700%22 cy=%2252%22 rx=%227.5%22 ry=%229.5%22 fill=%22%23b3121b%22/%3E%3Cellipse cx=%221697.5%22 cy=%2249%22 rx=%221.6%22 ry=%222.6%22 fill=%22%23e0525a%22 opacity=%22.55%22/%3E%3C/svg%3E") 0 0 / 1728px 120px repeat-x;
+    opacity: 1;
+  }
+  html[data-theme="terror"] body::after {
+    content: 'DOSSIÊ · CASO Nº 0427'; position: fixed; top: 0; left: calc(var(--side-w) + 68px); z-index: 61;
+    padding: 2px 10px; background: #cf2a33; color: #fff; border-radius: 0 0 3px 3px;
+    font: 400 9px/14px 'Special Elite', 'Courier Prime', monospace; letter-spacing: .6px; pointer-events: none;
+  }
+  html[data-theme="terror"] { background: #060a08; }
+  html[data-theme="terror"]::after {
+    content: ''; position: fixed; right: 40px; bottom: 0; width: 200px; height: 120px; pointer-events: none; z-index: 50;
+    background: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22120%22 viewBox=%220 0 200 120%22%3E%3Ccircle cx=%22100%22 cy=%2270%22 r=%2224%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M95.3 74.8 L128.5 98.1 L104.7 65.2 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%22132.8%22 cy=%22102.3%22 r=%222.9%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M101.9 75.5 L147.5 53.8 L98.1 64.5 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%22153.2%22 cy=%2251.9%22 r=%222.9%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M101.1 77.5 L134.6 64.8 L98.9 62.5 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%22140.5%22 cy=%2263.9%22 r=%222.9%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M95.4 68.8 L90.7 106.6 L104.6 71.2 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2289.2%22 cy=%22112.4%22 r=%222.9%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M95.3 68.2 L79.5 123.3 L104.7 71.8 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2277.3%22 cy=%22128.9%22 r=%222.9%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M102.8 65.0 L54.7 44.5 L97.2 75.0 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2249.5%22 cy=%2241.5%22 r=%222.9%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M101.3 65.7 L66.2 59.5 L98.7 74.3 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2260.4%22 cy=%2257.8%22 r=%222.9%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M94.3 71.6 L114.5 121.2 L105.7 68.4 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%22116.2%22 cy=%22126.9%22 r=%222.9%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M94.4 67.6 L80.2 116.4 L105.6 72.4 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2277.9%22 cy=%22121.9%22 r=%222.9%22 fill=%22%23b3121b%22/%3E%3C/svg%3E") 100% 100% / 200px 120px no-repeat, url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2280%22 height=%2250%22 viewBox=%220 0 80 50%22%3E%3Ccircle cx=%2240%22 cy=%2228%22 r=%228%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M37.8 27.3 L34.2 45.9 L42.2 28.7 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2233.6%22 cy=%2247.8%22 r=%221.0%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M37.9 28.1 L40.6 44.7 L42.1 27.9 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2240.7%22 cy=%2246.7%22 r=%221.0%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M41.3 29.3 L52.9 15.1 L38.7 26.7 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2254.3%22 cy=%2213.7%22 r=%221.0%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M40.2 30.0 L52.2 26.5 L39.8 26.0 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2254.2%22 cy=%2226.2%22 r=%221.0%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M42.1 28.1 L40.6 15.4 L37.9 27.9 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2240.7%22 cy=%2213.4%22 r=%221.0%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M39.4 30.3 L57.1 32.3 L40.6 25.7 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2259.0%22 cy=%2232.8%22 r=%221.0%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M40.8 26.3 L22.4 19.3 L39.2 29.7 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2220.6%22 cy=%2218.4%22 r=%221.0%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M42.1 27.3 L34.3 12.1 L37.9 28.7 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2233.6%22 cy=%2210.2%22 r=%221.0%22 fill=%22%23b3121b%22/%3E%3Cpath d=%22M39.3 25.5 L21.5 33.2 L40.7 30.5 Z%22 fill=%22%23b3121b%22/%3E%3Ccircle cx=%2219.5%22 cy=%2233.8%22 r=%221.0%22 fill=%22%23b3121b%22/%3E%3C/svg%3E") 0 100% / 80px 50px no-repeat;
+    transform: translateY(26px);
+  }
 }
