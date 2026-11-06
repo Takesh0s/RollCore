@@ -1,6 +1,7 @@
 package com.rollcore.controller;
 
 import com.rollcore.config.SecurityConfig;
+import com.rollcore.dto.request.UpdateProfileRequest;
 import com.rollcore.dto.response.UserProfileResponse;
 import com.rollcore.exception.GlobalExceptionHandler;
 import com.rollcore.filter.JwtAuthFilter;
@@ -18,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -86,6 +89,38 @@ class UserControllerTest {
     @Test @DisplayName("GET /users/me → 4xx without authentication")
     void meRequiresAuth() throws Exception {
         mvc.perform(get("/users/me")).andExpect(status().is4xxClientError());
+
+        verifyNoInteractions(accountService);
+    }
+
+    @Test @DisplayName("PUT /users/me → 200 with the updated profile")
+    void updateOk() throws Exception {
+        when(accountService.updateMe(org.mockito.ArgumentMatchers.eq(USER_ID), any(UpdateProfileRequest.class)))
+                .thenReturn(new UserProfileResponse(USER_ID, "novo_nome", "l@x.com", "FREE", 0, 1, null));
+
+        mvc.perform(put("/users/me").with(authentication(uuidAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"novo_nome\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("novo_nome"));
+    }
+
+    @Test @DisplayName("PUT /users/me → 400 for an invalid username")
+    void updateInvalid() throws Exception {
+        mvc.perform(put("/users/me").with(authentication(uuidAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"a b\"}"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(accountService);
+    }
+
+    @Test @DisplayName("PUT /users/me → 400 for a non-image avatar")
+    void updateInvalidAvatar() throws Exception {
+        mvc.perform(put("/users/me").with(authentication(uuidAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"avatarUrl\":\"javascript:alert(1)\"}"))
+                .andExpect(status().isBadRequest());
 
         verifyNoInteractions(accountService);
     }
