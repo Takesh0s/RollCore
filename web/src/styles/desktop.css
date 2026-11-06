@@ -436,3 +436,54 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
   .sheet-new-card svg { width: 40px; height: 40px; color: var(--sapphire); }
   .sheet-new-card:hover { background: rgba(255,255,255,.04); }
 }
+
+/* ── Criar / Editar ficha — base (mobile) ── */
+.char-form-side { display: none; }
+.level-stepper { display: block; }
+.level-stepper button { display: none; }
+.form-row-3 > :nth-child(3) { grid-column: 1 / -1; }
+
+/* ── Criar / Editar ficha (desktop) — Figma 05.2 / 05.3 ── */
+@media (min-width: 1024px) {
+  .char-form-layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start; padding-bottom: 8px; }
+  .char-form-main { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 20px 22px 22px; min-width: 0; }
+  .char-form-avatar-wrap { display: none; }
+  .form-delete-mobile { display: none; }
+  .char-form-main .section-title { text-align: left; font-size: 15px; }
+  .form-row-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .form-row-3 > :nth-child(3) { grid-column: auto; }
+  .char-form-main .attr-form-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .char-form-main .form-actions { justify-content: flex-start; margin-top: 28px; }
+  .char-form-main .form-actions .btn { margin: 0; }
+  .char-form-main .form-actions .btn-primary { order: -1; }
+
+  .level-stepper { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 10px; align-items: stretch; max-width: 360px; }
+  .level-stepper button { display: block; border: 1px solid var(--card-border); border-radius: 10px; background: color-mix(in srgb, var(--sapphire) 55%, var(--card)); color: #10202e; font-size: 20px; cursor: pointer; }
+  .level-stepper input { -moz-appearance: textfield; }
+  .level-stepper input::-webkit-outer-spin-button, .level-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .char-form-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 0; }
+  .side-card { background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 22px 20px; }
+  .char-preview { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .char-preview h3 { margin: 14px 0 2px; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 24px; color: var(--text); max-width: 100%; overflow-wrap: anywhere; }
+  .char-preview-meta { margin: 0 0 18px; font-size: 12px; color: var(--text-muted); }
+  .char-preview-stats { display: flex; justify-content: space-between; width: 100%; font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .char-preview-bar { width: 100%; height: 6px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; margin-bottom: 18px; }
+  .char-preview-bar div { height: 100%; background: var(--sapphire); border-radius: 3px; }
+  .char-preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; gap: 8px; }
+  .char-preview-grid strong { display: block; font-family: 'Source Serif 4', serif; font-size: 20px; color: var(--sapphire); overflow-wrap: anywhere; }
+  .char-preview-grid small { font-size: 11px; color: var(--text-faint); }
+  .char-tip strong { font-family: 'Source Serif 4', serif; font-size: 15px; color: var(--text); }
+  .char-tip p { margin: 6px 0 0; font-size: 12px; color: var(--text-muted); }
+  .side-btn { width: 100%; height: 40px; border-radius: 999px; background: transparent; border: 1px solid var(--card-border); color: var(--sapphire); cursor: pointer; font-size: 14px; }
+  .side-btn.danger { background: #4a0000; border-color: #4a0000; color: #fff; }
+  .side-btn:disabled { opacity: .6; }
+
+  /* Campos preenchidos no azul do Figma (só no tema Medieval; os outros temas mantêm o campo escuro) */
+  html[data-theme="medieval"] .char-form-main .form-input { background: #6b8aa8; color: #10202e; border-color: transparent; }
+  html[data-theme="medieval"] .char-form-main .form-input::placeholder { color: rgba(16,32,46,.55); }
+}
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .char-form-layout { grid-template-columns: minmax(0, 1fr) 320px; }
+  .char-form-main .attr-form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

@@ -95,6 +95,12 @@ export function CharacterFormScreen({ mode }: Props) {
   const lvlNum       = parseInt(level, 10)
   const showSubclass = !!subclassInfo && !isNaN(lvlNum) && lvlNum >= subclassInfo.choiceLevel
 
+  function stepLevel(delta: number) {
+    const cur = parseInt(level, 10)
+    const next = Math.min(20, Math.max(1, (isNaN(cur) ? 0 : cur) + delta))
+    setLevel(String(next)); setErrors(p => ({ ...p, level: '' }))
+  }
+
   // ── Auto-calculate HP and CA ────────────────────────────────────────────────
 
   /**
@@ -238,11 +244,13 @@ export function CharacterFormScreen({ mode }: Props) {
 
   return (
     <div className="device">
-      <AppHeader title={isEdit ? 'Ficha' : 'Criar Ficha'} onBack={() => navigate(isEdit ? 'ficha' : 'personagens')} />
+      <AppHeader title={isEdit ? (existing?.name || 'Ficha') : 'Criar Ficha'} onBack={() => navigate(isEdit ? 'ficha' : 'personagens')} />
 
       <div className="page-body">
+       <div className="char-form-layout">
+        <div className="char-form-main">
 
-        {/* ── Character portrait ── */}
+        {/* ── Character portrait (mobile; no desktop o retrato fica no cartão lateral) ── */}
         <div className="char-form-avatar-wrap">
           <AvatarUpload
             value={avatarUrl}
@@ -269,7 +277,19 @@ export function CharacterFormScreen({ mode }: Props) {
           {errors.name && <small className="error-msg">{errors.name}</small>}
         </div>
 
-        <div className="form-row">
+        <div className="form-row form-row-3">
+          <div className="form-group form-col">
+            <label className="form-label">Raça</label>
+            <select
+              className={`form-input${errors.race ? ' error' : race ? ' valid' : ''}`}
+              value={race}
+              onChange={e => { setRace(e.target.value); setErrors(p => ({ ...p, race: '' })) }}
+            >
+              <option value="">Selecione...</option>
+              {RACES.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+            {errors.race && <small className="error-msg">{errors.race}</small>}
+          </div>
           <div className="form-group form-col">
             <label className="form-label">Classe</label>
             <select
@@ -283,16 +303,17 @@ export function CharacterFormScreen({ mode }: Props) {
             {errors.cls && <small className="error-msg">{errors.cls}</small>}
           </div>
           <div className="form-group form-col">
-            <label className="form-label">Raça</label>
+            <label className="form-label">Subclasse</label>
             <select
-              className={`form-input${errors.race ? ' error' : race ? ' valid' : ''}`}
-              value={race}
-              onChange={e => { setRace(e.target.value); setErrors(p => ({ ...p, race: '' })) }}
+              className={`form-input${subclass ? ' valid' : ''}`}
+              value={subclass}
+              disabled={!showSubclass}
+              title={subclassInfo && !showSubclass ? `Disponível a partir do nível ${subclassInfo.choiceLevel}` : undefined}
+              onChange={e => setSubclass(e.target.value)}
             >
-              <option value="">Selecione...</option>
-              {RACES.map(r => <option key={r} value={r}>{r}</option>)}
+              <option value="">{showSubclass ? 'Selecione (opcional)' : '—'}</option>
+              {showSubclass && subclassInfo.options.map(o => <option key={o} value={o}>{o}</option>)}
             </select>
-            {errors.race && <small className="error-msg">{errors.race}</small>}
           </div>
         </div>
 
@@ -307,37 +328,21 @@ export function CharacterFormScreen({ mode }: Props) {
 
         <div className="form-group">
           <label className="form-label">Nível</label>
-          <input
-            className={`form-input input-center${errors.level ? ' error' : level && !errors.level ? ' valid' : ''}`}
-            type="number" min={1} max={20} placeholder="1–20"
-            value={level}
-            onChange={e => { setLevel(e.target.value); setErrors(p => ({ ...p, level: '' })) }}
-          />
+          <div className="level-stepper">
+            <button type="button" aria-label="Diminuir nível" onClick={() => stepLevel(-1)}>−</button>
+            <input
+              className={`form-input input-center${errors.level ? ' error' : level && !errors.level ? ' valid' : ''}`}
+              type="number" min={1} max={20} placeholder="1–20"
+              value={level}
+              onChange={e => { setLevel(e.target.value); setErrors(p => ({ ...p, level: '' })) }}
+            />
+            <button type="button" aria-label="Aumentar nível" onClick={() => stepLevel(1)}>+</button>
+          </div>
           <small className="field-hint">
             Bônus de proficiência: {!isNaN(parseInt(level, 10)) ? `+${profBonus(parseInt(level, 10))}` : '—'}
           </small>
           {errors.level && <small className="error-msg">{errors.level}</small>}
         </div>
-
-        {/* Subclass */}
-        {showSubclass && (
-          <div className="form-group">
-            <label className="form-label">
-              Subclasse
-              <span className="field-hint" style={{ marginLeft: 6 }}>
-                (disponível a partir do nível {subclassInfo.choiceLevel})
-              </span>
-            </label>
-            <select
-              className={`form-input${subclass ? ' valid' : ''}`}
-              value={subclass}
-              onChange={e => setSubclass(e.target.value)}
-            >
-              <option value="">Selecione (opcional)</option>
-              {subclassInfo.options.map(o => <option key={o} value={o}>{o}</option>)}
-            </select>
-          </div>
-        )}
 
         {/* ── Attributes ── */}
         <h2 className="section-title" style={{ marginTop: 24 }}>Atributos</h2>
@@ -401,7 +406,7 @@ export function CharacterFormScreen({ mode }: Props) {
         <div className="form-actions">
           {isEdit && (
             <button
-              className="btn btn-danger btn-auto"
+              className="btn btn-danger btn-auto form-delete-mobile"
               style={{ marginTop: 0 }}
               onClick={() => setShowDelete(true)}
               disabled={loading}
@@ -426,6 +431,40 @@ export function CharacterFormScreen({ mode }: Props) {
           </button>
         </div>
 
+        </div>{/* /char-form-main */}
+
+        {/* ── Cartão de pré-visualização (desktop) ── */}
+        <aside className="char-form-side">
+          <div className="side-card char-preview">
+            <AvatarUpload value={avatarUrl} initials={name.charAt(0) || '?'} onChange={setAvatarUrl} size={96} />
+            <h3>{name.trim() || 'Nome do personagem'}</h3>
+            <p className="char-preview-meta">
+              {cls || 'Classe'} · {race || 'Raça'} · Nível {level || 1}
+            </p>
+            <div className="char-preview-stats">
+              <span>HP {maxHp ? `${isEdit && existing ? existing.hp : maxHp} / ${maxHp}` : '— / —'}</span>
+              <span>CA {ac || '—'}</span>
+            </div>
+            <div className="char-preview-bar"><div style={{ width: maxHp ? `${isEdit && existing ? Math.min(100, (existing.hp / Math.max(1, parseInt(maxHp, 10) || 1)) * 100) : 100}%` : '0%' }} /></div>
+            <div className="char-preview-grid">
+              <div><strong>{level || 1}</strong><small>Nível</small></div>
+              <div><strong>{!isNaN(lvlNum) && lvlNum >= 1 && lvlNum <= 20 ? `+${profBonus(lvlNum)}` : '—'}</strong><small>Proficiência</small></div>
+              <div><strong>{race || '—'}</strong><small>Raça</small></div>
+            </div>
+          </div>
+          {isEdit ? (
+            <>
+              <button className="btn side-btn" onClick={() => navigate('ficha')} disabled={loading}>Abrir ficha</button>
+              <button className="btn side-btn danger" onClick={() => setShowDelete(true)} disabled={loading}>Excluir ficha</button>
+            </>
+          ) : (
+            <div className="side-card char-tip">
+              <strong>Dica</strong>
+              <p>Você pode preencher só o básico agora e completar inventário, grimório e anotações depois, na ficha.</p>
+            </div>
+          )}
+        </aside>
+       </div>
       </div>
 
       {/* Delete confirmation modal — UC-02 S02 */}
