@@ -45,8 +45,9 @@ export function ProfileScreen() {
       setSaved(true)
       showToast('Perfil atualizado!', 'success')
       setTimeout(() => setSaved(false), 2000)
-    } catch {
-      showToast('Erro ao salvar perfil.', 'error')
+    } catch (err: any) {
+      if (err?.response?.status === 409) setUsernameErr('Nome de usuário já está em uso.')
+      else showToast('Erro ao salvar perfil.', 'error')
     } finally {
       setLoading(false)
     }

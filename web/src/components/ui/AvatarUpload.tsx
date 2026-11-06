@@ -11,10 +11,30 @@ interface AvatarUploadProps {
   size?: number
 }
 
+const MAX_SIDE = 256
+
+/** Downsizes to a 256px JPEG so the photo is small enough to be stored with the account. */
+function shrink(dataUrl: string): Promise<string> {
+  return new Promise(resolve => {
+    const img = new Image()
+    img.onload = () => {
+      const scale = Math.min(1, MAX_SIDE / Math.max(img.width, img.height))
+      const canvas = document.createElement('canvas')
+      canvas.width  = Math.max(1, Math.round(img.width * scale))
+      canvas.height = Math.max(1, Math.round(img.height * scale))
+      const ctx = canvas.getContext('2d')
+      if (!ctx) return resolve(dataUrl)
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+      resolve(canvas.toDataURL('image/jpeg', 0.85))
+    }
+    img.onerror = () => resolve(dataUrl)
+    img.src = dataUrl
+  })
+}
+
 /**
  * Circular avatar with an overlay camera button.
- * Converts the selected file to a base64 data URL and calls onChange.
- * No server upload in Fase 1 — stored locally via storage.setUser / character field.
+ * Converts the selected file to a small (256px) JPEG data URL and calls onChange.
  */
 export function AvatarUpload({ value, initials, onChange, size = 72 }: AvatarUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -30,7 +50,7 @@ export function AvatarUpload({ value, initials, onChange, size = 72 }: AvatarUpl
     const reader = new FileReader()
     reader.onload = ev => {
       const result = ev.target?.result
-      if (typeof result === 'string') onChange(result)
+      if (typeof result === 'string') shrink(result).then(onChange)
     }
     reader.readAsDataURL(file)
 
