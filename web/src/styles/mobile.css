@@ -1,0 +1,140 @@
+/* ═══════════════════════════════════════════════════════════════
+   Celular (< 1024px): medidas do Figma "Mobile" (frame 412 × 917).
+   Carregado por último; o PC (≥ 1024px) não é afetado.
+════════════════════════════════════════════════════════════════ */
+@media (max-width: 1023px) {
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+  /* Moldura: borda a 18px dos lados e 40px do topo; dentes (4 de 52px, vão de 41px) abaixo dela */
+  .device, .login-device { --notch: 41px; }
+  .device::before, .login-device::before {
+    top: 40px; left: 18px; right: 18px;
+    bottom: calc(var(--notch) + 9px);
+  }
+  .device::after, .login-device::after {
+    background: repeating-linear-gradient(90deg, var(--card) 0 41px, var(--canvas) 41px 93px);
+    background-position: 0 0;
+  }
+
+  /* ── Cabeçalho ── */
+  .app-header {
+    grid-template-columns: 48px 1fr 48px;
+    margin: 46px 31px 0;
+    padding: 0 0 8px;
+    border-bottom: 1px solid rgba(192, 192, 192, 0.7);
+  }
+  .app-header-title { font-size: 30px; }
+  .app-header-btn { width: 46px; height: 46px; }
+  .app-header-btn svg { width: 34px; height: 34px; }
+  .app-header-profile { border: 2px solid rgba(192, 192, 192, 0.85); border-radius: 50%; }
+  .app-header-profile svg { width: 100%; height: 100%; }
+  .app-header-avatar { width: 100%; height: 100%; }
+
+  .page-body { margin: 0 20px 0 18px; padding: 10px 14px 16px; padding-inline: 14px 8px; }
+
+  /* ── Menu lateral (gaveta) ── */
+  .side-menu-backdrop { position: fixed; inset: 0; z-index: 20; background: rgba(0, 0, 0, 0.45); }
+  .app-header > .side-menu.sheet,
+  .side-menu.sheet {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: min(300px, 82vw); height: 100dvh;
+    z-index: 21; padding: 38px 12px 18px;
+    display: flex; flex-direction: column; overflow-y: auto;
+    background: #3a454b; box-shadow: 6px 0 24px rgba(0, 0, 0, 0.5);
+    border-right: 1px solid rgba(192, 192, 192, 0.35);
+  }
+  .side-profile {
+    display: flex; align-items: center; gap: 14px; width: 100%;
+    padding: 0 8px 16px; margin-bottom: 8px;
+    background: none; border: none; border-bottom: 1px solid rgba(192, 192, 192, 0.55);
+    color: var(--text-bright); text-align: left; cursor: pointer;
+  }
+  .side-avatar {
+    width: 56px; height: 56px; border-radius: 50%; flex: none; object-fit: cover;
+    border: 2px solid rgba(192, 192, 192, 0.85); display: grid; place-items: center; color: var(--text-muted);
+  }
+  .side-avatar svg { width: 100%; height: 100%; }
+  .side-profile-text { display: flex; flex-direction: column; min-width: 0; }
+  .side-profile-text strong { font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 17px; font-weight: 700; color: var(--text-bright); }
+  .side-profile-text small { font-size: 12px; color: var(--text-faint); }
+  .side-menu.sheet .side-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  .side-menu.sheet .side-item, .side-menu.sheet .side-menu-item {
+    padding: 10px 14px; gap: 16px; min-height: 48px; border-radius: 12px;
+    font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 16px; font-weight: 700; color: var(--text-muted);
+  }
+  .side-menu.sheet .side-menu-icon { width: 28px; height: 28px; color: inherit; }
+  .side-menu.sheet .side-menu-item.soon { opacity: 1; }
+  .side-menu.sheet .side-menu-item.active { background: rgba(255, 255, 255, 0.1); color: var(--sapphire); }
+  .side-menu.sheet .side-foot {
+    list-style: none; margin-top: auto; padding-top: 14px;
+    border-top: 1px solid rgba(192, 192, 192, 0.55);
+  }
+  .side-logout {
+    display: block; margin: 4px 0 0 64px; padding: 8px 0; background: none; border: none; cursor: pointer;
+    font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 13px; font-weight: 700; color: #e58a8a;
+  }
+
+  /* ── Login ── */
+  .auth-body { margin: 0 18px; padding: 56px 14px 16px; }
+  .logo-wrap { margin-bottom: 4px; }
+  .logo-svg { width: 100px; height: 108px; }
+  .login-header { margin-bottom: 14px; }
+  .login-header h1 { font-size: 42px; line-height: 1; }
+  .login-header p { font-size: 16px; font-style: normal; color: var(--text-muted); margin-top: 4px; }
+  .login-device .form-group { margin-bottom: 14px; }
+  .login-device .form-label { font-size: 12px; font-style: normal; color: var(--text-faint); margin-bottom: 6px; }
+  .login-device .form-input { height: 44px; padding: 0 16px; border-radius: 12px; font-size: 14px; }
+  .login-device .pw-wrap .form-input { padding-right: 48px; }
+  .auth-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 2px 0 18px; }
+  .auth-keep { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-muted); cursor: pointer; }
+  .auth-keep input { width: 18px; height: 18px; }
+  .auth-row .link-btn { margin: 0; font-size: 12px; font-style: normal; font-weight: 700; text-decoration: none; color: var(--sapphire); }
+  .login-device .btn-primary {
+    width: 100%; margin: 0; height: 48px; padding: 0; border-radius: 999px;
+    font-size: 15px; border: 1px solid var(--sapphire); box-shadow: 0 0 14px rgba(143, 180, 212, 0.55);
+  }
+  .google-signin { display: flex; flex-direction: column; align-items: center; margin-top: 14px; }
+  .google-signin-divider { display: flex; align-items: center; gap: 12px; width: 100%; font-size: 11px; color: var(--text-faint); margin-bottom: 14px; }
+  .google-signin-divider::before, .google-signin-divider::after { content: ''; flex: 1; height: 1px; background: rgba(192, 192, 192, 0.5); }
+  .auth-switch { order: 99; margin-top: 22px; font-size: 13px; }
+  .auth-switch .link-btn { font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 13px; }
+
+  /* ── Dashboard ── */
+  .md-dash { display: flex; flex-direction: column; gap: 0; }
+  .md-dash > * { flex: none; }
+  .md-hello { font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 20px; font-weight: 700; color: var(--text-bright); margin-top: 6px; }
+  .md-date { font-size: 12px; color: var(--text-faint); margin: 2px 0 8px; }
+  .md-dash .dash-sec-title { display: flex; align-items: center; gap: 12px; margin: 14px 0 8px; }
+  .md-dash .dash-sec-title::before, .md-dash .dash-sec-title::after { content: ''; flex: 1; height: 1px; background: rgba(192, 192, 192, 0.55); }
+  .md-dash .dash-sec-title span { font-family: var(--font-serif, 'Source Serif 4', serif); font-size: 15px; font-weight: 700; color: var(--text-muted); }
+  .md-card {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin-bottom: 8px;
+    background: rgba(0, 0, 0, 0.14); border: 1px solid rgba(192, 192, 192, 0.18); border-radius: 12px;
+  }
+  .md-card strong { display: block; font-family: var(--font-body); font-size: 14px; font-weight: 700; color: var(--text-bright); }
+  .md-card span, .md-card small { font-size: 12px; color: var(--text-faint); }
+  .md-next-cover { width: 54px; height: 54px; border-radius: 8px; background: #4a5a65; display: grid; place-items: center; flex: none; color: var(--text-bright); }
+  .md-next-cover svg { width: 34px; height: 34px; }
+  .md-next-info { flex: 1; min-width: 0; }
+  .md-next-info span { display: block; color: var(--sapphire); }
+  .md-enter {
+    flex: none; height: 28px; padding: 0 18px; border-radius: 999px; cursor: pointer;
+    background: var(--btn-dark, #1f1f1f); color: var(--btn-text, #8fb4d4);
+    border: 1px solid var(--sapphire); box-shadow: 0 0 10px rgba(143, 180, 212, 0.5);
+    font-family: var(--font-btn); font-style: italic; font-size: 12px;
+  }
+  .md-empty { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .md-empty strong { color: var(--text-muted); }
+  .md-empty .md-enter { margin-top: 6px; }
+  .md-status { flex-direction: column; align-items: stretch; gap: 4px; border-color: var(--sapphire); }
+  .md-status-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .md-status-head em { font-style: normal; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: #e8c25a; color: #2a2410; }
+  .md-chips { display: flex; gap: 8px; margin-bottom: 8px; overflow-x: auto; scrollbar-width: none; }
+  .md-chips button {
+    flex: none; height: 28px; padding: 0 16px; border-radius: 999px; cursor: pointer;
+    background: none; border: 1px solid rgba(192, 192, 192, 0.6); color: var(--text-muted); font-size: 12px; font-family: var(--font-body);
+  }
+  .md-chips button.on { background: var(--sapphire); border-color: var(--sapphire); color: #10202e; font-weight: 700; }
+  .md-roll { justify-content: space-between; }
+  .md-roll b { font-family: var(--font-body); font-size: 24px; font-weight: 700; color: var(--text-muted); }
+}

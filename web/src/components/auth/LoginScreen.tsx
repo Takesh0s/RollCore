@@ -55,7 +55,7 @@ export function LoginScreen() {
       </div>
 
       <div className="form-group">
-        <label className="form-label">e-mail</label>
+        <label className="form-label">E-mail</label>
         <input
           className={`form-input${emailErr ? ' error' : email && !emailErr ? ' valid' : ''}`}
           type="email"
@@ -69,7 +69,7 @@ export function LoginScreen() {
       </div>
 
       <div className="form-group">
-        <label className="form-label">senha</label>
+        <label className="form-label">Senha</label>
         <PasswordInput
           className={`form-input${passErr ? ' error' : ''}`}
           placeholder="••••••••"
@@ -81,19 +81,20 @@ export function LoginScreen() {
         {passErr && <small className="error-msg">{passErr}</small>}
       </div>
 
-      <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-        <input
-          type="checkbox"
-          id="keep"
-          checked={keepConnected}
-          onChange={e => setKeepConnected(e.target.checked)}
-        />
-        <label htmlFor="keep" style={{ fontSize: 13, cursor: 'pointer' }}>Mantenha conectado</label>
+      <div className="auth-row">
+        <label className="auth-keep" htmlFor="keep">
+          <input
+            type="checkbox"
+            id="keep"
+            checked={keepConnected}
+            onChange={e => setKeepConnected(e.target.checked)}
+          />
+          Mantenha conectado
+        </label>
+        <button className="link-btn link-start" onClick={() => navigate('esqueci-senha')}>
+          Esqueci minha senha
+        </button>
       </div>
-
-      <button className="link-btn link-start" style={{ marginTop: 0 }} onClick={() => navigate('esqueci-senha')}>
-        esqueci minha senha
-      </button>
 
       <button
         className="btn btn-primary"

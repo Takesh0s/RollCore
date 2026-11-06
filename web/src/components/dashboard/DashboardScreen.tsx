@@ -1,19 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { AppHeader } from '@/components/ui/AppHeader'
-import { DiceLogo } from '@/components/ui/DiceLogo'
-import { TableBanner } from '@/components/tables/TableBanner'
 import { useDesktop } from '@/hooks/useDesktop'
 import { calcMod, formatMod, profBonus } from '@/lib/engine'
 import { formatTimestamp } from '@/lib/dice'
-import { IconScroll, IconPlus, IconSheets, IconCommunity, IconWand, IconNotes } from '@/components/ui/icons'
-
-/** Atalhos que já existem no Figma mas ainda não têm tela no web. */
-const COMING_SOON = [
-  { label: 'Comunidade', icon: <IconCommunity className="dash-card-icon" /> },
-  { label: 'GM Tools',   icon: <IconWand className="dash-card-icon" /> },
-  { label: 'Anotações',  icon: <IconNotes className="dash-card-icon" /> },
-]
+import { IconCommunity } from '@/components/ui/icons'
 
 /**
  * Tela inicial, no layout do Figma: faixa de Mesas e os atalhos grandes
@@ -163,79 +154,81 @@ export function DashboardScreen() {
 }
 
 function MobileDashboard() {
-  const { navigate, tables, loadTables, openTable, characters, history, showToast } = useAppStore()
-  const lastRoll = history[0] ?? null
-
+  const { navigate, tables, loadTables, openTable, history, user } = useAppStore()
   useEffect(() => { loadTables() }, [loadTables])
+
+  const next = tables[0] ?? null
+  const today = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })
+  const [filter, setFilter] = useState<string | null>(null)
+  const rolls = history.filter(h => !filter || h.tableId === filter).slice(0, 3)
 
   return (
     <div className="device">
-      <AppHeader title="RollCore" />
+      <AppHeader title="Dashboard" />
+      <div className="page-body md-dash">
+        <h2 className="md-hello">Olá, {user.username || 'aventureiro'}</h2>
+        <p className="md-date">{today.charAt(0).toUpperCase() + today.slice(1)}</p>
 
-      <div className="page-body wide">
-        <div className="home-section-head">
-          <button className="home-icon-btn" aria-label="Ver mesas" onClick={() => navigate('mesas')}>
-            <IconScroll />
-          </button>
-          <h2>Mesas</h2>
-          <button className="home-icon-btn" aria-label="Criar mesa" onClick={() => navigate('nova-mesa')}>
-            <IconPlus />
-          </button>
-        </div>
-
-        {tables.length === 0 ? (
-          <div className="home-mesas">
-            <strong>Nenhuma mesa por aqui</strong>
-            <span>Toque no + para criar a sua primeira mesa.</span>
+        <SectionTitle>Próxima sessão</SectionTitle>
+        {next ? (
+          <div className="md-card md-next">
+            <div className="md-next-cover"><IconCommunity /></div>
+            <div className="md-next-info">
+              <strong>{next.name}</strong>
+              <span>{next.gameSystem} · {next.myRole === 'MASTER' ? 'você é o mestre' : `Mestre ${next.ownerUsername}`}</span>
+            </div>
+            <button className="md-enter" onClick={() => openTable(next.id)}>Entrar</button>
           </div>
         ) : (
-          <>
-            <div className="table-grid">
-              {tables.slice(0, 3).map(t => (
-                <TableBanner key={t.id} table={t} onEnter={() => openTable(t.id)} />
-              ))}
-            </div>
-            {tables.length > 3 && (
-              <button className="link-btn" style={{ marginBottom: 14 }} onClick={() => navigate('mesas')}>
-                ver todas as mesas ({tables.length})
-              </button>
-            )}
-          </>
+          <div className="md-card md-empty">
+            <strong>Nenhuma mesa por aqui</strong>
+            <button className="md-enter" onClick={() => navigate('nova-mesa')}>Criar mesa</button>
+          </div>
         )}
 
-        <div className="dash-grid">
-          <button className="dash-card" onClick={() => navigate('dados')}>
-            <DiceLogo className="dash-card-icon mint" />
-            <h3>Rolar Dados</h3>
-            <p>
-              {lastRoll
-                ? `Último: ${lastRoll.formula ?? `d${lastRoll.result.sides}`} = ${lastRoll.result.total}`
-                : 'Faça sua primeira rolagem'}
-            </p>
-          </button>
+        <SectionTitle>Mensagens recentes</SectionTitle>
+        <div className="md-card md-empty"><strong>Em breve</strong><span>O chat das mesas chega com a Comunidade.</span></div>
 
-          <button className="dash-card" onClick={() => navigate('personagens')}>
-            <IconSheets className="dash-card-icon" />
-            <h3>Fichas</h3>
-            <p>
-              {characters.length === 0 ? 'Criar primeira ficha'
-                : characters.length === 1 ? '1 personagem'
-                : `${characters.length} personagens`}
-            </p>
-          </button>
+        <SectionTitle>Criações inacabadas</SectionTitle>
+        <div className="md-card md-empty"><strong>Em breve</strong><span>Fichas, mapas e NPCs em andamento aparecem aqui.</span></div>
 
-          {COMING_SOON.map(item => (
-            <button
-              key={item.label}
-              className="dash-card soon"
-              onClick={() => showToast(`${item.label} chega em breve.`)}
-            >
-              {item.icon}
-              <h3>{item.label}</h3>
-              <p>Em breve</p>
-            </button>
+        <SectionTitle>Notas recentes</SectionTitle>
+        <div className="md-card md-empty"><strong>Em breve</strong><span>As anotações chegam com a tela de Anotações.</span></div>
+
+        <SectionTitle>Situação na mesa</SectionTitle>
+        {next ? (
+          <div className="md-card md-status">
+            <div className="md-status-head">
+              <strong>{next.name}</strong>
+              <em>{next.myRole === 'MASTER' ? 'MESTRE' : next.myRole === 'MODERATOR' ? 'MODERADOR' : 'JOGADOR'}</em>
+            </div>
+            <span>{next.playerCount} de {next.maxPlayers} jogadores</span>
+          </div>
+        ) : (
+          <div className="md-card md-empty"><strong>Sem mesa ativa</strong><span>Entre em uma mesa para ver a situação dela aqui.</span></div>
+        )}
+
+        <SectionTitle>Rolagens</SectionTitle>
+        <div className="md-chips">
+          <button className={!filter ? 'on' : ''} onClick={() => setFilter(null)}>Todas</button>
+          {tables.slice(0, 2).map(t => (
+            <button key={t.id} className={filter === t.id ? 'on' : ''} onClick={() => setFilter(t.id)}>{t.name}</button>
           ))}
         </div>
+        {rolls.length === 0 ? (
+          <div className="md-card md-empty">
+            <strong>Nenhuma rolagem ainda</strong>
+            <button className="md-enter" onClick={() => navigate('dados')}>Rolar dados</button>
+          </div>
+        ) : rolls.map((h, i) => (
+          <div key={i} className="md-card md-roll">
+            <div>
+              <strong>{h.formula ?? h.skill ?? `d${h.result.sides}`}</strong>
+              <span>{formatTimestamp(h.timestamp)}{h.tableName ? ` · ${h.tableName}` : ''}</span>
+            </div>
+            <b>{h.result.total}</b>
+          </div>
+        ))}
       </div>
     </div>
   )
