@@ -95,6 +95,9 @@ public class CharacterService {
         entity.setRace(req.race());
         entity.setGameSystem(req.gameSystem() == null || req.gameSystem().isBlank()
                 ? "D&D 5e" : req.gameSystem().trim());
+        if (req.avatarUrl() != null) {
+            entity.setAvatarUrl(req.avatarUrl().isBlank() ? null : req.avatarUrl());
+        }
         entity.setLevel(req.level());
         entity.setAttributes(req.attributes());
         entity.setHp(req.hp());
