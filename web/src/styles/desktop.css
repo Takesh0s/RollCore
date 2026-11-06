@@ -199,7 +199,7 @@
   .auth-brand {
     position: relative; z-index: 4;
     display: flex; flex-direction: column; align-items: center; text-align: center;
-    flex: 1; max-width: 640px; padding: 0 48px;
+    flex: 1 1 0; min-width: 0; max-width: 640px; padding: 0 clamp(16px, 3vw, 48px);
   }
   .auth-brand::after {
     content: ''; position: absolute; right: 0; top: 50%; height: 62vh; width: 1px;
@@ -216,7 +216,7 @@
   .auth-brand-list li { display: flex; align-items: center; gap: 14px; font-size: 15px; }
   .auth-brand-ico { width: 28px; height: 28px; flex: none; color: var(--primary); }
   .login-device .auth-body {
-    flex: none; width: min(460px, 36vw); margin: 0 6vw 0 6vw;
+    flex: 0 1 460px; min-width: 320px; margin: 0 clamp(16px, 4vw, 80px);
     padding: 30px 32px 24px;
     background: var(--card-raised);
     border: 1px solid var(--card-border); border-radius: 14px;
