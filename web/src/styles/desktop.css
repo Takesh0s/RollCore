@@ -278,7 +278,6 @@ html[data-theme]:not([data-theme="medieval"]) { --font-brand: var(--font-display
 /* ── Dashboard PC: cartões com altura fixa, listas e chips como no Figma ── */
 @media (min-width: 1024px) {
   .app-header.desk .app-header-title { font-family: var(--font-brand); font-weight: 400; letter-spacing: .5px; font-size: 34px; }
-  .dash-desk { min-height: calc(100vh - 150px); }
   .dash-grow { flex: 1; }
   .dash-cols { grid-auto-rows: auto; }
   .dash-cols > section > .dash-panel { height: 168px; }
@@ -302,4 +301,38 @@ html[data-theme]:not([data-theme="medieval"]) { --font-brand: var(--font-display
   .dash-chips { display: flex; gap: 8px; margin: -2px 0 6px; flex-wrap: wrap; }
   .dash-chips span { font-size: 11px; padding: 3px 12px; border-radius: 999px; border: 1px solid var(--card-border); color: var(--text-muted); }
   .dash-chips span.on { background: var(--sapphire); color: #10202e; border-color: var(--sapphire); }
+}
+
+/* ── Tipografia e estandarte do Figma (Inter, Source Serif 4, Fugaz One, Kumar One Outline) ── */
+.app-header-title, .side-brand-name, .login-header h1 { font-family: var(--font-brand); font-weight: 400; }
+html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 700; }
+
+@media (min-width: 1024px) {
+  /* Dentes de 64×40 com vão de 64, pendurados na base do painel (Figma: "Dente") */
+  :root { --notch: 40px; }
+  .device::after, .login-device::after {
+    background: repeating-linear-gradient(90deg, var(--card) 0 64px, var(--canvas) 64px 128px);
+    background-position: 0 0;
+  }
+  /* o primeiro dente começa na borda da janela, por baixo da sidebar também */
+  .device::after { margin-left: calc(-1 * var(--side-w)); }
+  /* login/cadastro: layout em linha, então os dentes ficam presos à base da janela */
+  .login-device::after { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; z-index: 1; }
+  .app-header.desk .app-header-title { font-size: 44px; line-height: 1.1; }
+  .side-brand-name { font-size: 34px; }
+  .side-brand-sub { font-family: var(--font-body); }
+  .side-menu.docked .side-menu-item { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--text-muted); }
+  .side-menu.docked .side-menu-item.active { color: var(--primary); }
+
+  .dash-hello { font-family: var(--font-display); font-size: 30px; font-weight: 700; color: var(--text-bright); }
+  .dash-hello-sub { font-family: var(--font-body); font-size: 15px; }
+  .dash-sec-title span { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--text-muted); letter-spacing: 0; }
+  .dash-panel strong { font-family: var(--font-body); font-size: 19px; font-weight: 700; color: var(--text-muted); }
+  .dash-panel > span, .dash-panel div span { font-size: 13px; }
+  .dash-roll strong { font-family: var(--font-body); font-size: 14px; font-weight: 700; color: var(--text-muted); }
+  .dash-roll b { font-family: var(--font-body); font-size: 26px; font-weight: 700; color: var(--text-muted); }
+  .dash-item strong { font-size: 12px; }
+  .dash-panel .btn { align-self: flex-start; }
+  .page-body, .scroll-area { margin-bottom: 21px; }
+  .desk-profile, .desk-profile * { font-family: var(--font-body); font-weight: 700; }
 }

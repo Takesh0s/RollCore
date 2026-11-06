@@ -264,10 +264,10 @@ input[type='checkbox'] { accent-color: var(--mint); width: 15px; height: 15px; }
 
 /* ── Botões ────────────────────────────────────────────────────── */
 .btn {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-style: italic;
-  font-weight: 700;
+  font-family: var(--font-btn);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
   border-radius: 14px;
