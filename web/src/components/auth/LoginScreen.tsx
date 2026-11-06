@@ -1,3 +1,5 @@
+import { PasswordInput } from '@/components/ui/PasswordInput'
+import { AuthBrand } from '@/components/auth/AuthBrand'
 import { useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { DiceLogo } from '@/components/ui/DiceLogo'
@@ -40,6 +42,8 @@ export function LoginScreen() {
 
   return (
     <div className="login-device">
+      <AuthBrand />
+      <div className="auth-body">
 
       <div className="logo-wrap">
         <DiceLogo className="logo-svg" />
@@ -47,11 +51,11 @@ export function LoginScreen() {
 
       <div className="login-header">
         <h1>RollCore</h1>
-        <p>Acesse sua conta</p>
+        <p>Login</p>
       </div>
 
       <div className="form-group">
-        <label className="form-label">E-mail</label>
+        <label className="form-label">e-mail</label>
         <input
           className={`form-input${emailErr ? ' error' : email && !emailErr ? ' valid' : ''}`}
           type="email"
@@ -65,10 +69,9 @@ export function LoginScreen() {
       </div>
 
       <div className="form-group">
-        <label className="form-label">Senha</label>
-        <input
+        <label className="form-label">senha</label>
+        <PasswordInput
           className={`form-input${passErr ? ' error' : ''}`}
-          type="password"
           placeholder="••••••••"
           autoComplete="current-password"
           value={password}
@@ -78,15 +81,19 @@ export function LoginScreen() {
         {passErr && <small className="error-msg">{passErr}</small>}
       </div>
 
-      <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
         <input
           type="checkbox"
           id="keep"
           checked={keepConnected}
           onChange={e => setKeepConnected(e.target.checked)}
         />
-        <label htmlFor="keep" style={{ fontSize: 13, cursor: 'pointer' }}>Manter conectado</label>
+        <label htmlFor="keep" style={{ fontSize: 13, cursor: 'pointer' }}>Mantenha conectado</label>
       </div>
+
+      <button className="link-btn link-start" style={{ marginTop: 0 }} onClick={() => navigate('esqueci-senha')}>
+        esqueci minha senha
+      </button>
 
       <button
         className="btn btn-primary"
@@ -96,16 +103,14 @@ export function LoginScreen() {
         {loading ? '…' : 'Entrar'}
       </button>
 
+      <p className="auth-switch">
+        Ainda não tem conta?{' '}
+        <button className="link-btn" onClick={() => navigate('cadastro')}>Criar conta</button>
+      </p>
+
       <GoogleSignInButton onCredential={idToken => loginWithGoogle(idToken).catch(() => undefined)} />
 
-      <button className="link-btn" onClick={() => navigate('cadastro')}>
-        Criar conta
-      </button>
-
-      <button className="link-btn link-btn-muted" onClick={() => navigate('esqueci-senha')}>
-        Esqueci minha senha
-      </button>
-
+      </div>
     </div>
   )
 }

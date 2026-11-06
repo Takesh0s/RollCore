@@ -1,3 +1,5 @@
+import { PasswordInput } from '@/components/ui/PasswordInput'
+import { AuthBrand } from '@/components/auth/AuthBrand'
 import { useState, useCallback } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { storage } from '@/lib/storage'
@@ -134,35 +136,36 @@ export function RegisterScreen() {
   }
 
   return (
-    <div className="device login-device">
+    <div className="login-device">
+      <AuthBrand />
+      <div className="auth-body">
+      <div className="logo-wrap"><DiceLogo className="logo-svg" /></div>
       <div className="login-header">
-        <div className="logo-wrap"><DiceLogo className="logo-svg" /></div>
-        <h1>Criar Conta</h1>
-        <p>Junte-se à aventura</p>
+        <h1>RollCore</h1>
+        <p>Cadastro</p>
       </div>
 
       <div className="narrow">
 
         {/* ── Username ── */}
         <div className="form-group">
-          <label className="form-label">Nome de Usuário</label>
+          <label className="form-label">Nome de usuário</label>
           <input
             className={`form-input${usernameErr ? ' error' : usernameValid ? ' valid' : ''}`}
             type="text"
-            placeholder="ex: guerreiro_dos_reinos"
+            placeholder="3–20 caracteres. Letras, números e _ apenas"
             maxLength={20}
             value={username}
             onChange={e => { setUsername(e.target.value); setUsernameErr(''); setUsernameValid(false) }}
             onBlur={handleUsernameBlur}
             autoComplete="username"
           />
-          <small className="field-hint">3–20 caracteres. Letras, números e _ apenas.</small>
           {usernameErr && <small className="error-msg">{usernameErr}</small>}
         </div>
 
         {/* ── Email ── */}
         <div className="form-group">
-          <label className="form-label">E-mail</label>
+          <label className="form-label">e-mail</label>
           <input
             className={`form-input${emailErr ? ' error' : emailValid ? ' valid' : ''}`}
             type="email"
@@ -177,11 +180,10 @@ export function RegisterScreen() {
 
         {/* ── Password ── */}
         <div className="form-group">
-          <label className="form-label">Senha</label>
-          <input
+          <label className="form-label">senha</label>
+          <PasswordInput
             className={`form-input${passErr ? ' error' : passValid ? ' valid' : ''}`}
-            type="password"
-            placeholder="Mínimo 8 chars, 1 maiúscula, 1 número"
+            placeholder="Mín. 8 caracteres, 1 maiúscula e 1 número"
             value={pass}
             onChange={e => handlePassChange(e.target.value)}
             autoComplete="new-password"
@@ -194,11 +196,10 @@ export function RegisterScreen() {
 
         {/* ── Confirm ── */}
         <div className="form-group">
-          <label className="form-label">Confirmar Senha</label>
-          <input
+          <label className="form-label">confirmar senha</label>
+          <PasswordInput
             className={`form-input${confirmErr ? ' error' : confirm && !confirmErr ? ' valid' : ''}`}
-            type="password"
-            placeholder="Repita a senha"
+            placeholder=""
             value={confirm}
             onChange={e => handleConfirmChange(e.target.value)}
             autoComplete="new-password"
@@ -207,12 +208,14 @@ export function RegisterScreen() {
         </div>
 
         <button className="btn btn-primary" onClick={handleRegister} disabled={loading}>
-          {loading ? '…' : 'Criar Conta'}
+          {loading ? '…' : 'Criar conta'}
         </button>
 
-        <button className="link-btn" onClick={() => navigate('login')}>
-          Já tenho conta
-        </button>
+        <p className="auth-switch">
+          Já tenho conta?{' '}
+          <button className="link-btn" onClick={() => navigate('login')}>Entrar</button>
+        </p>
+      </div>
       </div>
     </div>
   )

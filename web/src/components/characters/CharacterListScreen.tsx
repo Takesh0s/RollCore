@@ -1,6 +1,8 @@
 import { useAppStore } from '@/store/useAppStore'
+import { AppHeader } from '@/components/ui/AppHeader'
+import { IconPlus } from '@/components/ui/icons'
 
-/** Displays all characters belonging to the authenticated user — RF0002.5 */
+/** Lista de fichas do usuário autenticado — RF0002.5. Layout do Figma: avatar, nome e "Editar". */
 export function CharacterListScreen() {
   const { navigate, characters, selectCharacter } = useAppStore()
 
@@ -16,53 +18,43 @@ export function CharacterListScreen() {
 
   return (
     <div className="device">
-      <div className="topbar">
-        <button className="topbar-back" onClick={() => navigate('dashboard')}>←</button>
-        <div className="topbar-info">
-          <div className="top-title">Meus Personagens</div>
-        </div>
-      </div>
+      <AppHeader title="Fichas" />
 
       <div className="page-body">
-        <div className="list-header">
-          <h2 className="section-title section-title-inline">Lista</h2>
-          <button className="btn btn-gold" onClick={() => navigate('novo-personagem')}>
-            + Novo Personagem
+        <div className="list-toolbar">
+          <button className="home-icon-btn" aria-label="Nova ficha" onClick={() => navigate('novo-personagem')}>
+            <IconPlus />
           </button>
         </div>
 
         {characters.length === 0 ? (
-          <div className="empty-state">
-            <p>Nenhum personagem criado ainda.</p>
-            <button
-              className="btn btn-primary btn-auto"
-              style={{ padding: '10px 28px' }}
-              onClick={() => navigate('novo-personagem')}
-            >
-              + Criar primeiro personagem
+          <div className="empty-state" style={{ textAlign: 'center' }}>
+            <p>Nenhuma ficha criada ainda.</p>
+            <button className="btn btn-primary" onClick={() => navigate('novo-personagem')}>
+              Criar ficha
             </button>
           </div>
         ) : (
-          <div style={{ marginTop: 16 }}>
-            {characters.map(char => (
-              <div key={char.id} className="char-card">
-                <div className="char-card-info">
-                  <div className="char-card-name">{char.name}</div>
-                  <div className="char-card-meta">
-                    {char.class} · {char.race} · Nível {char.level}
-                  </div>
-                </div>
-                <div className="char-card-actions">
-                  <button className="btn btn-ghost" onClick={() => openEdit(char.id)}>
-                    Editar
-                  </button>
-                  <button className="btn btn-ghost" onClick={() => openSheet(char.id)}>
-                    Ver ficha →
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+          characters.map(char => (
+            <div key={char.id} className="char-row">
+              <button className="char-row-main" onClick={() => openSheet(char.id)}>
+                {char.avatar_url
+                  ? <img className="char-row-avatar" src={char.avatar_url} alt="" />
+                  : <span className="char-row-avatar" aria-hidden="true">{char.name.charAt(0).toUpperCase()}</span>}
+                <span className="char-row-info">
+                  <span className="char-row-name" style={{ display: 'block' }}>{char.name}</span>
+                  <span className="char-row-meta" style={{ display: 'block' }}>{char.class} · {char.race} · Nível {char.level}</span>
+                </span>
+              </button>
+              <button
+                className="btn btn-primary btn-pill"
+                onClick={() => openEdit(char.id)}
+                aria-label={`Editar ${char.name}`}
+              >
+                Editar
+              </button>
+            </div>
+          ))
         )}
       </div>
     </div>

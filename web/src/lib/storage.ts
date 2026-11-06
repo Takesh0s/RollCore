@@ -17,6 +17,7 @@ const KEYS = {
   chars:     'rpg_characters',   // local cache — synced from API on login
   history:   'rpg_history',      // local cache — synced from GET /dice/history
   usernames: 'rpg_usernames',    // superseded by backend 409; kept for offline guard
+  covers:    'rpg_table_covers', // table id -> local cover (data URL); the API only stores URLs
 } as const
 
 export const storage = {
@@ -82,5 +83,21 @@ export const storage = {
     const set = storage.getUsernames()
     set.delete(username.toLowerCase())
     localStorage.setItem(KEYS.usernames, JSON.stringify([...set]))
+  },
+
+  // ── Table covers (local only) ──────────────────────────────────────────────
+
+  getTableCovers(): Record<string, string> {
+    try {
+      const raw = localStorage.getItem(KEYS.covers)
+      return raw ? (JSON.parse(raw) as Record<string, string>) : {}
+    } catch { return {} }
+  },
+
+  setTableCover(tableId: string, dataUrl: string): void {
+    try {
+      const covers = { ...storage.getTableCovers(), [tableId]: dataUrl }
+      localStorage.setItem(KEYS.covers, JSON.stringify(covers))
+    } catch { /* storage full or blocked: the cover is just not kept */ }
   },
 }

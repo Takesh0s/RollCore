@@ -9,6 +9,7 @@ import {
 } from '@/lib/engine'
 import { calcMaxHp, calcUnarmoredAC, ATTR_INPUT_MAX, ATTR_INPUT_MIN } from '@/lib/engine-hp'
 import type { AttrKey, Attributes } from '@/types'
+import { AppHeader } from '@/components/ui/AppHeader'
 
 type Mode = 'new' | 'edit'
 interface Props { mode: Mode }
@@ -50,7 +51,6 @@ export function CharacterFormScreen({ mode }: Props) {
   const { navigate, addCharacter, updateCharacter, deleteCharacter, showToast } = useAppStore()
   const existing = useSelectedCharacter()
   const isEdit   = mode === 'edit'
-  const title    = isEdit ? 'Editar Personagem' : 'Novo Personagem'
 
   const [name,     setName]     = useState('')
   const [level,    setLevel]    = useState('')
@@ -238,12 +238,7 @@ export function CharacterFormScreen({ mode }: Props) {
 
   return (
     <div className="device">
-      <div className="topbar">
-        <button className="topbar-back" onClick={() => navigate(isEdit ? 'ficha' : 'personagens')}>←</button>
-        <div className="topbar-info">
-          <div className="top-title">{title}</div>
-        </div>
-      </div>
+      <AppHeader title={isEdit ? 'Ficha' : 'Criar Ficha'} onBack={() => navigate(isEdit ? 'ficha' : 'personagens')} />
 
       <div className="page-body">
 

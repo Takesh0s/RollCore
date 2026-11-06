@@ -10,6 +10,11 @@ import { CharacterListScreen }  from '@/components/characters/CharacterListScree
 import { CharacterFormScreen }  from '@/components/characters/CharacterFormScreen'
 import { CharacterSheetScreen } from '@/components/characters/CharacterSheetScreen'
 import { DiceRollerScreen }     from '@/components/dice/DiceRollerScreen'
+import { TableListScreen }      from '@/components/tables/TableListScreen'
+import { TableFormScreen }      from '@/components/tables/TableFormScreen'
+import { TableScreen }          from '@/components/tables/TableScreen'
+import { MapLibraryScreen }     from '@/components/maps/MapLibraryScreen'
+import { ThemeScreen }          from '@/components/ui/ThemeScreen'
 import type { Screen } from '@/types'
 
 /**
@@ -28,6 +33,11 @@ function ScreenContent({ screen }: { screen: Screen }) {
     case 'editar-personagem': return <CharacterFormScreen mode="edit" />
     case 'ficha':             return <CharacterSheetScreen />
     case 'dados':             return <DiceRollerScreen />
+    case 'mesas':             return <TableListScreen />
+    case 'nova-mesa':         return <TableFormScreen />
+    case 'mesa':              return <TableScreen />
+    case 'mapas':             return <MapLibraryScreen />
+    case 'tema':              return <ThemeScreen />
     default:                  return null
   }
 }

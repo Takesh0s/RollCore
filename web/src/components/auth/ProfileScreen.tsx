@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { storage } from '@/lib/storage'
 import { AvatarUpload } from '@/components/ui/AvatarUpload'
+import { AppHeader } from '@/components/ui/AppHeader'
 
 function isValidUsername(u: string): boolean {
   return /^[a-zA-Z0-9_]{3,20}$/.test(u)
@@ -13,7 +14,7 @@ function isValidUsername(u: string): boolean {
  * Avatar is stored as base64 locally in Fase 1; backend endpoint in Fase 2.
  */
 export function ProfileScreen() {
-  const { navigate, user, updateProfile, showToast } = useAppStore()
+  const { navigate, user, updateProfile, showToast, logout } = useAppStore()
 
   const [username,    setUsername]    = useState(user.username)
   const [usernameErr, setUsernameErr] = useState('')
@@ -53,15 +54,9 @@ export function ProfileScreen() {
 
   return (
     <div className="device">
-      <div className="topbar">
-        <button className="topbar-back" onClick={() => navigate('dashboard')}>←</button>
-        <div className="topbar-info">
-          <div className="top-title">Meu Perfil</div>
-          <div className="top-sub">{user.email}</div>
-        </div>
-      </div>
+      <AppHeader title="Perfil" onBack={() => navigate('dashboard')} hideProfile />
 
-      <div className="page-body">
+      <div className="page-body profile-body">
 
         {/* ── Avatar ── */}
         <div className="profile-avatar-wrap">
@@ -71,16 +66,14 @@ export function ProfileScreen() {
             onChange={setAvatarUrl}
             size={80}
           />
-          <span className="profile-display-name">@{user.username}</span>
-          <small className="field-hint" style={{ marginTop: 4 }}>
-            Toque na foto para alterar · Máx. 2 MB
-          </small>
+          <span className="profile-display-name">{user.username}</span>
+          <small className="field-hint">Toque na foto para alterar · Máx. 2 MB</small>
         </div>
 
-        {/* ── Username ── */}
-        <h2 className="section-title" style={{ marginTop: 28 }}>Informações</h2>
+        {/* ── Informações ── */}
+        <h2 className="section-title">Informações</h2>
         <div className="form-group">
-          <label className="form-label">Nome de Usuário</label>
+          <label className="form-label">Nome de usuário</label>
           <input
             className={`form-input${usernameErr ? ' error' : ''}`}
             type="text"
@@ -94,30 +87,23 @@ export function ProfileScreen() {
 
         <div className="form-group">
           <label className="form-label">E-mail</label>
-          <input
-            className="form-input"
-            type="email"
-            value={user.email}
-            readOnly
-            style={{ opacity: 0.55, cursor: 'not-allowed' }}
-          />
+          <input className="form-input" type="email" value={user.email} readOnly />
           <small className="field-hint">A alteração de e-mail estará disponível na Fase 2.</small>
         </div>
 
-        <div className="form-actions">
-          <button className="btn btn-outline btn-auto" onClick={() => navigate('dashboard')}>
-            Cancelar
-          </button>
-          <button
-            className={`btn btn-primary btn-auto${saved ? ' btn-saved' : ''}`}
-            style={{ marginTop: 0 }}
-            onClick={handleSave}
-            disabled={loading}
-          >
-            {loading ? '…' : saved ? '✓ Salvo' : 'Salvar Alterações'}
+        <button
+          className={`btn btn-primary${saved ? ' btn-saved' : ''}`}
+          onClick={handleSave}
+          disabled={loading}
+        >
+          {loading ? '…' : saved ? '✓ Salvo' : 'Salvar'}
+        </button>
+
+        <div className="profile-logout-wrap">
+          <button className="btn btn-primary" style={{ margin: 0 }} onClick={logout}>
+            Logout
           </button>
         </div>
-
       </div>
     </div>
   )

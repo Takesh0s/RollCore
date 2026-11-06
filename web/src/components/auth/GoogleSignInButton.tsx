@@ -70,7 +70,7 @@ export function GoogleSignInButton({ onCredential }: Props) {
           size:  'large',
           shape: 'pill',
           text:  'continue_with',
-          width: 280,
+          width: 240,
         })
       })
       .catch(() => { /* offline or blocked: the e-mail form still works */ })

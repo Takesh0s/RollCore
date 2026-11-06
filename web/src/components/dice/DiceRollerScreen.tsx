@@ -5,11 +5,13 @@ import {
   buildBreakdown, formatTimestamp,
 } from '@/lib/dice'
 import type { RollResult } from '@/types'
+import { AppHeader } from '@/components/ui/AppHeader'
+import { DiceLogo } from '@/components/ui/DiceLogo'
 
 type DiceState = 'neutral' | 'crit' | 'fail'
 
 export function DiceRollerScreen() {
-  const { navigate, history, addHistory, showToast } = useAppStore()
+  const { history, addHistory, showToast } = useAppStore()
 
   const [formula,    setFormula]    = useState('')
   const [formulaErr, setFormulaErr] = useState('')
@@ -73,21 +75,16 @@ export function DiceRollerScreen() {
 
   return (
     <div className="device">
-      <div className="topbar">
-        <button className="topbar-back" onClick={() => navigate('dashboard')}>←</button>
-        <div className="topbar-info">
-          <div className="top-title">Rolagem de Dados</div>
-        </div>
-      </div>
+      <AppHeader title="Dados" />
 
       <div className="page-body">
 
         {/* ── Formula input ── */}
-        <h2 className="section-title">Fórmula</h2>
+        <h2 className="section-title" style={{ marginTop: 4 }}>Fórmula</h2>
         <div className="formula-row">
           <input
             className={`form-input${formulaErr ? ' error' : formulaOk ? ' valid' : ''}`}
-            placeholder="Ex: 2d6+3, 1d20-1"
+            placeholder="ex: 2d6 + 3d10 +2"
             value={formula}
             onChange={e => handleFormulaChange(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && formulaOk) handleRoll() }}
@@ -98,13 +95,14 @@ export function DiceRollerScreen() {
             onClick={handleRoll}
             disabled={!formulaOk}
           >
-            Rolar
+            Rolar Dados
           </button>
         </div>
         {formulaErr && <small className="error-msg">{formulaErr}</small>}
 
         {/* ── Result area ── */}
         <div className="dice-area">
+          <DiceLogo className="dice-hex" />
           {result ? (
             <>
               <div
@@ -117,13 +115,13 @@ export function DiceRollerScreen() {
               {breakdown && (
                 <div className="dice-breakdown">{breakdown}</div>
               )}
-              {/* Golden highlight + label on critical hit — UC-03 A01 / RAP002 */}
+              {/* Destaque + rótulo em acerto crítico — UC-03 A01 / RAP002 */}
               {diceState === 'crit' && (
                 <div className="crit-badge">Crítico!</div>
               )}
             </>
           ) : (
-            <div className="dice-result-num neutral" style={{ opacity: 0.3 }}>—</div>
+            <div className="dice-result-num neutral" style={{ opacity: 0.5 }}>—</div>
           )}
         </div>
 
@@ -141,12 +139,7 @@ export function DiceRollerScreen() {
         </div>
 
         {/* ── Roll history — UC-03 S02 ── */}
-        <h2 className="section-title">
-          Histórico{' '}
-          <span style={{ fontFamily: "'Crimson Pro', serif", fontSize: 11, textTransform: 'none', letterSpacing: 0, color: 'var(--text-muted)' }}>
-            (últimas 50)
-          </span>
-        </h2>
+        <h2 className="section-title">Histórico</h2>
 
         <div className="history-list">
           {history.length === 0 ? (

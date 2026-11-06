@@ -36,7 +36,7 @@ test('Login completamente Invalido', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('textbox', { name: 'seu@email.com' }).fill('emailerrado@email.com');
   await page.getByRole('textbox', { name: '••••••••' }).fill('senhaerrada123');
-  await page.getByRole('checkbox', { name: 'Manter conectado' }).check();
+  await page.getByRole('checkbox', { name: 'Mantenha conectado' }).check();
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page.getByRole('heading', { name: 'RollCore' })).toBeVisible();
 });
@@ -46,7 +46,7 @@ test('Login Parcialmente Invalido', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('textbox', { name: 'seu@email.com' }).fill('Player@rollcore.com');
   await page.getByRole('textbox', { name: '••••••••' }).fill('senhaerrada123');
-  await page.getByRole('checkbox', { name: 'Manter conectado' }).check();
+  await page.getByRole('checkbox', { name: 'Mantenha conectado' }).check();
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page.getByRole('heading', { name: 'RollCore' })).toBeVisible();
 });
@@ -56,22 +56,23 @@ test('Login Valido', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('textbox', { name: 'seu@email.com' }).fill('Player@rollcore.com');
   await page.getByRole('textbox', { name: '••••••••' }).fill('Senha123');
-  await page.getByRole('checkbox', { name: 'Manter conectado' }).check();
+  await page.getByRole('checkbox', { name: 'Mantenha conectado' }).check();
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('button', { name: 'Sair' })).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible({ timeout: 10_000 });
 });
 
 test('Criacao de conta e autoLogin', async ({ page }) => {
   await deleteAll();
   await page.goto('/');
   await page.getByRole('button', { name: 'Criar conta' }).click();
-  await page.getByRole('textbox', { name: 'ex: guerreiro_dos_reinos' }).fill('Usuario1');
+  await page.getByRole('textbox', { name: '3–20 caracteres. Letras, números e _ apenas' }).fill('Usuario1');
   await page.getByRole('textbox', { name: 'seu@email.com' }).fill('email@email.com');
-  await page.getByRole('textbox', { name: 'Mínimo 8 chars, 1 maiúscula,' }).fill('SenhaPadrao1!');
-  await page.getByRole('textbox', { name: 'Repita a senha' }).fill('SenhaPadrao1!');
-  await page.getByRole('button', { name: 'Criar Conta' }).click();
-  await expect(page.getByRole('button', { name: 'Sair' })).toBeVisible({ timeout: 10_000 });
-  await page.getByRole('button', { name: 'Sair' }).click();
+  await page.getByRole('textbox', { name: 'Mín. 8 caracteres, 1 maiúscula e 1' }).fill('SenhaPadrao1!');
+  await page.locator('input[type="password"]').nth(1).fill('SenhaPadrao1!');
+  await page.getByRole('button', { name: 'Criar conta' }).click();
+  await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible({ timeout: 10_000 });
+  await page.getByRole('button', { name: 'Meu perfil' }).click();
+  await page.getByRole('button', { name: 'Logout' }).click();
   await expect(page.getByRole('heading', { name: 'RollCore' })).toBeVisible();
 });
 
@@ -82,12 +83,12 @@ test('Criacao de personagem e verificacao da Engine', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('textbox', { name: 'seu@email.com' }).fill('Player@rollcore.com');
   await page.getByRole('textbox', { name: '••••••••' }).fill('Senha123');
-  await page.getByRole('checkbox', { name: 'Manter conectado' }).check();
+  await page.getByRole('checkbox', { name: 'Mantenha conectado' }).check();
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('button', { name: 'Sair' })).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible({ timeout: 10_000 });
 
-  await page.getByRole('heading', { name: 'Personagens' }).click();
-  await page.getByRole('button', { name: '+ Novo Personagem' }).click();
+  await page.getByRole('button', { name: /Fichas/ }).click();
+  await page.getByRole('button', { name: 'Nova ficha' }).click();
   await page.getByRole('textbox', { name: 'Ex: Aragorn' }).fill('Char1');
   await page.getByRole('combobox').first().selectOption('Ladino');
   await page.getByRole('combobox').nth(1).selectOption('Draconato');
@@ -102,7 +103,7 @@ test('Criacao de personagem e verificacao da Engine', async ({ page }) => {
   await page.getByRole('button', { name: '⚡ Calcular automaticamente' }).click();
   await page.getByRole('button', { name: 'Criar Personagem' }).click();
 
-  await page.getByRole('button', { name: 'Editar' }).click();
+  await page.getByRole('button', { name: 'Editar Char1' }).click();
   await page.getByPlaceholder('1–').first().fill('7');
   await page.getByRole('button', { name: '⚡ Calcular automaticamente' }).click();
   await page.getByRole('button', { name: 'Salvar Alterações' }).click();
@@ -118,10 +119,10 @@ test('Rolagem de dados', async ({ page }) => {
   await page.getByRole('textbox', { name: 'seu@email.com' }).fill('Player@rollcore.com');
   await page.getByRole('textbox', { name: '••••••••' }).fill('Senha123');
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('button', { name: 'Sair' })).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible({ timeout: 10_000 });
 
-  await page.getByText('DadosRolar dados').click();
-  await page.getByRole('textbox', { name: 'Ex: 2d6+3, 1d20-' }).fill('1d20');
-  await page.getByRole('button', { name: 'Rolar' }).click();
+  await page.getByRole('button', { name: /Rolar Dados/ }).click();
+  await page.getByRole('textbox', { name: 'ex: 2d6 + 3d10 +2' }).fill('1d20');
+  await page.getByRole('button', { name: 'Rolar Dados' }).click();
   await expect(page.getByText('Rolagem realizada!')).toBeVisible({ timeout: 10_000 });
 });
