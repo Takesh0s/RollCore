@@ -14,8 +14,19 @@ import type { Spell, SpellSlots, WarlockSlots } from '@/types'
 import { SCHOOL_COLORS, LEVEL_LABELS } from '@/types'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { IconFeather } from '@/components/ui/icons'
+import { useDesktop } from '@/hooks/useDesktop'
+import { InventoryTab } from './InventoryTab'
 
 type SheetTab = 'combat' | 'skills' | 'spells' | 'traits'
+/** Abas da ficha no computador (Figma 05.5–05.7). */
+type DeskTab = 'info' | 'inventory' | 'spells' | 'notes'
+
+const DESK_TABS: { id: DeskTab; label: string }[] = [
+  { id: 'info',      label: 'Informações' },
+  { id: 'inventory', label: 'Inventário' },
+  { id: 'spells',    label: 'Grimório' },
+  { id: 'notes',     label: 'Anotações' },
+]
 
 const SPELL_LABELS = ['1°','2°','3°','4°','5°','6°','7°','8°','9°']
 
@@ -23,7 +34,11 @@ export function CharacterSheetScreen() {
   const { navigate, updateCharacter, patchCharacterLocal, showToast } = useAppStore()
   const char = useSelectedCharacter()
 
+  const desktop = useDesktop()
   const [tab,          setTab]          = useState<SheetTab>('combat')
+  const [deskTab,      setDeskTab]      = useState<DeskTab>('info')
+  /** Mobile: uma aba por vez. Desktop: Informações junta combate, perícias e traços. */
+  const show = (t: SheetTab) => desktop ? (t === 'spells' ? deskTab === 'spells' : deskTab === 'info') : tab === t
   const [currentHp,    setCurrentHp]    = useState<number>(() => char?.hp     ?? 0)
   const [tempHp,       setTempHp]       = useState<number>(() => char?.temp_hp ?? 0)
   const [hpDelta,      setHpDelta]      = useState('')
@@ -54,14 +69,14 @@ export function CharacterSheetScreen() {
 
   // Load known spells when spells tab is first opened
   useEffect(() => {
-    if (tab !== 'spells' || casterType === 'none') return
+    if (!show('spells') || casterType === 'none') return
     if (knownSpells.length > 0) return  // already loaded
     setLoadingSpells(true)
     fetchCharacterSpells(char.id)
       .then(setKnownSpells)
       .catch(() => showToast('Erro ao carregar magias.', 'error'))
       .finally(() => setLoadingSpells(false))
-  }, [tab, casterType, char.id])
+  }, [tab, deskTab, desktop, casterType, char.id])
 
   // HP state management and persistence
   function persist(hpOv?: number, tempOv?: number, slotsOv?: SpellSlots | null, wOv?: WarlockSlots | null) {
@@ -176,9 +191,10 @@ export function CharacterSheetScreen() {
   return (
     <div className="device">
       {/* Character header with navigation */}
-      <AppHeader title="Ficha" onBack={() => navigate('personagens')} />
+      <AppHeader title={desktop ? char.name : 'Ficha'} onBack={() => navigate('personagens')} />
 
       <div className="scroll-area">
+      {(!desktop || deskTab === 'info') && (<>
       <div className="sheet-title-row">
         <div className="sheet-title-info">
           <div className="sheet-title-name">{char.name}</div>
@@ -221,8 +237,22 @@ export function CharacterSheetScreen() {
         </div>
       </div>
 
+      </>)}
+
       {/* Sheet navigation tabs */}
-      <div className="sheet-tabs">
+      {desktop && (
+        <div className="sheet-chips" role="tablist" aria-label="Seções da ficha">
+          {DESK_TABS.filter(t => t.id !== 'spells' || casterType !== 'none').map(t => (
+            <button key={t.id} type="button" role="tab" aria-selected={deskTab === t.id}
+                    disabled={t.id === 'notes'} title={t.id === 'notes' ? 'Em breve' : undefined}
+                    className={`sheet-chip${deskTab === t.id ? ' on' : ''}`}
+                    onClick={() => setDeskTab(t.id)}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
+      {!desktop && <div className="sheet-tabs">
         {(['combat','skills'] as SheetTab[]).map(t => (
           <button key={t} className={`sheet-tab${tab === t ? ' active' : ''}`} onClick={() => setTab(t)}>
             {t === 'combat' ? 'Combate' : 'Perícias'}
@@ -238,12 +268,19 @@ export function CharacterSheetScreen() {
             Traços
           </button>
         )}
-      </div>
+      </div>}
 
-      <div className="page-body tab-content" key={tab}>
+      {desktop && deskTab === 'inventory' && (
+        <div className="page-body">
+          <InventoryTab char={char} hp={currentHp} maxHp={maxHp} />
+        </div>
+      )}
+
+      {(!desktop || deskTab === 'info' || deskTab === 'spells') && (
+      <div className="page-body tab-content" key={desktop ? deskTab : tab}>
 
         {/* Combat tab: attributes and combat stats */}
-        {tab === 'combat' && (
+        {show('combat') && (
           <>
             <h2 className="section-title">Atributos</h2>
             <div className="attr-grid">
@@ -280,7 +317,7 @@ export function CharacterSheetScreen() {
         )}
 
         {/* Skills tab: skill checks */}
-        {tab === 'skills' && (
+        {show('skills') && (
           <>
             <h2 className="section-title">Perícias</h2>
             <div className="skills-grid">
@@ -301,7 +338,7 @@ export function CharacterSheetScreen() {
         )}
 
         {/* Spells tab: spell slots, caster stats, and known spells */}
-        {tab === 'spells' && (
+        {show('spells') && (
           <>
             {/* Spell attack stats */}
             {spellDC !== null && (
@@ -467,7 +504,7 @@ export function CharacterSheetScreen() {
         )}
 
         {/* Traits tab: racial and class traits */}
-        {tab === 'traits' && (
+        {show('traits') && raceTraits.length > 0 && (
           <>
             <h2 className="section-title">Traços Raciais — {char.race}</h2>
             <div className="traits-list">
@@ -487,6 +524,7 @@ export function CharacterSheetScreen() {
         )}
 
       </div>
+      )}
       </div>
 
       {/* Spell search and addition modal */}
