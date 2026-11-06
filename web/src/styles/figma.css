@@ -7,6 +7,11 @@ body { background: var(--canvas); font-family: var(--font-body); color: var(--te
 
 .app-shell { max-width: none; margin: 0 auto; padding: 0; min-height: 100vh; min-height: 100dvh; }
 
+/* Celular: 100vh no Chrome/Android é a altura SEM a barra de endereço, maior que a área visível,
+   então o documento ganhava uma sobra rolável abaixo do estandarte. dvh acompanha a barra. */
+body, #root { min-height: 100vh; min-height: 100dvh; }
+html, body { overscroll-behavior-y: none; }
+
 /* ── Painel (tela) ─────────────────────────────────────────────── */
 .device,
 .login-device {
