@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { api, tokenStorage } from '@/lib/api'
 import { storage } from '@/lib/storage'
+import { shrink } from '@/lib/image'
 import { getMaxSpellSlots, getWarlockSlots } from '@/lib/engine'
 import type {
   User, Character, HistoryEntry, Screen, RollResult,
@@ -31,8 +32,8 @@ function mapCharacter(r: CharacterApiResponse, localAvatarUrl?: string): Charact
     ac:            r.ac,
     spell_slots:   r.spellSlots   ?? undefined,
     warlock_slots: r.warlockSlots ?? undefined,
-    // Preserve local avatar — backend has no avatar_url column (Fase 1 local-only)
-    avatar_url:    localAvatarUrl ?? r.avatar_url,
+    // The server copy wins; the local one only fills in for photos that were never uploaded
+    avatar_url:    r.avatarUrl ?? localAvatarUrl,
     game_system:   r.gameSystem ?? 'D&D 5e',
   }
 }
@@ -50,6 +51,8 @@ function mapCharacterRequest(c: Omit<Character, 'id'>) {
     maxHp:          c.max_hp,
     tempHp:         c.temp_hp ?? 0,
     gameSystem:     c.game_system ?? 'D&D 5e',
+    // Omitted when unknown so a save never wipes the portrait stored on the server
+    ...(c.avatar_url ? { avatarUrl: c.avatar_url } : {}),
   }
 }
 
@@ -286,11 +289,21 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ isLoadingChars: true })
     try {
       const { data } = await api.get<CharacterApiResponse[]>('/characters')
-      // Preserve locally-stored avatar_url values — the backend has no avatar column
       const existingChars = get().characters
       const characters = data.map(r => {
         const existing = existingChars.find(c => String(c.id) === String(r.id))
-        return mapCharacter(r, existing?.avatar_url)
+        const mapped = mapCharacter(r, existing?.avatar_url)
+        // One-time migration: a portrait chosen before sheets synced it only exists in this browser.
+        if (!r.avatarUrl && existing?.avatar_url?.startsWith('data:image/')) {
+          const local = existing.avatar_url
+          void (async () => {
+            try {
+              const small = local.length > 300_000 ? await shrink(local) : local
+              await api.put(`/characters/${r.id}`, mapCharacterRequest({ ...mapped, avatar_url: small }))
+            } catch { /* too large or offline: the local copy stays */ }
+          })()
+        }
+        return mapped
       })
       storage.setCharacters(characters)
       set({ characters, isLoadingChars: false })
@@ -321,7 +334,6 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     try {
       const { data } = await api.post<CharacterApiResponse>('/characters', mapCharacterRequest(charData))
-      // Preserve local avatar_url — not sent to or stored by the backend
       const saved = mapCharacter(data, charData.avatar_url)
 
       // Replace optimistic entry with server-assigned UUID

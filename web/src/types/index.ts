@@ -168,7 +168,7 @@ export interface CharacterApiResponse {
   spellSlots:     SpellSlots | null
   warlockSlots:   WarlockSlots | null
   gameSystem?:    string
-  avatar_url?:    string
+  avatarUrl?:     string | null
 }
 
 export interface DiceRollApiResponse {
