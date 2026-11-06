@@ -48,6 +48,23 @@ public class Character {
     @Builder.Default
     private String gameSystem = "D&D 5e";
 
+    /** Coins: platinum, gold, silver and copper pieces (migration V13). */
+    @Column(name = "coins_pp", nullable = false)
+    @Builder.Default
+    private int coinsPp = 0;
+
+    @Column(name = "coins_gp", nullable = false)
+    @Builder.Default
+    private int coinsGp = 0;
+
+    @Column(name = "coins_sp", nullable = false)
+    @Builder.Default
+    private int coinsSp = 0;
+
+    @Column(name = "coins_cp", nullable = false)
+    @Builder.Default
+    private int coinsCp = 0;
+
     /** Class — in the D&D 5e system, one of DndEngine.CLASSES; free text in "Personalizado". */
     @Column(name = "class", nullable = false, length = 50)
     private String characterClass;
