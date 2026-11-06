@@ -17,6 +17,10 @@ public interface DiceRollRepository extends JpaRepository<DiceRoll, UUID> {
      */
     Page<DiceRoll> findByUserIdOrderByRolledAtDesc(UUID userId, Pageable pageable);
 
+    /** The caller's own rolls made in one table, newest first. */
+    Page<DiceRoll> findByUserIdAndGameTableIdOrderByRolledAtDesc(
+            UUID userId, UUID gameTableId, Pageable pageable);
+
     /** Rolls made in a table, newest first, with the roller loaded. */
     @EntityGraph(attributePaths = {"user"})
     List<DiceRoll> findByGameTableIdOrderByRolledAtDesc(UUID gameTableId, Pageable pageable);

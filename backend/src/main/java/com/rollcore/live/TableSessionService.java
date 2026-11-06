@@ -54,7 +54,8 @@ public class TableSessionService {
 
         TableRollEvent event = new TableRollEvent(
                 result.id(), userId, member.getUser().getUsername(), displayName(member),
-                result.formula(), result.rolls(), result.mod(), result.total(), result.rolledAt());
+                result.formula(), result.rolls(), result.mod(), result.total(), result.rolledAt(),
+                result.label(), result.mode(), result.discardedRolls());
 
         afterCommit(() -> messaging.convertAndSend(Destinations.rolls(tableId), event));
         return event;
@@ -77,7 +78,8 @@ public class TableSessionService {
                     r.getId(), r.getUser().getId(), r.getUser().getUsername(),
                     m != null ? displayName(m) : r.getUser().getUsername(),
                     r.getFormula(), r.getIndividualResults(), DiceService.modifierOf(r.getFormula()),
-                    r.getTotal(), r.getRolledAt());
+                    r.getTotal(), r.getRolledAt(),
+                    r.getLabel(), r.getMode(), r.getDiscardedResults());
         }).toList();
     }
 
