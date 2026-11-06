@@ -44,10 +44,12 @@ export function DashboardScreen() {
           </div>
         ) : (
           <>
-            {tables.slice(0, 2).map(t => (
-              <TableBanner key={t.id} table={t} onEnter={() => openTable(t.id)} />
-            ))}
-            {tables.length > 2 && (
+            <div className="table-grid">
+              {tables.slice(0, 3).map(t => (
+                <TableBanner key={t.id} table={t} onEnter={() => openTable(t.id)} />
+              ))}
+            </div>
+            {tables.length > 3 && (
               <button className="link-btn" style={{ marginBottom: 14 }} onClick={() => navigate('mesas')}>
                 ver todas as mesas ({tables.length})
               </button>

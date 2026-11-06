@@ -4,7 +4,7 @@ import type { Screen } from '@/types'
 import { DiceLogo } from '@/components/ui/DiceLogo'
 import {
   IconMenu, IconBack, IconUser, IconHome, IconBell, IconCommunity, IconCalendar,
-  IconSystems, IconGrimoire, IconWand, IconPaw, IconChat, IconGear,
+  IconSystems, IconGrimoire, IconWand, IconPaw, IconChat, IconGear, IconSheets, IconSearch,
 } from '@/components/ui/icons'
 
 interface MenuItem {
@@ -29,6 +29,43 @@ const MENU: MenuItem[] = [
   { label: 'Configurações', icon: <IconGear />, screen: 'tema' },
 ]
 
+/** Itens da barra lateral do computador, na ordem do Figma. */
+interface NavItem {
+  label:   string
+  icon:    ReactNode
+  screen?: Screen
+  /** Telas que mantêm este item marcado como ativo. */
+  also?:   Screen[]
+}
+
+const SIDEBAR: NavItem[] = [
+  { label: 'Início',      icon: <IconHome />,      screen: 'dashboard' },
+  { label: 'Fichas',      icon: <IconSheets />,    screen: 'personagens', also: ['ficha', 'novo-personagem', 'editar-personagem'] },
+  { label: 'Dados',       icon: <DiceLogo className="menu-logo" />, screen: 'dados' },
+  { label: 'Mesas',       icon: <IconCommunity />, screen: 'mesas', also: ['nova-mesa', 'mesa', 'mapas'] },
+  { label: 'Calendário',  icon: <IconCalendar /> },
+  { label: 'Comunidade',  icon: <IconChat /> },
+  { label: 'Sistemas',    icon: <IconSystems /> },
+  { label: 'Bestiário',   icon: <IconPaw /> },
+  { label: 'GM Tools',    icon: <IconWand /> },
+  { label: 'Livraria',    icon: <IconGrimoire /> },
+  { label: 'Tutoriais',   icon: <IconChat /> },
+]
+const SIDEBAR_FOOT: NavItem = { label: 'Configurações', icon: <IconGear />, screen: 'tema' }
+
+/** true quando a janela é larga o bastante para o layout de computador (sidebar fixa). */
+function useDesktop(): boolean {
+  const q = '(min-width: 1024px)'
+  const [match, setMatch] = useState(() => typeof window !== 'undefined' && window.matchMedia(q).matches)
+  useEffect(() => {
+    const mq = window.matchMedia(q)
+    const on = () => setMatch(mq.matches)
+    mq.addEventListener('change', on)
+    return () => mq.removeEventListener('change', on)
+  }, [])
+  return match
+}
+
 interface AppHeaderProps {
   title: string
   /** Com `onBack`, o botão de menu vira seta de voltar (como na tela de Perfil do Figma). */
@@ -42,8 +79,9 @@ interface AppHeaderProps {
  * e atalho do perfil à direita. O menu lateral abre sobre o conteúdo.
  */
 export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
-  const { navigate, showToast, user } = useAppStore()
+  const { navigate, showToast, user, screen } = useAppStore()
   const [open, setOpen] = useState(false)
+  const desktop = useDesktop()
 
   useEffect(() => {
     if (!open) return
@@ -56,6 +94,58 @@ export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
     setOpen(false)
     if (item.screen) navigate(item.screen)
     else showToast(`${item.label} chega em breve.`)
+  }
+
+  if (desktop) {
+    const isActive = (it: NavItem) => !!it.screen && (it.screen === screen || !!it.also?.includes(screen))
+    const renderItem = (it: NavItem) => (
+      <li key={it.label}>
+        <button
+          className={`side-menu-item${isActive(it) ? ' active' : ''}${it.screen ? '' : ' soon'}`}
+          aria-current={isActive(it) ? 'page' : undefined}
+          onClick={() => (it.screen ? navigate(it.screen) : showToast(`${it.label} chega em breve.`))}
+        >
+          <span className="side-menu-icon">{it.icon}</span>
+          {it.label}
+        </button>
+      </li>
+    )
+    return (
+      <>
+        <nav className="side-menu docked" aria-label="Menu principal">
+          <div className="side-brand">
+            <span className="side-brand-name">RollCore</span>
+            <span className="side-brand-sub">Painel do jogador</span>
+          </div>
+          <ul className="side-list">{SIDEBAR.map(renderItem)}</ul>
+          <ul className="side-foot">{renderItem(SIDEBAR_FOOT)}</ul>
+        </nav>
+
+        <header className="app-header desk">
+          {onBack && (
+            <button className="app-header-btn" onClick={onBack} aria-label="Voltar">
+              <IconBack />
+            </button>
+          )}
+          <h1 className="app-header-title">{title}</h1>
+          <label className="desk-search">
+            <IconSearch />
+            <input type="search" placeholder="Buscar mesas, fichas, sistemas…" aria-label="Buscar" />
+          </label>
+          <button className="app-header-btn" onClick={() => showToast('Notificações chega em breve.')} aria-label="Notificações">
+            <IconBell />
+          </button>
+          {!hideProfile && (
+            <button className="desk-profile" onClick={() => navigate('perfil')} aria-label="Meu perfil">
+              {user.avatar_url
+                ? <img src={user.avatar_url} alt="" className="app-header-avatar" />
+                : <IconUser />}
+              <span>{user.username || 'Perfil'}</span>
+            </button>
+          )}
+        </header>
+      </>
+    )
   }
 
   return (

@@ -47,7 +47,9 @@ export function TableListScreen() {
             <p>Nenhuma mesa com esse nome.</p>
           </div>
         ) : (
-          shown.map(t => <TableBanner key={t.id} table={t} onEnter={() => openTable(t.id)} />)
+          <div className="table-grid">
+            {shown.map(t => <TableBanner key={t.id} table={t} onEnter={() => openTable(t.id)} />)}
+          </div>
         )}
       </div>
     </div>

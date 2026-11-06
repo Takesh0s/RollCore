@@ -1,0 +1,128 @@
+/* ═══════════════════════════════════════════════════════════════
+   Layout de computador (Figma PC): sidebar fixa + moldura de conteúdo
+   com título, busca, sino e perfil no topo. Abaixo de 1024px vale o
+   layout de celular de figma.css.
+════════════════════════════════════════════════════════════════ */
+
+/* Grade de mesas: uma coluna no celular, várias no computador */
+.table-grid { display: grid; grid-template-columns: 1fr; gap: 0 16px; }
+.table-grid .table-banner { margin-bottom: 14px; }
+
+@media (min-width: 1024px) {
+  :root { --side-w: 268px; }
+
+  /* Só as telas logadas ocupam a janela toda; login/cadastro seguem centralizados. */
+  .app-shell:has(.device) { max-width: none; padding: 0; }
+  .app-shell:has(.device) .screen-wrap { height: 100dvh; }
+
+  .device {
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    padding-left: var(--side-w);
+  }
+  /* Moldura prateada só em volta do conteúdo (a sidebar fica de fora) */
+  .device::before { left: calc(var(--side-w) + 20px); top: 20px; right: 20px; bottom: calc(var(--notch) + 20px); }
+  .device::after  { margin-top: auto; }
+
+  /* ── Sidebar ── */
+  .side-menu.docked {
+    position: absolute;
+    top: 0; left: 0; bottom: var(--notch);
+    z-index: 6;
+    width: var(--side-w);
+    display: flex; flex-direction: column;
+    padding: 22px 16px 16px;
+    background: color-mix(in srgb, #000 14%, var(--card));
+    border-right: 1px solid rgba(192, 192, 192, 0.25);
+    box-shadow: none;
+    animation: none;
+    overflow-y: auto;
+  }
+  .side-brand { display: flex; flex-direction: column; margin: 0 8px 26px; }
+  .side-brand-name {
+    font-family: var(--font-display);
+    font-size: 30px; font-weight: 700; line-height: 1;
+    color: var(--primary);
+  }
+  .side-brand-sub { margin-top: 4px; font-size: 12px; color: var(--text-faint); }
+  .side-list, .side-foot { list-style: none; }
+  .side-list { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .side-foot { padding-top: 12px; border-top: 1px solid rgba(192, 192, 192, 0.25); }
+  .side-menu.docked .side-menu-item { padding: 9px 12px; font-size: 16px; gap: 14px; }
+  .side-menu.docked .side-menu-item.active {
+    background: var(--card-high);
+    color: var(--primary);
+  }
+  .side-menu.docked .side-menu-item.active .menu-logo { color: var(--primary); }
+  .side-menu.docked .side-menu-icon { width: 26px; height: 26px; }
+
+  /* ── Cabeçalho do conteúdo ── */
+  .app-header.desk {
+    display: flex; align-items: center; gap: 14px;
+    margin: 36px 44px 0 44px;
+    padding: 0 0 12px;
+    border-bottom: 1px solid rgba(192, 192, 192, 0.35);
+  }
+  .app-header.desk .app-header-title {
+    flex: 1; min-width: 0;
+    text-align: left;
+    font-size: 40px;
+  }
+  .desk-search {
+    display: flex; align-items: center; gap: 8px;
+    width: min(380px, 32vw);
+    padding: 0 14px;
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(192, 192, 192, 0.4);
+    border-radius: 999px;
+    color: var(--text-muted);
+  }
+  .desk-search svg { width: 22px; height: 22px; flex: none; }
+  .desk-search input {
+    flex: 1; min-width: 0; padding: 10px 0;
+    background: none; border: none; outline: none;
+    color: var(--text-bright); font-family: var(--font-body); font-size: 14px;
+  }
+  .desk-search input::placeholder { color: var(--text-faint); }
+  .desk-profile {
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 10px 4px 4px;
+    background: none; border: none; border-radius: 999px;
+    color: var(--text-bright); font-family: var(--font-body); font-size: 14px; font-weight: 700;
+    cursor: pointer;
+  }
+  .desk-profile:hover { background: rgba(255, 255, 255, 0.08); }
+  .desk-profile svg, .desk-profile .app-header-avatar { width: 38px; height: 38px; border-radius: 50%; }
+
+  /* ── Corpo ocupa toda a moldura ── */
+  .page-body,
+  .scroll-area { margin: 0 20px 0 20px; padding: 22px 24px 24px; }
+  .page-body.wide { padding-inline: 24px; }
+  .scroll-area > .page-body { margin: 0; }
+
+  .table-grid { grid-template-columns: repeat(3, 1fr); }
+  .table-banner { min-height: 150px; }
+  .dash-grid { grid-template-columns: repeat(4, 1fr); column-gap: 16px; }
+  .home-section-head { max-width: none; }
+}
+
+@media (min-width: 1500px) {
+  .table-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 1400px) {
+  .dash-grid { grid-template-columns: repeat(5, 1fr); }
+}
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .dash-grid { grid-template-columns: repeat(3, 1fr); }
+  .table-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Terror Cósmico no computador: só a faixa de sangue no topo (as gotas cobririam o logo) */
+@media (min-width: 1024px) {
+  html[data-theme="terror"] body::before {
+    height: 12px;
+    background: linear-gradient(#8e0e14, #8e0e14);
+  }
+}
