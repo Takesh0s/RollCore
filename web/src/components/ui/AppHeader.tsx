@@ -1,36 +1,10 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import type { Screen } from '@/types'
-import { DiceLogo } from '@/components/ui/DiceLogo'
 import { useDeskMenu } from '@/hooks/useDeskMenu'
 import { useDesktop } from '@/hooks/useDesktop'
 import { NavIcon } from '@/components/ui/NavIcon'
-import {
-  IconMenu, IconBack, IconUser, IconHome, IconBell, IconCommunity, IconCalendar,
-  IconSystems, IconGrimoire, IconWand, IconPaw, IconChat, IconGear, IconSearch,
-} from '@/components/ui/icons'
-
-interface MenuItem {
-  label: string
-  icon:  ReactNode
-  /** Tela de destino. Sem `screen`, o item ainda não existe no app. */
-  screen?: Screen
-}
-
-/** Itens do menu na ordem do Figma. Só "Home Page" existe por enquanto. */
-const MENU: MenuItem[] = [
-  { label: 'Home Page',     icon: <IconHome />,      screen: 'dashboard' },
-  { label: 'Notificações',  icon: <IconBell /> },
-  { label: 'Comunidade',    icon: <IconCommunity /> },
-  { label: 'Calendário',    icon: <IconCalendar /> },
-  { label: 'Sistemas',      icon: <IconSystems /> },
-  { label: 'Grimório',      icon: <IconGrimoire /> },
-  { label: 'GM Tools',      icon: <IconWand /> },
-  { label: 'Bestiário',     icon: <IconPaw /> },
-  { label: 'Tutoriais',     icon: <IconChat /> },
-  { label: 'Créditos',      icon: <DiceLogo className="menu-logo" /> },
-  { label: 'Configurações', icon: <IconGear />, screen: 'tema' },
-]
+import { IconMenu, IconBack, IconUser, IconBell, IconSearch } from '@/components/ui/icons'
 
 /** Itens da barra lateral do computador, na ordem do Figma. */
 interface NavItem {
@@ -69,7 +43,7 @@ interface AppHeaderProps {
  * e atalho do perfil à direita. O menu lateral abre sobre o conteúdo.
  */
 export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
-  const { navigate, showToast, user, screen } = useAppStore()
+  const { navigate, showToast, user, screen, logout } = useAppStore()
   const [open, setOpen] = useState(false)
   const desktop = useDesktop()
   const [deskMenuOpen, setDeskMenu] = useDeskMenu()
@@ -81,11 +55,24 @@ export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
-  function go(item: MenuItem) {
+  function go(item: NavItem) {
     setOpen(false)
     if (item.screen) navigate(item.screen)
     else showToast(`${item.label} chega em breve.`)
   }
+  const isActiveItem = (it: NavItem) => !!it.screen && (it.screen === screen || !!it.also?.includes(screen))
+  const renderSheetItem = (it: NavItem) => (
+    <li key={it.label}>
+      <button
+        className={`side-menu-item${isActiveItem(it) ? ' active' : ''}${it.screen ? '' : ' soon'}`}
+        aria-current={isActiveItem(it) ? 'page' : undefined}
+        onClick={() => go(it)}
+      >
+        <span className="side-menu-icon">{it.icon}</span>
+        {it.label}
+      </button>
+    </li>
+  )
 
   if (desktop) {
     const isActive = (it: NavItem) => !!it.screen && (it.screen === screen || !!it.also?.includes(screen))
@@ -178,22 +165,22 @@ export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
       {open && (
         <>
           <div className="side-menu-backdrop" onClick={() => setOpen(false)} />
-          <nav className="side-menu" aria-label="Menu principal">
-            <button className="app-header-btn side-menu-close" onClick={() => setOpen(false)} aria-label="Fechar menu">
-              <IconMenu />
+          <nav className="side-menu sheet" aria-label="Menu principal">
+            <button className="side-profile" onClick={() => { setOpen(false); navigate('perfil') }}>
+              {user.avatar_url
+                ? <img src={user.avatar_url} alt="" className="side-avatar" />
+                : <span className="side-avatar"><IconUser /></span>}
+              <span className="side-profile-text">
+                <strong>{user.username || 'Perfil'}</strong>
+                <small>@{(user.username || 'perfil').toLowerCase().replace(/\s+/g, '')}</small>
+              </span>
             </button>
-            <ul>
-              {MENU.map(item => (
-                <li key={item.label}>
-                  <button
-                    className={`side-menu-item${item.screen ? '' : ' soon'}${item.label === 'Créditos' ? ' accent' : ''}`}
-                    onClick={() => go(item)}
-                  >
-                    <span className="side-menu-icon">{item.icon}</span>
-                    {item.label}
-                  </button>
-                </li>
-              ))}
+            <ul className="side-list">{SIDEBAR.map(renderSheetItem)}</ul>
+            <ul className="side-foot">
+              {renderSheetItem(SIDEBAR_FOOT)}
+              <li>
+                <button className="side-logout" onClick={() => { setOpen(false); logout() }}>Sair da conta</button>
+              </li>
             </ul>
           </nav>
         </>
