@@ -3,9 +3,10 @@ import { useAppStore } from '@/store/useAppStore'
 import type { Screen } from '@/types'
 import { DiceLogo } from '@/components/ui/DiceLogo'
 import { useDesktop } from '@/hooks/useDesktop'
+import { NavIcon } from '@/components/ui/NavIcon'
 import {
   IconMenu, IconBack, IconUser, IconHome, IconBell, IconCommunity, IconCalendar,
-  IconSystems, IconGrimoire, IconWand, IconPaw, IconChat, IconGear, IconSheets, IconSearch,
+  IconSystems, IconGrimoire, IconWand, IconPaw, IconChat, IconGear, IconSearch,
 } from '@/components/ui/icons'
 
 interface MenuItem {
@@ -40,19 +41,19 @@ interface NavItem {
 }
 
 const SIDEBAR: NavItem[] = [
-  { label: 'Início',      icon: <IconHome />,      screen: 'dashboard' },
-  { label: 'Fichas',      icon: <IconSheets />,    screen: 'personagens', also: ['ficha', 'novo-personagem', 'editar-personagem'] },
-  { label: 'Dados',       icon: <DiceLogo className="menu-logo" />, screen: 'dados' },
-  { label: 'Mesas',       icon: <IconCommunity />, screen: 'mesas', also: ['nova-mesa', 'mesa', 'mapas'] },
-  { label: 'Calendário',  icon: <IconCalendar /> },
-  { label: 'Comunidade',  icon: <IconChat /> },
-  { label: 'Sistemas',    icon: <IconSystems /> },
-  { label: 'Bestiário',   icon: <IconPaw /> },
-  { label: 'GM Tools',    icon: <IconWand /> },
-  { label: 'Livraria',    icon: <IconGrimoire /> },
-  { label: 'Tutoriais',   icon: <IconChat /> },
+  { label: 'Início',      icon: <NavIcon name="home" />,      screen: 'dashboard' },
+  { label: 'Fichas',      icon: <NavIcon name="sheets" />,    screen: 'personagens', also: ['ficha', 'novo-personagem', 'editar-personagem'] },
+  { label: 'Dados',       icon: <NavIcon name="dice" />, screen: 'dados' },
+  { label: 'Mesas',       icon: <NavIcon name="tables" />, screen: 'mesas', also: ['nova-mesa', 'mesa', 'mapas'] },
+  { label: 'Calendário',  icon: <NavIcon name="calendar" /> },
+  { label: 'Comunidade',  icon: <NavIcon name="community" /> },
+  { label: 'Sistemas',    icon: <NavIcon name="systems" /> },
+  { label: 'Bestiário',   icon: <NavIcon name="bestiary" /> },
+  { label: 'GM Tools',    icon: <NavIcon name="tools" /> },
+  { label: 'Livraria',    icon: <NavIcon name="store" /> },
+  { label: 'Tutoriais',   icon: <NavIcon name="tutorials" /> },
 ]
-const SIDEBAR_FOOT: NavItem = { label: 'Configurações', icon: <IconGear />, screen: 'tema' }
+const SIDEBAR_FOOT: NavItem = { label: 'Configurações', icon: <NavIcon name="settings" />, screen: 'tema' }
 
 interface AppHeaderProps {
   title: string
