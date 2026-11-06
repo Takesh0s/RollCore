@@ -577,3 +577,63 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
   .dice-last { min-height: 320px; }
   .dice-last-num { font-size: 128px; }
 }
+
+/* ── Ficha aberta (desktop): abas, inventário — Figma 05.5 ── */
+@media (min-width: 1024px) {
+  /* a .scroll-area já dá o respiro lateral; o .page-body interno não deve somar outro */
+  .scroll-area > .page-body { padding-left: 0; padding-right: 0; }
+  .sheet-chips { display: flex; gap: 10px; margin: 18px 0 0; }
+  .sheet-chip { font-family: inherit; font-size: 12px; padding: 6px 15px; border-radius: 999px; border: 1px solid var(--card-border); background: transparent; color: var(--text); cursor: pointer; }
+  .sheet-chip:hover:not(:disabled) { background: rgba(255,255,255,.05); }
+  .sheet-chip.on { background: var(--sapphire); border-color: var(--sapphire); color: #10202e; }
+  .sheet-chip:disabled { opacity: .45; cursor: not-allowed; }
+
+  .inv-status { padding: 24px 0; color: var(--text-muted); }
+  .inv-layout { display: grid; grid-template-columns: minmax(0, 1fr) 444px; gap: 24px; align-items: start; }
+  .inv-card { border: 1px solid var(--card-border); border-radius: 18px; padding: 22px 28px 26px; background: rgba(0,0,0,.12); }
+  .inv-items { min-height: 700px; }
+  .inv-side { display: flex; flex-direction: column; gap: 20px; }
+  .inv-card-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+  .inv-card-title { font-family: 'Source Serif 4', serif; font-size: 14px; font-weight: 700; color: var(--text); margin: 0; display: flex; align-items: center; gap: 14px; flex: 1; }
+  .inv-card-title::before, .inv-card-title::after { content: ''; height: 1px; background: var(--card-border); flex: 1; }
+  .inv-card-title.center { margin-bottom: 14px; }
+  .inv-add { width: auto; padding: 0 22px; height: 40px; font-size: 13px; flex: none; margin: 0; }
+
+  .inv-cols, .inv-row { display: grid; grid-template-columns: minmax(0, 1fr) 150px 190px 36px; align-items: center; gap: 12px; }
+  .inv-cols { padding: 0 28px; margin: 18px 0 10px; font-size: 11px; color: var(--text-muted); border-bottom: 1px solid var(--card-border); padding-bottom: 8px; }
+  .inv-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+  .inv-row { background: rgba(255,255,255,.07); border-radius: 12px; padding: 14px 20px 14px 28px; min-height: 72px; }
+  .inv-name { background: none; border: 0; padding: 0; text-align: left; color: var(--text); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .inv-name:hover { text-decoration: underline; }
+  .inv-qty { display: flex; align-items: center; gap: 14px; }
+  .inv-qty strong { min-width: 28px; text-align: center; font-family: 'Source Serif 4', serif; font-size: 20px; color: var(--text); }
+  .inv-step { width: 36px; height: 36px; border-radius: 8px; border: 0; background: var(--sapphire-deep, #6b88a3); color: #10202e; font-size: 20px; font-weight: 700; line-height: 1; cursor: pointer; }
+  .inv-step:hover:not(:disabled) { filter: brightness(1.12); }
+  .inv-step:disabled { opacity: .4; cursor: not-allowed; }
+  .inv-dmg { font-size: 13px; color: var(--sapphire); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .inv-del { background: none; border: 0; color: var(--text-muted); cursor: pointer; display: grid; place-items: center; padding: 4px; border-radius: 8px; }
+  .inv-del:hover { color: var(--fail); background: rgba(255,255,255,.06); }
+  .inv-empty { color: var(--text-muted); font-size: 14px; padding: 18px 0; text-align: center; }
+
+  .inv-coins { list-style: none; margin: 0; padding: 0; }
+  .inv-coins li { display: grid; grid-template-columns: 32px 1fr 110px; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--card-border); }
+  .inv-coins li:last-child { border-bottom: 0; }
+  .inv-coin-dot { width: 32px; height: 32px; border-radius: 50%; }
+  .inv-coin-input { background: transparent; border: 0; border-bottom: 1px solid transparent; text-align: right; width: 100%; color: var(--sapphire); font-family: 'Source Serif 4', serif; font-size: 24px; font-weight: 700; padding: 2px 0; }
+  .inv-coin-input:hover { border-bottom-color: var(--card-border); }
+  .inv-coin-input:focus { outline: none; border-bottom-color: var(--sapphire); }
+  .inv-summary { margin: 0; display: flex; flex-direction: column; gap: 14px; }
+  .inv-summary div { display: flex; align-items: baseline; justify-content: space-between; font-size: 13px; }
+  .inv-summary dt { color: var(--text); }
+  .inv-summary dd { margin: 0; font-family: 'Source Serif 4', serif; font-size: 20px; font-weight: 700; color: var(--sapphire); }
+  .inv-summary dd.over { color: var(--fail); }
+
+  .inv-modal { width: min(560px, 92vw); text-align: left; }
+  .inv-field { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-muted); margin-bottom: 12px; min-width: 0; }
+  .inv-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .inv-modal textarea.form-input { resize: vertical; min-height: 76px; }
+}
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .inv-layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; }
+  .inv-cols, .inv-row { grid-template-columns: minmax(0, 1fr) 130px 120px 32px; }
+}

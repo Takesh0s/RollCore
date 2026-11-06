@@ -223,3 +223,18 @@ export const SCHOOL_COLORS: Record<string, string> = {
 }
 
 export const LEVEL_LABELS = ['Truque', '1°', '2°', '3°', '4°', '5°', '6°', '7°', '8°', '9°']
+/** Item do inventário de uma ficha (peso por unidade, em kg). */
+export interface InventoryItem {
+  id:           string
+  name:         string
+  category:     'weapon' | 'armor' | 'consumable' | 'other'
+  quantity:     number
+  weight:       number
+  damage?:      string | null
+  description?: string | null
+}
+
+/** Moedas de uma ficha: platina, ouro, prata e cobre. */
+export interface Coins { pp: number; gp: number; sp: number; cp: number }
+
+export interface InventoryApiResponse { items: InventoryItem[]; coins: Coins }
