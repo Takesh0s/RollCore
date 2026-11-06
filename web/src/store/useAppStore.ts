@@ -5,7 +5,7 @@ import { getMaxSpellSlots, getWarlockSlots } from '@/lib/engine'
 import type {
   User, Character, HistoryEntry, Screen, RollResult,
   AuthTokens, CharacterApiResponse, DiceRollApiResponse,
-  TableSummary, TableDetail, CreateTableInput,
+  TableSummary, TableDetail, CreateTableInput, DiceMode, DiceShortcut,
 } from '@/types'
 
 // Data transformation helpers
@@ -82,6 +82,14 @@ interface AppState {
   history:    HistoryEntry[]
   addHistory: (entry: Omit<HistoryEntry, 'timestamp'>) => Promise<void>
   loadHistory: () => Promise<void>
+  /** Rola no servidor (SecureRandom), com motivo, vantagem/desvantagem e mesa opcionais. */
+  rollDice:   (input: RollInput) => Promise<HistoryEntry | null>
+
+  // Atalhos de rolagem salvos
+  shortcuts:      DiceShortcut[]
+  loadShortcuts:  () => Promise<void>
+  addShortcut:    (name: string, formula: string) => Promise<boolean>
+  removeShortcut: (id: string) => Promise<void>
 
   // Tables (mesas)
   tables:          TableSummary[]
@@ -95,6 +103,29 @@ interface AppState {
   toast:      { message: string; type: 'success' | 'error' | '' } | null
   showToast:  (message: string, type?: 'success' | 'error' | '') => void
   clearToast: () => void
+}
+
+/** Dados enviados ao servidor para rolar. */
+export interface RollInput {
+  formula:  string
+  label?:   string
+  mode?:    DiceMode
+  tableId?: string
+}
+
+/** Converte a resposta da API de rolagem em uma entrada do histórico. */
+function apiRollToEntry(r: DiceRollApiResponse, sides: number): HistoryEntry {
+  return {
+    type:      'formula',
+    formula:   r.formula,
+    result:    { total: r.total, rolls: r.rolls, mod: r.mod, sides, formula: r.formula },
+    timestamp: new Date(r.rolledAt).getTime(),
+    label:     r.label ?? undefined,
+    mode:      r.mode ?? 'normal',
+    discarded: r.discardedRolls ?? undefined,
+    tableId:   r.tableId ?? undefined,
+    tableName: r.tableName ?? undefined,
+  }
 }
 
 // Store implementation
@@ -131,6 +162,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       // Load characters and history in background after login
       get().loadCharacters()
       get().loadHistory()
+      get().loadShortcuts()
       get().loadTables()
     } catch (err: any) {
       const msg = err.response?.data?.detail ?? 'E-mail ou senha incorretos.'
@@ -186,6 +218,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       user:       { isLogged: false, email: '', username: '', keepConnected: false },
       characters: [],
       history:    [],
+      shortcuts:  [],
       tables:     [],
       tableDetail: null,
       screen:     'login',
@@ -338,17 +371,68 @@ export const useAppStore = create<AppState>((set, get) => ({
       const history: HistoryEntry[] = data.map(r => {
         const sidesMatch = r.formula.match(/d(\d+)/i)
         const sides = sidesMatch ? parseInt(sidesMatch[1], 10) : 0
-        return {
-          type:      'formula' as const,
-          formula:   r.formula,
-          result:    { total: r.total, rolls: r.rolls, mod: r.mod, sides, formula: r.formula },
-          timestamp: new Date(r.rolledAt).getTime(),
-        }
+        return apiRollToEntry(r, sides)
       })
       storage.setHistory(history)
       set({ history })
     } catch {
       // Backend unavailable — keep local cache as fallback
+    }
+  },
+
+  async rollDice({ formula, label, mode, tableId }) {
+    try {
+      const url = tableId ? `/tables/${tableId}/rolls` : '/dice/roll'
+      const { data } = await api.post<DiceRollApiResponse>(url, {
+        formula, mode,
+        ...(label ? { label } : {}),
+      })
+      const sides = parseInt(formula.match(/d(\d+)/i)?.[1] ?? '0', 10)
+      const tableName = tableId ? get().tables.find(t => t.id === tableId)?.name : undefined
+      const entry = apiRollToEntry({ ...data, tableId: tableId ?? null, tableName: tableName ?? null }, sides)
+      set(s => {
+        const next = [entry, ...s.history]
+        if (next.length > 50) next.length = 50
+        storage.setHistory(next)
+        return { history: next }
+      })
+      return entry
+    } catch (err: any) {
+      const msg = err.response?.data?.detail ?? err.response?.data?.message ?? 'Não foi possível rolar os dados.'
+      get().showToast(msg, 'error')
+      return null
+    }
+  },
+
+  shortcuts: [],
+
+  async loadShortcuts() {
+    try {
+      const { data } = await api.get<DiceShortcut[]>('/dice/shortcuts')
+      if (Array.isArray(data)) set({ shortcuts: data })
+    } catch { /* backend indisponível: mantém a lista atual */ }
+  },
+
+  async addShortcut(name, formula) {
+    try {
+      const { data } = await api.post<DiceShortcut>('/dice/shortcuts', { name, formula })
+      set(s => ({ shortcuts: [...s.shortcuts, data] }))
+      return true
+    } catch (err: any) {
+      const msg = err.response?.data?.detail ?? err.response?.data?.message ?? 'Não foi possível salvar o atalho.'
+      get().showToast(msg, 'error')
+      return false
+    }
+  },
+
+  async removeShortcut(id) {
+    const before = get().shortcuts
+    set({ shortcuts: before.filter(x => x.id !== id) })
+    try {
+      await api.delete(`/dice/shortcuts/${id}`)
+    } catch {
+      set({ shortcuts: before })
+      get().showToast('Não foi possível remover o atalho.', 'error')
     }
   },
 
