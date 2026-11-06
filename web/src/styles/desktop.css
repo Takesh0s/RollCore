@@ -4,12 +4,16 @@
    layout de celular de figma.css.
 ════════════════════════════════════════════════════════════════ */
 
+/* Faixa de dentes: só existe no layout de computador (veja a media query abaixo) */
+.crenellation { display: none; }
+
 /* Grade de mesas: uma coluna no celular, várias no computador */
 .table-grid { display: grid; grid-template-columns: 1fr; gap: 0 16px; }
 .table-grid .table-banner { margin-bottom: 14px; }
 
 @media (min-width: 1024px) {
-  :root { --side-w: 268px; }
+  /* --side-w = onde a sidebar termina (a partir da borda da janela); --frame = recuo da moldura prateada */
+  :root { --side-w: 288px; --frame: 20px; }
 
   /* Só as telas logadas ocupam a janela toda; login/cadastro seguem centralizados. */
   .app-shell:has(.device) { max-width: none; padding: 0; }
@@ -21,16 +25,16 @@
     box-shadow: none;
     padding-left: var(--side-w);
   }
-  /* Moldura prateada só em volta do conteúdo (a sidebar fica de fora) */
-  .device::before { left: calc(var(--side-w) + 20px); top: 20px; right: 20px; bottom: calc(var(--notch) + 20px); }
-  .device::after  { margin-top: auto; }
+  /* Moldura prateada em volta de TUDO (sidebar + conteúdo), como no Figma */
+  .device::before { left: var(--frame); top: var(--frame); right: var(--frame); bottom: calc(var(--notch) + var(--frame)); }
 
   /* ── Sidebar ── */
   .side-menu.docked {
     position: absolute;
-    top: 0; left: 0; bottom: var(--notch);
+    /* dentro da moldura: nada de painel encostado na borda da janela */
+    top: calc(var(--frame) + 2px); left: calc(var(--frame) + 2px); bottom: calc(var(--notch) + var(--frame) + 2px);
     z-index: 6;
-    width: var(--side-w);
+    width: calc(var(--side-w) - var(--frame) - 2px);
     display: flex; flex-direction: column;
     padding: 22px 16px 16px;
     background: color-mix(in srgb, #000 14%, var(--card));
@@ -60,7 +64,7 @@
   /* ── Cabeçalho do conteúdo ── */
   .app-header.desk {
     display: flex; align-items: center; gap: 14px;
-    margin: 36px 44px 0 44px;
+    margin: 36px 44px 0 24px;
     padding: 0 0 12px;
     border-bottom: 1px solid rgba(192, 192, 192, 0.35);
   }
@@ -97,7 +101,7 @@
 
   /* ── Corpo ocupa toda a moldura ── */
   .page-body,
-  .scroll-area { margin: 0 20px 0 20px; padding: 22px 24px 24px; }
+  .scroll-area { margin: 0 20px 0 0; padding: 22px 24px 24px; }
   .page-body.wide { padding-inline: 24px; }
   .scroll-area > .page-body { margin: 0; }
 
@@ -187,7 +191,7 @@
     height: 100dvh; border-radius: 0; box-shadow: none;
     flex-direction: row; align-items: center; justify-content: center; gap: 0;
   }
-  .login-device::before { top: 20px; left: 20px; right: 20px; bottom: calc(var(--notch) + 20px); }
+  .login-device::before { top: var(--frame); left: var(--frame); right: var(--frame); bottom: calc(var(--notch) + var(--frame)); }
   .auth-brand {
     position: relative; z-index: 4;
     display: flex; flex-direction: column; align-items: center; text-align: center;
@@ -300,16 +304,16 @@ html[data-theme]:not([data-theme="medieval"]) { --font-brand: var(--font-display
 html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 700; }
 
 @media (min-width: 1024px) {
-  /* Dentes de 64×40 com vão de 64, pendurados na base do painel (Figma: "Dente") */
+  /* Dentes de 64×40 (Figma: "Dente"): componente <Crenellation/> — começa e termina com vão e
+     reparte o espaço igualmente, então todos os dentes têm o mesmo tamanho e a mesma distância. */
   :root { --notch: 40px; }
-  .device::after, .login-device::after {
-    background: repeating-linear-gradient(90deg, var(--card) 0 64px, var(--canvas) 64px 128px);
-    background-position: 0 0;
+  .device::after, .login-device::after { display: none; }
+  .crenellation {
+    display: flex; justify-content: space-evenly; align-items: stretch;
+    position: fixed; left: 0; right: 0; bottom: 0; height: var(--notch); z-index: 5;
+    background: var(--card); pointer-events: none;
   }
-  /* o primeiro dente começa na borda da janela, por baixo da sidebar também */
-  .device::after { margin-left: calc(-1 * var(--side-w)); }
-  /* login/cadastro: layout em linha, então os dentes ficam presos à base da janela */
-  .login-device::after { position: absolute; left: 0; right: 0; bottom: 0; margin: 0; z-index: 1; }
+  .crenellation span { flex: none; width: 64px; background: var(--canvas); }
   .app-header.desk .app-header-title { font-size: 44px; line-height: 1.1; }
   .side-brand-name { font-size: 34px; }
   .side-brand-sub { font-family: var(--font-body); }
@@ -333,13 +337,11 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
 /* ══ Frufru dos temas no computador (Figma PC) ═════════════════════ */
 @media (min-width: 1024px) {
   /* Neon: moldura roxa fina, cantos HUD ciano, sem a faixa de dentes */
-  html[data-theme="neon"] { --notch: 0px; --side-w: 288px; }
+  html[data-theme="neon"] { --notch: 0px; --frame: 12px; }
   html[data-theme="neon"] .device::before,
-  html[data-theme="neon"] .login-device::before { top: 12px; left: 12px; right: 12px; bottom: 12px; border: 1px solid #9d5cff; }
-  html[data-theme="neon"] .device::after, html[data-theme="neon"] .login-device::after { display: none; }
-  html[data-theme="neon"] .side-menu.docked { top: 12px; left: 12px; bottom: 12px; width: calc(var(--side-w) - 12px); border-right: 1px solid rgba(157, 92, 255, .6); z-index: 6; }
-  html[data-theme="neon"] .app-header.desk { margin-left: 24px; }
-  html[data-theme="neon"] .page-body, html[data-theme="neon"] .scroll-area { margin-left: 0; }
+  html[data-theme="neon"] .login-device::before { border: 1px solid #9d5cff; }
+  html[data-theme="neon"] .crenellation { display: none; }
+  html[data-theme="neon"] .side-menu.docked { border-right: 1px solid rgba(157, 92, 255, .6); }
   html[data-theme="neon"] .page-body, html[data-theme="neon"] .scroll-area { margin-bottom: 14px; }
   html[data-theme="neon"] .side-menu.docked .side-menu-item.active {
     background: #0b3b40; color: #00f0ff; border: 1px solid rgba(0, 240, 255, .6);
@@ -365,7 +367,7 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
 
   /* Terror: rastro de sangue pingando no topo, etiqueta de dossiê e respingos na base */
   html[data-theme="terror"] { --notch: 40px; }
-  html[data-theme="terror"] .device::after, html[data-theme="terror"] .login-device::after { background: #060a08; }
+  html[data-theme="terror"] .crenellation, html[data-theme="terror"] .crenellation span { background: #060a08; }
   html[data-theme="terror"] .device::before { border-color: #5d5c4c; border-width: 1.5px; }
   html[data-theme="terror"] .side-menu.docked .side-menu-item.active { background: rgba(179, 18, 27, .16); color: #e5474f; }
   html[data-theme="terror"] .side-menu.docked .side-menu-item.active .menu-logo { color: #e5474f; }
@@ -375,7 +377,7 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
     opacity: 1;
   }
   html[data-theme="terror"] body::after {
-    content: 'DOSSIÊ · CASO Nº 0427'; position: fixed; top: 0; left: calc(var(--side-w) + 68px); z-index: 61;
+    content: 'DOSSIÊ · CASO Nº 0427'; position: fixed; top: 0; left: calc(var(--side-w) + 48px); z-index: 61;
     padding: 2px 10px; background: #cf2a33; color: #fff; border-radius: 0 0 3px 3px;
     font: 400 9px/14px 'Special Elite', 'Courier Prime', monospace; letter-spacing: .6px; pointer-events: none;
   }
