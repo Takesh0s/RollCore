@@ -48,6 +48,10 @@ public class Character {
     @Builder.Default
     private String gameSystem = "D&D 5e";
 
+    /** Portrait: small data URL or http(s) URL; null when none (migration V15). */
+    @Column(name = "avatar_url", columnDefinition = "TEXT")
+    private String avatarUrl;
+
     /** Coins: platinum, gold, silver and copper pieces (migration V13). */
     @Column(name = "coins_pp", nullable = false)
     @Builder.Default

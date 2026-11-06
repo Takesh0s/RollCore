@@ -110,10 +110,12 @@ export function CharacterFormScreen({ mode }: Props) {
       setAc(String(existing.ac))
       setAvatarUrl(existing.avatar_url)
       const filled: Record<AttrKey, string> = { STR:'', DEX:'', CON:'', INT:'', WIS:'', CHA:'' }
+      // The sheet stores final values (base + racial bonus), but the form edits the BASE value and
+      // adds the bonus again on save. Subtract it here so editing never counts the bonus twice.
+      const isCustomSheet = !!getSystem(existing.game_system ?? DEFAULT_SYSTEM).custom
+      const storedBonus   = isCustomSheet ? {} : getRaceBonuses(existing.race)
       ATTR_KEYS.forEach(k => {
-        // On edit, show the stored (post-bonus) value in the field.
-        // The player can see and adjust it; auto-calc button applies the formula fresh.
-        filled[k] = String(existing.attributes[k])
+        filled[k] = String(Math.max(ATTR_INPUT_MIN, existing.attributes[k] - (storedBonus[k] ?? 0)))
       })
       setAttrs(filled)
     }
@@ -125,7 +127,9 @@ export function CharacterFormScreen({ mode }: Props) {
   const raceBonuses  = isCustom ? {} : getRaceBonuses(race)
   const subclassInfo = sys.subclasses[cls]
   const lvlNum       = parseInt(level, 10)
-  const showSubclass = isCustom || (!!subclassInfo && !isNaN(lvlNum) && lvlNum >= subclassInfo.choiceLevel)
+  // The subclass can always be picked; the level only decides the hint (the table's rule is up to the group)
+  const showSubclass = isCustom || !!subclassInfo
+  const belowChoiceLevel = !!subclassInfo && !isCustom && (isNaN(lvlNum) || lvlNum < subclassInfo.choiceLevel)
   const subclassOptions = isCustom
     ? Array.from(new Set([...(subclassInfo?.options ?? []), ...allSubclassOptions()]))
     : (subclassInfo?.options ?? [])
@@ -364,7 +368,7 @@ export function CharacterFormScreen({ mode }: Props) {
             <Pick id="subclass" custom={isCustom} value={subclass} options={subclassOptions}
                   className={`form-input${subclass ? ' valid' : ''}`}
                   disabled={!showSubclass}
-                  title={subclassInfo && !showSubclass ? `Disponível a partir do nível ${subclassInfo.choiceLevel}` : undefined}
+                  title={belowChoiceLevel ? `Normalmente escolhida a partir do nível ${subclassInfo!.choiceLevel}` : undefined}
                   placeholder={showSubclass ? 'Selecione (opcional)' : '—'}
                   onChange={setSubclass} />
           </div>

@@ -4,6 +4,7 @@ import type { Screen } from '@/types'
 import { useDeskMenu } from '@/hooks/useDeskMenu'
 import { useDesktop } from '@/hooks/useDesktop'
 import { NavIcon } from '@/components/ui/NavIcon'
+import { DiceLogo } from '@/components/ui/DiceLogo'
 import { IconMenu, IconBack, IconUser, IconBell, IconSearch } from '@/components/ui/icons'
 
 /** Itens da barra lateral do computador, na ordem do Figma. */
@@ -18,7 +19,7 @@ interface NavItem {
 const SIDEBAR: NavItem[] = [
   { label: 'Início',      icon: <NavIcon name="home" />,      screen: 'dashboard' },
   { label: 'Fichas',      icon: <NavIcon name="sheets" />,    screen: 'personagens', also: ['ficha', 'novo-personagem', 'editar-personagem'] },
-  { label: 'Dados',       icon: <NavIcon name="dice" />, screen: 'dados' },
+  { label: 'Dados',       icon: <DiceLogo className="nav-logo" />, screen: 'dados' },
   { label: 'Mesas',       icon: <NavIcon name="tables" />, screen: 'mesas', also: ['nova-mesa', 'mesa', 'mapas'] },
   { label: 'Calendário',  icon: <NavIcon name="calendar" /> },
   { label: 'Comunidade',  icon: <NavIcon name="community" /> },

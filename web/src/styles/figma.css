@@ -647,3 +647,6 @@ textarea.form-input { resize: vertical; min-height: 96px; }
   .app-header-title { font-size: 20px; }
   .dash-card-icon { width: 52px; height: 52px; }
 }
+
+/* Ícone de Dados no menu: a logo do app, na cor do item */
+.nav-logo { width: 100%; height: 100%; color: inherit; }

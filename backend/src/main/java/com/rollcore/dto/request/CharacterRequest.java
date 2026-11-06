@@ -49,12 +49,27 @@ public record CharacterRequest(
 
     /** Game system of the sheet. Null or blank is treated as "D&D 5e". */
     @Size(max = 50, message = "Sistema deve ter no máximo 50 caracteres.")
-    String gameSystem
+    String gameSystem,
+
+    /** Portrait. Null keeps the current one; blank removes it. */
+    @Size(max = 400_000, message = "A foto é grande demais.")
+    @Pattern(
+        regexp  = "^(data:image/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+|https?://\\S+)?$",
+        message = "A foto deve ser uma imagem (png, jpeg ou webp) ou uma URL http(s)."
+    )
+    String avatarUrl
 ) {
     /** Keeps the pre-system constructor working (system defaults to D&D 5e). */
     public CharacterRequest(String name, String characterClass, String subclass, String race,
                             int level, Map<String, Integer> attributes, int hp, int maxHp,
                             Integer tempHp) {
-        this(name, characterClass, subclass, race, level, attributes, hp, maxHp, tempHp, null);
+        this(name, characterClass, subclass, race, level, attributes, hp, maxHp, tempHp, null, null);
+    }
+
+    /** Keeps the pre-avatar constructor working (portrait untouched). */
+    public CharacterRequest(String name, String characterClass, String subclass, String race,
+                            int level, Map<String, Integer> attributes, int hp, int maxHp,
+                            Integer tempHp, String gameSystem) {
+        this(name, characterClass, subclass, race, level, attributes, hp, maxHp, tempHp, gameSystem, null);
     }
 }

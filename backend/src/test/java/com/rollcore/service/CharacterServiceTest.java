@@ -415,6 +415,33 @@ class CharacterServiceTest {
             assertThat(resp.spellSlots().get("3")).isEqualTo(2);
         }
 
+        @Test
+        @DisplayName("Avatar: stored on update, kept when null, removed when blank")
+        void avatarLifecycle() {
+            Map<String, Integer> attrs = Map.of(
+                    "STR", 10, "DEX", 10, "CON", 10,
+                    "INT", 10, "WIS", 10, "CHA", 10
+            );
+            Character existing = Character.builder()
+                    .id(characterId).user(user).name("Nyx").characterClass("Ladino").race("Humano")
+                    .level(1).attributes(attrs).hp(8).maxHp(8).tempHp(0).ac(10).build();
+            when(characterRepository.findByIdAndUserId(characterId, userId))
+                    .thenReturn(Optional.of(existing));
+            mockSave();
+
+            String photo = "data:image/jpeg;base64,AAAA";
+            CharacterResponse set = service.update(characterId, new CharacterRequest(
+                    "Nyx", "Ladino", "", "Humano", 1, attrs, 8, 8, 0, "D&D 5e", photo), userId);
+            assertThat(set.avatarUrl()).isEqualTo(photo);
+
+            CharacterResponse kept = service.update(characterId, request("Ladino", 1, attrs), userId);
+            assertThat(kept.avatarUrl()).isEqualTo(photo);
+
+            CharacterResponse cleared = service.update(characterId, new CharacterRequest(
+                    "Nyx", "Ladino", "", "Humano", 1, attrs, 8, 8, 0, "D&D 5e", ""), userId);
+            assertThat(cleared.avatarUrl()).isNull();
+        }
+
         // CT-SVC-22 — HU-02
         @Test
         @DisplayName("CT-SVC-22 | update() throws NotFoundException for another user's character — UC-02 RN-04")
