@@ -149,7 +149,6 @@ function buildDie(sides: number, labelOf: (value: number) => string, colors: Col
 
 export interface Colors { body: string; edge: string; label: string }
 
-const ease = (t: number) => 1 - Math.pow(1 - t, 3)
 
 /** Quaternion que leva a face `f` para a câmera (normal → +z, "cima" do número → +y). */
 function faceToCamera(f: Face): Quaternion {
@@ -168,7 +167,10 @@ export class DiceScene {
   private raf = 0
   private tumbling = false
   private spin: { axis: Vector3; speed: number }[] = []
-  private landing: { from: Quaternion[]; to: Quaternion[]; spinAxis: Vector3[]; start: number; dur: number; done: () => void } | null = null
+  private landing: { r0: Quaternion[]; to: Quaternion[]; axisA: Vector3[]; axisB: Vector3[]; turnsA: number[]; turnsB: number[]; y0: number[]; start: number; dur: number; done: () => void } | null = null
+  private shadows: Mesh[] = []
+  private shadowTex: CanvasTexture | null = null
+  private baseX: number[] = []
   private reduced: boolean
 
   constructor(canvas: HTMLCanvasElement, colors: Colors, reducedMotion: boolean) {
@@ -197,6 +199,8 @@ export class DiceScene {
     if (!force && sides === this.sides && this.dice.length && !show) return
     this.sides = sides
     this.dice.forEach(d => { this.scene.remove(d.group); d.dispose() })
+    this.shadows.forEach(m => { this.scene.remove(m); (m.material as MeshBasicMaterial).dispose(); m.geometry.dispose() })
+    this.shadows = []
     this.dice = []
     const mk = (n: number, labelOf: (v: number) => string) => buildDie(n, labelOf, this.colors)
     if (sides === 100) {
@@ -211,10 +215,15 @@ export class DiceScene {
     this.dice.forEach((d, i) => {
       const s = n > 1 ? 0.6 : 1
       d.group.scale.setScalar(s)
-      d.group.position.set(n > 1 ? (i === 0 ? -1.2 : 1.2) : 0, 0, 0)
+      const x = n > 1 ? (i === 0 ? -1.2 : 1.2) : 0
+      this.baseX[i] = x
+      d.group.position.set(x, 0, 0)
       this.scene.add(d.group)
+      const sh = new Mesh(new PlaneGeometry(2.4 * s, 0.5 * s), new MeshBasicMaterial({ map: this.shadowTexture(), transparent: true, depthWrite: false }))
+      sh.position.set(x, -1.12 * s - 0.06, -0.3)
+      this.shadows.push(sh); this.scene.add(sh)
     })
-    this.camera.position.z = this.dice.length > 1 ? 7.2 : 5.3
+    this.camera.position.z = this.dice.length > 1 ? 7.4 : 6.1
     this.spin = this.dice.map(() => ({ axis: new Vector3(Math.random(), Math.random(), Math.random()).normalize(), speed: 5 }))
     this.showFaces(show)
   }
@@ -243,28 +252,55 @@ export class DiceScene {
   setLabels(visible: boolean) { this.dice.forEach(d => d.labels.forEach(m => (m.opacity = visible ? 1 : 0))); this.render() }
 
   /** Mostra o dado parado já na face (sem animação), ex.: ao abrir a tela. */
-  showValue(value: number) { this.landing = null; this.tumbling = false; this.dice.forEach(d => (d.group.position.y = 0)); this.showFaces([value]) }
+  showValue(value: number) { this.landing = null; this.tumbling = false; this.dice.forEach((_, i) => this.place(i, 0)); this.showFaces([value]) }
 
-  /** Gira o dado sem parar, até `landOn` ser chamado (enquanto o servidor responde). */
+  /** Elipse suave usada como sombra sob o dado. */
+  private shadowTexture() {
+    if (this.shadowTex) return this.shadowTex
+    const c = document.createElement('canvas'); c.width = 128; c.height = 32
+    const g = c.getContext('2d')!
+    g.scale(1, 0.25)
+    const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64)
+    grad.addColorStop(0, 'rgba(0,0,0,0.55)'); grad.addColorStop(1, 'rgba(0,0,0,0)')
+    g.fillStyle = grad; g.fillRect(0, 0, 128, 128)
+    this.shadowTex = new CanvasTexture(c)
+    return this.shadowTex
+  }
+
+  /** Posição/sombra do dado `i` a uma altura `y` (a sombra encolhe e clareia com a altura). */
+  private place(i: number, y: number) {
+    const d = this.dice[i]; if (!d) return
+    d.group.position.set(this.baseX[i] ?? 0, y, 0)
+    const sh = this.shadows[i]
+    if (sh) { const k = 1 / (1 + Math.max(0, y) * 1.4); sh.scale.set(k, k, 1); (sh.material as MeshBasicMaterial).opacity = k }
+  }
+
+  /** Gira o dado sem parar, até `landOn` ser chamado (enquanto o servidor responde): quica e rola. */
   startTumble() {
     if (this.reduced) return
     this.landing = null
     this.tumbling = true
+    this.spin = this.dice.map(() => ({ axis: new Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize(), speed: 13 }))
     this.loop()
   }
 
-  /** Pousa com a face do `value` virada para a câmera. Chama `done` quando termina. */
+  /** Pousa com a face do `value` virada para a câmera: quica, gira com atrito e para. `done` avisa o fim. */
   landOn(value: number, dur: number, done: () => void) {
     const t = this.targets(value)
     const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -0.05)
     const to = this.dice.map((_, i) => faceToCamera(t[i]).premultiply(tilt))
     if (this.reduced) {
-      this.dice.forEach((d, i) => d.group.quaternion.copy(to[i])); this.tumbling = false; this.render(); done(); return
+      this.dice.forEach((d, i) => { d.group.quaternion.copy(to[i]); this.place(i, 0) }); this.tumbling = false; this.render(); done(); return
     }
     this.tumbling = false
+    const rnd = () => new Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize()
     this.landing = {
-      from: this.dice.map(d => d.group.quaternion.clone()), to,
-      spinAxis: this.dice.map(() => new Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize()),
+      // rotação que falta para chegar ao alvo, a partir de onde o dado está agora
+      r0: this.dice.map((d, i) => d.group.quaternion.clone().multiply(to[i].clone().invert())),
+      to, axisA: this.dice.map(rnd), axisB: this.dice.map(rnd),
+      turnsA: this.dice.map(() => 2 + Math.floor(Math.random() * 2)),
+      turnsB: this.dice.map(() => 1 + Math.floor(Math.random() * 2)),
+      y0: this.dice.map(d => d.group.position.y),
       start: performance.now(), dur, done,
     }
     this.loop()
@@ -274,6 +310,9 @@ export class DiceScene {
   private loop = () => {
     if (this.raf) return
     this.last = performance.now()
+    const I = new Quaternion()
+    // quiques: fração do tempo e altura de cada salto (cada um menor que o anterior)
+    const frac = [0.32, 0.25, 0.19, 0.13, 0.08, 0.03], hts = [0.62, 0.34, 0.16, 0.07, 0.025, 0.008]
     const step = (now: number) => {
       this.raf = 0
       const dt = Math.min(0.05, (now - this.last) / 1000); this.last = now
@@ -282,19 +321,37 @@ export class DiceScene {
         this.dice.forEach((d, i) => {
           const s = this.spin[i]
           d.group.quaternion.premultiply(new Quaternion().setFromAxisAngle(s.axis, s.speed * dt))
-          d.group.position.y = Math.sin(now / 160 + i) * 0.12
+          // de tempos em tempos "bate" e muda o eixo de giro, como um dado rolando
+          if (Math.random() < dt * 2.2) s.axis.add(new Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5)).normalize()
+          this.place(i, 0.4 * Math.abs(Math.sin(now / 210 + i * 1.3)))
         })
         again = true
       } else if (this.landing) {
         const L = this.landing
-        const t = Math.min(1, (now - L.start) / L.dur), e = ease(t)
+        const u = Math.min(1, (now - L.start) / L.dur)
+        const k = Math.pow(1 - u, 2)            // velocidade angular cai até zero (atrito)
         this.dice.forEach((d, i) => {
-          const q = L.from[i].clone().slerp(L.to[i], e)
-          q.premultiply(new Quaternion().setFromAxisAngle(L.spinAxis[i], (1 - e) * TAU * 1.5))
-          d.group.quaternion.copy(q)
-          d.group.position.y = Math.sin(Math.PI * Math.min(1, t * 1.6)) * 0.45 * (1 - t) * (1 - t)
+          const spinA = new Quaternion().setFromAxisAngle(L.axisA[i], TAU * L.turnsA[i] * k)
+          const spinB = new Quaternion().setFromAxisAngle(L.axisB[i], TAU * L.turnsB[i] * k * k)
+          const res = I.clone().slerp(L.r0[i], k)
+          d.group.quaternion.copy(spinA.multiply(spinB).multiply(res).multiply(L.to[i]))
+          // altura: saltos decrescentes; no primeiro, parte da altura atual
+          let acc = 0, y = 0
+          for (let j = 0; j < frac.length; j++) {
+            if (u <= acc + frac[j] || j === frac.length - 1) {
+              const s = Math.min(1, (u - acc) / frac[j])
+              y = hts[j] * 4 * s * (1 - s) + (j === 0 ? L.y0[i] * (1 - s) : 0)
+              break
+            }
+            acc += frac[j]
+          }
+          this.place(i, y)
         })
-        if (t >= 1) { this.landing = null; this.dice.forEach(d => (d.group.position.y = 0)); L.done() } else again = true
+        if (u >= 1) {
+          this.landing = null
+          this.dice.forEach((d, i) => { d.group.quaternion.copy(L.to[i]); this.place(i, 0) })
+          L.done()
+        } else again = true
       }
       this.render()
       if (again) { this.raf = requestAnimationFrame(step) }
@@ -307,6 +364,7 @@ export class DiceScene {
   dispose() {
     cancelAnimationFrame(this.raf); this.raf = 0
     this.dice.forEach(d => d.dispose())
+    this.shadowTex?.dispose()
     this.renderer.dispose()
   }
 }
