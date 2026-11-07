@@ -43,7 +43,7 @@ function trapezohedron(): BufferGeometry {
   return g
 }
 
-function baseGeometry(sides: number): BufferGeometry {
+export function baseGeometry(sides: number): BufferGeometry {
   switch (sides) {
     case 4:  return new TetrahedronGeometry(1.25)
     case 6:  return new BoxGeometry(1.35, 1.35, 1.35)
@@ -55,21 +55,22 @@ function baseGeometry(sides: number): BufferGeometry {
 }
 
 /** Agrupa os triângulos da malha em faces (mesma normal) e devolve normal, centro e vértice de referência. */
-function groupFaces(geo: BufferGeometry): { normal: Vector3; center: Vector3; ref: Vector3 }[] {
+export function groupFaces(geo: BufferGeometry): { normal: Vector3; center: Vector3; ref: Vector3 }[] {
   const g = geo.index ? geo.toNonIndexed() : geo
   const p = g.getAttribute('position')
-  const groups = new Map<string, { n: Vector3; pts: Vector3[] }>()
+  const groups: { n: Vector3; pts: Vector3[] }[] = []
   const a = new Vector3(), b = new Vector3(), c = new Vector3(), n = new Vector3()
   for (let i = 0; i < p.count; i += 3) {
     a.fromBufferAttribute(p, i); b.fromBufferAttribute(p, i + 1); c.fromBufferAttribute(p, i + 2)
     n.subVectors(c, b).cross(a.clone().sub(b)).normalize()
     if (n.dot(a.clone().add(b).add(c)) < 0) n.negate()          // sempre para fora do dado
-    const key = `${n.x.toFixed(2)},${n.y.toFixed(2)},${n.z.toFixed(2)}`
-    const e = groups.get(key) ?? { n: n.clone(), pts: [] }
-    e.pts.push(a.clone(), b.clone(), c.clone())
-    groups.set(key, e)
+    // triângulos coplanares (mesma face) têm normais quase iguais; agrupa por proximidade,
+    // não por arredondamento, para não dividir uma face em duas por erro numérico
+    const e = groups.find(grp => grp.n.dot(n) > 0.9995)
+    if (e) e.pts.push(a.clone(), b.clone(), c.clone())
+    else groups.push({ n: n.clone(), pts: [a.clone(), b.clone(), c.clone()] })
   }
-  return [...groups.values()].map(({ n: normal, pts }) => {
+  return groups.map(({ n: normal, pts }) => {
     const center = pts.reduce((s, v) => s.add(v), new Vector3()).divideScalar(pts.length)
     // vértice mais distante do centro: dá a direção "para cima" do número
     const ref = pts.reduce((best, v) => (v.distanceTo(center) > best.distanceTo(center) ? v : best), pts[0])
@@ -78,7 +79,7 @@ function groupFaces(geo: BufferGeometry): { normal: Vector3; center: Vector3; re
 }
 
 /** Valores nas faces: faces opostas somam sides+1 (como no dado de verdade) quando há oposta. */
-function assignValues(faces: { normal: Vector3 }[], sides: number): number[] {
+export function assignValues(faces: { normal: Vector3 }[], sides: number): number[] {
   const values = new Array<number>(faces.length).fill(0)
   let next = 1
   faces.forEach((f, i) => {
