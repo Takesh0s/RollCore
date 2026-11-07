@@ -91,7 +91,7 @@ export function DiceStage({ sides, rolling, result }: Props) {
     seen.current = result.id
     s.setSides(result.sides)
     const rolls = result.rolls
-    const per = rolls.length <= 1 ? 900 : rolls.length <= 4 ? 600 : 320
+    const per = rolls.length <= 1 ? 1700 : rolls.length <= 4 ? 1100 : 500
     setSettled(false)
     let i = 0
     const next = () => {
