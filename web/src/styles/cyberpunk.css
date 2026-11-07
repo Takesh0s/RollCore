@@ -1,0 +1,88 @@
+/* ═══════════════════════════════════════════════════════════════
+   Tema Cyberpunk (PC e celular): amarelo-ácido, ciano e vermelho sobre preto,
+   cantos chanfrados, linhas de varredura e colchetes HUD. Só vale com data-theme="cyberpunk".
+════════════════════════════════════════════════════════════════ */
+html[data-theme="cyberpunk"] {
+  --cp-yellow: #fcee0a; --cp-cyan: #02d7f2; --cp-red: #ff003c;
+  --cp-cut: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+
+/* Linhas de varredura sobre a tela toda */
+html[data-theme="cyberpunk"]::before {
+  content: ''; position: fixed; inset: 0; z-index: 49; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 3px);
+}
+
+/* Colchetes HUD nos cantos: amarelo em cima, ciano embaixo */
+html[data-theme="cyberpunk"] body::before, html[data-theme="cyberpunk"] body::after {
+  content: ''; position: fixed; width: 34px; height: 34px; z-index: 50; pointer-events: none; opacity: 1; height: 34px;
+}
+html[data-theme="cyberpunk"] body::before {
+  left: 0; top: 0;
+  background: linear-gradient(var(--cp-yellow), var(--cp-yellow)) 0 0 / 34px 3px no-repeat,
+              linear-gradient(var(--cp-yellow), var(--cp-yellow)) 0 0 / 3px 34px no-repeat;
+}
+html[data-theme="cyberpunk"] body::after {
+  right: 0; bottom: 0; left: auto; top: auto;
+  background: linear-gradient(var(--cp-cyan), var(--cp-cyan)) 100% 100% / 34px 3px no-repeat,
+              linear-gradient(var(--cp-cyan), var(--cp-cyan)) 100% 100% / 3px 34px no-repeat;
+}
+
+/* Títulos com falha de cor (glitch) */
+html[data-theme="cyberpunk"] .app-header-title,
+html[data-theme="cyberpunk"] .side-brand-name,
+html[data-theme="cyberpunk"] .login-header h1 {
+  text-transform: uppercase; letter-spacing: 1.5px;
+  text-shadow: 2px 0 var(--cp-red), -2px 0 var(--cp-cyan);
+}
+html[data-theme="cyberpunk"] .section-title, html[data-theme="cyberpunk"] .dash-sec-title span {
+  text-transform: uppercase; letter-spacing: 2px; color: var(--cp-cyan);
+}
+
+/* Botões: amarelo cheio, texto preto, corte diagonal */
+html[data-theme="cyberpunk"] .btn-primary, html[data-theme="cyberpunk"] .btn-pill,
+html[data-theme="cyberpunk"] .btn-roll, html[data-theme="cyberpunk"] .md-enter,
+html[data-theme="cyberpunk"] .sheet-btn.open, html[data-theme="cyberpunk"] .sheet-btn.new {
+  background: var(--cp-yellow); color: #050505; border: none; border-radius: 0;
+  clip-path: var(--cp-cut); box-shadow: none; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1px; font-style: normal;
+}
+html[data-theme="cyberpunk"] .btn-primary:hover:not(:disabled) { background: #fff75c; transform: none; box-shadow: none; }
+html[data-theme="cyberpunk"] .btn:disabled { filter: grayscale(1); }
+
+/* Cartões e campos: cantos retos e barra de destaque à esquerda */
+html[data-theme="cyberpunk"] .md-card, html[data-theme="cyberpunk"] .dash-panel,
+html[data-theme="cyberpunk"] .sheet-card, html[data-theme="cyberpunk"] .attr-box,
+html[data-theme="cyberpunk"] .dice-panel, html[data-theme="cyberpunk"] .char-row,
+html[data-theme="cyberpunk"] .dice-last, html[data-theme="cyberpunk"] .dice-shortcut {
+  border-radius: 0; border-left: 3px solid var(--cp-yellow);
+}
+html[data-theme="cyberpunk"] .dice-tile, html[data-theme="cyberpunk"] .dice-chip,
+html[data-theme="cyberpunk"] .form-input, html[data-theme="cyberpunk"] .desk-search {
+  border-radius: 2px;
+}
+html[data-theme="cyberpunk"] .dice-tile.on, html[data-theme="cyberpunk"] .dice-chip.on {
+  background: var(--cp-yellow); color: #050505; border-color: var(--cp-yellow);
+}
+html[data-theme="cyberpunk"] .badge-crit { color: var(--cp-cyan); }
+html[data-theme="cyberpunk"] .badge-fail { color: var(--cp-red); }
+
+/* Rolagem fina amarela */
+html[data-theme="cyberpunk"] .page-body, html[data-theme="cyberpunk"] .scroll-area, html[data-theme="cyberpunk"] .auth-body { scrollbar-color: var(--cp-yellow) transparent; }
+html[data-theme="cyberpunk"] ::selection { background: var(--cp-yellow); color: #050505; }
+
+/* Moldura e menu */
+html[data-theme="cyberpunk"] .device::before, html[data-theme="cyberpunk"] .login-device::before { border-color: rgba(252, 238, 10, 0.75); }
+html[data-theme="cyberpunk"] .side-menu.docked { border-color: rgba(252, 238, 10, 0.45); }
+html[data-theme="cyberpunk"] .side-menu-item.active, html[data-theme="cyberpunk"] .side-menu.docked .side-menu-item.active {
+  background: rgba(252, 238, 10, 0.12); color: var(--cp-yellow); border-radius: 0;
+  box-shadow: inset 3px 0 0 var(--cp-yellow);
+}
+html[data-theme="cyberpunk"] .side-menu-item { border-radius: 0; }
+
+@media (max-width: 1023px) {
+  html[data-theme="cyberpunk"] .app-header, html[data-theme="cyberpunk"] .side-profile,
+  html[data-theme="cyberpunk"] .side-menu.sheet .side-foot { border-color: rgba(252, 238, 10, 0.7); }
+  html[data-theme="cyberpunk"] .side-avatar { border-color: var(--cp-yellow); }
+  html[data-theme="cyberpunk"] .side-logout { color: var(--cp-red); }
+}
