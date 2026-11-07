@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import axios from 'axios';
 
 const API = process.env.API_URL ?? 'http://localhost:8080';
@@ -23,6 +23,16 @@ async function deleteAll() {
   }
 }
 
+/** Botão "Entrar": só existe na tela de login (o título "RollCore" fica oculto no PC). */
+const loginButton = (page: Page) => page.getByRole('button', { name: 'Entrar' });
+
+/** No PC a barra lateral começa fechada: abre pelo hambúrguer e clica no item. */
+async function goTo(page: Page, item: string) {
+  const menu = page.getByRole('button', { name: 'Menu', exact: true });
+  if ((await menu.getAttribute('aria-expanded')) !== 'true') await menu.click();
+  await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('button', { name: item }).click();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
@@ -38,7 +48,7 @@ test('Login completamente Invalido', async ({ page }) => {
   await page.getByRole('textbox', { name: '••••••••' }).fill('senhaerrada123');
   await page.getByRole('checkbox', { name: 'Mantenha conectado' }).check();
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('heading', { name: 'RollCore' })).toBeVisible();
+  await expect(loginButton(page)).toBeVisible();
 });
 
 test('Login Parcialmente Invalido', async ({ page }) => {
@@ -48,7 +58,7 @@ test('Login Parcialmente Invalido', async ({ page }) => {
   await page.getByRole('textbox', { name: '••••••••' }).fill('senhaerrada123');
   await page.getByRole('checkbox', { name: 'Mantenha conectado' }).check();
   await page.getByRole('button', { name: 'Entrar' }).click();
-  await expect(page.getByRole('heading', { name: 'RollCore' })).toBeVisible();
+  await expect(loginButton(page)).toBeVisible();
 });
 
 test('Login Valido', async ({ page }) => {
@@ -73,7 +83,7 @@ test('Criacao de conta e autoLogin', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible({ timeout: 10_000 });
   await page.getByRole('button', { name: 'Meu perfil' }).click();
   await page.getByRole('button', { name: 'Logout' }).click();
-  await expect(page.getByRole('heading', { name: 'RollCore' })).toBeVisible();
+  await expect(loginButton(page)).toBeVisible();
 });
 
 // ── HU-02: Personagem + Engine D&D 5e ────────────────────────────────────
@@ -87,7 +97,7 @@ test('Criacao de personagem e verificacao da Engine', async ({ page }) => {
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible({ timeout: 10_000 });
 
-  await page.getByRole('button', { name: /Fichas/ }).click();
+  await goTo(page, 'Fichas');
   await page.getByRole('button', { name: 'Nova ficha' }).click();
   await page.getByRole('textbox', { name: 'Ex: Aragorn' }).fill('Char1');
   await page.getByRole('combobox').first().selectOption('Ladino');
@@ -121,8 +131,8 @@ test('Rolagem de dados', async ({ page }) => {
   await page.getByRole('button', { name: 'Entrar' }).click();
   await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible({ timeout: 10_000 });
 
-  await page.getByRole('button', { name: /Rolar Dados/ }).click();
-  await page.getByRole('textbox', { name: 'ex: 2d6 + 3d10 +2' }).fill('1d20');
-  await page.getByRole('button', { name: 'Rolar Dados' }).click();
-  await expect(page.getByText('Rolagem realizada!')).toBeVisible({ timeout: 10_000 });
+  await goTo(page, 'Dados');
+  await page.getByRole('textbox', { name: 'Fórmula' }).fill('1d20');
+  await page.getByRole('button', { name: 'Rolar dados', exact: true }).click();
+  await expect(page.locator('.dice-last-detail')).toContainText('1d20 →', { timeout: 10_000 });
 });
