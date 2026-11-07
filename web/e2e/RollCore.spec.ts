@@ -33,6 +33,10 @@ async function goTo(page: Page, item: string) {
   await page.getByRole('navigation', { name: 'Menu principal' }).getByRole('button', { name: item }).click();
 }
 
+/** Lista suspensa do formulário de ficha, achada pelo rótulo (o campo "Sistema" vem antes). */
+const pick = (page: Page, label: string) =>
+  page.locator('.form-group', { has: page.locator('label', { hasText: new RegExp(`^${label}$`) }) }).locator('select');
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
@@ -98,12 +102,12 @@ test('Criacao de personagem e verificacao da Engine', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible({ timeout: 10_000 });
 
   await goTo(page, 'Fichas');
-  await page.getByRole('button', { name: 'Nova ficha' }).click();
+  await page.getByRole('button', { name: 'Nova ficha', exact: true }).click();
   await page.getByRole('textbox', { name: 'Ex: Aragorn' }).fill('Char1');
-  await page.getByRole('combobox').first().selectOption('Ladino');
-  await page.getByRole('combobox').nth(1).selectOption('Draconato');
+  await pick(page, 'Classe').selectOption('Ladino');
+  await pick(page, 'Raça').selectOption('Draconato');
   await page.getByPlaceholder('1–').first().fill('6');
-  await page.getByRole('combobox').nth(2).selectOption('Ladrão');
+  await pick(page, 'Subclasse').selectOption('Ladrão');
   await page.getByPlaceholder('1–').nth(1).fill('12');
   await page.getByPlaceholder('1–').nth(2).fill('20');
   await page.getByPlaceholder('1–').nth(3).fill('10');
