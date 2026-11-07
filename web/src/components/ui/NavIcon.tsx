@@ -13,6 +13,7 @@ import { NEON_ICONS } from '@/assets/nav/neonIcons'
 import { CYBERPUNK_ICONS } from '@/assets/nav/cyberpunkIcons'
 import { TERROR_ICONS } from '@/assets/nav/terrorIcons'
 import { STEAMPUNK_ICONS } from '@/assets/nav/steampunkIcons'
+import { PERGAMINHO_ICONS } from '@/assets/nav/pergaminhoIcons'
 import { useThemePrefs } from '@/theme/applyTheme'
 
 /**
@@ -34,10 +35,10 @@ const ICONS: Record<string, string> = {
 
 export type NavIconName = keyof typeof FIGMA | 'settings'
 
-/** Cada tema pode ter o próprio conjunto: o Neon usa pixel-art, o Cyberpunk traço chanfrado, o Terror riscos tortos, o Steampunk engrenagens e canos; os demais, os do Medieval. */
+/** Cada tema pode ter o próprio conjunto: o Neon usa pixel-art, o Cyberpunk traço chanfrado, o Terror riscos tortos, o Steampunk engrenagens e canos, o Pergaminho pena e escudos; os demais, os do Medieval. */
 export function NavIcon({ name }: { name: NavIconName }) {
   const { theme } = useThemePrefs()
-  const set = theme === 'neon' ? NEON_ICONS : theme === 'cyberpunk' ? CYBERPUNK_ICONS : theme === 'terror' ? TERROR_ICONS : theme === 'steampunk' ? STEAMPUNK_ICONS : undefined
+  const set = theme === 'neon' ? NEON_ICONS : theme === 'cyberpunk' ? CYBERPUNK_ICONS : theme === 'terror' ? TERROR_ICONS : theme === 'steampunk' ? STEAMPUNK_ICONS : theme === 'pergaminho' ? PERGAMINHO_ICONS : undefined
   const svg = set?.[name] ?? ICONS[name]
   return <span className="nav-svg" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg }} />
 }
