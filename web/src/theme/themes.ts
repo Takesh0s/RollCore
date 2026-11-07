@@ -78,7 +78,7 @@ export const THEMES: ThemeDef[] = [
   },
   {
     id: 'cyberpunk',
-    label: 'Cyberpunk 2077',
+    label: 'Cyberpunk',
     fontDisplay: "'Chakra Petch', 'Orbitron', sans-serif",
     swatch: ['#FCEE0A', '#FF003C', '#0A0A0A'],
     dark: {
