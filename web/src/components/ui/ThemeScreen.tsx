@@ -1,7 +1,7 @@
 import { useAppStore } from '@/store/useAppStore'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { THEMES, type ThemeMode } from '@/theme/themes'
-import { setThemePrefs, useThemePrefs, type ModePref } from '@/theme/applyTheme'
+import { setThemePrefs, useThemePrefs, useResolvedMode, type ModePref } from '@/theme/applyTheme'
 
 const MODES: { id: ModePref; label: string; hint: string }[] = [
   { id: 'dark',   label: 'Escuro',  hint: 'Fundo escuro' },
@@ -16,8 +16,8 @@ const MODES: { id: ModePref; label: string; hint: string }[] = [
 export function ThemeScreen() {
   const navigate = useAppStore(s => s.navigate)
   const prefs = useThemePrefs()
-  // A prévia das amostras acompanha o modo escolhido (no "Sistema", usa o escuro).
-  const previewMode: ThemeMode = prefs.mode === 'light' ? 'light' : 'dark'
+  // A prévia das amostras acompanha o modo aplicado: no "Sistema", o do dispositivo (claro ou escuro).
+  const previewMode: ThemeMode = useResolvedMode()
 
   return (
     <div className="device">
