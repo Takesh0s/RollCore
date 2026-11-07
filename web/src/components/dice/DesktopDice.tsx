@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import api from '@/lib/api'
 import { useAppStore } from '@/store/useAppStore'
 import { toRollable, type RollableWeapon } from '@/lib/weapons'
+import { DiceLogo } from '@/components/ui/DiceLogo'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { VALID_SIDES, FORMULA_REGEX, validateFormula } from '@/lib/dice'
 import type { DiceMode, HistoryEntry, InventoryApiResponse } from '@/types'
@@ -118,7 +119,6 @@ export function DesktopDice() {
               <button key={s} type="button" className={`dice-tile${sides === s ? ' on' : ''}`}
                       onClick={() => pickSides(s)} aria-pressed={sides === s}>
                 <strong>d{s}</strong>
-                <span>{s === 100 ? 'percentil' : `${s} faces`}</span>
               </button>
             ))}
           </div>
@@ -175,7 +175,10 @@ export function DesktopDice() {
             </p>
             {last ? (
               <>
-                <div key={last.timestamp} className={`dice-last-num roll-anim ${lastCrit ?? ''}`}>{last.result.total}</div>
+                <div className="dice-stage">
+                  <DiceLogo className="dice-stage-die" />
+                  <div key={last.timestamp} className={`dice-last-num roll-anim ${lastCrit ?? ''}`}>{last.result.total}</div>
+                </div>
                 {lastCrit && (
                   <span className={`badge ${lastCrit === 'crit' ? 'badge-crit' : 'badge-fail'}`}>
                     {lastCrit === 'crit' ? 'CRÍTICO' : 'FALHA'}
@@ -189,7 +192,10 @@ export function DesktopDice() {
               </>
             ) : (
               <>
-                <div className="dice-last-num none">—</div>
+                <div className="dice-stage">
+                  <DiceLogo className="dice-stage-die" />
+                  <div className="dice-last-num none">—</div>
+                </div>
                 <p className="dice-last-detail">Nenhuma rolagem ainda.</p>
               </>
             )}
