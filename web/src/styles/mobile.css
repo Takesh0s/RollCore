@@ -63,6 +63,13 @@
     background: #3a454b; box-shadow: 6px 0 24px rgba(0, 0, 0, 0.5);
     border-right: 1px solid rgba(192, 192, 192, 0.35);
   }
+  /* Gaveta: em todos os temas (menos o Medieval) usa as cores do tema em vez do cinza-azulado fixo */
+  html:not([data-theme="medieval"]) .side-menu.sheet { background: var(--card); border-right-color: var(--card-border); }
+  html:not([data-theme="medieval"]) .side-menu.sheet .side-menu-item.active {
+    background: color-mix(in srgb, var(--primary) 16%, transparent); color: var(--primary);
+  }
+  html:not([data-theme="medieval"]) .side-profile, html:not([data-theme="medieval"]) .side-menu.sheet .side-foot { border-color: var(--card-border); }
+  html:not([data-theme="medieval"]) .side-avatar { border-color: var(--primary); }
   .side-profile {
     display: flex; align-items: center; gap: 14px; width: 100%;
     padding: 0 8px 16px; margin-bottom: 8px;
