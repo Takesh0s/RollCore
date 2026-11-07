@@ -30,6 +30,7 @@ export function DiceStage({ sides, rolling, result }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const scene = useRef<DiceScene | null>(null)
   const seen = useRef<number | null>(null)     // id da rolagem já mostrada
+  const started = useRef(false)                // primeira vez que o dado ficou pronto
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
   const [settled, setSettled] = useState(true) // número visível (dado já pousou)
@@ -63,13 +64,16 @@ export function DiceStage({ sides, rolling, result }: Props) {
     return () => mo.disconnect()
   }, [ready])
 
-  // Dado parado conforme o tipo escolhido (ou o da última rolagem).
+  // Dado parado conforme o tipo escolhido; ao abrir a tela já mostra a última rolagem (sem animar).
   useEffect(() => {
     if (!ready || rolling) return
     const s = scene.current!
+    if (!started.current) {
+      started.current = true
+      if (result) { s.setSides(result.sides); s.showValue(result.rolls[result.rolls.length - 1]); seen.current = result.id; return }
+    }
     if (result && seen.current === result.id) return
-    if (result && seen.current === null) { s.setSides(result.sides); s.showValue(result.rolls[result.rolls.length - 1]); s.setLabels(false); seen.current = result.id; return }
-    s.setSides(sides)
+    if (!result || seen.current === null || seen.current === result.id) s.setSides(sides)
   }, [ready, sides, rolling, result])
 
   // Gira enquanto o servidor responde.
@@ -77,7 +81,7 @@ export function DiceStage({ sides, rolling, result }: Props) {
     if (!ready || !rolling) return
     setSettled(false)
     const s = scene.current!
-    s.setSides(sides, true); s.setLabels(true); s.startTumble()
+    s.setSides(sides, true); s.startTumble()
   }, [ready, rolling, sides])
 
   // Resultado chegou: pousa na face sorteada.
@@ -88,27 +92,33 @@ export function DiceStage({ sides, rolling, result }: Props) {
     s.setSides(result.sides)
     const rolls = result.rolls
     const per = rolls.length <= 1 ? 900 : rolls.length <= 4 ? 600 : 320
-    setSettled(false); s.setLabels(true)
+    setSettled(false)
     let i = 0
     const next = () => {
       s.landOn(rolls[i], per, () => {
         i += 1
-        if (i < rolls.length) setTimeout(next, 120); else { s.setLabels(false); setSettled(true) }
+        if (i < rolls.length) setTimeout(next, 120); else setSettled(true)
       })
     }
     next()
   }, [ready, rolling, result])
 
-  const showNumber = result && (settled || failed || !ready)
+  // Os números ficam nas faces do dado. O total só aparece à parte quando difere da face
+  // (bônus, vários dados ou d100, que usa dois dados).
+  const showTotal = !!result && (settled || failed || !ready) &&
+    (result.sides === 100 || result.rolls.length > 1 || result.total !== result.rolls[0])
   return (
-    <div className="dice-stage" ref={box}>
-      {!failed && <canvas ref={canvas} className={`dice-stage-canvas${ready ? ' on' : ''}`} aria-hidden="true" />}
-      {(!ready || failed) && <DiceLogo className="dice-stage-die" />}
-      {result ? (
-        <div key={result.id} className={`dice-last-num roll-anim ${result.tone}${showNumber ? '' : ' hide'}`}>{result.total}</div>
-      ) : (
-        <div className="dice-last-num none">{rolling ? '' : '—'}</div>
+    <>
+      <div className="dice-stage" ref={box}>
+        {!failed && <canvas ref={canvas} className={`dice-stage-canvas${ready ? ' on' : ''}`} aria-hidden="true" />}
+        {(!ready || failed) && <DiceLogo className="dice-stage-die" />}
+        {failed && result && <div className={`dice-last-num ${result.tone}`}>{result.total}</div>}
+      </div>
+      {showTotal && result && (
+        <p key={result.id} className={`dice-stage-total roll-anim ${result.tone}`} aria-label={`Total ${result.total}`}>
+          <span>Total</span> {result.total}
+        </p>
       )}
-    </div>
+    </>
   )
 }

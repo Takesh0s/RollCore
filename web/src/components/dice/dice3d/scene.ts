@@ -131,7 +131,7 @@ function buildDie(sides: number, labelOf: (value: number) => string, colors: Col
       ? new Vector3(0, Math.abs(f.normal.y) > 0.9 ? 0 : 1, Math.abs(f.normal.y) > 0.9 ? 1 : 0).projectOnPlane(f.normal).normalize()
       : f.ref.clone().sub(f.center).projectOnPlane(f.normal).normalize()
     const tex = labelTexture(labelOf(values[i]), colors.label, colors.body)
-    const size = sides === 4 ? 0.62 : sides === 20 ? 0.5 : 0.7
+    const size = ({ 4: 0.9, 6: 0.85, 8: 0.8, 10: 0.8, 12: 0.78, 20: 0.6 } as Record<number, number>)[sides] ?? 0.7
     const mat = new MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
     const plane = new Mesh(new PlaneGeometry(size, size), mat)
     const right = new Vector3().crossVectors(up, f.normal).normalize()
@@ -234,7 +234,7 @@ export class DiceScene {
     const value = values?.[values.length - 1] ?? 1 + Math.floor(Math.random() * this.sides)
     const t = this.targets(value)
     this.dice.forEach((d, i) => d.group.quaternion.copy(faceToCamera(t[i]).multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), 0)))
-      .premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -0.18)))
+      .premultiply(new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -0.05)))
     this.render()
   }
 
@@ -255,7 +255,7 @@ export class DiceScene {
   /** Pousa com a face do `value` virada para a câmera. Chama `done` quando termina. */
   landOn(value: number, dur: number, done: () => void) {
     const t = this.targets(value)
-    const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -0.18)
+    const tilt = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -0.05)
     const to = this.dice.map((_, i) => faceToCamera(t[i]).premultiply(tilt))
     if (this.reduced) {
       this.dice.forEach((d, i) => d.group.quaternion.copy(to[i])); this.tumbling = false; this.render(); done(); return

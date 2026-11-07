@@ -61,12 +61,12 @@
 .dice-stage-canvas.on { opacity: 1; }
 .dice-stage-die { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--sapphire); opacity: .55; pointer-events: none; }
 .dice-stage-die * { vector-effect: non-scaling-stroke; stroke-width: 2px; }
-.dice-stage .dice-last-num { position: relative; margin: 0; font-size: 64px; text-shadow: 0 2px 10px rgba(0,0,0,.55); transition: opacity .2s; }
-.dice-stage .dice-last-num.hide { opacity: 0; }
-.dice-stage .dice-last-num.none { font-size: 56px; }
+.dice-stage .dice-last-num { position: relative; margin: 0; font-size: 64px; }
+.dice-stage-total { margin: 0; font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 38px; line-height: 1; color: var(--sapphire); }
+.dice-stage-total span { font-family: inherit; font-size: 14px; font-weight: 400; color: var(--text-muted); margin-right: 6px; }
+.dice-stage-total.fail { color: #e8878a; }
 .dice-last-num { font-family: 'Source Serif 4', serif; font-weight: 700; line-height: 1; color: var(--sapphire); }
 .dice-last-num.fail { color: #e8878a; }
-.dice-last-num.none { color: var(--text-muted); opacity: .5; }
 .dice-last-detail { font-size: 13px; color: var(--text); margin: 0; }
 
 /* histórico */
@@ -95,7 +95,7 @@
 .dice-modal-actions .btn:disabled { opacity: .5; cursor: default; }
 
 @media (prefers-reduced-motion: reduce) {
-  .dice-stage-canvas, .dice-stage .dice-last-num { transition: none; }
+  .dice-stage-canvas { transition: none; }
 }
 
 /* ── computador ── */
@@ -115,7 +115,7 @@
   .dice-roll-btn { flex: none; width: 216px; height: 56px; }
   .dice-last { margin-bottom: 20px; gap: 12px; padding: 24px; }
   .dice-stage { width: 280px; height: 280px; }
-  .dice-stage .dice-last-num { font-size: 76px; }
+  .dice-stage-total { font-size: 44px; }
   .dice-last-detail { font-size: 14px; }
   .dice-hist { padding: 14px 16px; min-height: 68px; gap: 14px; }
   .dice-hist-formula { font-size: 14px; }
