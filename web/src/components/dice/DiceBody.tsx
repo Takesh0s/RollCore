@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import api from '@/lib/api'
 import { useAppStore } from '@/store/useAppStore'
-import { toRollable, type RollableWeapon } from '@/lib/weapons'
-import { DiceLogo } from '@/components/ui/DiceLogo'
+import { ShortcutsSection } from './ShortcutsSection'
+import { DiceStage } from './DiceStage'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { VALID_SIDES, FORMULA_REGEX, validateFormula } from '@/lib/dice'
-import type { DiceMode, HistoryEntry, InventoryApiResponse } from '@/types'
+import type { DiceMode, HistoryEntry } from '@/types'
 
 const MODES: { id: DiceMode; label: string }[] = [
   { id: 'normal',       label: 'Normal' },
@@ -44,23 +43,12 @@ function breakdownOf(e: HistoryEntry): string {
   return t
 }
 
-/** Tela de Dados do computador (Figma 05.4): rolador, última rolagem, atalhos e histórico. */
-export function DesktopDice() {
+/** Tela de Dados (Figma 05.4b, computador e celular): dados, atalhos, rolador, última rolagem e histórico. */
+export function DiceBody() {
   const { characters, history, tables, shortcuts, rollDice, addShortcut, removeShortcut, loadShortcuts, loadHistory, showToast } = useAppStore()
 
   // A sessão restaurada do localStorage não passa pelo login: busca atalhos e histórico ao abrir.
   useEffect(() => { loadShortcuts(); loadHistory() }, [loadShortcuts, loadHistory])
-
-  // Armas dos inventários das fichas (dano com dado) viram atalhos de rolagem.
-  const [weapons, setWeapons] = useState<RollableWeapon[]>([])
-  useEffect(() => {
-    let alive = true
-    Promise.all(characters.map(c =>
-      api.get<InventoryApiResponse>(`/characters/${c.id}/inventory`)
-        .then(({ data }) => toRollable(c, data.items)).catch(() => [] as RollableWeapon[])))
-      .then(r => { if (alive) setWeapons(r.flat()) })
-    return () => { alive = false }
-  }, [characters])
 
   const [formula,  setFormula]  = useState('1d20')
   const [mode,     setMode]     = useState<DiceMode>('normal')
@@ -68,8 +56,6 @@ export function DesktopDice() {
   const [rolling,  setRolling]  = useState(false)
   const [filter,   setFilter]   = useState<string>('')          // '' = todas
   const [showAll,  setShowAll]  = useState(false)
-  const [saving,   setSaving]   = useState(false)
-  const [newName,  setNewName]  = useState('')
 
   const clean   = normalize(formula)
   const valid   = validateFormula(clean)
@@ -96,12 +82,10 @@ export function DesktopDice() {
     setRolling(false)
   }
 
-  async function saveShortcut() {
-    if (!valid || !newName.trim()) return
-    if (await addShortcut(newName.trim(), clean)) {
-      setSaving(false); setNewName('')
-      showToast('Atalho salvo!', 'success')
-    }
+  async function createShortcut(name: string, f: string) {
+    const ok = await addShortcut(name, f)
+    if (ok) showToast('Atalho salvo!', 'success')
+    return ok
   }
 
   const lastCrit = last ? critOf(last) : null
@@ -112,7 +96,7 @@ export function DesktopDice() {
 
       <div className="page-body dice-page">
         <div className="dice-main">
-          <h2 className="section-title">Rolador</h2>
+          <h2 className="section-title">Dados</h2>
 
           <div className="dice-tiles" role="group" aria-label="Tipo de dado">
             {VALID_SIDES.map(s => (
@@ -122,6 +106,11 @@ export function DesktopDice() {
               </button>
             ))}
           </div>
+
+          <ShortcutsSection characters={characters} shortcuts={shortcuts} rolling={rolling}
+                            currentFormula={formula}
+                            onRoll={(f, label) => { setFormula(f); roll(f, label) }}
+                            onCreate={createShortcut} onRemove={removeShortcut} />
 
           <div className="dice-panel">
             <div className="dice-panel-top">
@@ -173,87 +162,23 @@ export function DesktopDice() {
             <p className="dice-last-title">
               Última rolagem{last?.tableName ? ` · ${last.tableName}` : ''}
             </p>
-            {last ? (
-              <>
-                <div className="dice-stage">
-                  <DiceLogo className="dice-stage-die" />
-                  <div key={last.timestamp} className={`dice-last-num roll-anim ${lastCrit ?? ''}`}>{last.result.total}</div>
-                </div>
-                {lastCrit && (
-                  <span className={`badge ${lastCrit === 'crit' ? 'badge-crit' : 'badge-fail'}`}>
-                    {lastCrit === 'crit' ? 'CRÍTICO' : 'FALHA'}
-                  </span>
-                )}
-                <p className="dice-last-detail">
+            <DiceStage sides={sides ?? 20} rolling={rolling}
+                       result={last ? { id: last.timestamp, sides: last.result.sides, rolls: last.result.rolls, total: last.result.total, tone: lastCrit ?? '' } : null} />
+            {last && lastCrit && (
+              <span className={`badge ${lastCrit === 'crit' ? 'badge-crit' : 'badge-fail'}`}>
+                {lastCrit === 'crit' ? 'CRÍTICO' : 'FALHA'}
+              </span>
+            )}
+            <p className="dice-last-detail">
+              {last ? (
+                <>
                   {baseOf(last.formula)} → {breakdownOf(last)}
                   {last.discarded && last.discarded.length > 0 && ` (descartado: ${last.discarded.join(' + ')})`}
                   {last.label && ` · ${last.label}`}
-                </p>
-              </>
-            ) : (
-              <>
-                <div className="dice-stage">
-                  <DiceLogo className="dice-stage-die" />
-                  <div className="dice-last-num none">—</div>
-                </div>
-                <p className="dice-last-detail">Nenhuma rolagem ainda.</p>
-              </>
-            )}
+                </>
+              ) : 'Nenhuma rolagem ainda.'}
+            </p>
           </section>
-
-          {weapons.length > 0 && (
-            <>
-              <h2 className="section-title">Armas das fichas</h2>
-              <div className="dice-shortcuts">
-                {weapons.map(w => (
-                  <div key={w.id} className="dice-shortcut">
-                    <strong>{w.name}</strong>
-                    <em>{w.formula.replace(/([+-])/g, ' $1 ')} · {w.character}</em>
-                    <button type="button" className="dice-shortcut-go" disabled={rolling}
-                            onClick={() => { setFormula(w.formula); roll(w.formula, `${w.name} (${w.character})`) }}>
-                      Rolar ›
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-
-          <h2 className="section-title">Atalhos salvos</h2>
-          <div className="dice-shortcuts">
-            {shortcuts.map(sc => (
-              <div key={sc.id} className="dice-shortcut">
-                <button type="button" className="dice-shortcut-del" aria-label={`Remover atalho ${sc.name}`}
-                        onClick={() => removeShortcut(sc.id)}>×</button>
-                <strong>{sc.name}</strong>
-                <em>{sc.formula.replace(/([+-])/g, ' $1 ')}</em>
-                <button type="button" className="dice-shortcut-go" disabled={rolling}
-                        onClick={() => { setFormula(sc.formula); roll(sc.formula, sc.name) }}>
-                  Rolar ›
-                </button>
-              </div>
-            ))}
-            {saving ? (
-              <form className="dice-shortcut dice-shortcut-new"
-                    onSubmit={e => { e.preventDefault(); saveShortcut() }}>
-                <input className="form-input" autoFocus maxLength={40} placeholder="Nome do atalho"
-                       value={newName} onChange={e => setNewName(e.target.value)} aria-label="Nome do atalho" />
-                <em>{valid ? clean : 'Fórmula inválida'}</em>
-                <div className="dice-shortcut-actions">
-                  <button type="submit" className="btn sheet-btn open" disabled={!valid || !newName.trim()}>Salvar</button>
-                  <button type="button" className="btn sheet-btn" onClick={() => { setSaving(false); setNewName('') }}>Cancelar</button>
-                </div>
-              </form>
-            ) : (
-              shortcuts.length < 12 && (
-                <button type="button" className="dice-shortcut dice-shortcut-add" disabled={!valid}
-                        onClick={() => setSaving(true)}>
-                  <strong>+ Salvar fórmula atual</strong>
-                  <em>{valid ? clean : 'Digite uma fórmula válida'}</em>
-                </button>
-              )
-            )}
-          </div>
         </div>
 
         <aside className="dice-side">

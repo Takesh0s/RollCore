@@ -1,0 +1,129 @@
+/* ── Dados — Figma 05.4b (celular e computador) ──
+   Ordem: dados → atalhos → rolador → última rolagem (dado 3D) → histórico.
+   Base = celular; no computador a lateral direita é o histórico. */
+
+.dice-page { display: flex; flex-direction: column; gap: 4px; }
+.dice-main, .dice-side { min-width: 0; display: flex; flex-direction: column; }
+.dice-page .section-title { margin: 14px 0 10px; font-family: 'Source Serif 4', serif; font-size: 14px; letter-spacing: 0; text-transform: none; font-weight: 700; color: var(--text); }
+.dice-page .badge-crit { background: #6dbf94; color: #0f2a1c; border: 0; font-weight: 700; font-size: 10px; letter-spacing: .5px; padding: 3px 10px; border-radius: 999px; }
+.dice-page .badge-fail { background: #e8878a; color: #3a1010; border: 0; font-weight: 700; font-size: 10px; letter-spacing: .5px; padding: 3px 10px; border-radius: 999px; }
+
+/* dados */
+.dice-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 8px; }
+.dice-tile { display: flex; align-items: center; justify-content: center; height: 48px; border-radius: 14px; border: 1px solid var(--card-border); background: transparent; color: var(--text); cursor: pointer; font-family: inherit; transition: background .15s, transform .1s; }
+.dice-tile strong { font-family: 'Source Serif 4', serif; font-size: 22px; font-weight: 700; line-height: 1.1; }
+.dice-tile:hover { background: rgba(255,255,255,.05); }
+.dice-tile:active { transform: scale(.97); }
+.dice-tile.on { background: var(--sapphire); border-color: var(--sapphire); color: #10202e; }
+.dice-tile:last-child { grid-column: span 1; }
+
+/* chips */
+.dice-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.dice-filter { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; scrollbar-width: none; }
+.dice-filter::-webkit-scrollbar { display: none; }
+.dice-chip { flex: none; font-family: inherit; font-size: 12px; padding: 6px 15px; border-radius: 999px; border: 1px solid var(--card-border); background: transparent; color: var(--text); cursor: pointer; }
+.dice-chip:hover { background: rgba(255,255,255,.05); }
+.dice-chip.on { background: var(--sapphire); border-color: var(--sapphire); color: #10202e; }
+
+/* atalhos */
+.dice-shortcuts-section { display: flex; flex-direction: column; }
+.dice-shortcuts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 4px; }
+.dice-shortcut { position: relative; display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 12px; min-height: 88px; background: transparent; color: var(--text); text-align: left; font-family: inherit; min-width: 0; }
+.dice-shortcut strong { font-family: 'Source Serif 4', serif; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 16px; color: var(--text-bright, var(--text)); }
+.dice-shortcut em { font-style: normal; font-size: 13px; font-weight: 700; color: var(--sapphire); }
+.dice-shortcut-tag { font-size: 10px; color: var(--sapphire); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dice-shortcut-tag.sheet { color: #6dbf94; }
+.dice-shortcut-acts { display: flex; gap: 10px; margin-top: auto; }
+.dice-shortcut-go { background: none; border: 0; padding: 0; font: inherit; font-size: 11px; color: var(--text-muted); cursor: pointer; }
+.dice-shortcut-go:hover:not(:disabled) { color: var(--text); }
+.dice-shortcut-go:disabled { opacity: .5; cursor: default; }
+.dice-shortcut-del { position: absolute; top: 6px; right: 8px; background: none; border: 0; color: var(--text-muted); font-size: 18px; line-height: 1; cursor: pointer; }
+.dice-shortcut-del:hover { color: var(--text); }
+.dice-shortcut-add { border: 1.5px dashed var(--card-border); cursor: pointer; justify-content: center; }
+.dice-shortcut-add strong { white-space: normal; padding-right: 0; }
+.dice-shortcut-add:hover { background: rgba(255,255,255,.04); }
+.dice-shortcuts-note { font-size: 11px; color: var(--text-muted); margin: 8px 0 4px; }
+.dice-char-empty { grid-column: 1 / -1; font-size: 14px; color: var(--text-muted); padding: 10px 0; text-align: center; }
+
+/* rolador */
+.dice-panel { border: 1px solid var(--card-border); border-radius: 14px; padding: 14px 14px 16px; margin: 12px 0 14px; display: flex; flex-direction: column; gap: 10px; }
+.dice-panel-top { display: flex; flex-direction: column; gap: 10px; }
+.dice-panel-bottom { display: flex; flex-direction: column; gap: 12px; }
+.dice-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 12px; color: var(--text-muted); }
+.dice-field .form-input { height: 42px; font-size: 14px; }
+.dice-roll-btn { width: 100%; height: 52px; font-size: 15px; }
+
+/* última rolagem + dado 3D */
+.dice-last { border: 1px solid var(--card-border); border-radius: 14px; margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px; text-align: center; }
+.dice-last-title { font-size: 12px; color: var(--text-muted); align-self: stretch; }
+.dice-stage { position: relative; display: grid; place-items: center; width: 200px; height: 200px; margin: 0; }
+.dice-stage-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .25s; pointer-events: none; }
+.dice-stage-canvas.on { opacity: 1; }
+.dice-stage-die { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--sapphire); opacity: .55; pointer-events: none; }
+.dice-stage-die * { vector-effect: non-scaling-stroke; stroke-width: 2px; }
+.dice-stage .dice-last-num { position: relative; margin: 0; font-size: 64px; text-shadow: 0 2px 10px rgba(0,0,0,.55); transition: opacity .2s; }
+.dice-stage .dice-last-num.hide { opacity: 0; }
+.dice-stage .dice-last-num.none { font-size: 56px; }
+.dice-last-num { font-family: 'Source Serif 4', serif; font-weight: 700; line-height: 1; color: var(--sapphire); }
+.dice-last-num.fail { color: #e8878a; }
+.dice-last-num.none { color: var(--text-muted); opacity: .5; }
+.dice-last-detail { font-size: 13px; color: var(--text); margin: 0; }
+
+/* histórico */
+.dice-side .dice-chips { margin-bottom: 14px; }
+.dice-history { display: flex; flex-direction: column; gap: 8px; }
+.dice-history-empty { color: var(--text-muted); font-size: 14px; padding: 12px 0; }
+.dice-hist { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; border: 1px solid var(--card-border); border-radius: 12px; padding: 10px 12px; min-height: 52px; min-width: 0; }
+.dice-hist-formula { font-weight: 600; font-size: 13px; color: var(--text); }
+.dice-hist-meta { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+.dice-hist-total { font-family: 'Source Serif 4', serif; font-size: 24px; font-weight: 700; color: var(--sapphire); min-width: 36px; text-align: right; }
+.dice-hist.fail .dice-hist-total { color: #e8878a; }
+.dice-hist-more { margin-top: 14px; width: 100%; height: 44px; border-radius: 999px; border: 1px solid var(--sapphire); background: transparent; color: var(--sapphire); font-weight: 700; cursor: pointer; }
+.dice-hist-more:hover { background: rgba(138,176,214,.1); }
+
+/* modal "Novo atalho" */
+.dice-modal-backdrop { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; padding: 16px; background: rgba(8,12,14,.62); }
+.dice-modal { width: min(380px, 100%); display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; background: var(--card, #2c3438); color: var(--text); }
+.dice-modal-head { display: flex; align-items: center; justify-content: space-between; }
+.dice-modal-head h3 { font-family: 'Source Serif 4', serif; font-size: 20px; color: var(--text-bright, var(--text)); }
+.dice-modal-x { background: none; border: 0; color: var(--text-muted); font-size: 18px; cursor: pointer; }
+.dice-modal-hint { font-size: 12px; color: var(--text-muted); }
+.dice-modal-ok { font-size: 12px; color: #6dbf94; }
+.dice-modal-actions { display: flex; gap: 10px; margin-top: 4px; }
+.dice-modal-actions .btn { flex: 1; height: 42px; border-radius: 999px; border: 1px solid var(--sapphire); background: transparent; color: var(--sapphire); font-weight: 700; cursor: pointer; }
+.dice-modal-actions .btn.open { background: var(--sapphire); color: #10202e; }
+.dice-modal-actions .btn:disabled { opacity: .5; cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dice-stage-canvas, .dice-stage .dice-last-num { transition: none; }
+}
+
+/* ── computador ── */
+@media (min-width: 1024px) {
+  .dice-page { display: grid; grid-template-columns: minmax(0, 1fr) 464px; gap: 36px; align-items: start; }
+  .dice-page .section-title { margin: 6px 0 14px; }
+  .dice-tiles { grid-template-columns: repeat(7, 1fr); gap: 14px; margin-bottom: 20px; }
+  .dice-tile { height: 76px; }
+  .dice-tile strong { font-size: 32px; }
+  .dice-shortcuts { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+  .dice-shortcut { padding: 14px 16px; min-height: 100px; }
+  .dice-shortcut strong { font-size: 15px; }
+  .dice-shortcut-go { font-size: 12px; }
+  .dice-panel { padding: 16px 24px 18px; margin: 20px 0; }
+  .dice-panel-top { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+  .dice-panel-bottom { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 20px; }
+  .dice-roll-btn { flex: none; width: 216px; height: 56px; }
+  .dice-last { margin-bottom: 20px; gap: 12px; padding: 24px; }
+  .dice-stage { width: 280px; height: 280px; }
+  .dice-stage .dice-last-num { font-size: 76px; }
+  .dice-last-detail { font-size: 14px; }
+  .dice-hist { padding: 14px 16px; min-height: 68px; gap: 14px; }
+  .dice-hist-formula { font-size: 14px; }
+  .dice-hist-meta { font-size: 11px; }
+  .dice-hist-total { font-size: 28px; min-width: 44px; }
+  .dice-history { gap: 12px; }
+}
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .dice-page { grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; }
+  .dice-panel-top { grid-template-columns: 1fr; }
+}
