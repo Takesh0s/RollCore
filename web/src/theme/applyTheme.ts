@@ -34,7 +34,7 @@ function read(): ThemePrefs {
   }
 }
 
-function resolveMode(pref: ModePref): ThemeMode {
+export function resolveMode(pref: ModePref): ThemeMode {
   if (pref !== 'system') return pref
   return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
 }
@@ -105,5 +105,21 @@ export function useThemePrefs(): ThemePrefs {
   return useSyncExternalStore(
     cb => { listeners.add(cb); return () => { listeners.delete(cb) } },
     getThemePrefs,
+  )
+}
+
+/**
+ * Modo realmente aplicado (claro ou escuro). Com "Sistema", é o do dispositivo e muda junto com ele;
+ * por isso a prévia das amostras de cor deve usar este valor, e não a preferência bruta.
+ */
+export function useResolvedMode(): ThemeMode {
+  return useSyncExternalStore(
+    cb => {
+      listeners.add(cb)
+      const mq = window.matchMedia?.('(prefers-color-scheme: light)')
+      mq?.addEventListener('change', cb)
+      return () => { listeners.delete(cb); mq?.removeEventListener('change', cb) }
+    },
+    () => resolveMode(current.mode),
   )
 }
