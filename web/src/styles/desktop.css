@@ -520,7 +520,7 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
   .dice-page .badge-fail { background: #e8878a; color: #3a1010; border: 0; font-weight: 700; font-size: 10px; letter-spacing: .5px; padding: 3px 10px; border-radius: 999px; }
 
   .dice-tiles { display: grid; grid-template-columns: repeat(7, 1fr); gap: 14px; margin-bottom: 20px; }
-  .dice-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 92px; border-radius: 14px; border: 1px solid var(--card-border); background: transparent; color: var(--text); cursor: pointer; font-family: inherit; transition: background .15s, transform .1s; }
+  .dice-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 76px; border-radius: 14px; border: 1px solid var(--card-border); background: transparent; color: var(--text); cursor: pointer; font-family: inherit; transition: background .15s, transform .1s; }
   .dice-tile strong { font-family: 'Source Serif 4', serif; font-size: 32px; font-weight: 700; line-height: 1.1; }
   .dice-tile span { font-size: 11px; color: var(--text-muted); }
   .dice-tile:hover { background: rgba(255,255,255,.05); }
@@ -541,6 +541,11 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
 
   .dice-last { border: 1px solid var(--card-border); border-radius: 14px; min-height: 414px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; }
   .dice-last-title { font-size: 13px; color: var(--text-muted); align-self: stretch; }
+  /* Palco do dado: o dado fica no meio, com o número por cima (a animação entra aqui depois) */
+  .dice-stage { position: relative; display: grid; place-items: center; width: 100%; margin: auto 0 0; }
+  .dice-stage-die { position: absolute; width: 300px; height: 324px; color: var(--sapphire); opacity: .2; pointer-events: none; }
+  .dice-stage-die * { vector-effect: non-scaling-stroke; stroke-width: 2px; }
+  .dice-stage .dice-last-num { position: relative; margin: 0; }
   .dice-last-num { font-family: 'Source Serif 4', serif; font-weight: 700; font-size: 168px; line-height: 1; color: var(--sapphire); margin: auto 0 0; }
   .dice-last-num.crit { color: var(--sapphire); }
   .dice-last-num.fail { color: #e8878a; }
