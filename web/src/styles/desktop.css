@@ -313,6 +313,9 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
   /* figma.css define --notch: 26px em .device/.login-device (celular); no PC vale a altura real dos dentes */
   .device, .login-device { --notch: 40px; }
   html[data-theme="neon"] .device, html[data-theme="neon"] .login-device { --notch: 0px; }
+  html:not([data-theme="medieval"]) .device, html:not([data-theme="medieval"]) .login-device { --notch: 0px; }
+  html:not([data-theme="medieval"]) .crenellation { display: none; }
+  html:not([data-theme="medieval"]) { --notch: 0px; }
   .device::after, .login-device::after { display: none; }
   .crenellation {
     display: flex; justify-content: space-evenly; align-items: stretch;
