@@ -10,6 +10,7 @@ import tools from '@/assets/nav/tools.svg?raw'
 import store from '@/assets/nav/store.svg?raw'
 import tutorials from '@/assets/nav/tutorials.svg?raw'
 import { NEON_ICONS } from '@/assets/nav/neonIcons'
+import { CYBERPUNK_ICONS } from '@/assets/nav/cyberpunkIcons'
 import { useThemePrefs } from '@/theme/applyTheme'
 
 /**
@@ -31,9 +32,10 @@ const ICONS: Record<string, string> = {
 
 export type NavIconName = keyof typeof FIGMA | 'settings'
 
-/** Cada tema pode ter o próprio conjunto: o Neon usa ícones pixel-art; os demais, os do Medieval. */
+/** Cada tema pode ter o próprio conjunto: o Neon usa pixel-art, o Cyberpunk traço chanfrado; os demais, os do Medieval. */
 export function NavIcon({ name }: { name: NavIconName }) {
   const { theme } = useThemePrefs()
-  const svg = (theme === 'neon' ? NEON_ICONS[name] : undefined) ?? ICONS[name]
+  const set = theme === 'neon' ? NEON_ICONS : theme === 'cyberpunk' ? CYBERPUNK_ICONS : undefined
+  const svg = set?.[name] ?? ICONS[name]
   return <span className="nav-svg" aria-hidden="true" dangerouslySetInnerHTML={{ __html: svg }} />
 }

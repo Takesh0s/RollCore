@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
+import api from '@/lib/api'
 import { useAppStore } from '@/store/useAppStore'
+import { toRollable, type RollableWeapon } from '@/lib/weapons'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { VALID_SIDES, FORMULA_REGEX, validateFormula } from '@/lib/dice'
-import type { DiceMode, HistoryEntry } from '@/types'
+import type { DiceMode, HistoryEntry, InventoryApiResponse } from '@/types'
 
 const MODES: { id: DiceMode; label: string }[] = [
   { id: 'normal',       label: 'Normal' },
@@ -43,10 +45,21 @@ function breakdownOf(e: HistoryEntry): string {
 
 /** Tela de Dados do computador (Figma 05.4): rolador, última rolagem, atalhos e histórico. */
 export function DesktopDice() {
-  const { history, tables, shortcuts, rollDice, addShortcut, removeShortcut, loadShortcuts, loadHistory, showToast } = useAppStore()
+  const { characters, history, tables, shortcuts, rollDice, addShortcut, removeShortcut, loadShortcuts, loadHistory, showToast } = useAppStore()
 
   // A sessão restaurada do localStorage não passa pelo login: busca atalhos e histórico ao abrir.
   useEffect(() => { loadShortcuts(); loadHistory() }, [loadShortcuts, loadHistory])
+
+  // Armas dos inventários das fichas (dano com dado) viram atalhos de rolagem.
+  const [weapons, setWeapons] = useState<RollableWeapon[]>([])
+  useEffect(() => {
+    let alive = true
+    Promise.all(characters.map(c =>
+      api.get<InventoryApiResponse>(`/characters/${c.id}/inventory`)
+        .then(({ data }) => toRollable(c, data.items)).catch(() => [] as RollableWeapon[])))
+      .then(r => { if (alive) setWeapons(r.flat()) })
+    return () => { alive = false }
+  }, [characters])
 
   const [formula,  setFormula]  = useState('1d20')
   const [mode,     setMode]     = useState<DiceMode>('normal')
@@ -181,6 +194,24 @@ export function DesktopDice() {
               </>
             )}
           </section>
+
+          {weapons.length > 0 && (
+            <>
+              <h2 className="section-title">Armas das fichas</h2>
+              <div className="dice-shortcuts">
+                {weapons.map(w => (
+                  <div key={w.id} className="dice-shortcut">
+                    <strong>{w.name}</strong>
+                    <em>{w.formula.replace(/([+-])/g, ' $1 ')} · {w.character}</em>
+                    <button type="button" className="dice-shortcut-go" disabled={rolling}
+                            onClick={() => { setFormula(w.formula); roll(w.formula, `${w.name} (${w.character})`) }}>
+                      Rolar ›
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
 
           <h2 className="section-title">Atalhos salvos</h2>
           <div className="dice-shortcuts">
