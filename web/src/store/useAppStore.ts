@@ -6,7 +6,7 @@ import { getMaxSpellSlots, getWarlockSlots } from '@/lib/engine'
 import type {
   User, Character, HistoryEntry, Screen, RollResult,
   AuthTokens, CharacterApiResponse, UserProfileApiResponse, DiceRollApiResponse,
-  TableSummary, TableDetail, TablePreview, CreateTableInput, UpdateTableInput, DiceMode, DiceShortcut,
+  AppNotification, TableSummary, TableDetail, TablePreview, CreateTableInput, UpdateTableInput, DiceMode, DiceShortcut,
 } from '@/types'
 
 // Data transformation helpers
@@ -128,6 +128,13 @@ interface AppState {
   updateMyProfile: (tableId: string, input: { displayName: string; muted: boolean; avatar?: string | null }) => Promise<boolean>
   changeRole:      (tableId: string, userId: string, role: 'MODERATOR' | 'PLAYER') => Promise<boolean>
   transferHost:    (tableId: string, userId: string) => Promise<boolean>
+
+  // Notificações dentro do app
+  notifications:     AppNotification[]
+  unreadCount:       number
+  loadNotifications: () => Promise<void>
+  markNotificationRead: (id: string) => Promise<void>
+  markAllNotificationsRead: () => Promise<void>
 
   // UI notifications
   toast:      { message: string; type: 'success' | 'error' | '' } | null
@@ -278,6 +285,8 @@ export const useAppStore = create<AppState>((set, get) => ({
       shortcuts:  [],
       tables:     [],
       tableDetail: null,
+      notifications: [],
+      unreadCount:   0,
       screen:     'login',
     })
   },
@@ -818,6 +827,31 @@ export const useAppStore = create<AppState>((set, get) => ({
       get().showToast(err.response?.data?.detail ?? 'Não foi possível passar o cargo.', 'error')
       return false
     }
+  },
+
+  notifications: [],
+  unreadCount:   0,
+
+  async loadNotifications() {
+    try {
+      const { data } = await api.get<{ items: AppNotification[]; unread: number }>('/notifications')
+      set({ notifications: data.items, unreadCount: data.unread })
+    } catch { /* silencioso: o sino só atualiza na próxima tentativa */ }
+  },
+
+  async markNotificationRead(id) {
+    const target = get().notifications.find(n => n.id === id)
+    if (!target || target.read) return
+    set(s => ({
+      notifications: s.notifications.map(n => (n.id === id ? { ...n, read: true } : n)),
+      unreadCount:   Math.max(0, s.unreadCount - 1),
+    }))
+    try { await api.post(`/notifications/${id}/read`) } catch { get().loadNotifications() }
+  },
+
+  async markAllNotificationsRead() {
+    set(s => ({ notifications: s.notifications.map(n => ({ ...n, read: true })), unreadCount: 0 }))
+    try { await api.post('/notifications/read-all') } catch { get().loadNotifications() }
   },
 
   // Toast notification handlers

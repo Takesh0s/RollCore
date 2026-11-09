@@ -1,4 +1,5 @@
 import { useAppStore } from '@/store/useAppStore'
+import { useEffect } from 'react'
 import { Toast }                from '@/components/ui/Toast'
 import { Modal }                from '@/components/ui/Modal'
 import { NetworkModals }        from '@/components/ui/NetworkModals'
@@ -19,6 +20,7 @@ import { MapLibraryScreen }     from '@/components/maps/MapLibraryScreen'
 import { CalendarScreen }        from '@/components/calendar/CalendarScreen'
 import { EventFormScreen }       from '@/components/calendar/EventFormScreen'
 import { ThemeScreen }          from '@/components/ui/ThemeScreen'
+import { NotificationsScreen }  from '@/components/notifications/NotificationsScreen'
 import type { Screen } from '@/types'
 
 /**
@@ -45,6 +47,7 @@ function ScreenContent({ screen }: { screen: Screen }) {
     case 'calendario':        return <CalendarScreen />
     case 'novo-evento':       return <EventFormScreen />
     case 'tema':              return <ThemeScreen />
+    case 'notificacoes':      return <NotificationsScreen />
     default:                  return null
   }
 }
@@ -55,6 +58,18 @@ function ScreenContent({ screen }: { screen: Screen }) {
  */
 export default function App() {
   const screen = useAppStore(s => s.screen)
+  const logged = useAppStore(s => s.user.isLogged)
+  const loadNotifications = useAppStore(s => s.loadNotifications)
+
+  // Mantém o sino atualizado: ao entrar, a cada minuto e quando a aba volta ao foco.
+  useEffect(() => {
+    if (!logged) return
+    loadNotifications()
+    const id = setInterval(loadNotifications, 60_000)
+    const onVisible = () => { if (document.visibilityState === 'visible') loadNotifications() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', onVisible) }
+  }, [logged, loadNotifications])
   const { logoutPrompt, cancelLogout, logout, dirtyMessage, pendingScreen, confirmDiscard, cancelDiscard } = useAppStore()
 
   return (

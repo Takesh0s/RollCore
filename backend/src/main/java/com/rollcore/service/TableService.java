@@ -14,6 +14,7 @@ import com.rollcore.dto.response.TableSummaryResponse;
 import com.rollcore.entity.GameTable;
 import com.rollcore.entity.GameTableMember;
 import com.rollcore.entity.GameTableMember.Role;
+import com.rollcore.entity.Notification.Type;
 import com.rollcore.entity.User;
 import com.rollcore.entity.User.Plan;
 import com.rollcore.exception.ConflictException;
@@ -61,17 +62,20 @@ public class TableService {
     private final GameTableRepository       tables;
     private final GameTableMemberRepository members;
     private final UserRepository            users;
+    private final NotificationService       notifications;
     private final int                       freeMaxTables;
     private final int                       premiumMaxTables;
 
     public TableService(GameTableRepository tables,
                         GameTableMemberRepository members,
                         UserRepository users,
+                        NotificationService notifications,
                         @Value("${rollcore.tables.free-max-tables:1}") int freeMaxTables,
                         @Value("${rollcore.tables.premium-max-tables:200}") int premiumMaxTables) {
         this.tables           = tables;
         this.members          = members;
         this.users            = users;
+        this.notifications    = notifications;
         this.freeMaxTables    = freeMaxTables;
         this.premiumMaxTables = premiumMaxTables;
     }
@@ -160,6 +164,12 @@ public class TableService {
         requireRole(me, "Only the table master can delete the table.", Role.MASTER);
 
         GameTable table = lock(tableId);
+        // everyone else loses access with the table, so their notice carries no table link
+        for (GameTableMember m : members.findByGameTableIdOrderByJoinedAtAsc(tableId)) {
+            if (!m.getUser().getId().equals(userId)) {
+                notifications.send(m.getUser(), Type.TABLE_DELETED, null, table.getName(), nameOf(me), null);
+            }
+        }
         members.deleteByGameTableId(tableId);
         tables.delete(table);
     }
@@ -197,6 +207,7 @@ public class TableService {
         members.save(previous);
         members.save(target);
         tables.save(table);
+        notifications.send(target.getUser(), Type.HOST_TRANSFERRED, tableId, table.getName(), nameOf(actor), null);
 
         return detail(table, actor);
     }
@@ -243,6 +254,11 @@ public class TableService {
                 .role(Role.PLAYER)
                 .build());
 
+        for (GameTableMember m : members.findByGameTableIdOrderByJoinedAtAsc(table.getId())) {
+            if (m.getRole() != Role.PLAYER && !m.getUser().getId().equals(userId)) {
+                notifications.sendToMember(m, Type.MEMBER_JOINED, user.getUsername(), null);
+            }
+        }
         return detail(table, me);
     }
 
@@ -253,6 +269,9 @@ public class TableService {
             throw new ConflictException("The master cannot leave the table; delete it instead.");
         }
         members.delete(me);
+        members.findByGameTableIdOrderByJoinedAtAsc(tableId).stream()
+                .filter(m -> m.getRole() == Role.MASTER)
+                .forEach(m -> notifications.sendToMember(m, Type.MEMBER_LEFT, nameOf(me), null));
     }
 
     @Transactional
@@ -301,6 +320,8 @@ public class TableService {
         }
 
         members.delete(target);
+        notifications.send(target.getUser(), Type.REMOVED_FROM_TABLE, null,
+                target.getGameTable().getName(), nameOf(actor), null);
     }
 
     @Transactional
@@ -317,6 +338,8 @@ public class TableService {
 
         target.setRole(Role.valueOf(req.role()));
         members.save(target);
+        notifications.send(target.getUser(), Type.ROLE_CHANGED, tableId,
+                target.getGameTable().getName(), nameOf(actor), target.getRole().name());
         return MemberResponse.from(target);
     }
 
@@ -383,6 +406,12 @@ public class TableService {
 
     private static String normalize(String code) {
         return code == null ? "" : code.trim().toUpperCase(Locale.ROOT);
+    }
+
+    /** Name the other members see for this person on the table. */
+    private static String nameOf(GameTableMember m) {
+        String d = m.getDisplayName();
+        return d != null && !d.isBlank() ? d : m.getUser().getUsername();
     }
 
     private static String blankToNull(String s) {

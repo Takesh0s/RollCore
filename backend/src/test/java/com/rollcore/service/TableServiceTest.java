@@ -12,6 +12,7 @@ import com.rollcore.dto.response.TablePreviewResponse;
 import com.rollcore.entity.GameTable;
 import com.rollcore.entity.GameTableMember;
 import com.rollcore.entity.GameTableMember.Role;
+import com.rollcore.entity.Notification.Type;
 import com.rollcore.entity.User;
 import com.rollcore.exception.ConflictException;
 import com.rollcore.exception.ForbiddenException;
@@ -47,6 +48,7 @@ class TableServiceTest {
     @Mock GameTableRepository       tables;
     @Mock GameTableMemberRepository members;
     @Mock UserRepository            users;
+    @Mock NotificationService       notifications;
 
     private TableService service;
 
@@ -61,7 +63,7 @@ class TableServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new TableService(tables, members, users, 1, 3);
+        service = new TableService(tables, members, users, notifications, 1, 3);
 
         master    = user(masterId, "gm");
         moderator = user(modId, "mod");
@@ -218,6 +220,7 @@ class TableServiceTest {
             assertThat(table.getSponsor()).isSameAs(master);
             assertThat(r.table().ownerUsername()).isEqualTo("ply");
             verify(tables).save(table);
+            verify(notifications).send(player, Type.HOST_TRANSFERRED, tableId, "Em busca dos esquecidos", "gm", null);
         }
 
         @Test @DisplayName("a host who is not the sponsor cannot transfer")
@@ -359,11 +362,15 @@ class TableServiceTest {
         void masterDeletes() {
             asMember(masterM);
             when(tables.findByIdForUpdate(tableId)).thenReturn(Optional.of(table));
+            stubMembersList(masterM, playerM);
 
             service.delete(tableId, masterId);
 
             verify(members).deleteByGameTableId(tableId);
             verify(tables).delete(table);
+            // the other members are told (without a table link); the master who deleted is not
+            verify(notifications).send(player, Type.TABLE_DELETED, null, "Em busca dos esquecidos", "gm", null);
+            verify(notifications, never()).send(eq(master), any(), any(), any(), any(), any());
         }
 
         @Test @DisplayName("player cannot delete the table")
@@ -423,6 +430,7 @@ class TableServiceTest {
             ArgumentCaptor<GameTableMember> cap = ArgumentCaptor.forClass(GameTableMember.class);
             verify(members).save(cap.capture());
             assertThat(cap.getValue().getRole()).isEqualTo(Role.PLAYER);
+            verify(notifications).sendToMember(masterM, Type.MEMBER_JOINED, "ply", null);
         }
 
         @Test @DisplayName("joining a full table is a conflict")
@@ -462,10 +470,12 @@ class TableServiceTest {
         @Test @DisplayName("a player can leave")
         void playerLeaves() {
             asMember(playerM);
+            stubMembersList(masterM);
 
             service.leave(tableId, playerId);
 
             verify(members).delete(playerM);
+            verify(notifications).sendToMember(masterM, Type.MEMBER_LEFT, "ply", null);
         }
 
         @Test @DisplayName("the master cannot leave")
@@ -525,6 +535,7 @@ class TableServiceTest {
             service.removeMember(tableId, masterId, playerId);
 
             verify(members).delete(playerM);
+            verify(notifications).send(player, Type.REMOVED_FROM_TABLE, null, "Em busca dos esquecidos", "gm", null);
         }
 
         @Test @DisplayName("moderator removes a player but not another moderator or the master")
@@ -581,6 +592,7 @@ class TableServiceTest {
             assertThat(r.role()).isEqualTo("MODERATOR");
             assertThat(playerM.getRole()).isEqualTo(Role.MODERATOR);
             verify(members).save(playerM);
+            verify(notifications).send(player, Type.ROLE_CHANGED, tableId, "Em busca dos esquecidos", "gm", "MODERATOR");
         }
 
         @Test @DisplayName("only the master changes roles, and not their own")
