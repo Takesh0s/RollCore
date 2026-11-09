@@ -1,18 +1,24 @@
 package com.rollcore.service;
 
+import com.rollcore.dto.request.ChangeEmailRequest;
+import com.rollcore.dto.request.ChangePasswordRequest;
 import com.rollcore.dto.request.UpdateProfileRequest;
+import com.rollcore.dto.response.AuthResponse;
 import com.rollcore.dto.response.UserProfileResponse;
 import com.rollcore.exception.ConflictException;
+import com.rollcore.exception.ForbiddenException;
 import com.rollcore.entity.User;
 import com.rollcore.exception.NotFoundException;
 import com.rollcore.repository.GameTableRepository;
 import com.rollcore.repository.UserRepository;
+import com.rollcore.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -30,13 +36,16 @@ class AccountServiceTest {
 
     @Mock UserRepository      users;
     @Mock GameTableRepository tables;
+    @Mock PasswordEncoder     encoder;
+    @Mock RefreshTokenService refreshTokens;
+    @Mock JwtService          jwt;
 
     private AccountService service;
     private final UUID userId = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
-        service = new AccountService(users, tables, 1);
+        service = new AccountService(users, tables, encoder, refreshTokens, jwt, 1);
     }
 
     private User user(User.Plan plan) {
@@ -119,5 +128,87 @@ class AccountServiceTest {
 
         assertThatThrownBy(() -> service.updateMe(userId, new UpdateProfileRequest("abc", null)))
                 .isInstanceOf(NotFoundException.class);
+    }
+
+    // ── Change e-mail ────────────────────────────────────────────────────────
+
+    @Test @DisplayName("changeEmail stores the new address trimmed and lowercase")
+    void changeEmailOk() {
+        User u = user(User.Plan.FREE);
+        when(users.findById(userId)).thenReturn(Optional.of(u));
+        when(encoder.matches("Senha123", "h")).thenReturn(true);
+        when(users.existsByEmail("novo@x.com")).thenReturn(false);
+
+        UserProfileResponse r = service.changeEmail(userId, new ChangeEmailRequest("  Novo@X.com ", "Senha123"));
+
+        assertThat(r.email()).isEqualTo("novo@x.com");
+        verify(users).save(u);
+    }
+
+    @Test @DisplayName("changeEmail with a wrong password → 403 and nothing saved")
+    void changeEmailWrongPassword() {
+        when(users.findById(userId)).thenReturn(Optional.of(user(User.Plan.FREE)));
+        when(encoder.matches("errada", "h")).thenReturn(false);
+
+        assertThatThrownBy(() -> service.changeEmail(userId, new ChangeEmailRequest("novo@x.com", "errada")))
+                .isInstanceOf(ForbiddenException.class);
+        verify(users, never()).save(any());
+    }
+
+    @Test @DisplayName("changeEmail to an address used by another account → 409")
+    void changeEmailTaken() {
+        when(users.findById(userId)).thenReturn(Optional.of(user(User.Plan.FREE)));
+        when(encoder.matches("Senha123", "h")).thenReturn(true);
+        when(users.existsByEmail("outro@x.com")).thenReturn(true);
+
+        assertThatThrownBy(() -> service.changeEmail(userId, new ChangeEmailRequest("outro@x.com", "Senha123")))
+                .isInstanceOf(ConflictException.class);
+        verify(users, never()).save(any());
+    }
+
+    @Test @DisplayName("changeEmail to the same address is a no-op")
+    void changeEmailSame() {
+        when(users.findById(userId)).thenReturn(Optional.of(user(User.Plan.FREE)));
+        when(encoder.matches("Senha123", "h")).thenReturn(true);
+
+        UserProfileResponse r = service.changeEmail(userId, new ChangeEmailRequest("L@X.com", "Senha123"));
+
+        assertThat(r.email()).isEqualTo("l@x.com");
+        verify(users, never()).existsByEmail(any());
+        verify(users, never()).save(any());
+    }
+
+    // ── Change password ──────────────────────────────────────────────────────
+
+    @Test @DisplayName("changePassword re-hashes, signs out every device and returns a fresh session")
+    void changePasswordOk() {
+        User u = user(User.Plan.FREE);
+        when(users.findById(userId)).thenReturn(Optional.of(u));
+        when(encoder.matches("Antiga123", "h")).thenReturn(true);
+        when(encoder.encode("Nova12345")).thenReturn("novo-hash");
+        when(jwt.generateAccessToken(userId)).thenReturn("access");
+        when(refreshTokens.startSession(userId)).thenReturn("refresh");
+
+        AuthResponse r = service.changePassword(userId, new ChangePasswordRequest("Antiga123", "Nova12345"));
+
+        assertThat(u.getPasswordHash()).isEqualTo("novo-hash");
+        assertThat(r.accessToken()).isEqualTo("access");
+        assertThat(r.refreshToken()).isEqualTo("refresh");
+        assertThat(r.email()).isEqualTo("l@x.com");
+        // old sessions are revoked BEFORE the new one starts, so the new one survives
+        org.mockito.InOrder order = org.mockito.Mockito.inOrder(refreshTokens);
+        order.verify(refreshTokens).revokeAllFor(userId);
+        order.verify(refreshTokens).startSession(userId);
+    }
+
+    @Test @DisplayName("changePassword with a wrong current password → 403, no revoke")
+    void changePasswordWrong() {
+        when(users.findById(userId)).thenReturn(Optional.of(user(User.Plan.FREE)));
+        when(encoder.matches("errada", "h")).thenReturn(false);
+
+        assertThatThrownBy(() -> service.changePassword(userId, new ChangePasswordRequest("errada", "Nova12345")))
+                .isInstanceOf(ForbiddenException.class);
+        verify(users, never()).save(any());
+        verify(refreshTokens, never()).revokeAllFor(any());
     }
 }
