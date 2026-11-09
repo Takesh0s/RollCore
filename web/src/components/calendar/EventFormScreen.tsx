@@ -3,7 +3,7 @@ import { useAppStore } from '@/store/useAppStore'
 import { useCalendar } from '@/store/useCalendar'
 import { AppHeader } from '@/components/ui/AppHeader'
 import {
-  COLOR_NAMES, COLOR_ORDER, EVENT_COLORS, REPEAT_LABELS, dayLabel, newEventId, rangeLabel, toISO,
+  COLOR_NAMES, COLOR_ORDER, EVENT_COLORS, REPEAT_LABELS, dayLabel, rangeLabel, toISO,
   type CalendarEvent, type EventColor, type Repeat,
 } from '@/lib/calendar'
 import { RsvpBadge } from './EventModal'
@@ -12,7 +12,10 @@ const REPEATS = Object.keys(REPEAT_LABELS) as Repeat[]
 
 /** Criar evento: formulário e, no computador, pré-visualização do cartão como ele aparece no calendário. */
 export function EventFormScreen() {
-  const { tables, loadTables, navigate, user, showToast } = useAppStore()
+  const { tables: allTables, loadTables, navigate, showToast } = useAppStore()
+  // só o mestre e os moderadores marcam eventos
+  const tables = allTables.filter(t => t.myRole !== 'PLAYER')
+  const [saving, setSaving] = useState(false)
   const add = useCalendar(s => s.add)
   const [title, setTitle] = useState('')
   const [tableId, setTableId] = useState('')
@@ -30,7 +33,7 @@ export function EventFormScreen() {
 
   const table = tables.find(t => t.id === tableId)
 
-  function save() {
+  async function save() {
     const e: Record<string, string> = {}
     const name = title.trim()
     if (name.length < 3 || name.length > 100) e.title = 'O nome do evento deve ter de 3 a 100 caracteres.'
@@ -41,12 +44,10 @@ export function EventFormScreen() {
     setErrors(e)
     if (Object.keys(e).length || !table) return
 
-    const ev: CalendarEvent = {
-      id: newEventId(), title: name, tableId: table.id, tableName: table.name, date, start, end, repeat,
-      description: description.trim(), color, askRsvp, createdBy: user.username,
-      guests: [user.username], rsvp: { [user.username]: 'yes' },
-    }
-    add(ev)
+    setSaving(true)
+    const res = await add(table.id, { title: name, date, start, end, repeat, description: description.trim(), color, askRsvp })
+    setSaving(false)
+    if (!res.ok) { showToast(res.error, 'error'); return }
     showToast('Evento criado.', 'success')
     navigate('calendario')
   }
@@ -70,7 +71,7 @@ export function EventFormScreen() {
               <div className="form-group cal-f-table">
                 <label className="form-label" htmlFor="ev-table">Mesa / comunidade</label>
                 <select id="ev-table" className={`form-input${errors.table ? ' error' : ''}`} value={tableId} onChange={e => setTableId(e.target.value)}>
-                  {tables.length === 0 && <option value="">Você não participa de nenhuma mesa</option>}
+                  {tables.length === 0 && <option value="">Só o mestre ou moderador de uma mesa cria eventos</option>}
                   {tables.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                 </select>
                 {errors.table && <small className="field-error">{errors.table}</small>}
@@ -119,7 +120,7 @@ export function EventFormScreen() {
             </label>
 
             <div className="cal-form-actions">
-              <button type="submit" className="btn btn-primary">Salvar</button>
+              <button type="submit" className="btn btn-primary" disabled={saving}>{saving ? 'Salvando…' : 'Salvar'}</button>
               <button type="button" className="btn btn-outline" onClick={() => navigate('calendario')}>Cancelar</button>
             </div>
           </form>
@@ -138,7 +139,7 @@ export function EventFormScreen() {
             </div>
             <div className="cal-card cal-tip">
               <h3>Dica</h3>
-              <p>Por enquanto o evento fica salvo neste aparelho. Quando a sincronização com a mesa estiver pronta, os jogadores poderão confirmar ou recusar a presença.</p>
+              <p>Todos os jogadores da mesa veem o evento e podem confirmar ou recusar a presença. A data e a hora valem como você digitou, sem conversão de fuso.</p>
             </div>
           </aside>
         </div>

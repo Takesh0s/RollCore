@@ -23,6 +23,9 @@ const Chevron = ({ dir }: { dir: 'l' | 'r' }) => (
 export function CalendarScreen() {
   const { navigate, user, loadTables } = useAppStore()
   const events = useCalendar(s => s.events)
+  const loadEvents = useCalendar(s => s.load)
+  const tables = useAppStore(s => s.tables)
+  const canCreate = tables.some(t => t.myRole !== 'PLAYER')
   const today = useMemo(() => new Date(), [])
   const desktop = useDesktop()
   const [pickedView, setView] = useState<View>('month')
@@ -31,7 +34,7 @@ export function CalendarScreen() {
   const [picked, setPicked] = useState<string | null>(null)       // dia tocado (celular)
   const [open, setOpen] = useState<Occurrence | null>(null)
 
-  useEffect(() => { loadTables() }, [loadTables])
+  useEffect(() => { loadTables(); loadEvents() }, [loadTables, loadEvents])
 
   const grid = useMemo(() => monthGrid(anchor), [anchor])
   const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(anchor), i)), [anchor])
@@ -136,9 +139,11 @@ export function CalendarScreen() {
           </section>
 
           <aside className="cal-side">
-            <button type="button" className="btn btn-primary cal-create" onClick={() => navigate('novo-evento')}>
-              <IconPlus /> Criar evento
-            </button>
+            {canCreate && (
+              <button type="button" className="btn btn-primary cal-create" onClick={() => navigate('novo-evento')}>
+                <IconPlus /> Criar evento
+              </button>
+            )}
 
             <h3 className="section-title cal-side-title">{picked ? `Eventos de ${dayLabel(picked)}` : 'Próximos eventos'}</h3>
             {shownNext.length === 0 ? (
