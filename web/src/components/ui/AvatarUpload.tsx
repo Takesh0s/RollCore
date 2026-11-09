@@ -1,5 +1,6 @@
-import { useRef } from 'react'
-import { shrink } from '@/lib/image'
+import { useRef, useState } from 'react'
+import { readImageFile } from '@/lib/image'
+import { ImageCropModal, AVATAR_PREVIEWS } from './ImageCropModal'
 
 interface AvatarUploadProps {
   /** Current image — base64 data URL or null */
@@ -14,28 +15,19 @@ interface AvatarUploadProps {
 
 /**
  * Circular avatar with an overlay camera button.
- * Converts the selected file to a small (256px) JPEG data URL and calls onChange.
+ * The picked photo opens in a crop dialog; the chosen area is saved as a small (256px) JPEG data URL.
  */
 export function AvatarUpload({ value, initials, onChange, size = 72 }: AvatarUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  const [pending, setPending] = useState<string | null>(null)
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
-    if (!file) return
-
-    // Validate type and size (max 2 MB)
-    if (!file.type.startsWith('image/')) return
-    if (file.size > 2 * 1024 * 1024) return
-
-    const reader = new FileReader()
-    reader.onload = ev => {
-      const result = ev.target?.result
-      if (typeof result === 'string') shrink(result).then(onChange)
-    }
-    reader.readAsDataURL(file)
-
     // Reset input so the same file can be re-selected
     e.target.value = ''
+    if (!file || file.size > 2 * 1024 * 1024) return
+    setPending(await readImageFile(file))
   }
 
   return (
@@ -75,6 +67,16 @@ export function AvatarUpload({ value, initials, onChange, size = 72 }: AvatarUpl
         style={{ display: 'none' }}
         onChange={handleFile}
       />
+
+      {pending && (
+        <span onClick={e => e.stopPropagation()}>
+          <ImageCropModal
+            src={pending} title="Recortar foto" aspect={1} circle previews={AVATAR_PREVIEWS} outWidth={256}
+            onCancel={() => setPending(null)}
+            onConfirm={url => { setPending(null); onChange(url) }}
+          />
+        </span>
+      )}
     </div>
   )
 }
