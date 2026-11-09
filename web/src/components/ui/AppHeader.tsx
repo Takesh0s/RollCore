@@ -29,6 +29,8 @@ const SIDEBAR: NavItem[] = [
   { label: 'Livraria',    icon: <NavIcon name="store" /> },
   { label: 'Tutoriais',   icon: <NavIcon name="tutorials" /> },
 ]
+/** No celular não há sino no cabeçalho; as notificações ficam no topo do menu. */
+const NOTIF_ITEM: NavItem = { label: 'Notificações', icon: <IconBell />, screen: 'notificacoes' }
 const SIDEBAR_FOOT: NavItem = { label: 'Configurações', icon: <NavIcon name="settings" />, screen: 'tema' }
 
 interface AppHeaderProps {
@@ -44,7 +46,7 @@ interface AppHeaderProps {
  * e atalho do perfil à direita. O menu lateral abre sobre o conteúdo.
  */
 export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
-  const { navigate, showToast, user, screen, askLogout } = useAppStore()
+  const { navigate, showToast, user, screen, askLogout, unreadCount } = useAppStore()
   const [open, setOpen] = useState(false)
   const desktop = useDesktop()
   const [deskMenuOpen, setDeskMenu] = useDeskMenu()
@@ -71,6 +73,7 @@ export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
       >
         <span className="side-menu-icon">{it.icon}</span>
         {it.label}
+        {it.screen === 'notificacoes' && unreadCount > 0 && <span className="menu-badge">{unreadCount > 9 ? '9+' : unreadCount}</span>}
       </button>
     </li>
   )
@@ -118,8 +121,10 @@ export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
             <IconSearch />
             <input type="search" placeholder="Buscar mesas, fichas, sistemas…" aria-label="Buscar" />
           </label>
-          <button className="app-header-btn" onClick={() => showToast('Notificações chega em breve.')} aria-label="Notificações">
+          <button className="app-header-btn has-badge" onClick={() => navigate('notificacoes')}
+                  aria-label={unreadCount > 0 ? `Notificações (${unreadCount} não lidas)` : 'Notificações'}>
             <IconBell />
+            {unreadCount > 0 && <span className="bell-badge" aria-hidden="true">{unreadCount > 9 ? '9+' : unreadCount}</span>}
           </button>
           {!hideProfile && (
             <button className="desk-profile" onClick={() => navigate('perfil')} aria-label="Meu perfil">
@@ -176,7 +181,7 @@ export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
                 <small>@{(user.username || 'perfil').toLowerCase().replace(/\s+/g, '')}</small>
               </span>
             </button>
-            <ul className="side-list">{SIDEBAR.map(renderSheetItem)}</ul>
+            <ul className="side-list">{[NOTIF_ITEM, ...SIDEBAR].map(renderSheetItem)}</ul>
             <ul className="side-foot">
               {renderSheetItem(SIDEBAR_FOOT)}
               <li>

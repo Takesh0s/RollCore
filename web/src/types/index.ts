@@ -86,7 +86,25 @@ export type Screen =
   | 'novo-personagem' | 'editar-personagem' | 'ficha'
   | 'dados' | 'perfil' | 'tema'
   | 'mesas' | 'nova-mesa' | 'editar-mesa' | 'mesa' | 'mapas'
-  | 'calendario' | 'novo-evento'
+  | 'calendario' | 'novo-evento' | 'notificacoes'
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+export type NotificationType =
+  | 'MEMBER_JOINED' | 'MEMBER_LEFT' | 'ROLE_CHANGED' | 'REMOVED_FROM_TABLE'
+  | 'HOST_TRANSFERRED' | 'TABLE_DELETED' | 'EVENT_CREATED'
+
+/** Mirrors NotificationResponse; the sentence is built on the client from type + snapshot fields. */
+export interface AppNotification {
+  id:        string
+  type:      NotificationType
+  tableId:   string | null
+  tableName: string | null
+  actorName: string | null
+  detail:    string | null
+  read:      boolean
+  createdAt: string
+}
 
 // ─── Tables (mesas) ───────────────────────────────────────────────────────────
 
