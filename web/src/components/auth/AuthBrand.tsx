@@ -1,5 +1,6 @@
 import { DiceLogo } from '@/components/ui/DiceLogo'
-import { IconSheets, IconCommunity } from '@/components/ui/icons'
+import { IconSheets } from '@/components/ui/icons'
+import { NavIcon } from '@/components/ui/NavIcon'
 
 /**
  * Painel de apresentação das telas de acesso no computador (Figma PC):
@@ -14,7 +15,7 @@ export function AuthBrand() {
       <ul className="auth-brand-list">
         <li><DiceLogo className="auth-brand-ico" /> Rolador de dados com histórico por mesa</li>
         <li><IconSheets className="auth-brand-ico" /> Fichas completas de D&amp;D 5e e outros sistemas</li>
-        <li><IconCommunity className="auth-brand-ico" /> Mesas, mapas e chat para o seu grupo</li>
+        <li><span className="auth-brand-ico"><NavIcon name="tables" /></span> Mesas, mapas e chat para o seu grupo</li>
       </ul>
     </aside>
   )

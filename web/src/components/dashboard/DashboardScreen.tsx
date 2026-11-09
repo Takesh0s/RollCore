@@ -4,7 +4,7 @@ import { AppHeader } from '@/components/ui/AppHeader'
 import { useDesktop } from '@/hooks/useDesktop'
 import { calcMod, formatMod, profBonus } from '@/lib/engine'
 import { formatTimestamp } from '@/lib/dice'
-import { IconCommunity } from '@/components/ui/icons'
+import { TableCover } from '@/components/tables/TableCover'
 
 /**
  * Tela inicial, no layout do Figma: faixa de Mesas e os atalhos grandes
@@ -50,7 +50,7 @@ function DesktopDashboard() {
             <SectionTitle>Próxima sessão</SectionTitle>
             {next ? (
               <div className="dash-panel dash-next">
-                <div className="dash-next-cover"><IconCommunity /></div>
+                <TableCover table={next} className="dash-next-cover" />
                 <div className="dash-next-info">
                   <strong>{next.name}</strong>
                   <span>{next.gameSystem} · {next.myRole === 'MASTER' ? 'Você é o mestre' : `Mestre ${next.ownerUsername}`}</span>
@@ -172,7 +172,7 @@ function MobileDashboard() {
         <SectionTitle>Próxima sessão</SectionTitle>
         {next ? (
           <div className="md-card md-next">
-            <div className="md-next-cover"><IconCommunity /></div>
+            <TableCover table={next} className="md-next-cover" />
             <div className="md-next-info">
               <strong>{next.name}</strong>
               <span>{next.gameSystem} · {next.myRole === 'MASTER' ? 'você é o mestre' : `Mestre ${next.ownerUsername}`}</span>
