@@ -3,6 +3,7 @@ package com.rollcore.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
@@ -39,6 +40,16 @@ public class GlobalExceptionHandler {
         pd.setTitle("Validation Error");
         pd.setDetail("One or more fields are invalid.");
         pd.setProperty("fields", errors);
+        return pd;
+    }
+
+    /** Malformed JSON, an unknown enum value or a bad date/time: a client error, not a 500. */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleUnreadable(HttpMessageNotReadableException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setType(URI.create("urn:rollcore:malformed-request"));
+        pd.setTitle("Malformed Request");
+        pd.setDetail("The request body could not be read.");
         return pd;
     }
 
