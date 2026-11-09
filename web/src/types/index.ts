@@ -85,7 +85,7 @@ export type Screen =
   | 'dashboard' | 'personagens'
   | 'novo-personagem' | 'editar-personagem' | 'ficha'
   | 'dados' | 'perfil' | 'tema'
-  | 'mesas' | 'nova-mesa' | 'mesa' | 'mapas'
+  | 'mesas' | 'nova-mesa' | 'editar-mesa' | 'mesa' | 'mapas'
   | 'calendario' | 'novo-evento'
 
 // ─── Tables (mesas) ───────────────────────────────────────────────────────────
@@ -139,8 +139,18 @@ export interface CreateTableInput {
   gameSystem?:  string
   description?: string
   maxPlayers?:  number
-  /** Local photo (data URL). The API only takes a URL, so it stays on this device. */
+  /** Cropped photo (data URL); it is uploaded and the table stores the resulting URL. */
   cover?:       string
+}
+
+export interface UpdateTableInput {
+  name:         string
+  gameSystem:   string
+  description:  string
+  maxPlayers:   number
+  /** New cropped cover (data URL) to upload; omit to keep the current one. */
+  cover?:       string
+  removeCover?: boolean
 }
 
 // ─── Form Types ───────────────────────────────────────────────────────────────

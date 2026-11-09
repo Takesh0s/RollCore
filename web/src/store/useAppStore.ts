@@ -6,7 +6,7 @@ import { getMaxSpellSlots, getWarlockSlots } from '@/lib/engine'
 import type {
   User, Character, HistoryEntry, Screen, RollResult,
   AuthTokens, CharacterApiResponse, UserProfileApiResponse, DiceRollApiResponse,
-  TableSummary, TableDetail, TablePreview, CreateTableInput, DiceMode, DiceShortcut,
+  TableSummary, TableDetail, TablePreview, CreateTableInput, UpdateTableInput, DiceMode, DiceShortcut,
 } from '@/types'
 
 // Data transformation helpers
@@ -101,6 +101,8 @@ interface AppState {
   tableDetail:     TableDetail | null
   loadTables:      () => Promise<void>
   createTable:     (input: CreateTableInput) => Promise<TableDetail>
+  updateTable:     (id: string, input: UpdateTableInput) => Promise<boolean>
+  migrateLocalCovers: () => Promise<void>
   openTable:       (id: string) => Promise<void>
   previewTable:    (inviteCode: string) => Promise<TablePreview | null>
   joinTable:       (inviteCode: string) => Promise<boolean>
@@ -144,6 +146,8 @@ function cachedAvatar(email: string): string | undefined {
   const cached = storage.getUser()
   return cached && cached.email.toLowerCase() === email.toLowerCase() ? cached.avatar_url : undefined
 }
+
+let migratingCovers = false
 
 export const useAppStore = create<AppState>((set, get) => ({
   screen: 'login',
@@ -533,10 +537,72 @@ export const useAppStore = create<AppState>((set, get) => ({
     try {
       const { data } = await api.get<TableSummary[]>('/tables')
       if (Array.isArray(data)) set({ tables: data })
+      void get().migrateLocalCovers()
     } catch {
       // Keep whatever is on screen; the list reloads on the next login or visit.
     } finally {
       set({ isLoadingTables: false })
+    }
+  },
+
+  /** Covers saved only in this browser (older versions) are uploaded once, for tables the user masters. */
+  async migrateLocalCovers() {
+    if (migratingCovers) return
+    migratingCovers = true
+    try {
+      const covers = storage.getTableCovers()
+      for (const t of get().tables) {
+        const local = covers[t.id]
+        if (!local || t.coverUrl || t.myRole !== 'MASTER') continue
+        const url = await uploadImage(local)
+        if (!url) continue
+        try {
+          await api.put(`/tables/${t.id}`, {
+            name: t.name, gameSystem: t.gameSystem, description: t.description ?? undefined,
+            maxPlayers: t.maxPlayers, coverUrl: url,
+          })
+          storage.removeTableCover(t.id)
+          set(s => ({ tables: s.tables.map(x => (x.id === t.id ? { ...x, coverUrl: url } : x)) }))
+        } catch { /* tries again on the next load */ }
+      }
+    } finally {
+      migratingCovers = false
+    }
+  },
+
+  async updateTable(id, input) {
+    const current = get().tables.find(t => t.id === id) ?? get().tableDetail?.table
+    let coverUrl = input.removeCover ? null : (current?.coverUrl ?? null)
+    if (input.cover) {
+      const uploaded = await uploadImage(input.cover)
+      if (!uploaded) {
+        get().showToast('Não foi possível enviar a capa. Tente de novo.', 'error')
+        return false
+      }
+      coverUrl = uploaded
+    }
+    try {
+      const { data } = await api.put<TableDetail>(`/tables/${id}`, {
+        name:        input.name.trim(),
+        gameSystem:  input.gameSystem.trim(),
+        description: input.description.trim() || undefined,
+        maxPlayers:  input.maxPlayers,
+        coverUrl:    coverUrl ?? undefined,
+      })
+      set(s => ({
+        tables: s.tables.map(t => (t.id === id ? data.table : t)),
+        tableDetail: s.tableDetail?.table.id === id ? { ...s.tableDetail, table: data.table } : s.tableDetail,
+      }))
+      if (input.cover || input.removeCover) {
+        storage.removeTableCover(id)
+        // the previous picture is no longer used; deleting it is best effort (only its uploader may)
+        const old = current?.coverUrl
+        if (old?.startsWith('/images/') && old !== coverUrl) api.delete(old).catch(() => {})
+      }
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível salvar a mesa.', 'error')
+      return false
     }
   },
 
