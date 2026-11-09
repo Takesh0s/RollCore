@@ -1,0 +1,42 @@
+/* Janelas de mesa (excluir, sair, remover jogador, entrar com código) e ações na tela da mesa */
+.tm-modal {
+  background: var(--card); color: var(--text-bright, var(--text)); border: 1px solid var(--card-border);
+  border-radius: 14px; width: min(400px, calc(100% - 24px)); max-height: calc(100dvh - 24px); overflow-y: auto; padding: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+.tm-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.tm-head h2 { margin: 0; font-family: var(--font-display); font-size: 21px; }
+.tm-close { background: none; border: 0; color: var(--text-bright, var(--text)); font-size: 28px; line-height: 1; cursor: pointer; padding: 0 4px; }
+.tm-text { margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: var(--text); }
+.tm-label { display: block; margin: 8px 0 4px; font-size: 12px; color: var(--text-muted); }
+.tm-code { text-align: center; letter-spacing: 6px; font-family: var(--font-display); font-size: 20px; font-weight: 700; text-transform: uppercase; }
+.tm-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.tm-actions .btn { width: 100%; margin: 0; }
+.tm-danger {
+  display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 999px; cursor: pointer;
+  background: #4a0000; color: #ffd9d9; border: 1px solid #4a0000; font-family: var(--font-btn); font-style: italic; font-weight: 700;
+}
+.tm-danger:hover:not(:disabled) { background: #6b0b0b; }
+.tm-danger:disabled { opacity: 0.45; cursor: default; }
+.tm-preview { display: flex; flex-direction: column; gap: 3px; margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--card-raised); border: 1px solid var(--card-border); }
+.tm-preview strong { font-family: var(--font-display); font-size: 16px; }
+.tm-preview span { font-size: 12.5px; color: var(--text-muted); }
+.tm-preview em { font-style: normal; font-size: 12.5px; color: var(--fail); }
+
+.invite-tiles { display: flex; gap: 8px; flex-wrap: wrap; }
+.invite-tile {
+  width: 38px; height: 46px; display: grid; place-items: center; border-radius: 8px; font-family: var(--font-display); font-size: 21px; font-weight: 700;
+  background: var(--field, var(--card-raised)); color: var(--field-text, var(--text-bright, var(--text)));
+}
+.tm-inline-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.tm-inline-actions .btn { margin: 0; }
+.member-end { display: inline-flex; align-items: center; gap: 10px; }
+.member-remove { background: none; border: 1px solid var(--card-border); color: var(--text-muted); width: 24px; height: 24px; border-radius: 50%; cursor: pointer; line-height: 1; font-size: 16px; }
+.member-remove:hover { color: var(--fail); border-color: var(--fail); }
+.table-danger-zone { display: flex; justify-content: center; margin-top: 22px; }
+.list-join { margin: 0 8px 0 auto; white-space: nowrap; }
+
+@media (min-width: 1024px) {
+  .tm-actions { flex-direction: row-reverse; }
+  .tm-actions .btn { flex: 1; width: auto; }
+}

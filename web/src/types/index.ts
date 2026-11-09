@@ -122,6 +122,18 @@ export interface TableDetail {
   members:    TableMember[]
 }
 
+/** Mirrors TablePreviewResponse: public overview shown before joining with an invite code. */
+export interface TablePreview {
+  name:          string
+  gameSystem:    string
+  description:   string | null
+  coverUrl:      string | null
+  playerCount:   number
+  maxPlayers:    number
+  ownerUsername: string
+  full:          boolean
+}
+
 export interface CreateTableInput {
   name:         string
   gameSystem?:  string

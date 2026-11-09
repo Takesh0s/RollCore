@@ -3,11 +3,13 @@ import { useAppStore } from '@/store/useAppStore'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { IconPlus, IconSearch } from '@/components/ui/icons'
 import { TableBanner } from '@/components/tables/TableBanner'
+import { JoinTableModal } from '@/components/tables/TableModals'
 
 /** Lista de mesas do usuário, com busca por nome. */
 export function TableListScreen() {
   const { tables, loadTables, openTable, navigate } = useAppStore()
   const [query, setQuery] = useState('')
+  const [joining, setJoining] = useState(false)
 
   useEffect(() => { loadTables() }, [loadTables])
 
@@ -30,6 +32,7 @@ export function TableListScreen() {
               aria-label="Buscar mesa"
             />
           </label>
+          <button className="btn btn-outline btn-pill list-join" onClick={() => setJoining(true)}>Entrar com código</button>
           <button className="home-icon-btn" aria-label="Criar mesa" onClick={() => navigate('nova-mesa')}>
             <IconPlus />
           </button>
@@ -52,6 +55,7 @@ export function TableListScreen() {
           </div>
         )}
       </div>
+      {joining && <JoinTableModal onClose={() => setJoining(false)} />}
     </div>
   )
 }
