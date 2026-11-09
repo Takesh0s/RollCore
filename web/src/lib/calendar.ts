@@ -1,8 +1,4 @@
-/**
- * Calendário: modelo, datas e armazenamento.
- * Ainda não há API de eventos, então eles ficam neste aparelho (localStorage). Tudo passa por
- * `loadEvents` / `saveEvents`, que é o único ponto a trocar quando o backend existir.
- */
+/** Calendário: modelo, conversão da API e datas. Os eventos vivem no servidor (GET /events). */
 
 export type EventColor = 'red' | 'blue' | 'green' | 'amber' | 'teal' | 'purple'
 export type Repeat = 'none' | 'weekly' | 'biweekly' | 'monthly'
@@ -44,17 +40,34 @@ export interface CalendarEvent {
 /** Uma ocorrência de um evento em um dia (eventos que se repetem têm várias). */
 export interface Occurrence { event: CalendarEvent; date: string }
 
-const KEY = 'rollcore_events'
-
-export function loadEvents(): CalendarEvent[] {
-  try {
-    const raw = localStorage.getItem(KEY)
-    const list = raw ? (JSON.parse(raw) as CalendarEvent[]) : []
-    return Array.isArray(list) ? list : []
-  } catch { return [] }
+/** Evento como a API devolve (enums em maiúsculas, horas HH:mm). */
+export interface EventApi {
+  id: string
+  tableId: string
+  tableName: string
+  title: string
+  description: string | null
+  date: string
+  start: string
+  end: string
+  repeat: string
+  color: string
+  askRsvp: boolean
+  createdBy: string
+  guests: string[]
+  rsvp: Record<string, string>
 }
-export function saveEvents(list: CalendarEvent[]): void {
-  try { localStorage.setItem(KEY, JSON.stringify(list)) } catch { /* sem espaço: não persiste */ }
+
+export function fromApi(e: EventApi): CalendarEvent {
+  const rsvp: Record<string, Rsvp> = {}
+  for (const [user, status] of Object.entries(e.rsvp ?? {})) rsvp[user] = status.toLowerCase() as Rsvp
+  return {
+    id: e.id, title: e.title, tableId: e.tableId, tableName: e.tableName, date: e.date,
+    start: e.start.slice(0, 5), end: e.end.slice(0, 5),
+    repeat: e.repeat.toLowerCase() as Repeat, description: e.description ?? '',
+    color: e.color.toLowerCase() as EventColor, askRsvp: e.askRsvp, createdBy: e.createdBy,
+    guests: e.guests ?? [], rsvp,
+  }
 }
 
 // ── Datas (sempre no fuso local, sem converter por UTC) ───────────────────────
@@ -138,8 +151,6 @@ export function tableLegend(events: CalendarEvent[]): { tableId: string; name: s
   for (const e of events) if (!seen.has(e.tableId)) seen.set(e.tableId, { tableId: e.tableId, name: e.tableName, color: e.color })
   return [...seen.values()]
 }
-
-export const newEventId = () => `ev_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
 
 export function myStatus(e: CalendarEvent, username: string): Rsvp {
   return e.rsvp[username] ?? 'pending'

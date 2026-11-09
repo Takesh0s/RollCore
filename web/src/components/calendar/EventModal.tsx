@@ -17,7 +17,7 @@ export function EventModal({ event, date, onClose }: { event: CalendarEvent; dat
   const [askDelete, setAskDelete] = useState(false)
   const me = user.username
   const mine = myStatus(event, me)
-  const owner = event.createdBy === me
+  const canDelete = event.createdBy === me || useAppStore.getState().tables.find(t => t.id === event.tableId)?.myRole === 'MASTER'
   const total = event.guests.length
   const confirmed = confirmedCount(event)
 
@@ -27,14 +27,18 @@ export function EventModal({ event, date, onClose }: { event: CalendarEvent; dat
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  function answer(status: Rsvp) {
-    respond(event.id, me, status)
-    showToast(status === 'yes' ? 'Presença confirmada.' : 'Você recusou o evento.', 'success')
+  async function answer(status: 'yes' | 'no') {
+    const ok = await respond(event.id, status)
+    if (ok) showToast(status === 'yes' ? 'Presença confirmada.' : 'Você recusou o evento.', 'success')
+    else showToast('Não foi possível enviar sua resposta. Tente de novo.', 'error')
   }
-  function del() {
-    remove(event.id)
-    showToast('Evento excluído.', 'success')
-    onClose()
+  async function del() {
+    if (await remove(event.id)) {
+      showToast('Evento excluído.', 'success')
+      onClose()
+    } else {
+      showToast('Não foi possível excluir o evento.', 'error')
+    }
   }
 
   return createPortal(
@@ -64,7 +68,7 @@ export function EventModal({ event, date, onClose }: { event: CalendarEvent; dat
           ))}
         </ul>
 
-        <p className="cal-note"><span aria-hidden="true">ⓘ</span> Apenas quem criou o evento pode editá-lo ou cancelá-lo.</p>
+        <p className="cal-note"><span aria-hidden="true">ⓘ</span> Apenas quem criou o evento ou o mestre da mesa pode cancelá-lo.</p>
 
         {event.askRsvp && (
           <div className="cal-modal-actions">
@@ -72,7 +76,7 @@ export function EventModal({ event, date, onClose }: { event: CalendarEvent; dat
             <button type="button" className="btn btn-danger-fill" onClick={() => answer('no')}>Recusar</button>
           </div>
         )}
-        {owner && (
+        {canDelete && (
           <button type="button" className="cal-delete" onClick={() => (askDelete ? del() : setAskDelete(true))}>
             {askDelete ? 'Toque de novo para excluir' : 'Excluir evento'}
           </button>

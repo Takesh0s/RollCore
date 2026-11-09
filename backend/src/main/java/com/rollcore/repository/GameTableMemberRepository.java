@@ -23,6 +23,10 @@ public interface GameTableMemberRepository extends JpaRepository<GameTableMember
     @EntityGraph(attributePaths = {"user"})
     List<GameTableMember> findByGameTableIdOrderByJoinedAtAsc(UUID gameTableId);
 
+    /** Members of several tables at once (user loaded) — used to list the guests of calendar events. */
+    @EntityGraph(attributePaths = {"user"})
+    List<GameTableMember> findByGameTableIdIn(Collection<UUID> gameTableIds);
+
     long countByGameTableId(UUID gameTableId);
 
     /** Removes every membership of a table (loaded and deleted one by one so the persistence context stays consistent). */
