@@ -83,10 +83,11 @@ body {
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
 }
 
-#root { min-height: 100vh; }
+#root { min-height: 100vh; min-height: 100dvh; }
 
 /* ── Layout Shell ──────────────────────────────────────────────── */
 .app-shell {
@@ -94,6 +95,7 @@ body {
   margin: 0 auto;
   padding: 20px 16px 40px;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* ── Device Card ───────────────────────────────────────────────── */

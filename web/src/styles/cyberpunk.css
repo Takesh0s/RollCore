@@ -38,6 +38,8 @@ html[data-theme="cyberpunk"] .login-header h1 {
 html[data-theme="cyberpunk"] .section-title, html[data-theme="cyberpunk"] .dash-sec-title span {
   text-transform: uppercase; letter-spacing: 2px; color: var(--cp-cyan);
 }
+/* No claro o ciano puro some no fundo creme: usa um ciano escuro */
+html[data-theme="cyberpunk"][data-mode="light"] .section-title, html[data-theme="cyberpunk"][data-mode="light"] .dash-sec-title span { color: #00717F; }
 
 /* Botões: amarelo cheio, texto preto, corte diagonal */
 html[data-theme="cyberpunk"] .btn-primary, html[data-theme="cyberpunk"] .btn-pill,
