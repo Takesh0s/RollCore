@@ -25,7 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <ul>
  *   <li>General bucket: {@code rate-limit.requests-per-minute} per IP (default 60).
- *   <li>Stricter bucket for credential endpoints ({@code /auth/login|google|register|refresh}):
+ *   <li>Stricter bucket for credential endpoints ({@code /auth/login|google|register|refresh} and the
+ *       password/e-mail change under {@code /users/me}):
  *       {@code rate-limit.auth-requests-per-minute} per IP (default 10) — slows brute force.
  *   <li>The client IP is {@link HttpServletRequest#getRemoteAddr()}. Behind a proxy,
  *       {@code server.forward-headers-strategy: native} makes Tomcat resolve it from
@@ -90,8 +91,12 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private boolean isCredentialEndpoint(HttpServletRequest request) {
-        if (!"POST".equalsIgnoreCase(request.getMethod())) return false;
         String path = request.getRequestURI();
+        // Both ask for the current password, so they are as brute-forceable as login.
+        if ("PUT".equalsIgnoreCase(request.getMethod())) {
+            return "/users/me/password".equals(path) || "/users/me/email".equals(path);
+        }
+        if (!"POST".equalsIgnoreCase(request.getMethod())) return false;
         return "/auth/login".equals(path) || "/auth/google".equals(path) || "/auth/register".equals(path) || "/auth/refresh".equals(path);
     }
 
