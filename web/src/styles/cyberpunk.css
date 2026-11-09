@@ -80,6 +80,7 @@ html[data-theme="cyberpunk"] .side-menu-item.active, html[data-theme="cyberpunk"
   background: rgba(252, 238, 10, 0.12); color: var(--cp-yellow); border-radius: 0;
   box-shadow: inset 3px 0 0 var(--cp-yellow);
 }
+html[data-theme="cyberpunk"][data-mode="light"] .side-menu-item.active, html[data-theme="cyberpunk"][data-mode="light"] .side-menu.docked .side-menu-item.active { color: #111; background: rgba(184, 172, 0, 0.28); }
 html[data-theme="cyberpunk"] .side-menu-item { border-radius: 0; }
 
 @media (max-width: 1023px) {

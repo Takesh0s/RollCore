@@ -2,6 +2,8 @@ import { useRef, useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { IconPlus } from '@/components/ui/icons'
+import { ImageCropModal, COVER_ASPECT, COVER_PREVIEWS } from '@/components/ui/ImageCropModal'
+import { readImageFile } from '@/lib/image'
 
 const SYSTEMS = ['D&D 5e', 'Tormenta20', 'Call of Cthulhu', 'Pathfinder 2e', 'Outro']
 const MAX_COVER_BYTES = 2 * 1024 * 1024
@@ -20,16 +22,15 @@ export function TableFormScreen() {
   const [maxPlayers,  setMaxPlayers]  = useState(5)
   const [cover,       setCover]       = useState<string | undefined>()
   const [loading,     setLoading]     = useState(false)
+  const [pendingCover, setPendingCover] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  function pickCover(e: React.ChangeEvent<HTMLInputElement>) {
+  async function pickCover(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file || !file.type.startsWith('image/')) return
     if (file.size > MAX_COVER_BYTES) { showToast('A capa deve ter até 2 MB.', 'error'); return }
-    const reader = new FileReader()
-    reader.onload = ev => { if (typeof ev.target?.result === 'string') setCover(ev.target.result) }
-    reader.readAsDataURL(file)
+    setPendingCover(await readImageFile(file))
   }
 
   async function handleSave() {
@@ -106,6 +107,13 @@ export function TableFormScreen() {
             {!cover && <IconPlus />}
           </button>
           <input ref={fileRef} type="file" accept="image/*" hidden onChange={pickCover} />
+          {pendingCover && (
+            <ImageCropModal
+              src={pendingCover} title="Recortar capa" aspect={COVER_ASPECT} previews={COVER_PREVIEWS} outWidth={960}
+              onCancel={() => setPendingCover(null)}
+              onConfirm={url => { setPendingCover(null); setCover(url) }}
+            />
+          )}
           <small className="field-hint">A capa fica salva neste aparelho. Máx. 2 MB.</small>
         </div>
 
