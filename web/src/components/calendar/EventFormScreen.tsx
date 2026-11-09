@@ -7,6 +7,7 @@ import {
   type CalendarEvent, type EventColor, type Repeat,
 } from '@/lib/calendar'
 import { RsvpBadge } from './EventModal'
+import { useUnsavedGuard } from '@/hooks/useUnsavedGuard'
 
 const REPEATS = Object.keys(REPEAT_LABELS) as Repeat[]
 
@@ -32,6 +33,7 @@ export function EventFormScreen() {
   useEffect(() => { if (!tableId && tables[0]) setTableId(tables[0].id) }, [tables, tableId])
 
   const table = tables.find(t => t.id === tableId)
+  useUnsavedGuard(!!(title.trim() || description.trim()), `Você começou a criar ${title.trim() || 'um evento'} e ainda não salvou.`)
 
   async function save() {
     const e: Record<string, string> = {}
@@ -48,6 +50,7 @@ export function EventFormScreen() {
     const res = await add(table.id, { title: name, date, start, end, repeat, description: description.trim(), color, askRsvp })
     setSaving(false)
     if (!res.ok) { showToast(res.error, 'error'); return }
+    useAppStore.getState().setDirty(null)
     showToast('Evento criado.', 'success')
     navigate('calendario')
   }

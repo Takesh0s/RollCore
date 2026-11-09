@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { Toast }                from '@/components/ui/Toast'
+import { Modal }                from '@/components/ui/Modal'
+import { NetworkModals }        from '@/components/ui/NetworkModals'
 import { Crenellation }         from '@/components/ui/Crenellation'
 import { LoginScreen }          from '@/components/auth/LoginScreen'
 import { RegisterScreen }       from '@/components/auth/RegisterScreen'
@@ -58,6 +60,7 @@ function ScreenContent({ screen }: { screen: Screen }) {
  */
 export default function App() {
   const screen = useAppStore(s => s.screen)
+  const { logoutPrompt, cancelLogout, logout, dirtyMessage, pendingScreen, confirmDiscard, cancelDiscard } = useAppStore()
 
   // Which screen is currently rendered in the DOM
   const [displayed, setDisplayed] = useState<Screen>(screen)
@@ -90,6 +93,18 @@ export default function App() {
       </div>
       <Crenellation />
       <Toast />
+      <NetworkModals />
+      <Modal
+        open={logoutPrompt} danger title="Sair da conta?"
+        message="Você precisará entrar de novo para acessar suas mesas e fichas neste dispositivo."
+        confirmLabel="Sair da conta" onConfirm={logout} onCancel={cancelLogout}
+      />
+      <Modal
+        open={!!pendingScreen} danger title="Descartar alterações?"
+        message={`${dirtyMessage ?? 'Você ainda não salvou.'} Se sair agora, as mudanças serão perdidas.`}
+        cancelLabel="Continuar editando" confirmLabel="Descartar"
+        onConfirm={confirmDiscard} onCancel={cancelDiscard}
+      />
     </div>
   )
 }

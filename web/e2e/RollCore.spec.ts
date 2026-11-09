@@ -86,7 +86,9 @@ test('Criacao de conta e autoLogin', async ({ page }) => {
   await page.getByRole('button', { name: 'Criar conta' }).click();
   await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible({ timeout: 10_000 });
   await page.getByRole('button', { name: 'Meu perfil' }).click();
-  await page.getByRole('button', { name: 'Logout' }).click();
+  await page.getByRole('button', { name: 'Sair da conta' }).click();
+  // The app asks for confirmation before signing out (Figma 25.6).
+  await page.getByRole('dialog', { name: 'Sair da conta?' }).getByRole('button', { name: 'Sair da conta' }).click();
   await expect(loginButton(page)).toBeVisible();
 });
 

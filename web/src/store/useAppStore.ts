@@ -61,6 +61,18 @@ interface AppState {
   screen: Screen
   navigate: (screen: Screen) => void
 
+  // Confirmations: "Sair da conta" (25.6) and "Descartar alterações" (25.5)
+  logoutPrompt:  boolean
+  askLogout:     () => void
+  cancelLogout:  () => void
+  /** Message of the unsaved form on screen (null = nothing to lose). */
+  dirtyMessage:  string | null
+  setDirty:      (message: string | null) => void
+  /** Screen the user tried to open while a form had unsaved changes. */
+  pendingScreen: Screen | null
+  confirmDiscard: () => void
+  cancelDiscard:  () => void
+
   // Authentication and user management
   user:             User
   registeredEmails: string[]
@@ -156,8 +168,22 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { user } = get()
     const pub: Screen[] = ['login', 'cadastro', 'esqueci-senha']
     if (!user.isLogged && !pub.includes(screen)) { set({ screen: 'login' }); return }
+    if (get().dirtyMessage && screen !== get().screen) { set({ pendingScreen: screen }); return }
     set({ screen })
   },
+
+  logoutPrompt:  false,
+  askLogout:     () => set({ logoutPrompt: true }),
+  cancelLogout:  () => set({ logoutPrompt: false }),
+  dirtyMessage:  null,
+  setDirty:      message => set({ dirtyMessage: message }),
+  pendingScreen: null,
+  confirmDiscard() {
+    const target = get().pendingScreen
+    set({ dirtyMessage: null, pendingScreen: null })
+    if (target) get().navigate(target)
+  },
+  cancelDiscard: () => set({ pendingScreen: null }),
 
   // Authentication handlers
   user:             { isLogged: false, email: '', username: '', keepConnected: false },
@@ -237,6 +263,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     tokenStorage.clear()
     storage.removeUser()
     set({
+      logoutPrompt: false,
+      dirtyMessage: null,
+      pendingScreen: null,
       user:       { isLogged: false, email: '', username: '', keepConnected: false },
       characters: [],
       history:    [],

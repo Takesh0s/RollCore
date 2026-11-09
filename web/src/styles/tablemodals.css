@@ -39,6 +39,16 @@
 .list-join { margin: 0 8px 0 auto; white-space: nowrap; }
 
 @media (min-width: 1024px) {
-  .tm-actions { flex-direction: row-reverse; }
+  .tm-actions { flex-direction: row; }
   .tm-actions .btn { flex: 1; width: auto; }
 }
+
+/* Sem conexão / Algo deu errado */
+.net-body { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 6px 0 2px; }
+.net-body .btn { margin-top: 10px; width: auto; }
+.net-icon { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; border: 2px solid #e0b43c; color: #e0b43c; }
+.net-body strong { font-family: var(--font-display); font-size: 18px; }
+.net-error-box { display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin-bottom: 10px; border-radius: 10px; background: var(--card-raised); border: 1px solid var(--card-border); }
+.net-error-box strong { display: block; font-size: 14px; }
+.net-error-box small { color: var(--text-muted); font-size: 12px; }
+.net-warn { display: grid; place-items: center; flex: none; width: 34px; height: 34px; border-radius: 8px; background: var(--card-high, var(--card)); color: var(--fail); font-size: 16px; }
