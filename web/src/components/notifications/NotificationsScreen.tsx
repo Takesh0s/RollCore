@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { IconBell } from '@/components/ui/icons'
+import { useCalendar } from '@/store/useCalendar'
 import type { AppNotification } from '@/types'
 
 type Filter = 'all' | 'tables' | 'events'
@@ -59,7 +60,8 @@ export function NotificationsScreen() {
 
   function open(n: AppNotification) {
     markNotificationRead(n.id)
-    if (n.type === 'EVENT_CREATED') navigate('calendario')
+    if (n.type === 'EVENT_CREATED' && n.eventId) { useCalendar.getState().select(n.eventId); navigate('evento') }
+    else if (n.type === 'EVENT_CREATED') navigate('calendario')
     else if (n.tableId) openTable(n.tableId)
   }
   const canOpen = (n: AppNotification) => n.type === 'EVENT_CREATED' || !!n.tableId

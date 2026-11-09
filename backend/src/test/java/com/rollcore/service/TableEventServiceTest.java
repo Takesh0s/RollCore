@@ -104,8 +104,8 @@ class TableEventServiceTest {
             EventResponse r = service.create(tableId, masterId, request());
 
             // everyone but the creator is told about the new event
-            verify(notifications).sendToMember(playerM, Notification.Type.EVENT_CREATED, "gm", "Sessão 13");
-            verify(notifications, never()).sendToMember(eq(masterM), any(), any(), any());
+            verify(notifications).sendToMember(playerM, Notification.Type.EVENT_CREATED, "gm", "Sessão 13", eventId);
+            verify(notifications, never()).sendToMember(eq(masterM), any(), any(), any(), any());
 
             ArgumentCaptor<TableEvent> saved = ArgumentCaptor.forClass(TableEvent.class);
             verify(events).save(saved.capture());

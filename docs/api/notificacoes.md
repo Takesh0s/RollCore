@@ -8,7 +8,7 @@ Todas as rotas exigem o token de acesso (`Authorization: Bearer ...`).
 | `POST /notifications/{id}/read` | 204; 404 se a notificação não for sua |
 | `POST /notifications/read-all` | 204 |
 
-Cada item traz `id`, `type`, `tableId`, `tableName`, `actorName`, `detail`, `read` e `createdAt`.
+Cada item traz `id`, `type`, `tableId`, `eventId`, `tableName`, `actorName`, `detail`, `read` e `createdAt`.
 O texto é montado pelo cliente a partir do `type`.
 
 ## Quando uma notificação é criada
@@ -25,6 +25,7 @@ O texto é montado pelo cliente a partir do `type`.
 ## Regras
 - Quem silenciou a mesa (Perfil da mesa) **não** recebe `MEMBER_JOINED`, `MEMBER_LEFT` nem `EVENT_CREATED`
   dessa mesa. Mudanças de acesso (remoção, mesa excluída, passagem de cargo, mudança de cargo) sempre chegam.
+- `eventId` só vem em `EVENT_CREATED` e leva à página do evento; fica sem chave estrangeira, como `tableId`.
 - `tableId` fica vazio quando o destinatário já não pode abrir a mesa (`REMOVED_FROM_TABLE`, `TABLE_DELETED`).
 - A tabela não tem chave estrangeira para a mesa de propósito: a notificação continua existindo depois que a
   mesa é excluída.

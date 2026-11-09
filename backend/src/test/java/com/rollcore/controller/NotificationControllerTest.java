@@ -80,7 +80,7 @@ class NotificationControllerTest {
     void listOk() throws Exception {
         UUID id = UUID.randomUUID();
         when(notificationService.list(USER_ID)).thenReturn(new NotificationListResponse(
-                List.of(new NotificationResponse(id, "MEMBER_JOINED", UUID.randomUUID(), "Mesa", "ply", null,
+                List.of(new NotificationResponse(id, "MEMBER_JOINED", UUID.randomUUID(), null, "Mesa", "ply", null,
                         false, Instant.parse("2026-11-09T12:00:00Z"))),
                 1));
 

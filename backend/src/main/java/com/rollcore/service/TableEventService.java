@@ -62,7 +62,7 @@ public class TableEventService {
                 ? me.getDisplayName() : me.getUser().getUsername();
         for (GameTableMember m : members.findByGameTableIdOrderByJoinedAtAsc(tableId)) {
             if (!m.getUser().getId().equals(userId)) {
-                notifications.sendToMember(m, Notification.Type.EVENT_CREATED, actor, event.getTitle());
+                notifications.sendToMember(m, Notification.Type.EVENT_CREATED, actor, event.getTitle(), event.getId());
             }
         }
         return render(List.of(event)).get(0);

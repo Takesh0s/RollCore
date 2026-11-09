@@ -16,6 +16,9 @@ export interface NewEvent {
 interface CalendarState {
   events: CalendarEvent[]
   loading: boolean
+  /** Evento aberto na página do evento. */
+  selectedId: string | null
+  select: (id: string | null) => void
   /** Carrega os eventos de todas as mesas do usuário. */
   load: () => Promise<void>
   /** Cria o evento na mesa; devolve null se falhar (com a mensagem do servidor em `error`). */
@@ -30,6 +33,8 @@ const replace = (list: CalendarEvent[], next: CalendarEvent) => list.map(e => (e
 export const useCalendar = create<CalendarState>((set, get) => ({
   events: [],
   loading: false,
+  selectedId: null,
+  select(id) { set({ selectedId: id }) },
 
   async load() {
     set({ loading: true })

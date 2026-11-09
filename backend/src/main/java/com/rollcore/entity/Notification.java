@@ -43,6 +43,10 @@ public class Notification {
     @Column(name = "actor_name", length = 50)
     private String actorName;
 
+    /** The event an EVENT_CREATED notification is about (no foreign key: it may be deleted later). */
+    @Column(name = "event_id")
+    private UUID eventId;
+
     /** Extra text: the new role for ROLE_CHANGED, the event title for EVENT_CREATED. */
     @Column(length = 200)
     private String detail;
