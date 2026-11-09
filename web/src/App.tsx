@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { Toast }                from '@/components/ui/Toast'
 import { Modal }                from '@/components/ui/Modal'
@@ -51,45 +50,17 @@ function ScreenContent({ screen }: { screen: Screen }) {
 }
 
 /**
- * Root component — wraps every screen transition in a CSS fade so
- * navigating between screens feels fluid rather than a hard cut.
- *
- * Technique: keep the PREVIOUS screen visible while fading it out,
- * then swap in the new screen fading in. Total animation: 200ms each.
- * No routing library needed — the screen key from Zustand drives everything.
+ * Root component. A tela nova entra direto (a animação de entrada fica no CSS de `.device`),
+ * sem etapa de fade-out: antes a tela antiga sumia por ~150 ms e só restavam o fundo e as ameias.
  */
 export default function App() {
   const screen = useAppStore(s => s.screen)
   const { logoutPrompt, cancelLogout, logout, dirtyMessage, pendingScreen, confirmDiscard, cancelDiscard } = useAppStore()
 
-  // Which screen is currently rendered in the DOM
-  const [displayed, setDisplayed] = useState<Screen>(screen)
-  // Controls the opacity class
-  const [fading, setFading]       = useState(false)
-  const pendingRef = useRef<Screen>(screen)
-
-  useEffect(() => {
-    if (screen === displayed) return
-
-    pendingRef.current = screen
-
-    // 1. Fade out the current screen
-    setFading(true)
-
-    const timer = setTimeout(() => {
-      // 2. Swap content while invisible
-      setDisplayed(pendingRef.current)
-      // 3. Fade back in (removing the class triggers the in-transition)
-      setFading(false)
-    }, 150)
-
-    return () => clearTimeout(timer)
-  }, [screen, displayed])
-
   return (
     <div className="app-shell">
-      <div className={`screen-wrap${fading ? ' screen-out' : ''}`}>
-        <ScreenContent screen={displayed} />
+      <div className="screen-wrap">
+        <ScreenContent screen={screen} />
       </div>
       <Crenellation />
       <Toast />
