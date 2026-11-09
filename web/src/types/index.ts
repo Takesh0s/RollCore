@@ -86,7 +86,26 @@ export type Screen =
   | 'novo-personagem' | 'editar-personagem' | 'ficha'
   | 'dados' | 'perfil' | 'tema'
   | 'mesas' | 'nova-mesa' | 'editar-mesa' | 'mesa' | 'mapas'
-  | 'calendario' | 'novo-evento'
+  | 'calendario' | 'novo-evento' | 'evento' | 'notificacoes'
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+export type NotificationType =
+  | 'MEMBER_JOINED' | 'MEMBER_LEFT' | 'ROLE_CHANGED' | 'REMOVED_FROM_TABLE'
+  | 'HOST_TRANSFERRED' | 'TABLE_DELETED' | 'EVENT_CREATED'
+
+/** Mirrors NotificationResponse; the sentence is built on the client from type + snapshot fields. */
+export interface AppNotification {
+  id:        string
+  type:      NotificationType
+  tableId:   string | null
+  eventId:   string | null
+  tableName: string | null
+  actorName: string | null
+  detail:    string | null
+  read:      boolean
+  createdAt: string
+}
 
 // ─── Tables (mesas) ───────────────────────────────────────────────────────────
 
@@ -120,6 +139,16 @@ export interface TableDetail {
   table:      TableSummary
   inviteCode: string | null
   members:    TableMember[]
+  me?:        TableMemberSelf
+  canTransferHost?: boolean
+}
+
+/** Mirrors MemberSelfResponse: the caller's own settings on this table. */
+export interface TableMemberSelf {
+  displayName: string | null
+  avatarUrl:   string | null
+  muted:       boolean
+  role:        TableRole
 }
 
 /** Mirrors TablePreviewResponse: public overview shown before joining with an invite code. */

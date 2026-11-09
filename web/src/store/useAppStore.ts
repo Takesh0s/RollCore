@@ -6,7 +6,7 @@ import { getMaxSpellSlots, getWarlockSlots } from '@/lib/engine'
 import type {
   User, Character, HistoryEntry, Screen, RollResult,
   AuthTokens, CharacterApiResponse, UserProfileApiResponse, DiceRollApiResponse,
-  TableSummary, TableDetail, TablePreview, CreateTableInput, UpdateTableInput, DiceMode, DiceShortcut,
+  AppNotification, TableSummary, TableDetail, TablePreview, CreateTableInput, UpdateTableInput, DiceMode, DiceShortcut,
 } from '@/types'
 
 // Data transformation helpers
@@ -61,6 +61,18 @@ interface AppState {
   screen: Screen
   navigate: (screen: Screen) => void
 
+  // Confirmations: "Sair da conta" (25.6) and "Descartar alterações" (25.5)
+  logoutPrompt:  boolean
+  askLogout:     () => void
+  cancelLogout:  () => void
+  /** Message of the unsaved form on screen (null = nothing to lose). */
+  dirtyMessage:  string | null
+  setDirty:      (message: string | null) => void
+  /** Screen the user tried to open while a form had unsaved changes. */
+  pendingScreen: Screen | null
+  confirmDiscard: () => void
+  cancelDiscard:  () => void
+
   // Authentication and user management
   user:             User
   registeredEmails: string[]
@@ -70,6 +82,9 @@ interface AppState {
   logout:           () => void
   loadProfile:      () => Promise<void>
   updateProfile:    (updates: Partial<Pick<User, 'username' | 'avatar_url'>>) => Promise<void>
+  changeEmail:      (newEmail: string, currentPassword: string) => Promise<void>
+  changePassword:   (currentPassword: string, newPassword: string) => Promise<void>
+  deleteAccount:    () => Promise<void>
 
   // Character management
   characters:          Character[]
@@ -110,6 +125,16 @@ interface AppState {
   leaveTable:      (id: string) => Promise<boolean>
   removeMember:    (tableId: string, userId: string) => Promise<boolean>
   regenerateInvite: (tableId: string) => Promise<void>
+  updateMyProfile: (tableId: string, input: { displayName: string; muted: boolean; avatar?: string | null }) => Promise<boolean>
+  changeRole:      (tableId: string, userId: string, role: 'MODERATOR' | 'PLAYER') => Promise<boolean>
+  transferHost:    (tableId: string, userId: string) => Promise<boolean>
+
+  // Notificações dentro do app
+  notifications:     AppNotification[]
+  unreadCount:       number
+  loadNotifications: () => Promise<void>
+  markNotificationRead: (id: string) => Promise<void>
+  markAllNotificationsRead: () => Promise<void>
 
   // UI notifications
   toast:      { message: string; type: 'success' | 'error' | '' } | null
@@ -156,8 +181,22 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { user } = get()
     const pub: Screen[] = ['login', 'cadastro', 'esqueci-senha']
     if (!user.isLogged && !pub.includes(screen)) { set({ screen: 'login' }); return }
+    if (get().dirtyMessage && screen !== get().screen) { set({ pendingScreen: screen }); return }
     set({ screen })
   },
+
+  logoutPrompt:  false,
+  askLogout:     () => set({ logoutPrompt: true }),
+  cancelLogout:  () => set({ logoutPrompt: false }),
+  dirtyMessage:  null,
+  setDirty:      message => set({ dirtyMessage: message }),
+  pendingScreen: null,
+  confirmDiscard() {
+    const target = get().pendingScreen
+    set({ dirtyMessage: null, pendingScreen: null })
+    if (target) get().navigate(target)
+  },
+  cancelDiscard: () => set({ pendingScreen: null }),
 
   // Authentication handlers
   user:             { isLogged: false, email: '', username: '', keepConnected: false },
@@ -237,12 +276,17 @@ export const useAppStore = create<AppState>((set, get) => ({
     tokenStorage.clear()
     storage.removeUser()
     set({
+      logoutPrompt: false,
+      dirtyMessage: null,
+      pendingScreen: null,
       user:       { isLogged: false, email: '', username: '', keepConnected: false },
       characters: [],
       history:    [],
       shortcuts:  [],
       tables:     [],
       tableDetail: null,
+      notifications: [],
+      unreadCount:   0,
       screen:     'login',
     })
   },
@@ -286,6 +330,27 @@ export const useAppStore = create<AppState>((set, get) => ({
       if (user.keepConnected) storage.setUser(updatedUser)
       set({ user: updatedUser })
     }
+  },
+
+  /** Troca o e-mail de login. Lança o erro da API (403 senha errada, 409 e-mail em uso). */
+  async changeEmail(newEmail, currentPassword) {
+    const { data } = await api.put<UserProfileApiResponse>('/users/me/email', { newEmail, currentPassword })
+    const user = { ...get().user, email: data.email }
+    if (user.keepConnected) storage.setUser(user)
+    set({ user })
+  },
+
+  /** Troca a senha. As outras sessões caem; o servidor devolve tokens novos para este aparelho. */
+  async changePassword(currentPassword, newPassword) {
+    const { data } = await api.put<{ accessToken: string; refreshToken: string }>(
+      '/users/me/password', { currentPassword, newPassword })
+    tokenStorage.set(data.accessToken, data.refreshToken)
+  },
+
+  /** Apaga a conta (fichas, mesas e imagens vão junto, por cascata no banco) e sai. */
+  async deleteAccount() {
+    await api.delete('/auth/me')
+    get().logout()
   },
 
   // Character management handlers
@@ -708,6 +773,85 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch (err: any) {
       get().showToast(err.response?.data?.detail ?? 'Não foi possível gerar um novo código.', 'error')
     }
+  },
+
+  async updateMyProfile(tableId, input) {
+    try {
+      let avatarUrl = get().tableDetail?.me?.avatarUrl ?? undefined
+      if (input.avatar) {
+        const uploaded = await uploadImage(input.avatar)
+        if (!uploaded) {
+          get().showToast('Não foi possível enviar o avatar. Tente de novo.', 'error')
+          return false
+        }
+        avatarUrl = uploaded
+      }
+      await api.patch(`/tables/${tableId}/members/me`, {
+        displayName: input.displayName.trim() || undefined,
+        avatarUrl,
+        muted: input.muted,
+      })
+      const { data } = await api.get<TableDetail>(`/tables/${tableId}`)
+      set({ tableDetail: data })
+      get().showToast('Perfil da mesa salvo.', 'success')
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível salvar o perfil da mesa.', 'error')
+      return false
+    }
+  },
+
+  async changeRole(tableId, userId, role) {
+    try {
+      await api.patch(`/tables/${tableId}/members/${userId}/role`, { role })
+      const { data } = await api.get<TableDetail>(`/tables/${tableId}`)
+      set({ tableDetail: data })
+      get().showToast(role === 'MODERATOR' ? 'Jogador promovido a moderador.' : 'Cargo alterado para jogador.', 'success')
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível alterar o cargo.', 'error')
+      return false
+    }
+  },
+
+  async transferHost(tableId, userId) {
+    try {
+      const { data } = await api.post<TableDetail>(`/tables/${tableId}/transfer-host`, { userId })
+      set(s => ({
+        tables: s.tables.map(t => (t.id === tableId ? data.table : t)),
+        tableDetail: data,
+      }))
+      get().showToast('Cargo de Mestre transferido.', 'success')
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível passar o cargo.', 'error')
+      return false
+    }
+  },
+
+  notifications: [],
+  unreadCount:   0,
+
+  async loadNotifications() {
+    try {
+      const { data } = await api.get<{ items: AppNotification[]; unread: number }>('/notifications')
+      set({ notifications: data.items, unreadCount: data.unread })
+    } catch { /* silencioso: o sino só atualiza na próxima tentativa */ }
+  },
+
+  async markNotificationRead(id) {
+    const target = get().notifications.find(n => n.id === id)
+    if (!target || target.read) return
+    set(s => ({
+      notifications: s.notifications.map(n => (n.id === id ? { ...n, read: true } : n)),
+      unreadCount:   Math.max(0, s.unreadCount - 1),
+    }))
+    try { await api.post(`/notifications/${id}/read`) } catch { get().loadNotifications() }
+  },
+
+  async markAllNotificationsRead() {
+    set(s => ({ notifications: s.notifications.map(n => ({ ...n, read: true })), unreadCount: 0 }))
+    try { await api.post('/notifications/read-all') } catch { get().loadNotifications() }
   },
 
   // Toast notification handlers

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAppStore, useSelectedCharacter } from '@/store/useAppStore'
+import { useUnsavedGuard } from '@/hooks/useUnsavedGuard'
 import { Modal } from '@/components/ui/Modal'
 import { AvatarUpload } from '@/components/ui/AvatarUpload'
 import {
@@ -93,6 +94,12 @@ export function CharacterFormScreen({ mode }: Props) {
   const [maxHp, setMaxHp] = useState('')
   const [ac,    setAc]    = useState('')
 
+  // foto instantânea do formulário: se ela mudar em relação à inicial, há alterações não salvas
+  const snapshot = JSON.stringify([system, name, level, cls, subclass, race, avatarUrl ?? '', attrs, maxHp, ac])
+  const [baseline, setBaseline] = useState<string | null>(isEdit ? null : snapshot)
+  const dirty = baseline !== null && snapshot !== baseline
+  useUnsavedGuard(dirty, `Você ${isEdit ? 'editou' : 'começou a criar'} ${name.trim() || 'a ficha'} e ainda não salvou.`)
+
   const [errors,     setErrors]     = useState<Record<string, string>>({})
   const [showDelete, setShowDelete] = useState(false)
   const [loading,    setLoading]    = useState(false)
@@ -118,6 +125,11 @@ export function CharacterFormScreen({ mode }: Props) {
         filled[k] = String(Math.max(ATTR_INPUT_MIN, existing.attributes[k] - (storedBonus[k] ?? 0)))
       })
       setAttrs(filled)
+      setBaseline(JSON.stringify([
+        existing.game_system ?? DEFAULT_SYSTEM, existing.name, String(existing.level), existing.class,
+        existing.subclass ?? '', existing.race, existing.avatar_url ?? '', filled,
+        String(existing.max_hp ?? existing.hp), String(existing.ac),
+      ]))
     }
   }, [isEdit, existing])
 
@@ -265,10 +277,12 @@ export function CharacterFormScreen({ mode }: Props) {
     try {
       if (isEdit && existing) {
         await updateCharacter(existing.id, charData)
+        useAppStore.getState().setDirty(null)
         showToast('Personagem atualizado!', 'success')
         navigate('ficha')
       } else {
         await addCharacter(charData)
+        useAppStore.getState().setDirty(null)
         showToast('Personagem salvo com sucesso!', 'success')  // MSG005 — UC-02 §3.1
         navigate('personagens')
       }
@@ -286,6 +300,7 @@ export function CharacterFormScreen({ mode }: Props) {
     setLoading(true)
     try {
       await deleteCharacter(existing.id)
+      useAppStore.getState().setDirty(null)
       showToast('Personagem excluído.', 'success')
       navigate('personagens')
     } catch {

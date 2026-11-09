@@ -5,6 +5,7 @@ import com.rollcore.dto.request.RsvpRequest;
 import com.rollcore.dto.response.EventResponse;
 import com.rollcore.entity.GameTableMember;
 import com.rollcore.entity.GameTableMember.Role;
+import com.rollcore.entity.Notification;
 import com.rollcore.entity.TableEvent;
 import com.rollcore.entity.TableEventRsvp;
 import com.rollcore.entity.TableEventRsvp.Status;
@@ -32,6 +33,7 @@ public class TableEventService {
     private final TableEventRepository     events;
     private final TableEventRsvpRepository rsvps;
     private final GameTableMemberRepository members;
+    private final NotificationService       notifications;
 
     @Transactional
     public EventResponse create(UUID tableId, UUID userId, CreateEventRequest req) {
@@ -55,6 +57,14 @@ public class TableEventService {
 
         // the creator is going by definition
         rsvps.save(TableEventRsvp.builder().event(event).user(me.getUser()).status(Status.YES).build());
+
+        String actor = me.getDisplayName() != null && !me.getDisplayName().isBlank()
+                ? me.getDisplayName() : me.getUser().getUsername();
+        for (GameTableMember m : members.findByGameTableIdOrderByJoinedAtAsc(tableId)) {
+            if (!m.getUser().getId().equals(userId)) {
+                notifications.sendToMember(m, Notification.Type.EVENT_CREATED, actor, event.getTitle(), event.getId());
+            }
+        }
         return render(List.of(event)).get(0);
     }
 

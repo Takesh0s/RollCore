@@ -5,6 +5,8 @@ import { IconPlus } from '@/components/ui/icons'
 import { ImageCropModal, COVER_ASPECT, COVER_PREVIEWS } from '@/components/ui/ImageCropModal'
 import { imageSrc, readImageFile } from '@/lib/image'
 import { storage } from '@/lib/storage'
+import { TableLimitModal } from './TableModals'
+import { useUnsavedGuard } from '@/hooks/useUnsavedGuard'
 
 const SYSTEMS = ['D&D 5e', 'Tormenta20', 'Call of Cthulhu', 'Pathfinder 2e', 'Outro']
 const MAX_COVER_BYTES = 2 * 1024 * 1024
@@ -29,8 +31,15 @@ export function TableFormScreen({ edit = false }: { edit?: boolean }) {
   const shownCover = cover ?? (removeCover || !current ? undefined
     : imageSrc(current.coverUrl) ?? storage.getTableCovers()[current.id])
   const [loading,     setLoading]     = useState(false)
+  const [limit,       setLimit]       = useState('')
   const [pendingCover, setPendingCover] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const dirty = current
+    ? name !== current.name || system !== current.gameSystem || description !== (current.description ?? '')
+        || maxPlayers !== current.maxPlayers || !!cover || removeCover
+    : !!(name.trim() || description.trim() || cover)
+  useUnsavedGuard(dirty, `Você ${current ? 'editou' : 'começou a criar'} ${name.trim() ? name.trim() : 'a mesa'} e ainda não salvou.`)
 
   // sem a mesa carregada (ex.: página recarregada) não há o que editar
   useEffect(() => { if (edit && !current) navigate('mesas') }, [edit, current, navigate])
@@ -55,14 +64,16 @@ export function TableFormScreen({ edit = false }: { edit?: boolean }) {
     try {
       if (current) {
         const ok = await updateTable(current.id, { name: trimmed, gameSystem: system, description, maxPlayers, cover, removeCover })
-        if (ok) { showToast('Mesa atualizada!', 'success'); navigate('mesa') }
+        if (ok) { useAppStore.getState().setDirty(null); showToast('Mesa atualizada!', 'success'); navigate('mesa') }
         return
       }
       const created = await createTable({ name: trimmed, gameSystem: system, description, maxPlayers, cover })
+      useAppStore.getState().setDirty(null)
       showToast('Mesa criada!', 'success')
       await openTable(created.table.id)
-    } catch {
-      /* a mensagem já foi mostrada pelo store (ex.: limite do plano) */
+    } catch (err: any) {
+      // a mensagem já foi mostrada pelo store; no limite do plano abrimos também a janela explicativa
+      if (err?.response?.status === 409) setLimit(err.response?.data?.detail ?? 'Você atingiu o limite de mesas do seu plano.')
     } finally {
       setLoading(false)
     }
@@ -147,6 +158,7 @@ export function TableFormScreen({ edit = false }: { edit?: boolean }) {
           Adicionar mapa
         </button>
       </div>
+      {limit && <TableLimitModal message={limit} onClose={() => setLimit('')} />}
     </div>
   )
 }

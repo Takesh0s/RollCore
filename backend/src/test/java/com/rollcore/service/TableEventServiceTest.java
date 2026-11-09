@@ -6,6 +6,7 @@ import com.rollcore.dto.response.EventResponse;
 import com.rollcore.entity.GameTable;
 import com.rollcore.entity.GameTableMember;
 import com.rollcore.entity.GameTableMember.Role;
+import com.rollcore.entity.Notification;
 import com.rollcore.entity.TableEvent;
 import com.rollcore.entity.TableEventRsvp;
 import com.rollcore.entity.TableEventRsvp.Status;
@@ -43,6 +44,7 @@ class TableEventServiceTest {
     @Mock TableEventRepository     events;
     @Mock TableEventRsvpRepository rsvps;
     @Mock GameTableMemberRepository members;
+    @Mock NotificationService       notifications;
 
     private TableEventService service;
 
@@ -58,7 +60,7 @@ class TableEventServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new TableEventService(events, rsvps, members);
+        service = new TableEventService(events, rsvps, members, notifications);
         master = User.builder().id(masterId).username("gm").email("gm@x.com").passwordHash("h").build();
         player = User.builder().id(playerId).username("ply").email("ply@x.com").passwordHash("h").build();
         table = GameTable.builder().id(tableId).owner(master).name("Em busca dos esquecidos")
@@ -95,10 +97,15 @@ class TableEventServiceTest {
                 return e;
             });
             when(members.findByGameTableIdIn(any())).thenReturn(List.of(masterM, playerM));
+            when(members.findByGameTableIdOrderByJoinedAtAsc(tableId)).thenReturn(List.of(masterM, playerM));
             when(rsvps.findByEventIdIn(any())).thenAnswer(inv -> List.of(
                     TableEventRsvp.builder().event(event).user(master).status(Status.YES).build()));
 
             EventResponse r = service.create(tableId, masterId, request());
+
+            // everyone but the creator is told about the new event
+            verify(notifications).sendToMember(playerM, Notification.Type.EVENT_CREATED, "gm", "Sessão 13", eventId);
+            verify(notifications, never()).sendToMember(eq(masterM), any(), any(), any(), any());
 
             ArgumentCaptor<TableEvent> saved = ArgumentCaptor.forClass(TableEvent.class);
             verify(events).save(saved.capture());

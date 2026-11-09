@@ -22,6 +22,7 @@ Projeto de Trabalho de Conclusão de Curso (Engenharia de Software, UCB).
 - [API](#api)
 - [Testes](#testes)
 - [Deploy](#deploy)
+- [Fluxo de trabalho](#fluxo-de-trabalho)
 - [Roadmap](#roadmap)
 - [Documentação](#documentação)
 - [Equipe](#equipe)
@@ -273,6 +274,10 @@ Pontos de atenção em produção:
 - Gerar um `JWT_SECRET` aleatório e exclusivo do ambiente.
 - No plano gratuito do Render a instância hiberna após inatividade; a primeira requisição pode levar alguns segundos. O app mobile exibe um aviso nesse caso, e um monitor externo em `/actuator/health` reduz o problema.
 
+## Fluxo de trabalho
+
+O repositório segue o Git Flow: `main` guarda apenas versões publicadas (com tag `vX.Y.Z`), `develop` integra o trabalho e é a base de todo `feat/*` e `fix/*`. Versões novas passam por `release/*` e correções urgentes por `hotfix/*`. As duas branches principais são protegidas e exigem Pull Request com CI verde. O passo a passo está em [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Roadmap
 
 - Sessão ao vivo nos clientes web e mobile (a API de WebSocket já existe), mapa e cenas
@@ -298,6 +303,18 @@ Pontos de atenção em produção:
 | Luiz Phillipe de Souza Santos | Arquitetura, backend, aplicativo mobile e infraestrutura |
 | Lucas Gabriel Pereira Guerra | Product Owner: visão do produto, requisitos e design no Figma |
 | Luis Felipe Nunes da Fonseca Figueiredo | Cliente web (versão inicial) |
+
+<details>
+<summary>Contribuições da versão inicial (alfa)</summary>
+
+<br>
+
+Estas pessoas participaram da fase inicial do projeto, e o trabalho delas está no histórico do repositório:
+
+- **João Pedro Nunes Neto** (`WiseJao` / `WiseGhostan` no GitHub): coleção de testes Postman, testes Playwright (E2E), atualização do plano de testes e os primeiros endpoints de remoção de usuários, depois desativados.
+- **Leonardo dos Santos Silva**: consta na lista de contribuidores da versão inicial.
+
+</details>
 
 ## Licença
 

@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
+import { useEffect } from 'react'
 import { Toast }                from '@/components/ui/Toast'
+import { Modal }                from '@/components/ui/Modal'
+import { NetworkModals }        from '@/components/ui/NetworkModals'
 import { Crenellation }         from '@/components/ui/Crenellation'
 import { LoginScreen }          from '@/components/auth/LoginScreen'
 import { RegisterScreen }       from '@/components/auth/RegisterScreen'
@@ -18,6 +20,9 @@ import { MapLibraryScreen }     from '@/components/maps/MapLibraryScreen'
 import { CalendarScreen }        from '@/components/calendar/CalendarScreen'
 import { EventFormScreen }       from '@/components/calendar/EventFormScreen'
 import { ThemeScreen }          from '@/components/ui/ThemeScreen'
+import { NotificationsScreen }  from '@/components/notifications/NotificationsScreen'
+import { EventPageScreen }      from '@/components/calendar/EventPageScreen'
+import { NewEventPopup }        from '@/components/calendar/NewEventPopup'
 import type { Screen } from '@/types'
 
 /**
@@ -44,52 +49,52 @@ function ScreenContent({ screen }: { screen: Screen }) {
     case 'calendario':        return <CalendarScreen />
     case 'novo-evento':       return <EventFormScreen />
     case 'tema':              return <ThemeScreen />
+    case 'notificacoes':      return <NotificationsScreen />
+    case 'evento':            return <EventPageScreen />
     default:                  return null
   }
 }
 
 /**
- * Root component — wraps every screen transition in a CSS fade so
- * navigating between screens feels fluid rather than a hard cut.
- *
- * Technique: keep the PREVIOUS screen visible while fading it out,
- * then swap in the new screen fading in. Total animation: 200ms each.
- * No routing library needed — the screen key from Zustand drives everything.
+ * Root component. A tela nova entra direto (a animação de entrada fica no CSS de `.device`),
+ * sem etapa de fade-out: antes a tela antiga sumia por ~150 ms e só restavam o fundo e as ameias.
  */
 export default function App() {
   const screen = useAppStore(s => s.screen)
+  const logged = useAppStore(s => s.user.isLogged)
+  const loadNotifications = useAppStore(s => s.loadNotifications)
 
-  // Which screen is currently rendered in the DOM
-  const [displayed, setDisplayed] = useState<Screen>(screen)
-  // Controls the opacity class
-  const [fading, setFading]       = useState(false)
-  const pendingRef = useRef<Screen>(screen)
-
+  // Mantém o sino atualizado: ao entrar, a cada minuto e quando a aba volta ao foco.
   useEffect(() => {
-    if (screen === displayed) return
-
-    pendingRef.current = screen
-
-    // 1. Fade out the current screen
-    setFading(true)
-
-    const timer = setTimeout(() => {
-      // 2. Swap content while invisible
-      setDisplayed(pendingRef.current)
-      // 3. Fade back in (removing the class triggers the in-transition)
-      setFading(false)
-    }, 150)
-
-    return () => clearTimeout(timer)
-  }, [screen, displayed])
+    if (!logged) return
+    loadNotifications()
+    const id = setInterval(loadNotifications, 60_000)
+    const onVisible = () => { if (document.visibilityState === 'visible') loadNotifications() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', onVisible) }
+  }, [logged, loadNotifications])
+  const { logoutPrompt, cancelLogout, logout, dirtyMessage, pendingScreen, confirmDiscard, cancelDiscard } = useAppStore()
 
   return (
     <div className="app-shell">
-      <div className={`screen-wrap${fading ? ' screen-out' : ''}`}>
-        <ScreenContent screen={displayed} />
+      <div className="screen-wrap">
+        <ScreenContent screen={screen} />
       </div>
       <Crenellation />
+      <NewEventPopup />
       <Toast />
+      <NetworkModals />
+      <Modal
+        open={logoutPrompt} danger title="Sair da conta?"
+        message="Você precisará entrar de novo para acessar suas mesas e fichas neste dispositivo."
+        confirmLabel="Sair da conta" onConfirm={logout} onCancel={cancelLogout}
+      />
+      <Modal
+        open={!!pendingScreen} danger title="Descartar alterações?"
+        message={`${dirtyMessage ?? 'Você ainda não salvou.'} Se sair agora, as mudanças serão perdidas.`}
+        cancelLabel="Continuar editando" confirmLabel="Descartar"
+        onConfirm={confirmDiscard} onCancel={cancelDiscard}
+      />
     </div>
   )
 }

@@ -1,8 +1,13 @@
 package com.rollcore.controller;
 
 import com.rollcore.config.SecurityConfig;
+import com.rollcore.dto.request.ChangeEmailRequest;
+import com.rollcore.dto.request.ChangePasswordRequest;
 import com.rollcore.dto.request.UpdateProfileRequest;
+import com.rollcore.dto.response.AuthResponse;
 import com.rollcore.dto.response.UserProfileResponse;
+import com.rollcore.exception.ConflictException;
+import com.rollcore.exception.ForbiddenException;
 import com.rollcore.exception.GlobalExceptionHandler;
 import com.rollcore.filter.JwtAuthFilter;
 import com.rollcore.filter.RateLimitFilter;
@@ -121,6 +126,95 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"avatarUrl\":\"javascript:alert(1)\"}"))
                 .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(accountService);
+    }
+
+    // ── E-mail and password ──────────────────────────────────────────────────
+
+    @Test @DisplayName("PUT /users/me/email → 200 with the updated profile")
+    void emailOk() throws Exception {
+        when(accountService.changeEmail(org.mockito.ArgumentMatchers.eq(USER_ID), any(ChangeEmailRequest.class)))
+                .thenReturn(new UserProfileResponse(USER_ID, "luiz", "novo@x.com", "FREE", 0, 1));
+
+        mvc.perform(put("/users/me/email").with(authentication(uuidAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"newEmail\":\"novo@x.com\",\"currentPassword\":\"Senha123\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("novo@x.com"));
+    }
+
+    @Test @DisplayName("PUT /users/me/email → 400 for a malformed address, service untouched")
+    void emailInvalid() throws Exception {
+        mvc.perform(put("/users/me/email").with(authentication(uuidAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"newEmail\":\"nao-e-email\",\"currentPassword\":\"Senha123\"}"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(accountService);
+    }
+
+    @Test @DisplayName("PUT /users/me/email → 403 when the current password is wrong")
+    void emailWrongPassword() throws Exception {
+        when(accountService.changeEmail(org.mockito.ArgumentMatchers.eq(USER_ID), any(ChangeEmailRequest.class)))
+                .thenThrow(new ForbiddenException("Current password is incorrect."));
+
+        mvc.perform(put("/users/me/email").with(authentication(uuidAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"newEmail\":\"novo@x.com\",\"currentPassword\":\"errada\"}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test @DisplayName("PUT /users/me/email → 409 when the address is taken")
+    void emailTaken() throws Exception {
+        when(accountService.changeEmail(org.mockito.ArgumentMatchers.eq(USER_ID), any(ChangeEmailRequest.class)))
+                .thenThrow(new ConflictException("Email is already registered."));
+
+        mvc.perform(put("/users/me/email").with(authentication(uuidAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"newEmail\":\"outro@x.com\",\"currentPassword\":\"Senha123\"}"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test @DisplayName("PUT /users/me/password → 200 with a fresh token pair")
+    void passwordOk() throws Exception {
+        when(accountService.changePassword(org.mockito.ArgumentMatchers.eq(USER_ID), any(ChangePasswordRequest.class)))
+                .thenReturn(new AuthResponse("access", "refresh", USER_ID, "l@x.com", "luiz"));
+
+        mvc.perform(put("/users/me/password").with(authentication(uuidAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"Antiga123\",\"newPassword\":\"Nova12345\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("access"))
+                .andExpect(jsonPath("$.refreshToken").value("refresh"));
+    }
+
+    @Test @DisplayName("PUT /users/me/password → 400 for a weak new password")
+    void passwordWeak() throws Exception {
+        mvc.perform(put("/users/me/password").with(authentication(uuidAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"Antiga123\",\"newPassword\":\"fraca\"}"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(accountService);
+    }
+
+    @Test @DisplayName("PUT /users/me/password → 400 when the new password equals the current one")
+    void passwordSame() throws Exception {
+        mvc.perform(put("/users/me/password").with(authentication(uuidAuth()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"Mesma12345\",\"newPassword\":\"Mesma12345\"}"))
+                .andExpect(status().isBadRequest());
+
+        verifyNoInteractions(accountService);
+    }
+
+    @Test @DisplayName("PUT /users/me/password → 4xx without authentication")
+    void passwordRequiresAuth() throws Exception {
+        mvc.perform(put("/users/me/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"currentPassword\":\"Antiga123\",\"newPassword\":\"Nova12345\"}"))
+                .andExpect(status().is4xxClientError());
 
         verifyNoInteractions(accountService);
     }

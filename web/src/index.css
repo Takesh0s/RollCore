@@ -1285,25 +1285,16 @@ select.form-input option { background: var(--card-raised); }
 ════════════════════════════════════════════════════════════════ */
 
 /* ── Screen transition wrapper ──────────────────────────────── */
-.screen-wrap {
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  will-change: opacity, transform;
-}
-
-.screen-out {
-  opacity: 0;
-  transform: translateY(6px);
-  pointer-events: none;
-}
+/* sem transição própria: a entrada animada fica em .device (screenEnter) */
 
 /* ── Screen entry animation (every screen fades + rises in) ─── */
 @keyframes screenEnter {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 .device {
-  animation: screenEnter 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: screenEnter 0.16s ease-out both;
 }
 
 /* Login device has its own entry */
@@ -2125,3 +2116,10 @@ html[data-theme="terror"] body::before {
   opacity: .9;
 }
 html[data-theme="terror"] .device { box-shadow: 0 0 0 1px var(--card-border), var(--shadow-deep); }
+
+/* Loader discreto: só aparece depois de 250 ms, para carregamentos rápidos não piscarem */
+.rc-loader { display: grid; place-items: center; padding: 48px 0; opacity: 0; animation: rcLoaderIn 0.2s ease 0.25s forwards; }
+.rc-loader svg { width: 44px; height: 44px; color: var(--text-muted); animation: rcLoaderPulse 1.4s ease-in-out infinite; }
+@keyframes rcLoaderIn { to { opacity: 1; } }
+@keyframes rcLoaderPulse { 0%, 100% { transform: scale(0.92) rotate(0deg); opacity: 0.55; } 50% { transform: scale(1.04) rotate(6deg); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .rc-loader svg { animation: none; } }
