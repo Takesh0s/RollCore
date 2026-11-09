@@ -119,7 +119,9 @@ export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
           <h1 className="app-header-title">{title}</h1>
           <label className="desk-search">
             <IconSearch />
-            <input type="search" placeholder="Buscar mesas, fichas, sistemas…" aria-label="Buscar" />
+            <input type="search" placeholder="Buscar mesas, fichas, sistemas…" aria-label="Buscar" readOnly
+                   onClick={() => window.dispatchEvent(new Event('rollcore:quick-search'))}
+                   onFocus={() => window.dispatchEvent(new Event('rollcore:quick-search'))} />
           </label>
           <button className="app-header-btn has-badge" onClick={() => navigate('notificacoes')}
                   aria-label={unreadCount > 0 ? `Notificações (${unreadCount} não lidas)` : 'Notificações'}>

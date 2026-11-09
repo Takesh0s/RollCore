@@ -86,7 +86,7 @@ export type Screen =
   | 'novo-personagem' | 'editar-personagem' | 'ficha'
   | 'dados' | 'perfil' | 'tema'
   | 'mesas' | 'nova-mesa' | 'editar-mesa' | 'mesa' | 'mapas'
-  | 'calendario' | 'novo-evento' | 'evento' | 'notificacoes'
+  | 'calendario' | 'novo-evento' | 'evento' | 'notificacoes' | 'nao-encontrado'
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 

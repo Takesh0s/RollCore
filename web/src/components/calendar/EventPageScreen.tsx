@@ -3,6 +3,8 @@ import { useAppStore } from '@/store/useAppStore'
 import { useCalendar } from '@/store/useCalendar'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { IconUser } from '@/components/ui/icons'
+import { Loader } from '@/components/ui/Loader'
+import { StateView } from '@/components/ui/StateView'
 import { RsvpBadge } from './EventModal'
 import { confirmedCount, dayLabel, myStatus, rangeLabel, type Rsvp } from '@/lib/calendar'
 
@@ -25,14 +27,10 @@ export function EventPageScreen() {
       <div className="device">
         <AppHeader title="Evento" onBack={() => navigate('calendario')} />
         <div className="page-body">
-          <p className="empty-state" style={{ textAlign: 'center' }}>
-            {loading ? 'Carregando evento…' : 'Este evento não existe mais.'}
-          </p>
-          {!loading && (
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <button type="button" className="btn btn-outline btn-pill" onClick={() => navigate('calendario')}>Voltar ao calendário</button>
-            </div>
-          )}
+          {loading
+            ? <Loader label="Carregando evento" />
+            : <StateView kind="notfound" title="Evento não encontrado" text="Ele pode ter sido cancelado."
+                         actions={[{ label: 'Voltar ao calendário', primary: true, onClick: () => navigate('calendario') }]} />}
         </div>
       </div>
     )

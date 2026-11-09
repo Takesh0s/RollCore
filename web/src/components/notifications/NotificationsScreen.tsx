@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { IconBell } from '@/components/ui/icons'
+import { StateView } from '@/components/ui/StateView'
 import { useCalendar } from '@/store/useCalendar'
 import type { AppNotification } from '@/types'
 
@@ -93,11 +94,10 @@ export function NotificationsScreen() {
         <div className="notif-layout">
           <div className="notif-list">
             {groups.length === 0 && (
-              <div className="notif-empty">
-                <IconBell />
-                <strong>Nada por aqui</strong>
-                <span>Quando algo acontecer nas suas mesas, você vê aqui.</span>
-              </div>
+              filter === 'all'
+                ? <StateView kind="empty" title="Nada por aqui" text="Quando algo acontecer nas suas mesas, você vê aqui." />
+                : <StateView kind="noresults" title="Nada encontrado" text="Não há notificações dessa categoria."
+                             actions={[{ label: 'Limpar filtros', primary: true, onClick: () => setFilter('all') }]} />
             )}
             {groups.map(g => (
               <section key={g.label} aria-label={g.label}>

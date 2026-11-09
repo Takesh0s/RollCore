@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { StateView } from '@/components/ui/StateView'
 import { useAppStore } from '@/store/useAppStore'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { IconPlus, IconSearch } from '@/components/ui/icons'
@@ -39,16 +40,16 @@ export function TableListScreen() {
         </div>
 
         {tables.length === 0 ? (
-          <div className="empty-state" style={{ textAlign: 'center' }}>
-            <p>Você ainda não participa de nenhuma mesa.</p>
-            <button className="btn btn-primary" onClick={() => navigate('nova-mesa')}>
-              Criar mesa
-            </button>
-          </div>
+          <StateView kind="empty" title="Nenhuma mesa ainda"
+                     text="Crie uma mesa ou entre em uma para começar a jogar."
+                     actions={[
+                       { label: 'Criar mesa', primary: true, onClick: () => navigate('nova-mesa') },
+                       { label: 'Entrar por código', onClick: () => setJoining(true) },
+                     ]} />
         ) : shown.length === 0 ? (
-          <div className="empty-state" style={{ textAlign: 'center' }}>
-            <p>Nenhuma mesa com esse nome.</p>
-          </div>
+          <StateView kind="noresults" title="Nada encontrado"
+                     text="Tente outros termos ou ajuste a busca."
+                     actions={[{ label: 'Limpar busca', primary: true, onClick: () => setQuery('') }]} />
         ) : (
           <div className="table-grid">
             {shown.map(t => <TableBanner key={t.id} table={t} onEnter={() => openTable(t.id)} />)}
