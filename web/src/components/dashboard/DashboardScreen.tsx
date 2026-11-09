@@ -4,7 +4,7 @@ import { AppHeader } from '@/components/ui/AppHeader'
 import { useDesktop } from '@/hooks/useDesktop'
 import { calcMod, formatMod, profBonus } from '@/lib/engine'
 import { formatTimestamp } from '@/lib/dice'
-import { TableCover } from '@/components/tables/TableCover'
+import { TableCover, hasCover } from '@/components/tables/TableCover'
 
 /**
  * Tela inicial, no layout do Figma: faixa de Mesas e os atalhos grandes
@@ -49,7 +49,7 @@ function DesktopDashboard() {
           <section>
             <SectionTitle>Próxima sessão</SectionTitle>
             {next ? (
-              <div className="dash-panel dash-next">
+              <div className={`dash-panel dash-next${hasCover(next) ? ' with-cover' : ''}`}>
                 <TableCover table={next} className="dash-next-cover" />
                 <div className="dash-next-info">
                   <strong>{next.name}</strong>
@@ -171,7 +171,7 @@ function MobileDashboard() {
 
         <SectionTitle>Próxima sessão</SectionTitle>
         {next ? (
-          <div className="md-card md-next">
+          <div className={`md-card md-next${hasCover(next) ? ' with-cover' : ''}`}>
             <TableCover table={next} className="md-next-cover" />
             <div className="md-next-info">
               <strong>{next.name}</strong>
