@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { api, tokenStorage } from '@/lib/api'
 import { storage } from '@/lib/storage'
-import { shrink } from '@/lib/image'
+import { shrink, uploadImage } from '@/lib/image'
 import { getMaxSpellSlots, getWarlockSlots } from '@/lib/engine'
 import type {
   User, Character, HistoryEntry, Screen, RollResult,
@@ -542,13 +542,20 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   async createTable(input) {
     try {
+      // the cover goes to the server so every device and player sees it; if the upload fails
+      // the table is still created and the cover stays on this device only
+      const coverUrl = input.cover ? await uploadImage(input.cover) : null
       const { data } = await api.post<TableDetail>('/tables', {
         name:        input.name.trim(),
+        coverUrl:    coverUrl ?? undefined,
         gameSystem:  input.gameSystem?.trim() || undefined,
         description: input.description?.trim() || undefined,
         maxPlayers:  input.maxPlayers,
       })
-      if (input.cover) storage.setTableCover(data.table.id, input.cover)
+      if (input.cover && !coverUrl) {
+        storage.setTableCover(data.table.id, input.cover)
+        get().showToast('A capa não foi enviada ao servidor e ficou só neste aparelho.', 'error')
+      }
       set(s => ({ tables: [data.table, ...s.tables.filter(t => t.id !== data.table.id)] }))
       return data
     } catch (err: any) {

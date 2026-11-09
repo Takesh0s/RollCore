@@ -1,4 +1,5 @@
 import type { TableSummary } from '@/types'
+import { imageSrc } from '@/lib/image'
 import { storage } from '@/lib/storage'
 
 /**
@@ -6,7 +7,7 @@ import { storage } from '@/lib/storage'
  * A capa vem da API (URL) ou da foto guardada neste aparelho; sem nenhuma, usa um degradê.
  */
 export function TableBanner({ table, onEnter }: { table: TableSummary; onEnter: () => void }) {
-  const cover = table.coverUrl ?? storage.getTableCovers()[table.id] ?? null
+  const cover = imageSrc(table.coverUrl) ?? storage.getTableCovers()[table.id] ?? null
 
   return (
     <div

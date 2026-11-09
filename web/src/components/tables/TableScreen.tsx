@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
 import { AppHeader } from '@/components/ui/AppHeader'
+import { imageSrc } from '@/lib/image'
 import { storage } from '@/lib/storage'
 import type { TableMember, TableRole } from '@/types'
 import { DeleteTableModal, LeaveTableModal, RemoveMemberModal } from './TableModals'
@@ -26,7 +27,7 @@ export function TableScreen() {
   }
 
   const { table, inviteCode, members } = tableDetail
-  const cover = table.coverUrl ?? storage.getTableCovers()[table.id] ?? null
+  const cover = imageSrc(table.coverUrl) ?? storage.getTableCovers()[table.id] ?? null
 
   async function copyInvite() {
     if (!inviteCode) return

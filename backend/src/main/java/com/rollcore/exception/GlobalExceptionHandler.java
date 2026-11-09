@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.net.URI;
 import java.util.Map;
@@ -50,6 +51,25 @@ public class GlobalExceptionHandler {
         pd.setType(URI.create("urn:rollcore:malformed-request"));
         pd.setTitle("Malformed Request");
         pd.setDetail("The request body could not be read.");
+        return pd;
+    }
+
+    @ExceptionHandler(InvalidImageException.class)
+    public ProblemDetail handleInvalidImage(InvalidImageException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setType(URI.create("urn:rollcore:invalid-image"));
+        pd.setTitle("Invalid Image");
+        pd.setDetail(ex.getMessage());
+        return pd;
+    }
+
+    /** The file exceeds spring.servlet.multipart.max-file-size. */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ProblemDetail handleTooLarge(MaxUploadSizeExceededException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.PAYLOAD_TOO_LARGE);
+        pd.setType(URI.create("urn:rollcore:payload-too-large"));
+        pd.setTitle("Payload Too Large");
+        pd.setDetail("The image is larger than 2 MB.");
         return pd;
     }
 

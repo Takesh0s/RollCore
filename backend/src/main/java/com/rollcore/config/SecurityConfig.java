@@ -82,6 +82,8 @@ public class SecurityConfig {
                 // GET /spells and GET /spells/{id} are unauthenticated.
                 // POST/DELETE /characters/{id}/spells/** remain protected.
                 .requestMatchers(HttpMethod.GET, "/spells", "/spells/**").permitAll()
+                // ── Pictures — public read (img tags cannot send the token; ids are random UUIDs)
+                .requestMatchers(HttpMethod.GET, "/images/*").permitAll()
                 // ── OpenAPI / Swagger — RNF-06 ────────────────────────────
                 .requestMatchers(
                         "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
