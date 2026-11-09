@@ -13,6 +13,12 @@ spring:
       connection-timeout: 30000
       pool-name: RollCoreHikari
 
+  # ── Uploads (pictures; the service also checks the size and the file signature) ─
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      max-request-size: 3MB
+
   # ── JPA / Hibernate ─────────────────────────────────────────────────────
   jpa:
     open-in-view: false

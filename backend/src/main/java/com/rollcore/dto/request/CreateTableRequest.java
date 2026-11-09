@@ -27,6 +27,7 @@ public record CreateTableRequest(
     Integer maxPlayers,
 
     @Size(max = 500, message = "URL da capa deve ter no máximo 500 caracteres.")
-    @Pattern(regexp = "^https?://\\S+$", message = "A capa deve ser uma URL http(s).")
+    @Pattern(regexp = "^(https?://\\S+|/images/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+             message = "A capa deve ser uma URL http(s) ou uma imagem enviada.")
     String coverUrl
 ) {}
