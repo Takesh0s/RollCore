@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
-import { storage } from '@/lib/storage'
 import { AvatarUpload } from '@/components/ui/AvatarUpload'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { useUnsavedGuard } from '@/hooks/useUnsavedGuard'
+import { ChangeEmailModal, ChangePasswordModal, DeleteAccountModal } from '@/components/auth/AccountModals'
 
 function isValidUsername(u: string): boolean {
   return /^[a-zA-Z0-9_]{3,20}$/.test(u)
@@ -22,6 +22,7 @@ export function ProfileScreen() {
   const [avatarUrl,   setAvatarUrl]   = useState<string | undefined>(user.avatar_url)
   const [saved,       setSaved]       = useState(false)
   const [loading,     setLoading]     = useState(false)
+  const [dialog,      setDialog]      = useState<'email' | 'password' | 'delete' | null>(null)
 
   useUnsavedGuard(username.trim() !== user.username || avatarUrl !== user.avatar_url, 'Você editou o perfil e ainda não salvou.')
 
@@ -31,13 +32,6 @@ export function ProfileScreen() {
     if (!isValidUsername(trimmed)) {
       setUsernameErr('3–20 caracteres. Apenas letras, números e _')
       return
-    }
-
-    if (trimmed.toLowerCase() !== user.username.toLowerCase()) {
-      if (storage.getUsernames().has(trimmed.toLowerCase())) {
-        setUsernameErr('Nome de usuário já está em uso.')
-        return
-      }
     }
 
     setUsernameErr('')
@@ -93,7 +87,7 @@ export function ProfileScreen() {
         <div className="form-group">
           <label className="form-label">E-mail</label>
           <input className="form-input" type="email" value={user.email} readOnly />
-          <small className="field-hint">A alteração de e-mail estará disponível na Fase 2.</small>
+          <small className="field-hint">Para trocar o e-mail ou a senha, use a seção Conta abaixo.</small>
         </div>
 
         <button
@@ -104,12 +98,29 @@ export function ProfileScreen() {
           {loading ? '…' : saved ? '✓ Salvo' : 'Salvar'}
         </button>
 
+        <h2 className="section-title">Conta</h2>
+        <div className="acct-list">
+          <button type="button" className="acct-row" onClick={() => setDialog('email')}>
+            <span><strong>Alterar e-mail</strong><small>Exige a sua senha atual</small></span><i aria-hidden="true">›</i>
+          </button>
+          <button type="button" className="acct-row" onClick={() => setDialog('password')}>
+            <span><strong>Alterar senha</strong><small>Desconecta os outros aparelhos</small></span><i aria-hidden="true">›</i>
+          </button>
+          <button type="button" className="acct-row acct-danger" onClick={() => setDialog('delete')}>
+            <span><strong>Excluir conta</strong><small>Apaga fichas, mesas e imagens para sempre</small></span><i aria-hidden="true">›</i>
+          </button>
+        </div>
+
         <div className="profile-logout-wrap">
           <button className="btn btn-primary" style={{ margin: 0 }} onClick={askLogout}>
             Sair da conta
           </button>
         </div>
       </div>
+
+      {dialog === 'email'    && <ChangeEmailModal    onClose={() => setDialog(null)} />}
+      {dialog === 'password' && <ChangePasswordModal onClose={() => setDialog(null)} />}
+      {dialog === 'delete'   && <DeleteAccountModal  onClose={() => setDialog(null)} />}
     </div>
   )
 }

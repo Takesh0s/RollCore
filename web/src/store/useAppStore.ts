@@ -82,6 +82,9 @@ interface AppState {
   logout:           () => void
   loadProfile:      () => Promise<void>
   updateProfile:    (updates: Partial<Pick<User, 'username' | 'avatar_url'>>) => Promise<void>
+  changeEmail:      (newEmail: string, currentPassword: string) => Promise<void>
+  changePassword:   (currentPassword: string, newPassword: string) => Promise<void>
+  deleteAccount:    () => Promise<void>
 
   // Character management
   characters:          Character[]
@@ -315,6 +318,27 @@ export const useAppStore = create<AppState>((set, get) => ({
       if (user.keepConnected) storage.setUser(updatedUser)
       set({ user: updatedUser })
     }
+  },
+
+  /** Troca o e-mail de login. Lança o erro da API (403 senha errada, 409 e-mail em uso). */
+  async changeEmail(newEmail, currentPassword) {
+    const { data } = await api.put<UserProfileApiResponse>('/users/me/email', { newEmail, currentPassword })
+    const user = { ...get().user, email: data.email }
+    if (user.keepConnected) storage.setUser(user)
+    set({ user })
+  },
+
+  /** Troca a senha. As outras sessões caem; o servidor devolve tokens novos para este aparelho. */
+  async changePassword(currentPassword, newPassword) {
+    const { data } = await api.put<{ accessToken: string; refreshToken: string }>(
+      '/users/me/password', { currentPassword, newPassword })
+    tokenStorage.set(data.accessToken, data.refreshToken)
+  },
+
+  /** Apaga a conta (fichas, mesas e imagens vão junto, por cascata no banco) e sai. */
+  async deleteAccount() {
+    await api.delete('/auth/me')
+    get().logout()
   },
 
   // Character management handlers

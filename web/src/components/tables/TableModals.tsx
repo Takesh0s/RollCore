@@ -4,7 +4,7 @@ import { useAppStore } from '@/store/useAppStore'
 import type { TableMember, TablePreview, TableSummary } from '@/types'
 
 /** Casca comum das janelas de mesa (Figma 25.x): título com ×, texto e botões. */
-function Shell({ title, onClose, children, label }: { title: string; onClose: () => void; children: ReactNode; label?: string }) {
+export function Shell({ title, onClose, children, label }: { title: string; onClose: () => void; children: ReactNode; label?: string }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
