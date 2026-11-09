@@ -120,6 +120,16 @@ export interface TableDetail {
   table:      TableSummary
   inviteCode: string | null
   members:    TableMember[]
+  me?:        TableMemberSelf
+  canTransferHost?: boolean
+}
+
+/** Mirrors MemberSelfResponse: the caller's own settings on this table. */
+export interface TableMemberSelf {
+  displayName: string | null
+  avatarUrl:   string | null
+  muted:       boolean
+  role:        TableRole
 }
 
 /** Mirrors TablePreviewResponse: public overview shown before joining with an invite code. */

@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useAppStore } from '@/store/useAppStore'
+import { Loader } from '@/components/ui/Loader'
 import { AppHeader } from '@/components/ui/AppHeader'
 import { imageSrc } from '@/lib/image'
 import { storage } from '@/lib/storage'
 import type { TableMember, TableRole } from '@/types'
-import { DeleteTableModal, LeaveTableModal, RemoveMemberModal } from './TableModals'
+import { DeleteTableModal, LeaveTableModal, RemoveMemberModal, MyTableProfileModal, MemberActionsModal, TransferHostModal } from './TableModals'
 
 const ROLE_LABEL: Record<TableRole, string> = { MASTER: 'Mestre', MODERATOR: 'Moderador', PLAYER: 'Jogador' }
 
@@ -16,12 +17,15 @@ export function TableScreen() {
   const { tableDetail, navigate, showToast, regenerateInvite, user } = useAppStore()
   const [dialog, setDialog] = useState<'delete' | 'leave' | null>(null)
   const [removing, setRemoving] = useState<TableMember | null>(null)
+  const [acting, setActing] = useState<TableMember | null>(null)
+  const [transferring, setTransferring] = useState<TableMember | null>(null)
+  const [myProfile, setMyProfile] = useState(false)
 
   if (!tableDetail) {
     return (
       <div className="device">
         <AppHeader title="Mesa" onBack={() => navigate('dashboard')} />
-        <div className="page-body"><p className="empty-state" style={{ textAlign: 'center' }}>Carregando mesa…</p></div>
+        <div className="page-body"><Loader label="Carregando mesa" /></div>
       </div>
     )
   }
@@ -77,15 +81,20 @@ export function TableScreen() {
 
         <h2 className="section-title">Membros</h2>
         {members.map(m => {
-          const canRemove = (table.myRole === 'MASTER' || table.myRole === 'MODERATOR') && m.role !== 'MASTER' && m.username !== user.username
+          const isMe = m.username === user.username
+          const staff = table.myRole === 'MASTER' || table.myRole === 'MODERATOR'
+          const canRemove = staff && m.role !== 'MASTER' && !isMe
+          const canPromote = table.myRole === 'MASTER' && m.role !== 'MASTER'
+          const canTransfer = !!tableDetail.canTransferHost && m.role !== 'MASTER' && !isMe
+          const hasActions = canRemove || canPromote || canTransfer
           return (
             <div className="profile-row" key={m.userId}>
               <span>{m.displayName || m.username}</span>
               <span className="member-end">
                 <small>{ROLE_LABEL[m.role]}</small>
-                {canRemove && (
-                  <button type="button" className="member-remove" onClick={() => setRemoving(m)}
-                          aria-label={`Remover ${m.displayName || m.username} da mesa`}>×</button>
+                {hasActions && (
+                  <button type="button" className="member-remove" onClick={() => setActing(m)}
+                          aria-label={`Ações de ${m.displayName || m.username}`}>…</button>
                 )}
               </span>
             </div>
@@ -98,6 +107,7 @@ export function TableScreen() {
         </div>
 
         <div className="table-danger-zone">
+          <button type="button" className="btn btn-outline btn-pill" onClick={() => setMyProfile(true)}>Meu perfil na mesa</button>
           {table.myRole === 'MASTER' && (
             <button type="button" className="btn btn-outline btn-pill" onClick={() => navigate('editar-mesa')}>Editar mesa</button>
           )}
@@ -108,6 +118,18 @@ export function TableScreen() {
       </div>
       {dialog === 'delete' && <DeleteTableModal table={table} onClose={() => setDialog(null)} />}
       {dialog === 'leave' && <LeaveTableModal table={table} onClose={() => setDialog(null)} />}
+      {myProfile && <MyTableProfileModal table={table} onClose={() => setMyProfile(false)} />}
+      {acting && (
+        <MemberActionsModal
+          tableId={table.id} member={acting} onClose={() => setActing(null)}
+          canPromote={table.myRole === 'MASTER' && acting.role !== 'MASTER'}
+          canTransfer={!!tableDetail.canTransferHost && acting.role !== 'MASTER'}
+          canRemove={(table.myRole === 'MASTER' || table.myRole === 'MODERATOR') && acting.role !== 'MASTER'}
+          onTransfer={() => { setTransferring(acting); setActing(null) }}
+          onRemove={() => { setRemoving(acting); setActing(null) }}
+        />
+      )}
+      {transferring && <TransferHostModal tableId={table.id} member={transferring} onClose={() => setTransferring(null)} />}
       {removing && <RemoveMemberModal tableId={table.id} member={removing} onClose={() => setRemoving(null)} />}
     </div>
   )
