@@ -47,9 +47,22 @@ public class NotificationService {
     /** Records a notification about a table the recipient still belongs to, unless they muted it. */
     @Transactional
     public void sendToMember(GameTableMember recipient, Type type, String actorName, String detail) {
+        sendToMember(recipient, type, actorName, detail, null);
+    }
+
+    /** Same, for a notification that points to an event ({@code eventId}). */
+    @Transactional
+    public void sendToMember(GameTableMember recipient, Type type, String actorName, String detail, UUID eventId) {
         if (recipient.isMuted()) return;
-        send(recipient.getUser(), type,
-                recipient.getGameTable().getId(), recipient.getGameTable().getName(), actorName, detail);
+        notifications.save(Notification.builder()
+                .user(recipient.getUser())
+                .type(type)
+                .tableId(recipient.getGameTable().getId())
+                .tableName(recipient.getGameTable().getName())
+                .actorName(actorName)
+                .detail(detail == null ? null : truncate(detail))
+                .eventId(eventId)
+                .build());
     }
 
     @Transactional(readOnly = true)

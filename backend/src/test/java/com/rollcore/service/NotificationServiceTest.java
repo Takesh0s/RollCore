@@ -88,6 +88,17 @@ class NotificationServiceTest {
         assertThat(cap.getValue().getTableName()).isEqualTo("Em busca dos esquecidos");
     }
 
+    @Test @DisplayName("sendToMember() with an event id stores it")
+    void sendToMemberWithEvent() {
+        UUID eventId = UUID.randomUUID();
+        service.sendToMember(member(false), Type.EVENT_CREATED, "gm", "Sessão 13", eventId);
+
+        ArgumentCaptor<Notification> cap = ArgumentCaptor.forClass(Notification.class);
+        verify(notifications).save(cap.capture());
+        assertThat(cap.getValue().getEventId()).isEqualTo(eventId);
+        assertThat(cap.getValue().getDetail()).isEqualTo("Sessão 13");
+    }
+
     @Test @DisplayName("sendToMember() respects a muted table")
     void sendToMemberMuted() {
         service.sendToMember(member(true), Type.MEMBER_JOINED, "ply", null);
