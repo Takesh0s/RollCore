@@ -1,7 +1,11 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppStore } from '@/store/useAppStore'
-import type { TableMember, TablePreview, TableSummary } from '@/types'
+import { AvatarUpload } from '@/components/ui/AvatarUpload'
+import { imageSrc } from '@/lib/image'
+import type { TableMember, TablePreview, TableRole, TableSummary } from '@/types'
+
+const ROLE_LABEL: Record<TableRole, string> = { MASTER: 'Mestre', MODERATOR: 'Moderador', PLAYER: 'Jogador' }
 
 /** Casca comum das janelas de mesa (Figma 25.x): título com ×, texto e botões. */
 export function Shell({ title, onClose, children, label }: { title: string; onClose: () => void; children: ReactNode; label?: string }) {
@@ -145,6 +149,110 @@ export function JoinTableModal({ onClose }: { onClose: () => void }) {
       <div className="tm-actions">
         <button type="button" className="btn btn-outline" onClick={onClose}>Cancelar</button>
         <button type="button" className="btn btn-primary" disabled={!preview || preview.full || busy} onClick={run}>Entrar na mesa</button>
+      </div>
+    </Shell>
+  )
+}
+
+/** Perfil na mesa (Figma 04.5): nome e avatar só valem nesta mesa; silenciar é pessoal. */
+export function MyTableProfileModal({ table, onClose }: { table: TableSummary; onClose: () => void }) {
+  const { tableDetail, updateMyProfile, user } = useAppStore()
+  const me = tableDetail?.me
+  const [name, setName] = useState(me?.displayName ?? '')
+  const [muted, setMuted] = useState(me?.muted ?? false)
+  const [avatar, setAvatar] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  async function run() {
+    setBusy(true)
+    if (await updateMyProfile(table.id, { displayName: name, muted, avatar })) onClose()
+    else setBusy(false)
+  }
+  const shown = avatar ?? imageSrc(me?.avatarUrl) ?? null
+  return (
+    <Shell title="Perfil na mesa" onClose={onClose}>
+      <div className="tm-profile-head">
+        <AvatarUpload value={shown} initials={(name || user.username).charAt(0)} onChange={setAvatar} size={72} />
+        <span className="tm-role-badge">{ROLE_LABEL[table.myRole]}</span>
+      </div>
+      <label className="tm-label" htmlFor="my-table-name">Nome de exibição (apenas para esta mesa)</label>
+      <input id="my-table-name" className="form-input" value={name} maxLength={50} autoComplete="off"
+             placeholder={user.username} onChange={e => setName(e.target.value)} />
+      <label className="tm-switch">
+        <span>Silenciar notificações desta mesa</span>
+        <input type="checkbox" role="switch" checked={muted} onChange={e => setMuted(e.target.checked)} />
+      </label>
+      <div className="tm-actions">
+        <button type="button" className="btn btn-outline" onClick={onClose}>Cancelar</button>
+        <button type="button" className="btn btn-primary" disabled={busy} onClick={run}>Salvar perfil</button>
+      </div>
+    </Shell>
+  )
+}
+
+/** Ações sobre um membro (Figma 14.4): mudar cargo, passar o cargo de Mestre ou remover. */
+export function MemberActionsModal({ tableId, member, canPromote, canTransfer, canRemove, onTransfer, onRemove, onClose }: {
+  tableId: string; member: TableMember; canPromote: boolean; canTransfer: boolean; canRemove: boolean
+  onTransfer: () => void; onRemove: () => void; onClose: () => void
+}) {
+  const changeRole = useAppStore(s => s.changeRole)
+  const [busy, setBusy] = useState(false)
+  const name = member.displayName || member.username
+  const next = member.role === 'MODERATOR' ? 'PLAYER' : 'MODERATOR'
+
+  async function setRole() {
+    setBusy(true)
+    if (await changeRole(tableId, member.userId, next)) onClose()
+    else setBusy(false)
+  }
+  return (
+    <Shell title={name} onClose={onClose}>
+      <p className="tm-text">{ROLE_LABEL[member.role]} · @{member.username}</p>
+      <div className="tm-actions tm-stack">
+        {canPromote && (
+          <button type="button" className="btn btn-outline" disabled={busy} onClick={setRole}>
+            {next === 'MODERATOR' ? 'Promover a moderador' : 'Tornar jogador'}
+          </button>
+        )}
+        {canTransfer && <button type="button" className="btn btn-outline" onClick={onTransfer}>Passar cargo de Mestre</button>}
+        {canRemove && <button type="button" className="btn tm-danger" onClick={onRemove}>Remover da mesa</button>}
+      </div>
+    </Shell>
+  )
+}
+
+/** Confirmação de transferência do cargo de Mestre (Figma 14.7/14.8). */
+export function TransferHostModal({ tableId, member, onClose }: { tableId: string; member: TableMember; onClose: () => void }) {
+  const transferHost = useAppStore(s => s.transferHost)
+  const [busy, setBusy] = useState(false)
+  const name = member.displayName || member.username
+  async function run() {
+    setBusy(true)
+    if (await transferHost(tableId, member.userId)) onClose()
+    else setBusy(false)
+  }
+  return (
+    <Shell title="Passar cargo de Mestre" onClose={onClose}>
+      <p className="tm-text">
+        {name} passa a ser o Mestre desta mesa e você vira moderador. Só quem criou a mesa pode transferi-la.
+      </p>
+      <div className="tm-actions">
+        <button type="button" className="btn btn-outline" onClick={onClose}>Cancelar</button>
+        <button type="button" className="btn btn-primary" disabled={busy} onClick={run}>Confirmar transferência</button>
+      </div>
+    </Shell>
+  )
+}
+
+/** Limite de mesas do plano grátis (Figma 14.9). */
+export function TableLimitModal({ message, onClose }: { message: string; onClose: () => void }) {
+  const navigate = useAppStore(s => s.navigate)
+  return (
+    <Shell title="Limite de mesas" onClose={onClose}>
+      <p className="tm-text">{message}</p>
+      <div className="tm-actions">
+        <button type="button" className="btn btn-primary" onClick={() => { onClose(); navigate('mesas') }}>Gerenciar minhas mesas</button>
+        <button type="button" className="btn btn-outline" onClick={onClose}>Fechar</button>
       </div>
     </Shell>
   )

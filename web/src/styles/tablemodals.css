@@ -66,3 +66,10 @@
 .acct-row i { font-style: normal; font-size: 22px; color: var(--text-muted); }
 .acct-danger strong { color: var(--fail); }
 .tm-modal .error-msg { display: block; margin-top: 8px; }
+
+/* Gestão da mesa */
+.tm-profile-head { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-bottom: 6px; }
+.tm-role-badge { padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; text-transform: uppercase; background: var(--card-raised); border: 1px solid var(--card-border); }
+.tm-switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 14px; cursor: pointer; }
+.tm-switch input { width: 20px; height: 20px; accent-color: var(--accent, #7aa2d4); }
+.tm-stack { flex-direction: column !important; }

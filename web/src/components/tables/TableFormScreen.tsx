@@ -5,6 +5,7 @@ import { IconPlus } from '@/components/ui/icons'
 import { ImageCropModal, COVER_ASPECT, COVER_PREVIEWS } from '@/components/ui/ImageCropModal'
 import { imageSrc, readImageFile } from '@/lib/image'
 import { storage } from '@/lib/storage'
+import { TableLimitModal } from './TableModals'
 import { useUnsavedGuard } from '@/hooks/useUnsavedGuard'
 
 const SYSTEMS = ['D&D 5e', 'Tormenta20', 'Call of Cthulhu', 'Pathfinder 2e', 'Outro']
@@ -30,6 +31,7 @@ export function TableFormScreen({ edit = false }: { edit?: boolean }) {
   const shownCover = cover ?? (removeCover || !current ? undefined
     : imageSrc(current.coverUrl) ?? storage.getTableCovers()[current.id])
   const [loading,     setLoading]     = useState(false)
+  const [limit,       setLimit]       = useState('')
   const [pendingCover, setPendingCover] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -69,8 +71,9 @@ export function TableFormScreen({ edit = false }: { edit?: boolean }) {
       useAppStore.getState().setDirty(null)
       showToast('Mesa criada!', 'success')
       await openTable(created.table.id)
-    } catch {
-      /* a mensagem já foi mostrada pelo store (ex.: limite do plano) */
+    } catch (err: any) {
+      // a mensagem já foi mostrada pelo store; no limite do plano abrimos também a janela explicativa
+      if (err?.response?.status === 409) setLimit(err.response?.data?.detail ?? 'Você atingiu o limite de mesas do seu plano.')
     } finally {
       setLoading(false)
     }
@@ -155,6 +158,7 @@ export function TableFormScreen({ edit = false }: { edit?: boolean }) {
           Adicionar mapa
         </button>
       </div>
+      {limit && <TableLimitModal message={limit} onClose={() => setLimit('')} />}
     </div>
   )
 }

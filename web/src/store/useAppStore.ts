@@ -125,6 +125,9 @@ interface AppState {
   leaveTable:      (id: string) => Promise<boolean>
   removeMember:    (tableId: string, userId: string) => Promise<boolean>
   regenerateInvite: (tableId: string) => Promise<void>
+  updateMyProfile: (tableId: string, input: { displayName: string; muted: boolean; avatar?: string | null }) => Promise<boolean>
+  changeRole:      (tableId: string, userId: string, role: 'MODERATOR' | 'PLAYER') => Promise<boolean>
+  transferHost:    (tableId: string, userId: string) => Promise<boolean>
 
   // UI notifications
   toast:      { message: string; type: 'success' | 'error' | '' } | null
@@ -760,6 +763,60 @@ export const useAppStore = create<AppState>((set, get) => ({
       get().showToast('Novo código gerado. O anterior deixou de valer.', 'success')
     } catch (err: any) {
       get().showToast(err.response?.data?.detail ?? 'Não foi possível gerar um novo código.', 'error')
+    }
+  },
+
+  async updateMyProfile(tableId, input) {
+    try {
+      let avatarUrl = get().tableDetail?.me?.avatarUrl ?? undefined
+      if (input.avatar) {
+        const uploaded = await uploadImage(input.avatar)
+        if (!uploaded) {
+          get().showToast('Não foi possível enviar o avatar. Tente de novo.', 'error')
+          return false
+        }
+        avatarUrl = uploaded
+      }
+      await api.patch(`/tables/${tableId}/members/me`, {
+        displayName: input.displayName.trim() || undefined,
+        avatarUrl,
+        muted: input.muted,
+      })
+      const { data } = await api.get<TableDetail>(`/tables/${tableId}`)
+      set({ tableDetail: data })
+      get().showToast('Perfil da mesa salvo.', 'success')
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível salvar o perfil da mesa.', 'error')
+      return false
+    }
+  },
+
+  async changeRole(tableId, userId, role) {
+    try {
+      await api.patch(`/tables/${tableId}/members/${userId}/role`, { role })
+      const { data } = await api.get<TableDetail>(`/tables/${tableId}`)
+      set({ tableDetail: data })
+      get().showToast(role === 'MODERATOR' ? 'Jogador promovido a moderador.' : 'Cargo alterado para jogador.', 'success')
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível alterar o cargo.', 'error')
+      return false
+    }
+  },
+
+  async transferHost(tableId, userId) {
+    try {
+      const { data } = await api.post<TableDetail>(`/tables/${tableId}/transfer-host`, { userId })
+      set(s => ({
+        tables: s.tables.map(t => (t.id === tableId ? data.table : t)),
+        tableDetail: data,
+      }))
+      get().showToast('Cargo de Mestre transferido.', 'success')
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível passar o cargo.', 'error')
+      return false
     }
   },
 
