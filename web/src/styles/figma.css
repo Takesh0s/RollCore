@@ -301,7 +301,7 @@ input[type='checkbox'] { accent-color: var(--mint); width: 15px; height: 15px; }
   border: 1px solid rgba(192, 192, 192, 0.5);
   font-size: 15px;
 }
-.btn-outline:hover, .btn-ghost:hover { background: rgba(255, 255, 255, 0.16); color: #fff; border-color: #fff; }
+.btn-outline:hover, .btn-ghost:hover { background: rgba(255, 255, 255, 0.16); color: var(--text-bright, var(--text)); border-color: var(--text-bright, var(--text)); }
 .btn-danger { background: transparent; color: var(--fail); border: 1px solid var(--fail); }
 .btn-danger:hover { background: var(--fail); color: #252525; box-shadow: none; }
 .btn-auto { width: auto; }
