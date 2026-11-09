@@ -86,6 +86,7 @@ export type Screen =
   | 'novo-personagem' | 'editar-personagem' | 'ficha'
   | 'dados' | 'perfil' | 'tema'
   | 'mesas' | 'nova-mesa' | 'mesa' | 'mapas'
+  | 'calendario' | 'novo-evento'
 
 // ─── Tables (mesas) ───────────────────────────────────────────────────────────
 
