@@ -85,7 +85,7 @@ export const storage = {
     localStorage.setItem(KEYS.usernames, JSON.stringify([...set]))
   },
 
-  // ── Table covers (local only) ──────────────────────────────────────────────
+  // ── Table covers kept on this device (legacy / failed uploads) ──────────────────────────────────────────────
 
   getTableCovers(): Record<string, string> {
     try {
@@ -99,5 +99,13 @@ export const storage = {
       const covers = { ...storage.getTableCovers(), [tableId]: dataUrl }
       localStorage.setItem(KEYS.covers, JSON.stringify(covers))
     } catch { /* storage full or blocked: the cover is just not kept */ }
+  },
+
+  removeTableCover(tableId: string): void {
+    try {
+      const covers = storage.getTableCovers()
+      delete covers[tableId]
+      localStorage.setItem(KEYS.covers, JSON.stringify(covers))
+    } catch { /* nothing to clean */ }
   },
 }

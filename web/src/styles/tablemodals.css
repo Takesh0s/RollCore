@@ -33,7 +33,9 @@
 .member-end { display: inline-flex; align-items: center; gap: 10px; }
 .member-remove { background: none; border: 1px solid var(--card-border); color: var(--text-muted); width: 24px; height: 24px; border-radius: 50%; cursor: pointer; line-height: 1; font-size: 16px; }
 .member-remove:hover { color: var(--fail); border-color: var(--fail); }
-.table-danger-zone { display: flex; justify-content: center; margin-top: 22px; }
+.table-danger-zone { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.table-danger-zone .btn { margin: 0; }
+.cover-remove { margin: 10px 0 0; }
 .list-join { margin: 0 8px 0 auto; white-space: nowrap; }
 
 @media (min-width: 1024px) {

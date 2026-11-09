@@ -38,6 +38,7 @@ function ScreenContent({ screen }: { screen: Screen }) {
     case 'dados':             return <DiceRollerScreen />
     case 'mesas':             return <TableListScreen />
     case 'nova-mesa':         return <TableFormScreen />
+    case 'editar-mesa':       return <TableFormScreen edit />
     case 'mesa':              return <TableScreen />
     case 'mapas':             return <MapLibraryScreen />
     case 'calendario':        return <CalendarScreen />

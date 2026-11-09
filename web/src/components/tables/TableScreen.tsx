@@ -98,6 +98,9 @@ export function TableScreen() {
         </div>
 
         <div className="table-danger-zone">
+          {table.myRole === 'MASTER' && (
+            <button type="button" className="btn btn-outline btn-pill" onClick={() => navigate('editar-mesa')}>Editar mesa</button>
+          )}
           {table.myRole === 'MASTER'
             ? <button type="button" className="btn btn-danger btn-auto" onClick={() => setDialog('delete')}>Excluir mesa</button>
             : <button type="button" className="btn btn-danger btn-auto" onClick={() => setDialog('leave')}>Sair da mesa</button>}
