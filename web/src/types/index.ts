@@ -86,7 +86,7 @@ export type Screen =
   | 'novo-personagem' | 'editar-personagem' | 'ficha'
   | 'dados' | 'perfil' | 'tema'
   | 'mesas' | 'nova-mesa' | 'editar-mesa' | 'mesa' | 'mapas'
-  | 'calendario' | 'novo-evento' | 'notificacoes'
+  | 'calendario' | 'novo-evento' | 'evento' | 'notificacoes'
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 
@@ -99,6 +99,7 @@ export interface AppNotification {
   id:        string
   type:      NotificationType
   tableId:   string | null
+  eventId:   string | null
   tableName: string | null
   actorName: string | null
   detail:    string | null

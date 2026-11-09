@@ -21,6 +21,8 @@ import { CalendarScreen }        from '@/components/calendar/CalendarScreen'
 import { EventFormScreen }       from '@/components/calendar/EventFormScreen'
 import { ThemeScreen }          from '@/components/ui/ThemeScreen'
 import { NotificationsScreen }  from '@/components/notifications/NotificationsScreen'
+import { EventPageScreen }      from '@/components/calendar/EventPageScreen'
+import { NewEventPopup }        from '@/components/calendar/NewEventPopup'
 import type { Screen } from '@/types'
 
 /**
@@ -48,6 +50,7 @@ function ScreenContent({ screen }: { screen: Screen }) {
     case 'novo-evento':       return <EventFormScreen />
     case 'tema':              return <ThemeScreen />
     case 'notificacoes':      return <NotificationsScreen />
+    case 'evento':            return <EventPageScreen />
     default:                  return null
   }
 }
@@ -78,6 +81,7 @@ export default function App() {
         <ScreenContent screen={screen} />
       </div>
       <Crenellation />
+      <NewEventPopup />
       <Toast />
       <NetworkModals />
       <Modal
