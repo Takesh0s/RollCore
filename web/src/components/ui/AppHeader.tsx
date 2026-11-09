@@ -44,7 +44,7 @@ interface AppHeaderProps {
  * e atalho do perfil à direita. O menu lateral abre sobre o conteúdo.
  */
 export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
-  const { navigate, showToast, user, screen, logout } = useAppStore()
+  const { navigate, showToast, user, screen, askLogout } = useAppStore()
   const [open, setOpen] = useState(false)
   const desktop = useDesktop()
   const [deskMenuOpen, setDeskMenu] = useDeskMenu()
@@ -180,7 +180,7 @@ export function AppHeader({ title, onBack, hideProfile }: AppHeaderProps) {
             <ul className="side-foot">
               {renderSheetItem(SIDEBAR_FOOT)}
               <li>
-                <button className="side-logout" onClick={() => { setOpen(false); logout() }}>Sair da conta</button>
+                <button className="side-logout" onClick={() => { setOpen(false); askLogout() }}>Sair da conta</button>
               </li>
             </ul>
           </nav>

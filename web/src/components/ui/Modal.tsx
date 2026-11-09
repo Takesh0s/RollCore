@@ -1,3 +1,6 @@
+import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
+
 interface ModalProps {
   open: boolean
   title: string
@@ -12,9 +15,10 @@ interface ModalProps {
 }
 
 /**
- * Generic confirmation modal.
- * Rendered only when `open` is true.
- * Clicking the overlay (outside the card) triggers onCancel.
+ * Janela de confirmação, no visual do Figma (25.x): título em serifa com ×, texto curto,
+ * "Cancelar" em contorno e a ação principal (vinho quando destrói algo).
+ * Aparece só com `open`; Esc, o × e um clique fora chamam onCancel.
+ * Vai para o <body> (portal) para não ficar presa sob o cabeçalho do app.
  */
 export function Modal({
   open,
@@ -27,26 +31,32 @@ export function Modal({
   cancelLabel  = 'Cancelar',
   danger       = false,
 }: ModalProps) {
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onCancel() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, onCancel])
+
   if (!open) return null
 
   const text = message ?? body ?? ''
 
-  return (
-    <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) onCancel() }}>
-      <div className="modal">
-        <p className="modal-title">{title}</p>
-        <p className="modal-body">{text}</p>
-        <div className="form-actions" style={{ justifyContent: 'flex-end' }}>
-          <button className="btn btn-outline btn-auto" onClick={onCancel}>{cancelLabel}</button>
-          <button
-            className={`btn btn-auto ${danger ? 'btn-danger' : 'btn-primary'}`}
-            style={{ marginTop: 0 }}
-            onClick={onConfirm}
-          >
-            {confirmLabel}
-          </button>
+  return createPortal(
+    <div className="modal-overlay" role="dialog" aria-modal="true" aria-label={title}
+         onMouseDown={e => { if (e.target === e.currentTarget) onCancel() }}>
+      <div className="tm-modal">
+        <div className="tm-head">
+          <h2>{title}</h2>
+          <button type="button" className="tm-close" onClick={onCancel} aria-label="Fechar">×</button>
+        </div>
+        {text && <p className="tm-text">{text}</p>}
+        <div className="tm-actions">
+          <button type="button" className="btn btn-outline" onClick={onCancel}>{cancelLabel}</button>
+          <button type="button" className={danger ? 'btn tm-danger' : 'btn btn-primary'} onClick={onConfirm}>{confirmLabel}</button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

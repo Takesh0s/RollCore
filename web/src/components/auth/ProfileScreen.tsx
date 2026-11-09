@@ -3,6 +3,7 @@ import { useAppStore } from '@/store/useAppStore'
 import { storage } from '@/lib/storage'
 import { AvatarUpload } from '@/components/ui/AvatarUpload'
 import { AppHeader } from '@/components/ui/AppHeader'
+import { useUnsavedGuard } from '@/hooks/useUnsavedGuard'
 
 function isValidUsername(u: string): boolean {
   return /^[a-zA-Z0-9_]{3,20}$/.test(u)
@@ -14,13 +15,15 @@ function isValidUsername(u: string): boolean {
  * Avatar is stored as base64 locally in Fase 1; backend endpoint in Fase 2.
  */
 export function ProfileScreen() {
-  const { navigate, user, updateProfile, showToast, logout } = useAppStore()
+  const { navigate, user, updateProfile, showToast, askLogout } = useAppStore()
 
   const [username,    setUsername]    = useState(user.username)
   const [usernameErr, setUsernameErr] = useState('')
   const [avatarUrl,   setAvatarUrl]   = useState<string | undefined>(user.avatar_url)
   const [saved,       setSaved]       = useState(false)
   const [loading,     setLoading]     = useState(false)
+
+  useUnsavedGuard(username.trim() !== user.username || avatarUrl !== user.avatar_url, 'Você editou o perfil e ainda não salvou.')
 
   async function handleSave() {
     const trimmed = username.trim()
@@ -42,6 +45,7 @@ export function ProfileScreen() {
 
     try {
       await updateProfile({ username: trimmed, avatar_url: avatarUrl })
+      useAppStore.getState().setDirty(null)
       setSaved(true)
       showToast('Perfil atualizado!', 'success')
       setTimeout(() => setSaved(false), 2000)
@@ -101,8 +105,8 @@ export function ProfileScreen() {
         </button>
 
         <div className="profile-logout-wrap">
-          <button className="btn btn-primary" style={{ margin: 0 }} onClick={logout}>
-            Logout
+          <button className="btn btn-primary" style={{ margin: 0 }} onClick={askLogout}>
+            Sair da conta
           </button>
         </div>
       </div>

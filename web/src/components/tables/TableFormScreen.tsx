@@ -5,6 +5,7 @@ import { IconPlus } from '@/components/ui/icons'
 import { ImageCropModal, COVER_ASPECT, COVER_PREVIEWS } from '@/components/ui/ImageCropModal'
 import { imageSrc, readImageFile } from '@/lib/image'
 import { storage } from '@/lib/storage'
+import { useUnsavedGuard } from '@/hooks/useUnsavedGuard'
 
 const SYSTEMS = ['D&D 5e', 'Tormenta20', 'Call of Cthulhu', 'Pathfinder 2e', 'Outro']
 const MAX_COVER_BYTES = 2 * 1024 * 1024
@@ -32,6 +33,12 @@ export function TableFormScreen({ edit = false }: { edit?: boolean }) {
   const [pendingCover, setPendingCover] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
+  const dirty = current
+    ? name !== current.name || system !== current.gameSystem || description !== (current.description ?? '')
+        || maxPlayers !== current.maxPlayers || !!cover || removeCover
+    : !!(name.trim() || description.trim() || cover)
+  useUnsavedGuard(dirty, `Você ${current ? 'editou' : 'começou a criar'} ${name.trim() ? name.trim() : 'a mesa'} e ainda não salvou.`)
+
   // sem a mesa carregada (ex.: página recarregada) não há o que editar
   useEffect(() => { if (edit && !current) navigate('mesas') }, [edit, current, navigate])
   if (edit && !current) return null
@@ -55,10 +62,11 @@ export function TableFormScreen({ edit = false }: { edit?: boolean }) {
     try {
       if (current) {
         const ok = await updateTable(current.id, { name: trimmed, gameSystem: system, description, maxPlayers, cover, removeCover })
-        if (ok) { showToast('Mesa atualizada!', 'success'); navigate('mesa') }
+        if (ok) { useAppStore.getState().setDirty(null); showToast('Mesa atualizada!', 'success'); navigate('mesa') }
         return
       }
       const created = await createTable({ name: trimmed, gameSystem: system, description, maxPlayers, cover })
+      useAppStore.getState().setDirty(null)
       showToast('Mesa criada!', 'success')
       await openTable(created.table.id)
     } catch {

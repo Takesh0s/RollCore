@@ -65,10 +65,33 @@ function processQueue(error: unknown, token: string | null = null) {
   failedQueue = []
 }
 
+/** What the failed request was doing, in words for the "Algo deu errado" window. */
+function describeRequest(method?: string, url?: string): string {
+  const u = url ?? ''
+  const write = method && method.toLowerCase() !== 'get'
+  if (/^\/characters/.test(u)) return write ? 'salvar a ficha' : 'carregar as fichas'
+  if (/^\/tables\/[^/]+\/events|^\/events/.test(u)) return write ? 'salvar o evento' : 'carregar o calendário'
+  if (/^\/tables/.test(u)) return write ? 'salvar a mesa' : 'carregar as mesas'
+  if (/^\/images/.test(u)) return write ? 'enviar a imagem' : 'carregar a imagem'
+  if (/^\/dice/.test(u)) return 'rolar os dados'
+  return 'concluir a ação'
+}
+
+/** Tells the app (App.tsx listens) that the network or the server failed, so it can open Figma 25.14 / 25.15. */
+function notifyNetwork(detail: { kind: 'offline' } | { kind: 'error'; status: number; what: string }) {
+  window.dispatchEvent(new CustomEvent('rollcore:net', { detail }))
+}
+
 api.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config
+
+    if (!error.response && error.code !== 'ERR_CANCELED') {
+      notifyNetwork({ kind: 'offline' })
+    } else if (error.response?.status >= 500) {
+      notifyNetwork({ kind: 'error', status: error.response.status, what: describeRequest(originalRequest?.method, originalRequest?.url) })
+    }
 
     // Only attempt refresh on 401, and only once per request (_retry guard)
     if (error.response?.status !== 401 || originalRequest._retry) {
