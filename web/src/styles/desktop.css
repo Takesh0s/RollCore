@@ -155,8 +155,13 @@
   background: var(--field); color: var(--field-text); border-radius: var(--radius-sm);
 }
 .dash-next-cover.has-cover, .md-next-cover.has-cover { background-size: cover; background-position: center; background-repeat: no-repeat; }
-.dash-next.with-cover { flex-direction: column; gap: 12px; }
-.dash-next.with-cover .dash-next-cover { width: 100%; aspect-ratio: 5 / 2; }   /* a capa é 5:2: aparece inteira */
+/* com capa: ela preenche o cartão (quase 5:2, aparece praticamente inteira) e o texto vai por cima, num degradê */
+.dash-next.with-cover { position: relative; overflow: hidden; padding: 0; min-height: 0; }
+.dash-next.with-cover .dash-next-cover { position: absolute; inset: 0; width: auto; border-radius: 0; }
+.dash-next.with-cover .dash-next-cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.1) 70%); }
+.dash-next.with-cover .dash-next-info { position: relative; z-index: 1; align-self: flex-end; padding: 14px 16px; }
+.dash-next.with-cover .dash-next-info strong { color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
+.dash-next.with-cover .dash-next-info span { color: rgba(255, 255, 255, 0.88); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
 .dash-next-cover .nav-svg { width: 40px; height: 40px; }
 .dash-next-info { display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 0; }
 .dash-char-head { display: flex; align-items: center; gap: 12px; }
@@ -283,9 +288,6 @@ html[data-theme]:not([data-theme="medieval"]) { --font-brand: var(--font-display
   .dash-grow { flex: 1; }
   .dash-cols { grid-auto-rows: auto; }
   .dash-cols > section > .dash-panel { height: 168px; }
-  /* primeira linha: os cartões crescem juntos quando o de "Próxima sessão" tem capa (banner 5:2) */
-  .dash-cols > section:nth-child(-n+3) { display: flex; flex-direction: column; }
-  .dash-cols > section:nth-child(-n+3) > .dash-panel { height: auto; min-height: 168px; flex: 1; }
   .dash-cols > section:nth-child(n+4) > .dash-panel { height: 272px; }
   .dash-list { display: flex; flex-direction: column; gap: 6px; padding: 8px; overflow: hidden; }
   .dash-item {
