@@ -6,7 +6,7 @@ import { getMaxSpellSlots, getWarlockSlots } from '@/lib/engine'
 import type {
   User, Character, HistoryEntry, Screen, RollResult,
   AuthTokens, CharacterApiResponse, UserProfileApiResponse, DiceRollApiResponse,
-  TableSummary, TableDetail, CreateTableInput, DiceMode, DiceShortcut,
+  TableSummary, TableDetail, TablePreview, CreateTableInput, DiceMode, DiceShortcut,
 } from '@/types'
 
 // Data transformation helpers
@@ -102,6 +102,12 @@ interface AppState {
   loadTables:      () => Promise<void>
   createTable:     (input: CreateTableInput) => Promise<TableDetail>
   openTable:       (id: string) => Promise<void>
+  previewTable:    (inviteCode: string) => Promise<TablePreview | null>
+  joinTable:       (inviteCode: string) => Promise<boolean>
+  deleteTable:     (id: string) => Promise<boolean>
+  leaveTable:      (id: string) => Promise<boolean>
+  removeMember:    (tableId: string, userId: string) => Promise<boolean>
+  regenerateInvite: (tableId: string) => Promise<void>
 
   // UI notifications
   toast:      { message: string; type: 'success' | 'error' | '' } | null
@@ -560,6 +566,74 @@ export const useAppStore = create<AppState>((set, get) => ({
     } catch {
       get().showToast('Não foi possível abrir a mesa.', 'error')
       set({ screen: 'dashboard' })
+    }
+  },
+
+  async previewTable(inviteCode) {
+    try {
+      const { data } = await api.get<TablePreview>(`/tables/preview/${encodeURIComponent(inviteCode.trim())}`)
+      return data
+    } catch {
+      return null
+    }
+  },
+
+  async joinTable(inviteCode) {
+    try {
+      const { data } = await api.post<TableDetail>('/tables/join', { inviteCode: inviteCode.trim() })
+      set(s => ({ tables: [data.table, ...s.tables.filter(t => t.id !== data.table.id)], tableDetail: data, screen: 'mesa' }))
+      get().showToast('Você entrou na mesa.', 'success')
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? err.response?.data?.message ?? 'Não foi possível entrar na mesa.', 'error')
+      return false
+    }
+  },
+
+  async deleteTable(id) {
+    try {
+      await api.delete(`/tables/${id}`)
+      set(s => ({ tables: s.tables.filter(t => t.id !== id), tableDetail: null, screen: 'mesas' }))
+      get().showToast('Mesa excluída.', 'success')
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível excluir a mesa.', 'error')
+      return false
+    }
+  },
+
+  async leaveTable(id) {
+    try {
+      await api.delete(`/tables/${id}/members/me`)
+      set(s => ({ tables: s.tables.filter(t => t.id !== id), tableDetail: null, screen: 'mesas' }))
+      get().showToast('Você saiu da mesa.', 'success')
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível sair da mesa.', 'error')
+      return false
+    }
+  },
+
+  async removeMember(tableId, userId) {
+    try {
+      await api.delete(`/tables/${tableId}/members/${userId}`)
+      const { data } = await api.get<TableDetail>(`/tables/${tableId}`)
+      set({ tableDetail: data })
+      get().showToast('Jogador removido da mesa.', 'success')
+      return true
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível remover o jogador.', 'error')
+      return false
+    }
+  },
+
+  async regenerateInvite(tableId) {
+    try {
+      const { data } = await api.post<{ inviteCode: string }>(`/tables/${tableId}/invite-code`)
+      set(s => (s.tableDetail ? { tableDetail: { ...s.tableDetail, inviteCode: data.inviteCode } } : {}))
+      get().showToast('Novo código gerado. O anterior deixou de valer.', 'success')
+    } catch (err: any) {
+      get().showToast(err.response?.data?.detail ?? 'Não foi possível gerar um novo código.', 'error')
     }
   },
 
