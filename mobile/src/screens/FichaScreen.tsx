@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { SpellDetail } from '../components/characters/SpellDetail';
 import { SpellSearchModal } from '../components/characters/SpellSearchModal';
+import { InventoryTab } from '../components/characters/InventoryTab';
 import { Avatar, StateBlock, inputStyle } from '../components/Controls';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import {
@@ -22,7 +23,7 @@ const BODY = 'AtkinsonHyperlegible_400Regular';
 const BOLD = 'AtkinsonHyperlegible_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
-type Tab = 'combat' | 'skills' | 'spells' | 'traits';
+type Tab = 'combat' | 'skills' | 'inventory' | 'spells' | 'traits';
 
 function Section({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
@@ -63,11 +64,11 @@ function ghost(label: string, onPress: () => void) {
 export default function FichaScreen() {
   useAcessibilidade();
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, tab: tabParam } = useLocalSearchParams<{ id?: string; tab?: string }>();
   const { characters, loaded, load, update, patchLocal } = useCharacters();
   const char = characters.find((c) => c.id === id);
 
-  const [tab, setTab] = useState<Tab>('combat');
+  const [tab, setTab] = useState<Tab>(tabParam === 'inventory' ? 'inventory' : 'combat');
   const [hpDelta, setHpDelta] = useState('');
   const [knownSpells, setKnownSpells] = useState<Spell[]>([]);
   const [spellsLoaded, setSpellsLoaded] = useState(false);
@@ -185,6 +186,7 @@ export default function FichaScreen() {
   const tabs: { id: Tab; label: string }[] = [
     { id: 'combat', label: 'Combate' },
     { id: 'skills', label: 'Perícias' },
+    { id: 'inventory', label: 'Inventário' },
     ...(casterType !== 'none' ? [{ id: 'spells' as Tab, label: 'Magias' }] : []),
     ...(raceTraits.length > 0 ? [{ id: 'traits' as Tab, label: 'Traços' }] : []),
   ];
@@ -279,6 +281,8 @@ export default function FichaScreen() {
             </View>
           </>
         )}
+
+        {tab === 'inventory' && <InventoryTab char={c} />}
 
         {tab === 'spells' && (
           <>
