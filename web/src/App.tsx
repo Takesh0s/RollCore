@@ -22,6 +22,8 @@ import { EventFormScreen }       from '@/components/calendar/EventFormScreen'
 import { ThemeScreen }          from '@/components/ui/ThemeScreen'
 import { NotificationsScreen }  from '@/components/notifications/NotificationsScreen'
 import { EventPageScreen }      from '@/components/calendar/EventPageScreen'
+import { NotFoundScreen }       from '@/components/ui/NotFoundScreen'
+import { QuickActions }         from '@/components/ui/QuickActions'
 import { NewEventPopup }        from '@/components/calendar/NewEventPopup'
 import type { Screen } from '@/types'
 
@@ -51,6 +53,7 @@ function ScreenContent({ screen }: { screen: Screen }) {
     case 'tema':              return <ThemeScreen />
     case 'notificacoes':      return <NotificationsScreen />
     case 'evento':            return <EventPageScreen />
+    case 'nao-encontrado':    return <NotFoundScreen />
     default:                  return null
   }
 }
@@ -82,6 +85,7 @@ export default function App() {
       </div>
       <Crenellation />
       <NewEventPopup />
+      <QuickActions />
       <Toast />
       <NetworkModals />
       <Modal

@@ -701,7 +701,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     try {
       const { data } = await api.get<TableDetail>(`/tables/${id}`)
       set({ tableDetail: data })
-    } catch {
+    } catch (err: any) {
+      if (err?.response?.status === 404) {
+        // mesa removida ou você saiu dela: a tela de "não encontrada" explica melhor que um aviso solto
+        set({ screen: 'nao-encontrado' })
+        return
+      }
       get().showToast('Não foi possível abrir a mesa.', 'error')
       set({ screen: 'dashboard' })
     }
