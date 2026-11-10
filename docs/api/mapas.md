@@ -24,7 +24,7 @@ Mapas de batalha das ferramentas do mestre (GM Tools). Todas as rotas exigem o t
   "rows": 20,
   "cellSize": 48,
   "imageId": "uuid devolvido por POST /images (opcional)",
-  "layers": "{\"cells\":{\"grass\":[0,1,31]},\"fog\":[5,6]}",
+  "layers": "{\"cells\":{\"grass\":[0,1,31]},\"objects\":{\"tree\":[40]},\"fog\":[5,6]}",
   "gridVisible": true,
   "fogEnabled": false
 }
@@ -46,7 +46,8 @@ A resposta traz os mesmos campos mais `id`, `imageUrl` (`/images/{id}`), `publis
 O servidor só confere que é um objeto JSON de tamanho limitado; quem define o conteúdo são os clientes.
 O formato atual guarda índices de células (`índice = linha * cols + coluna`), não pixels, para ficar pequeno:
 
-- `cells`: terreno → lista de células pintadas com ele;
+- `cells`: terreno (líquidos, terrenos e relevo) → lista de células pintadas com ele;
+- `objects`: peça "geral" (parede, porta, árvore…) → lista de células onde ela está;
 - `fog`: células já reveladas (usado quando `fogEnabled` é verdadeiro).
 
 ## Regras

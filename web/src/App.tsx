@@ -17,6 +17,9 @@ import { TableListScreen }      from '@/components/tables/TableListScreen'
 import { TableFormScreen }      from '@/components/tables/TableFormScreen'
 import { TableScreen }          from '@/components/tables/TableScreen'
 import { MapLibraryScreen }     from '@/components/maps/MapLibraryScreen'
+import { MapWizardScreen }      from '@/components/maps/MapWizardScreen'
+import { MapEditorScreen }      from '@/components/maps/MapEditorScreen'
+import { MapWorkshopScreen }    from '@/components/maps/MapWorkshopScreen'
 import { CalendarScreen }        from '@/components/calendar/CalendarScreen'
 import { EventFormScreen }       from '@/components/calendar/EventFormScreen'
 import { ThemeScreen }          from '@/components/ui/ThemeScreen'
@@ -48,6 +51,9 @@ function ScreenContent({ screen }: { screen: Screen }) {
     case 'editar-mesa':       return <TableFormScreen edit />
     case 'mesa':              return <TableScreen />
     case 'mapas':             return <MapLibraryScreen />
+    case 'mapa-novo':         return <MapWizardScreen />
+    case 'mapa-editor':       return <MapEditorScreen />
+    case 'oficina-mapas':     return <MapWorkshopScreen />
     case 'calendario':        return <CalendarScreen />
     case 'novo-evento':       return <EventFormScreen />
     case 'tema':              return <ThemeScreen />
