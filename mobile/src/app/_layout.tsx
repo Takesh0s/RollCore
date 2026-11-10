@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { applyAccessibilityPalette } from '../design/shared';
 import { onSessionExpired } from '../services/api';
+import { ToastHost } from '../components/ToastHost';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { falar, pararLeitura } from '../utils/acessibilidadeAudio';
 import { textoNarracaoDaTela } from '../utils/screenNarration';
@@ -47,6 +48,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }} />
       <ScreenNarrator />
       <SessionWatcher />
+      <ToastHost />
     </ThemeProvider>
   );
 }

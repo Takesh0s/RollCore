@@ -1,4 +1,2 @@
-import FichaAtributosScreen from '../screens/FichaAtributosScreen';
-export default function Personagens() {
-  return <FichaAtributosScreen />;
-}
+import FichaScreen from '../screens/FichaScreen';
+export default FichaScreen;

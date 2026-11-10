@@ -123,7 +123,7 @@ export default function SessaoAtivaScreen() {
         </View>
 
         <View style={{ marginTop: 8, gap: 12 }}>
-          <PrimaryButton title="Ver Ficha de Personagem" icon="badge" onPress={() => router.push('/personagens')} />
+          <PrimaryButton title="Ver Ficha de Personagem" icon="badge" onPress={() => router.push('/skills')} />
         </View>
       </ScrollView>
     </SafeAreaView>
