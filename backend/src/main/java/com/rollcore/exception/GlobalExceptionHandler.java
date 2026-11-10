@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.net.URI;
@@ -54,11 +55,30 @@ public class GlobalExceptionHandler {
         return pd;
     }
 
+    /** A path / query value of the wrong type, e.g. an unknown enum constant in {@code ?kind=}. */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setType(URI.create("urn:rollcore:invalid-parameter"));
+        pd.setTitle("Invalid Parameter");
+        pd.setDetail("The parameter '" + ex.getName() + "' has an invalid value.");
+        return pd;
+    }
+
     @ExceptionHandler(InvalidImageException.class)
     public ProblemDetail handleInvalidImage(InvalidImageException ex) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         pd.setType(URI.create("urn:rollcore:invalid-image"));
         pd.setTitle("Invalid Image");
+        pd.setDetail(ex.getMessage());
+        return pd;
+    }
+
+    @ExceptionHandler(InvalidMapException.class)
+    public ProblemDetail handleInvalidMap(InvalidMapException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setType(URI.create("urn:rollcore:invalid-map"));
+        pd.setTitle("Invalid Map");
         pd.setDetail(ex.getMessage());
         return pd;
     }
