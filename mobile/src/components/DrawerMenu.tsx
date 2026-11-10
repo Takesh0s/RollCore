@@ -32,7 +32,7 @@ const MENU_ITEMS: { label: string; icon: string; route: string; color?: string }
   { label: 'Comunidade', icon: 'account-group-outline', route: '/comunidade' },
   { label: 'Calendário', icon: 'calendar-month-outline', route: '/calendario' },
   { label: 'Sistemas', icon: 'book-open-page-variant-outline', route: '/sistemas' },
-  { label: 'GM Tools', icon: 'magic-staff', route: '/gmtools' },
+  { label: 'GM Tools', icon: 'magic-staff', route: '/mapas' },
   { label: 'Bestiário', icon: 'paw', route: '/bestiario' },
   { label: 'Tutoriais', icon: 'message-processing-outline', route: '/tutoriais' },
   { label: 'Créditos', icon: 'dice-d20', route: '/creditos', color: COLORS.primary },

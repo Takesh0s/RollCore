@@ -155,12 +155,13 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 
   const send = async (): Promise<Response> => {
     const headers: Record<string, string> = { Accept: 'application/json' };
-    if (body !== undefined) headers['Content-Type'] = 'application/json';
+    const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+    if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
     if (auth) {
       const stored = await currentTokens();
       if (stored) headers.Authorization = `Bearer ${stored.accessToken}`;
     }
-    return rawFetch(path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body) });
+    return rawFetch(path, { method, headers, body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body) });
   };
 
   let response = await send();
