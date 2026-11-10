@@ -220,12 +220,15 @@ Visão geral dos grupos de rotas (detalhes e esquemas no Swagger UI):
 | Magias | `GET /spells`, `GET /spells/{id}` (públicas) |
 | Dados | `POST /dice/roll`, `POST /dice/save`, `GET /dice/history` |
 | Mesas | `/tables` (criar, listar, entrar, detalhar, editar, excluir), código de convite, transferência de anfitrião, gestão de membros e papéis |
+| Mapas | `/maps` (biblioteca, salvar, copiar), publicar na Oficina da Comunidade e `GET /maps/community` |
 | Sessão ao vivo | `POST/GET /tables/{id}/rolls`, `GET /tables/{id}/presence` e STOMP em `/ws` |
 | Operação | `GET /actuator/health` |
 
 Requisições sem token válido recebem `401`. Documentação específica:
 
 - [Mesas](docs/api/mesas.md)
+- [Mapas](docs/api/mapas.md)
+- [Notificações](docs/api/notificacoes.md)
 - [Planos e limites](docs/api/planos.md)
 - [Login com Google](docs/api/auth-google.md)
 - [Sessão ao vivo (WebSocket)](docs/api/sessao-ao-vivo.md)
@@ -280,12 +283,11 @@ O repositório segue o Git Flow: `main` guarda apenas versões publicadas (com t
 
 ## Roadmap
 
-- Sessão ao vivo nos clientes web e mobile (a API de WebSocket já existe), mapa e cenas
+- Sessão ao vivo nos clientes web e mobile (a API de WebSocket já existe) e cenas
 - Biblioteca de sistemas (Quilombo Zero, City of Myst, Ordem Paranormal, Pathfinder) e criação de sistemas próprios
 - Bestiário e livraria
-- Chat, calendário de sessões e notificações
+- Chat e comunidade
 - Recuperação de senha por e-mail e login com Google no aplicativo mobile
-- Upload de imagens
 - Pagamento do plano `PREMIUM`
 - Alinhamento das telas mobile ao design no Figma
 
