@@ -94,3 +94,63 @@ export const SCHOOL_COLORS: Record<string, string> = {
 };
 
 export const LEVEL_LABELS = ['Truque', '1°', '2°', '3°', '4°', '5°', '6°', '7°', '8°', '9°'];
+
+// ── Dice ─────────────────────────────────────────────────────────────────────
+
+export interface RollResult {
+  total: number; rolls: number[];
+  mod: number; sides: number;
+  formula?: string;
+}
+
+export type DiceMode = 'normal' | 'advantage' | 'disadvantage';
+
+export interface HistoryEntry {
+  formula?: string;
+  result: RollResult;
+  timestamp: number;
+  /** Reason for the roll ("Ataque com espada longa"), when given. */
+  label?: string;
+  mode?: DiceMode;
+  /** Dice dropped by advantage/disadvantage. */
+  discarded?: number[];
+  tableId?: string;
+  tableName?: string;
+}
+
+/** Saved roll shortcut ("Atalhos salvos"). */
+export interface DiceShortcut {
+  id: string;
+  name: string;
+  formula: string;
+}
+
+/** Mirrors DiceRollResponse from the backend. */
+export interface DiceRollApiResponse {
+  id: string;
+  formula: string;
+  rolls: number[];
+  mod: number;
+  total: number;
+  rolledAt: string;
+  label?: string | null;
+  mode?: DiceMode;
+  discardedRolls?: number[] | null;
+  tableId?: string | null;
+  tableName?: string | null;
+}
+
+/** Item of a sheet's inventory (weight per unit, in kg). */
+export interface InventoryItem {
+  id: string;
+  name: string;
+  category: 'weapon' | 'armor' | 'consumable' | 'other';
+  quantity: number;
+  weight: number;
+  damage?: string | null;
+  description?: string | null;
+}
+
+export interface Coins { pp: number; gp: number; sp: number; cp: number }
+
+export interface InventoryApiResponse { items: InventoryItem[]; coins: Coins }

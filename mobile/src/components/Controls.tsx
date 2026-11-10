@@ -152,3 +152,14 @@ export function StateBlock({ icon, title, text, actionLabel, onAction }: { icon:
     </View>
   );
 }
+
+/** Selectable pill used for filters and option groups. */
+export function Chip({ label, on, onPress, accessibilityLabel }: { label: string; on: boolean; onPress: () => void; accessibilityLabel?: string }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="radio" accessibilityState={{ checked: on, selected: on }} accessibilityLabel={accessibilityLabel ?? label}
+      style={{ paddingHorizontal: 14, minHeight: 38, borderRadius: 999, alignItems: 'center', justifyContent: 'center',
+        backgroundColor: on ? COLORS.primary : 'transparent', borderWidth: 1, borderColor: on ? COLORS.primary : COLORS.outlineVariant }}>
+      <Text numberOfLines={1} style={{ color: on ? COLORS.onPrimary : COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(13) }}>{label}</Text>
+    </Pressable>
+  );
+}

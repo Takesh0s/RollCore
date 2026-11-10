@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import { applyAccessibilityPalette } from '../design/shared';
 import { onSessionExpired } from '../services/api';
+import { QuickRollModal } from '../components/dice/QuickRollModal';
 import { ToastHost } from '../components/ToastHost';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { falar, pararLeitura } from '../utils/acessibilidadeAudio';
@@ -48,6 +49,7 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }} />
       <ScreenNarrator />
       <SessionWatcher />
+      <QuickRollModal />
       <ToastHost />
     </ThemeProvider>
   );
