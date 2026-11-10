@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Modal, ScrollView, StyleSheet, Text as NativeText, TouchableOpacity as NativeTouchableOpacity, View } from 'react-native';
 import { AccessibleText as Text, AccessibleTouchableOpacity as TouchableOpacity } from './accessible-text';
 import { COLORS, appFontSize } from '../design/shared';
+import { useQuickRoll } from '../store/useQuickRoll';
 
 interface DrawerMenuProps {
   visible: boolean;
@@ -23,6 +24,7 @@ const MENU_ITEMS: { label: string; icon: string; route: string; color?: string }
   { label: 'Home Page', icon: 'home', route: '/mesas' },
   { label: 'Fichas', icon: 'account-details-outline', route: '/skills' },
   { label: 'Dados', icon: 'dice-multiple-outline', route: '/dados' },
+  { label: 'Rolagem rápida', icon: 'dice-d20-outline', route: 'quick-roll' },
   { label: 'Inventário', icon: 'treasure-chest', route: '/vault' },
   { label: 'Livraria', icon: 'book-open-variant', route: '/livraria' },
   { label: 'Busca', icon: 'magnify', route: '/explore' },
@@ -43,6 +45,11 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
 
   const handleNavigation = (route: string) => {
     onClose();
+
+    if (route === 'quick-roll') {
+      useQuickRoll.getState().setOpen(true);
+      return;
+    }
 
     if (ROTAS_PENDENTES.includes(route)) {
       console.warn(`Rota "${route}" ainda não implementada.`);

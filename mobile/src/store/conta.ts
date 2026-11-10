@@ -10,6 +10,7 @@ import {
   setSession,
 } from '../services/api';
 import { useCharacters } from './useCharacters';
+import { useDice } from './useDice';
 import { limparMesas } from './mesas';
 
 export interface Conta {
@@ -44,6 +45,7 @@ async function abrirSessao(resposta: AuthResponse): Promise<void> {
   }
   limparMesas();
   useCharacters.getState().clear();
+  useDice.getState().clear();
   contaAtiva = { apelido: resposta.username, email: resposta.email, fotoUri };
   persistProfile();
   emit();
@@ -133,6 +135,7 @@ export async function encerrarSessao(): Promise<void> {
   await clearSession();
   limparMesas();
   useCharacters.getState().clear();
+  useDice.getState().clear();
   contaAtiva = null;
   emit();
 }
@@ -141,6 +144,7 @@ export async function encerrarSessao(): Promise<void> {
 onSessionExpired(() => {
   limparMesas();
   useCharacters.getState().clear();
+  useDice.getState().clear();
   contaAtiva = null;
   emit();
 });
