@@ -86,10 +86,10 @@ const TUTORIALS: Tutorial[] = [
     title: 'Preparar uma sessão como mestre',
     category: 'Ferramentas',
     icon: 'auto-fix-high',
-    summary: 'Acesse os painéis para organizar mapas, NPCs, lojas, itens, monstros e ambientes.',
-    steps: ['Abra GM Tools pelo menu lateral.', 'Escolha uma ferramenta e preencha os campos disponíveis.', 'Os exemplos salvos aparecem em Recentes do mestre enquanto a tela permanecer aberta.'],
+    summary: 'Crie mapas de batalha com grade, terrenos e névoa de guerra, ou pegue um da Oficina da Comunidade.',
+    steps: ['Abra GM Tools pelo menu lateral.', 'Toque em Adicionar mapa, ou use um mapa da Oficina da Comunidade.', 'Pinte terrenos no editor e toque em Salvar mapa.'],
     actionLabel: 'Abrir GM Tools',
-    route: '/gmtools',
+    route: '/mapas',
   },
 ];
 
