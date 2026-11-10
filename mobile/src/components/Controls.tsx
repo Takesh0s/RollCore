@@ -1,11 +1,12 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useState } from 'react';
-import { Image, Modal, Pressable as NativePressable, ScrollView, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { Image, KeyboardAvoidingView, Modal, Platform, Pressable as NativePressable, ScrollView, View } from 'react-native';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from './accessible-text';
 import { COLORS, appFontSize } from '../design/shared';
 
 const BODY = 'AtkinsonHyperlegible_400Regular';
 const BOLD = 'AtkinsonHyperlegible_700Bold';
+const SERIF = 'SourceSerif4_700Bold';
 
 /** Round portrait: the photo when there is one, otherwise the initial of the name. */
 export function Avatar({ uri, name, size = 56 }: { uri?: string | null; name: string; size?: number }) {
@@ -163,3 +164,37 @@ export function Chip({ label, on, onPress, accessibilityLabel }: { label: string
     </Pressable>
   );
 }
+
+/** Botão de texto (primário, contorno ou perigo). */
+export function Btn({ label, onPress, kind = 'outline', disabled, accessibilityLabel }: {
+  label: string; onPress: () => void; kind?: 'primary' | 'outline' | 'danger'; disabled?: boolean; accessibilityLabel?: string;
+}) {
+  const bg = kind === 'primary' ? COLORS.primary : kind === 'danger' ? '#c0392b' : 'transparent';
+  const fg = kind === 'primary' ? COLORS.onPrimary : kind === 'danger' ? '#fff' : COLORS.onSurface;
+  return (
+    <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label}
+      style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: bg,
+        borderWidth: kind === 'outline' ? 1 : 0, borderColor: COLORS.outlineVariant, opacity: disabled ? 0.5 : 1 }}>
+      <Text style={{ color: fg, fontFamily: BOLD, fontSize: appFontSize(14) }}>{label}</Text>
+    </Pressable>
+  );
+}
+
+/** Folha que sobe de baixo com título e botão de fechar. */
+export function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+  return (
+    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.55)' }}>
+        <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="Fechar" />
+        <View accessibilityViewIsModal style={{ maxHeight: '90%', padding: 18, borderTopLeftRadius: 18, borderTopRightRadius: 18, backgroundColor: COLORS.surfaceContainerHigh }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <Text accessibilityRole="header" numberOfLines={1} style={{ flex: 1, color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20) }}>{title}</Text>
+            <Pressable onPress={onClose} accessibilityLabel="Fechar"><MaterialIcons name="close" size={24} color={COLORS.onSurfaceVariant} /></Pressable>
+          </View>
+          <ScrollView contentContainerStyle={{ gap: 12 }} keyboardShouldPersistTaps="handled">{children}</ScrollView>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
