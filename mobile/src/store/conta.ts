@@ -9,6 +9,7 @@ import {
   request,
   setSession,
 } from '../services/api';
+import { useCharacters } from './useCharacters';
 import { limparMesas } from './mesas';
 
 export interface Conta {
@@ -42,6 +43,7 @@ async function abrirSessao(resposta: AuthResponse): Promise<void> {
     // ignore corrupt local profile
   }
   limparMesas();
+  useCharacters.getState().clear();
   contaAtiva = { apelido: resposta.username, email: resposta.email, fotoUri };
   persistProfile();
   emit();
@@ -130,6 +132,7 @@ export async function encerrarSessao(): Promise<void> {
   }
   await clearSession();
   limparMesas();
+  useCharacters.getState().clear();
   contaAtiva = null;
   emit();
 }
@@ -137,6 +140,7 @@ export async function encerrarSessao(): Promise<void> {
 // When the refresh token is rejected the session is over: drop the local account.
 onSessionExpired(() => {
   limparMesas();
+  useCharacters.getState().clear();
   contaAtiva = null;
   emit();
 });

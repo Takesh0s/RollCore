@@ -1,2 +1,2 @@
-import CriarPersonagemScreen from '../screens/CriarPersonagemScreen';
-export default CriarPersonagemScreen;
+import FichaFormScreen from '../screens/FichaFormScreen';
+export default FichaFormScreen;
