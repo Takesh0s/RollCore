@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { AppHeader } from '../components/AppHeader';
 import { ShortcutsSection } from '../components/dice/ShortcutsSection';
-import { Chip, inputStyle } from '../components/Controls';
+import { Chip, SectionTitle, inputStyle } from '../components/Controls';
 import { COLORS, appFontSize } from '../design/shared';
 import { FORMULA_REGEX, VALID_SIDES, validateFormula } from '../lib/dice';
 import { useAcessibilidade } from '../store/acessibilidade';
@@ -119,7 +119,7 @@ export default function DadosScreen() {
     return res.ok;
   }
 
-  const section = (t: string) => <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(18) }}>{t}</Text>;
+  const section = (t: string) => <SectionTitle>{t}</SectionTitle>;
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -130,8 +130,8 @@ export default function DadosScreen() {
           {VALID_SIDES.map((s) => (
             <Pressable key={s} onPress={() => pickSides(s)} accessibilityRole="radio" accessibilityState={{ checked: sides === s }} accessibilityLabel={`Dado d${s}`}
               style={{ width: 68, height: 58, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
-                backgroundColor: sides === s ? COLORS.primary : COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: sides === s ? COLORS.primary : COLORS.outlineVariant }}>
-              <Text style={{ color: sides === s ? COLORS.onPrimary : COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(17) }}>d{s}</Text>
+                backgroundColor: sides === s ? COLORS.sapphire : 'transparent', borderWidth: 1, borderColor: sides === s ? COLORS.sapphire : COLORS.outlineVariant }}>
+              <Text style={{ color: sides === s ? '#10202E' : COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(20) }}>d{s}</Text>
             </Pressable>
           ))}
         </View>
@@ -139,9 +139,9 @@ export default function DadosScreen() {
         <ShortcutsSection characters={characters} shortcuts={shortcuts} rolling={rolling} currentFormula={formula}
           onRoll={(f, label) => { setFormula(f); void doRoll(f, label); }} onCreate={createShortcut} onRemove={(id) => { void removeShortcut(id).then((r) => { if (!r.ok) showToast(r.error, 'error'); }); }} />
 
-        <View style={{ gap: 12, padding: 14, borderRadius: 14, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+        <View style={{ gap: 12, padding: 14, borderRadius: 14, backgroundColor: COLORS.tile, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
           <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Fórmula</Text>
-          <TextInput value={formula} onChangeText={setFormula} placeholder="1d20 + 5" placeholderTextColor={COLORS.onSurfaceVariant} autoCapitalize="none" autoCorrect={false}
+          <TextInput value={formula} onChangeText={setFormula} placeholder="1d20 + 5" placeholderTextColor={COLORS.placeholder} autoCapitalize="none" autoCorrect={false}
             accessibilityLabel="Fórmula de dados" onSubmitEditing={() => valid && doRoll(formula)} returnKeyType="go" style={inputStyle(!!formula && !valid, valid)} />
           {formula && !valid ? <Text style={{ color: '#e57373', fontFamily: BODY, fontSize: appFontSize(12) }}>Fórmula inválida. Use NdX, NdX+M ou NdX-M (ex: 2d6+3).</Text> : null}
 
@@ -197,7 +197,7 @@ export default function DadosScreen() {
             return (
               <View key={`${h.timestamp}-${i}`} accessible
                 accessibilityLabel={`${baseOf(h.formula)}, total ${h.result.total}${c ? (c === 'crit' ? ', crítico' : ', falha') : ''}, ${whenOf(h.timestamp)}${meta ? `, ${meta}` : ''}`}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 10, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1,
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 10, backgroundColor: COLORS.tile, borderWidth: 1,
                   borderColor: c === 'crit' ? COLORS.primary : c === 'fail' ? '#c0392b' : COLORS.outlineVariant }}>
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>

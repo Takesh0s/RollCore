@@ -218,7 +218,7 @@ export default function FichaScreen() {
           </View>
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
             <TextInput value={hpDelta} onChangeText={(t) => setHpDelta(t.replace(/\D/g, ''))} keyboardType="number-pad" placeholder="Valor"
-              placeholderTextColor={COLORS.onSurfaceVariant} accessibilityLabel="Valor de dano, cura ou HP temporário" style={[inputStyle(), { width: 84, textAlign: 'center' }]} />
+              placeholderTextColor={COLORS.placeholder} accessibilityLabel="Valor de dano, cura ou HP temporário" style={[inputStyle(), { width: 84, textAlign: 'center' }]} />
             {([['− Dano', '#c0392b', applyDamage], ['+ Cura', '#2e8b57', applyHeal], ['⚡ Temp', '#2f6fa8', addTemp]] as const).map(([label, bg, fn]) => (
               <Pressable key={label} onPress={fn} accessibilityLabel={label.replace('−', 'Aplicar').replace('+', 'Aplicar').replace('⚡', 'Aplicar HP')}
                 style={{ flex: 1, minHeight: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: bg }}>

@@ -94,23 +94,23 @@ export default function EventoFormScreen() {
       <Header title="Criar evento" onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }} keyboardShouldPersistTaps="handled">
         <FormGroup label="Nome do evento:" error={errors.title}>
-          <TextInput value={title} onChangeText={setTitle} maxLength={100} placeholder="Ex.: Sessão 13" placeholderTextColor={COLORS.outline} accessibilityLabel="Nome do evento" style={inputStyle(!!errors.title)} />
+          <TextInput value={title} onChangeText={setTitle} maxLength={100} placeholder="Ex.: Sessão 13" placeholderTextColor={COLORS.placeholder} accessibilityLabel="Nome do evento" style={inputStyle(!!errors.title)} />
         </FormGroup>
         <FormGroup label="Mesa / comunidade" error={errors.table}>
           <Select title="Mesa / comunidade" value={chosen?.name ?? ''} options={names} onChange={setTableName} />
         </FormGroup>
         <FormGroup label="Data do evento" error={errors.date}>
-          <TextInput value={date} onChangeText={(t) => setDate(maskDate(t))} keyboardType="number-pad" placeholder="DD/MM/AAAA" placeholderTextColor={COLORS.outline} maxLength={10} accessibilityLabel="Data do evento" style={inputStyle(!!errors.date)} />
+          <TextInput value={date} onChangeText={(t) => setDate(maskDate(t))} keyboardType="number-pad" placeholder="DD/MM/AAAA" placeholderTextColor={COLORS.placeholder} maxLength={10} accessibilityLabel="Data do evento" style={inputStyle(!!errors.date)} />
         </FormGroup>
         <View style={{ flexDirection: 'row', gap: 12 }}>
           <View style={{ flex: 1 }}>
             <FormGroup label="Início" error={errors.time}>
-              <TextInput value={start} onChangeText={(t) => setStart(maskTime(t))} keyboardType="number-pad" placeholder="HH:MM" placeholderTextColor={COLORS.outline} maxLength={5} accessibilityLabel="Início" style={inputStyle(!!errors.time)} />
+              <TextInput value={start} onChangeText={(t) => setStart(maskTime(t))} keyboardType="number-pad" placeholder="HH:MM" placeholderTextColor={COLORS.placeholder} maxLength={5} accessibilityLabel="Início" style={inputStyle(!!errors.time)} />
             </FormGroup>
           </View>
           <View style={{ flex: 1 }}>
             <FormGroup label="Fim">
-              <TextInput value={end} onChangeText={(t) => setEnd(maskTime(t))} keyboardType="number-pad" placeholder="HH:MM" placeholderTextColor={COLORS.outline} maxLength={5} accessibilityLabel="Fim" style={inputStyle(!!errors.time)} />
+              <TextInput value={end} onChangeText={(t) => setEnd(maskTime(t))} keyboardType="number-pad" placeholder="HH:MM" placeholderTextColor={COLORS.placeholder} maxLength={5} accessibilityLabel="Fim" style={inputStyle(!!errors.time)} />
             </FormGroup>
           </View>
         </View>

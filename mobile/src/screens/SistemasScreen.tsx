@@ -94,7 +94,7 @@ export default function SistemasScreen() {
           value={search}
           onChangeText={setSearch}
           placeholder="Buscar sistemas..."
-          placeholderTextColor={COLORS.outline}
+          placeholderTextColor={COLORS.placeholder}
           accessibilityLabel="Buscar sistemas"
           style={{ flex: 1, height: 42, color: COLORS.onSurface, borderBottomWidth: 1, borderBottomColor: COLORS.outlineVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(15) }}
         />
@@ -171,7 +171,7 @@ export default function SistemasScreen() {
               <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(21) }}>Adicionar sistema</Text>
               <Pressable onPress={() => setCreateOpen(false)} accessibilityLabel="Fechar formulário"><MaterialIcons name="close" size={24} color={COLORS.onSurfaceVariant} /></Pressable>
             </View>
-            <TextInput value={newName} onChangeText={setNewName} placeholder="Nome do sistema" placeholderTextColor={COLORS.outline} style={{ minHeight: 48, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular' }} />
+            <TextInput value={newName} onChangeText={setNewName} placeholder="Nome do sistema" placeholderTextColor={COLORS.placeholder} style={{ minHeight: 48, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular' }} />
             <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>Categoria</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {(CATEGORIES.slice(1) as SystemCategory[]).map((category) => (
@@ -180,7 +180,7 @@ export default function SistemasScreen() {
                 </Pressable>
               ))}
             </View>
-            <TextInput value={newDescription} onChangeText={setNewDescription} placeholder="Descrição (opcional)" placeholderTextColor={COLORS.outline} multiline style={{ minHeight: 82, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', textAlignVertical: 'top' }} />
+            <TextInput value={newDescription} onChangeText={setNewDescription} placeholder="Descrição (opcional)" placeholderTextColor={COLORS.placeholder} multiline style={{ minHeight: 82, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', textAlignVertical: 'top' }} />
             <Pressable onPress={addSystem} disabled={!newName.trim()} style={{ minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 8, backgroundColor: newName.trim() ? COLORS.primary : COLORS.surfaceContainerHighest }}>
               <Text style={{ color: newName.trim() ? COLORS.onPrimary : COLORS.outline, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>Salvar Sistema</Text>
             </Pressable>

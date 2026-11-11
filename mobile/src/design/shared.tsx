@@ -1,9 +1,11 @@
 import { AtkinsonHyperlegible_400Regular, AtkinsonHyperlegible_700Bold } from '@expo-google-fonts/atkinson-hyperlegible';
 import { SourceSerif4_600SemiBold, SourceSerif4_700Bold } from '@expo-google-fonts/source-serif-4';
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { useState } from 'react';
-import { Pressable as NativePressable, StyleSheet, TextInputProps, View } from 'react-native';
+import { Image, Pressable as NativePressable, StyleSheet, TextInputProps, View } from 'react-native';
+import { imageSrc } from '../lib/mapImage';
+import { useContaAtiva } from '../store/conta';
 import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
 import { Appearance } from 'react-native';
 import { appColors, getTheme, type ThemeMode } from '../lib/theme';
@@ -15,6 +17,7 @@ const NORMAL_COLORS = {
   onSurface: '#FFFFFF', onSurfaceVariant: '#C0C0C0', outline: '#C0C0C0', outlineVariant: '#70787B',
   primary: '#70B596', onPrimary: '#252525', primaryContainer: '#1E1E1E', onPrimaryContainer: '#70B596',
   primaryFixedDim: '#70B596', secondary: '#C0C0C0',
+  canvas: '#587E9D', btn: '#252525', btnText: '#6A89A7', sapphire: '#8FB8DE', field: '#6A89A7', fieldText: '#10202E', placeholder: 'rgba(16,32,46,0.65)', tile: 'rgba(0,0,0,0.2)',
 } as const;
 const ACCESSIBLE_BASE = {
   background: '#0B1020', surface: '#0B1020', surfaceContainer: '#121D31', surfaceContainerLowest: '#0B1020',
@@ -54,7 +57,7 @@ export function applyAccessibilityPalette(enabled: boolean, type: DaltonismType 
   let authPalette: Record<string, string>;
   if (enabled) {
     const accents = TYPE_ACCENTS[type];
-    palette = { ...ACCESSIBLE_BASE, ...accents, primaryFixedDim: accents.primary };
+    palette = { ...ACCESSIBLE_BASE, ...accents, primaryFixedDim: accents.primary, canvas: '#0B1020', btn: accents.primaryContainer, btnText: '#FFFFFF', sapphire: accents.primary, field: '#253B5B', fieldText: '#FFFFFF', placeholder: 'rgba(255,255,255,0.72)', tile: 'rgba(0,0,0,0.25)' };
     authPalette = { ...ACCESSIBLE_AUTH_BASE, mint: accents.primary, button: accents.primaryContainer };
   } else if (tema === 'medieval' && mode === 'dark') {
     palette = NORMAL_COLORS;
@@ -100,11 +103,22 @@ export function Logo({ size = 96 }: { size?: number }) {
 
 export function Header({ title, onMenu, onBack, rightIcon = 'person', onRightPress }: { title: string; onMenu?: () => void; onBack?: () => void; rightIcon?: keyof typeof MaterialIcons.glyphMap; onRightPress?: () => void }) {
   const leftAction = onMenu ?? onBack;
+  const conta = useContaAtiva();
+  const avatar = rightIcon === 'person' ? imageSrc(conta?.avatarUrl) : null;
+  // Cabeçalho do web: botão à esquerda, título em serifa centralizado e o perfil à direita, com um filete embaixo.
   return (
-    <View style={[styles.header, { backgroundColor: COLORS.background, borderBottomColor: COLORS.outlineVariant }]}>
-      <Pressable onPress={leftAction} disabled={!leftAction} style={styles.headerButton} accessibilityLabel={onMenu ? 'Abrir menu' : 'Voltar'}>{leftAction ? <MaterialIcons name={onMenu ? 'menu' : 'arrow-back'} size={28} color={onMenu ? COLORS.primary : COLORS.onSurfaceVariant} /> : null}</Pressable>
-      <Text style={[styles.headerTitle, { color: COLORS.primary, fontSize: appFontSize(22) }]}>{title}</Text>
-      <Pressable onPress={onRightPress} style={[styles.headerAvatar, { backgroundColor: COLORS.primary }]} disabled={!onRightPress} accessibilityLabel={rightIcon}><MaterialIcons name={rightIcon} size={18} color={COLORS.onPrimary} /></Pressable>
+    <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 18, marginTop: 6, paddingTop: 4, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: COLORS.outlineVariant, backgroundColor: 'transparent' }}>
+      <Pressable onPress={leftAction} disabled={!leftAction} style={{ width: 44, height: 44, justifyContent: 'center', alignItems: 'flex-start' }} accessibilityLabel={onMenu ? 'Abrir menu' : 'Voltar'}>
+        {leftAction ? <MaterialIcons name={onMenu ? 'menu' : 'arrow-back'} size={34} color={COLORS.onSurfaceVariant} /> : null}
+      </Pressable>
+      <Text numberOfLines={1} accessibilityRole="header" style={{ flex: 1, textAlign: 'center', color: COLORS.primary, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(26) }}>{title}</Text>
+      <Pressable onPress={onRightPress} disabled={!onRightPress} style={{ width: 44, height: 44, alignItems: 'flex-end', justifyContent: 'center' }} accessibilityLabel={avatar || rightIcon === 'person' ? 'Perfil' : rightIcon}>
+        {avatar
+          ? <Image source={{ uri: avatar }} style={{ width: 38, height: 38, borderRadius: 19, borderWidth: 2, borderColor: COLORS.onSurfaceVariant }} />
+          : rightIcon === 'person'
+            ? <MaterialCommunityIcons name="account-circle-outline" size={40} color={COLORS.onSurfaceVariant} />
+            : <MaterialIcons name={rightIcon} size={30} color={COLORS.onSurfaceVariant} />}
+      </Pressable>
     </View>
   );
 }
@@ -115,7 +129,7 @@ export function Field({ label, icon, isPassword, style, ...rest }: FieldProps) {
   const [hidden, setHidden] = useState(true);
   return <View style={styles.fieldWrapper}><Text style={[styles.fieldLabel, { color: COLORS.onSurface, fontSize: appFontSize(14) }]}>{label}</Text><View style={styles.fieldRow}>
     {icon && <MaterialIcons name={icon} size={20} color={COLORS.outlineVariant} style={styles.fieldIcon} />}
-    <TextInput style={[styles.fieldInput, { backgroundColor: COLORS.surfaceContainerLowest, borderColor: COLORS.outlineVariant, color: COLORS.onSurface, fontSize: appFontSize(16) }, icon ? { paddingLeft: 44 } : null, style]} placeholderTextColor={COLORS.onSurfaceVariant} autoCapitalize="none" secureTextEntry={isPassword ? hidden : rest.secureTextEntry} {...rest} />
+    <TextInput style={[styles.fieldInput, { backgroundColor: COLORS.surfaceContainerLowest, borderColor: COLORS.outlineVariant, color: COLORS.onSurface, fontSize: appFontSize(16) }, icon ? { paddingLeft: 44 } : null, style]} placeholderTextColor={COLORS.placeholder} autoCapitalize="none" secureTextEntry={isPassword ? hidden : rest.secureTextEntry} {...rest} />
     {isPassword && <Pressable onPress={() => setHidden((v) => !v)} style={styles.fieldTrailingIcon} accessibilityLabel={hidden ? 'Mostrar senha' : 'Ocultar senha'}><MaterialIcons name={hidden ? 'visibility-off' : 'visibility'} size={20} color={COLORS.outlineVariant} /></Pressable>}
   </View></View>;
 }

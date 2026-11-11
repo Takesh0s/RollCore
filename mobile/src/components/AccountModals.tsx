@@ -48,7 +48,7 @@ export function ChangeEmailModal({ onClose }: { onClose: () => void }) {
     <Sheet title="Alterar e-mail" onClose={onClose}>
       <FormGroup label="Novo e-mail">
         <TextInput value={email} onChangeText={(t) => { setEmail(t); setError(''); }} keyboardType="email-address" autoCapitalize="none" autoCorrect={false}
-          autoComplete="email" placeholder="novo@email.com" placeholderTextColor={COLORS.outline} accessibilityLabel="Novo e-mail" style={inputStyle(!!error)} />
+          autoComplete="email" placeholder="novo@email.com" placeholderTextColor={COLORS.placeholder} accessibilityLabel="Novo e-mail" style={inputStyle(!!error)} />
       </FormGroup>
       <FormGroup label="Senha atual">
         <PasswordField value={password} onChangeText={(t) => { setPassword(t); setError(''); }} label="Senha atual" error={!!error} />
@@ -130,7 +130,7 @@ export function DeleteAccountModal({ onClose, onDeleted }: { onClose: () => void
       </Text>
       <FormGroup label="Confirmação">
         <TextInput value={typed} onChangeText={setTyped} autoCapitalize="characters" autoCorrect={false} autoComplete="off" placeholder="EXCLUIR"
-          placeholderTextColor={COLORS.outline} accessibilityLabel="Confirmação" style={inputStyle()} />
+          placeholderTextColor={COLORS.placeholder} accessibilityLabel="Confirmação" style={inputStyle()} />
       </FormGroup>
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <View style={{ flex: 1 }}><Btn label="Cancelar" onPress={onClose} /></View>

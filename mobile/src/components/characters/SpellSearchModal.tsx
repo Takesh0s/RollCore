@@ -70,7 +70,7 @@ export function SpellSearchModal({ characterId, characterClass, knownSpellIds, o
             </View>
             <Pressable onPress={onClose} accessibilityLabel="Fechar compêndio" style={{ padding: 6 }}><MaterialIcons name="close" size={26} color={COLORS.onSurface} /></Pressable>
           </View>
-          <TextInput value={search} onChangeText={setSearch} placeholder="Buscar magia…" placeholderTextColor={COLORS.onSurfaceVariant}
+          <TextInput value={search} onChangeText={setSearch} placeholder="Buscar magia…" placeholderTextColor={COLORS.placeholder}
             style={inputStyle()} returnKeyType="search" autoCapitalize="none" />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             {LEVELS.map((lv) => {

@@ -5,7 +5,7 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
 import { Avatar, StateBlock } from '../components/Controls';
-import { COLORS, Card, appFontSize } from '../design/shared';
+import { COLORS, appFontSize } from '../design/shared';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { useCharacters } from '../store/useCharacters';
 
@@ -26,49 +26,29 @@ export default function FichasScreen() {
 
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 104, gap: 14 }}
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 8 }}
         refreshControl={<RefreshControl refreshing={loading && loaded} onRefresh={load} tintColor={COLORS.primary} />}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ color: COLORS.primary, fontSize: appFontSize(20), fontFamily: 'SourceSerif4_700Bold' }}>Os Meus Heróis</Text>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(13), fontFamily: BODY }}>
-            {characters.length} {characters.length === 1 ? 'personagem' : 'personagens'}
-          </Text>
-        </View>
+        <Pressable onPress={() => router.push('/criar-personagem')} accessibilityRole="button" accessibilityLabel="Nova ficha"
+          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', marginLeft: -6 }}>
+          <MaterialIcons name="add" size={36} color={COLORS.onSurfaceVariant} />
+        </Pressable>
 
-        {characters.map((c) => {
-          const pct = c.max_hp > 0 ? Math.max(0, Math.min(100, (c.hp / c.max_hp) * 100)) : 0;
-          return (
-            <Card key={c.id}>
-              <View style={{ gap: 12 }}>
-                <Pressable onPress={() => open(c.id)} accessibilityRole="button" accessibilityLabel={`Abrir ficha de ${c.name}`}
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                  <Avatar uri={c.avatar_url} name={c.name} size={62} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(11), fontFamily: BOLD, textTransform: 'uppercase' }}>
-                      {c.class} · {c.race} · Nível {c.level}
-                    </Text>
-                    <Text numberOfLines={1} style={{ color: COLORS.primary, fontSize: appFontSize(19), fontFamily: 'SourceSerif4_700Bold', marginTop: 3 }}>{c.name}</Text>
-                    <Text style={{ color: COLORS.secondary, fontSize: appFontSize(12), fontFamily: BODY, marginTop: 4 }}>HP {c.hp}/{c.max_hp} · CA {c.ac}</Text>
-                  </View>
-                </Pressable>
-                <View accessibilityElementsHidden style={{ height: 6, borderRadius: 3, backgroundColor: COLORS.surfaceContainerLowest, overflow: 'hidden' }}>
-                  <View style={{ width: `${pct}%`, height: '100%', backgroundColor: pct < 60 ? '#e8a020' : COLORS.primary }} />
-                </View>
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                  <Pressable onPress={() => open(c.id)} accessibilityLabel={`Abrir ${c.name}`}
-                    style={{ flex: 1, minHeight: 42, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary }}>
-                    <Text style={{ color: COLORS.onPrimary, fontFamily: BOLD, fontSize: appFontSize(14) }}>Abrir</Text>
-                  </Pressable>
-                  <Pressable onPress={() => edit(c.id)} accessibilityLabel={`Editar ${c.name}`}
-                    style={{ flex: 1, minHeight: 42, borderRadius: 8, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6, backgroundColor: COLORS.primaryContainer }}>
-                    <MaterialIcons name="edit" size={16} color={COLORS.onPrimaryContainer} />
-                    <Text style={{ color: COLORS.onPrimaryContainer, fontFamily: BOLD, fontSize: appFontSize(14) }}>Editar</Text>
-                  </Pressable>
-                </View>
+        {characters.map((c) => (
+          <View key={c.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 8, backgroundColor: COLORS.tile }}>
+            <Pressable onPress={() => open(c.id)} accessibilityRole="button" accessibilityLabel={`Abrir ficha de ${c.name}. ${c.class}, ${c.race}, nível ${c.level}`}
+              style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <Avatar uri={c.avatar_url} name={c.name} size={42} />
+              <View style={{ flex: 1 }}>
+                <Text numberOfLines={1} style={{ color: COLORS.onSurface, fontSize: appFontSize(15), fontFamily: 'SourceSerif4_700Bold' }}>{c.name}</Text>
+                <Text numberOfLines={1} style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(12), fontFamily: BODY }}>{[c.class, c.race].filter(Boolean).join(' · ')} · Nível {c.level}</Text>
               </View>
-            </Card>
-          );
-        })}
+            </Pressable>
+            <Pressable onPress={() => edit(c.id)} accessibilityRole="button" accessibilityLabel={`Editar ${c.name}`}
+              style={{ minHeight: 34, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.btn, shadowColor: '#fff', shadowOpacity: 0.25, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }}>
+              <Text style={{ color: COLORS.btnText, fontFamily: BODY, fontSize: appFontSize(13) }}>Editar</Text>
+            </Pressable>
+          </View>
+        ))}
 
         {!loaded && loading && <StateBlock icon="hourglass-empty" title="Carregando suas fichas…" text="Na primeira abertura o servidor pode levar alguns segundos para acordar." />}
         {error && !loaded && <StateBlock icon="cloud-off" title="Não foi possível carregar as fichas" text={error} actionLabel="Tentar de novo" onAction={load} />}
@@ -78,10 +58,6 @@ export default function FichasScreen() {
         )}
       </ScrollView>
 
-      <Pressable onPress={() => router.push('/criar-personagem')} accessibilityLabel="Nova ficha"
-        style={{ position: 'absolute', right: 16, bottom: 20, width: 56, height: 56, borderRadius: 18, backgroundColor: COLORS.primary, alignItems: 'center', justifyContent: 'center', elevation: 8 }}>
-        <MaterialIcons name="add" size={28} color={COLORS.onPrimary} />
-      </Pressable>
     </SafeAreaView>
   );
 }

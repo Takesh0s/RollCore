@@ -36,8 +36,8 @@ export function FormGroup({ label, hint, error, children }: { label: string; hin
 export function inputStyle(error?: boolean, valid?: boolean) {
   return {
     minHeight: 48, borderRadius: 10, paddingHorizontal: 14, fontFamily: BODY, fontSize: appFontSize(16),
-    backgroundColor: COLORS.surfaceContainerLowest, color: COLORS.onSurface,
-    borderWidth: 1, borderColor: error ? '#e57373' : valid ? COLORS.primary : COLORS.outlineVariant,
+    backgroundColor: COLORS.field, color: COLORS.fieldText,
+    borderWidth: 1, borderColor: error ? '#e05555' : valid ? 'rgba(74,222,128,0.5)' : COLORS.outlineVariant,
   } as const;
 }
 
@@ -79,7 +79,7 @@ export function Select({ value, options, onChange, placeholder = 'Selecione...',
             </View>
             {custom && (
               <View style={{ flexDirection: 'row', gap: 8 }}>
-                <TextInput value={typed} onChangeText={setTyped} placeholder="Digite um nome" placeholderTextColor={COLORS.onSurfaceVariant} maxLength={50}
+                <TextInput value={typed} onChangeText={setTyped} placeholder="Digite um nome" placeholderTextColor={COLORS.placeholder} maxLength={50}
                   style={[inputStyle(), { flex: 1 }]} autoCapitalize="words" />
                 <Pressable disabled={!typed.trim()} onPress={() => pick(typed.trim())} accessibilityLabel="Usar o nome digitado"
                   style={{ paddingHorizontal: 16, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary, opacity: typed.trim() ? 1 : 0.4 }}>
@@ -146,8 +146,8 @@ export function StateBlock({ icon, title, text, actionLabel, onAction }: { icon:
       <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(18), textAlign: 'center' }}>{title}</Text>
       {text ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14), textAlign: 'center' }}>{text}</Text> : null}
       {actionLabel && onAction ? (
-        <Pressable onPress={onAction} style={{ marginTop: 6, paddingHorizontal: 20, minHeight: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary }}>
-          <Text style={{ color: COLORS.onPrimary, fontFamily: BOLD, fontSize: appFontSize(15) }}>{actionLabel}</Text>
+        <Pressable onPress={onAction} style={{ marginTop: 6, paddingHorizontal: 20, minHeight: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.btn }}>
+          <Text style={{ color: COLORS.btnText, fontFamily: BODY, fontSize: appFontSize(15) }}>{actionLabel}</Text>
         </Pressable>
       ) : null}
     </View>
@@ -158,10 +158,22 @@ export function StateBlock({ icon, title, text, actionLabel, onAction }: { icon:
 export function Chip({ label, on, onPress, accessibilityLabel }: { label: string; on: boolean; onPress: () => void; accessibilityLabel?: string }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="radio" accessibilityState={{ checked: on, selected: on }} accessibilityLabel={accessibilityLabel ?? label}
-      style={{ paddingHorizontal: 14, minHeight: 38, borderRadius: 999, alignItems: 'center', justifyContent: 'center',
-        backgroundColor: on ? COLORS.primary : 'transparent', borderWidth: 1, borderColor: on ? COLORS.primary : COLORS.outlineVariant }}>
-      <Text numberOfLines={1} style={{ color: on ? COLORS.onPrimary : COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(13) }}>{label}</Text>
+      style={{ paddingHorizontal: 15, minHeight: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center',
+        backgroundColor: on ? COLORS.sapphire : 'transparent', borderWidth: 1, borderColor: on ? COLORS.sapphire : COLORS.outlineVariant }}>
+      <Text numberOfLines={1} style={{ color: on ? '#10202E' : COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(13) }}>{label}</Text>
     </Pressable>
+  );
+}
+
+/** Título de seção do web: texto em serifa centralizado com um filete de cada lado (ou só à direita, com `align="start"`). */
+export function SectionTitle({ children, align = 'center' }: { children: string; align?: 'center' | 'start' }) {
+  const line = { flex: 1, height: 1, backgroundColor: COLORS.outlineVariant } as const;
+  return (
+    <View accessibilityRole="header" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 6 }}>
+      {align === 'center' && <View style={line} />}
+      <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(15) }}>{children}</Text>
+      <View style={line} />
+    </View>
   );
 }
 
@@ -169,13 +181,16 @@ export function Chip({ label, on, onPress, accessibilityLabel }: { label: string
 export function Btn({ label, onPress, kind = 'outline', disabled, accessibilityLabel }: {
   label: string; onPress: () => void; kind?: 'primary' | 'outline' | 'danger'; disabled?: boolean; accessibilityLabel?: string;
 }) {
-  const bg = kind === 'primary' ? COLORS.primary : kind === 'danger' ? '#c0392b' : 'transparent';
-  const fg = kind === 'primary' ? COLORS.onPrimary : kind === 'danger' ? '#fff' : COLORS.onSurface;
+  // Primário: escuro com brilho claro, como no web; contorno: translúcido com borda prateada.
+  const primary = kind === 'primary';
+  const bg = primary ? COLORS.btn : kind === 'outline' ? 'rgba(255,255,255,0.08)' : 'transparent';
+  const fg = primary ? COLORS.btnText : kind === 'danger' ? '#e57373' : COLORS.onSurfaceVariant;
   return (
     <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label}
-      style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: bg,
-        borderWidth: kind === 'outline' ? 1 : 0, borderColor: COLORS.outlineVariant, opacity: disabled ? 0.5 : 1 }}>
-      <Text style={{ color: fg, fontFamily: BOLD, fontSize: appFontSize(14) }}>{label}</Text>
+      style={{ minHeight: 44, paddingHorizontal: 22, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: bg,
+        borderWidth: primary ? 0 : 1, borderColor: kind === 'danger' ? '#e57373' : 'rgba(192,192,192,0.5)', opacity: disabled ? 0.55 : 1,
+        ...(primary && !disabled ? { shadowColor: '#fff', shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 0 }, elevation: 0 } : null) }}>
+      <Text style={{ color: fg, fontFamily: BODY, fontSize: appFontSize(15) }}>{label}</Text>
     </Pressable>
   );
 }

@@ -30,7 +30,7 @@ export function DeleteTableModal({ table, onClose, onDone }: { table: TableSumma
     <Sheet title="Excluir mesa" onClose={onClose}>
       {text(`${others > 0 ? `${others} ${others === 1 ? 'jogador perde' : 'jogadores perdem'} o acesso. ` : ''}Mapas, notas e histórico das sessões serão apagados. Para confirmar, digite o nome da mesa.`)}
       {label('Nome da mesa')}
-      <TextInput value={typed} onChangeText={setTyped} placeholder={table.name} placeholderTextColor={COLORS.onSurfaceVariant} autoCorrect={false} accessibilityLabel="Nome da mesa" style={inputStyle()} />
+      <TextInput value={typed} onChangeText={setTyped} placeholder={table.name} placeholderTextColor={COLORS.placeholder} autoCorrect={false} accessibilityLabel="Nome da mesa" style={inputStyle()} />
       {actions(<Btn key="c" label="Cancelar" onPress={onClose} />, <Btn key="d" label="Excluir mesa" kind="danger" disabled={!ok || busy} onPress={run} />)}
     </Sheet>
   );
@@ -101,7 +101,7 @@ export function JoinTableModal({ onClose, onJoined }: { onClose: () => void; onJ
       {text('Digite o código de convite que o mestre compartilhou.')}
       {label('Código de convite')}
       <TextInput value={code} onChangeText={(t) => setCode(t.toUpperCase().replace(/[^A-Z0-9]/g, ''))} maxLength={10} autoFocus autoCapitalize="characters" autoCorrect={false}
-        placeholder="K7P2QX" placeholderTextColor={COLORS.onSurfaceVariant} accessibilityLabel="Código de convite" style={[inputStyle(!!error), { letterSpacing: 3, fontFamily: BOLD }]} />
+        placeholder="K7P2QX" placeholderTextColor={COLORS.placeholder} accessibilityLabel="Código de convite" style={[inputStyle(!!error), { letterSpacing: 3, fontFamily: BOLD }]} />
       {!!error && <Text style={{ color: '#e57373', fontFamily: BODY, fontSize: appFontSize(12) }}>{error}</Text>}
       {preview && (
         <View style={{ gap: 4, padding: 12, borderRadius: 12, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
@@ -141,7 +141,7 @@ export function MyTableProfileModal({ table, username, onClose }: { table: Table
         </View>
       </View>
       {label('Nome de exibição (apenas para esta mesa)')}
-      <TextInput value={name} onChangeText={setName} maxLength={50} placeholder={username} placeholderTextColor={COLORS.onSurfaceVariant} accessibilityLabel="Nome de exibição" style={inputStyle()} />
+      <TextInput value={name} onChangeText={setName} maxLength={50} placeholder={username} placeholderTextColor={COLORS.placeholder} accessibilityLabel="Nome de exibição" style={inputStyle()} />
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <Text style={{ flex: 1, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(15) }}>Silenciar notificações desta mesa</Text>
         <Switch value={muted} onValueChange={setMuted} accessibilityLabel="Silenciar notificações desta mesa" trackColor={{ true: COLORS.primary }} />

@@ -12,17 +12,17 @@ export function TableBanner({ table, onEnter }: { table: TableSummary; onEnter: 
   const cover = imageSrc(table.coverUrl);
   const body = (
     <View style={{ height: 150, padding: 12, justifyContent: 'space-between' }}>
-      <Text numberOfLines={2} style={{ color: cover ? '#fff' : COLORS.primary, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(20), textShadowColor: cover ? '#000' : 'transparent', textShadowRadius: 8, textShadowOffset: { width: 0, height: 1 } }}>{table.name}</Text>
-      <View style={{ alignItems: 'flex-end' }}>
+      <Text numberOfLines={2} style={{ color: cover ? '#fff' : COLORS.onSurface, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(17), textShadowColor: cover ? '#000' : 'transparent', textShadowRadius: 8, textShadowOffset: { width: 0, height: 1 } }}>{table.name}</Text>
+      <View style={{ alignItems: 'center' }}>
         <Pressable onPress={onEnter} accessibilityRole="button" accessibilityLabel={`Entrar na mesa ${table.name}`}
-          style={{ minHeight: 40, paddingHorizontal: 22, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary }}>
-          <Text style={{ color: COLORS.onPrimary, fontFamily: BOLD, fontSize: appFontSize(14) }}>Entrar</Text>
+          style={{ minHeight: 38, paddingHorizontal: 24, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.btn, shadowColor: '#fff', shadowOpacity: 0.3, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }}>
+          <Text style={{ color: COLORS.btnText, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }}>Entrar</Text>
         </Pressable>
       </View>
     </View>
   );
   return (
-    <View style={{ borderRadius: 14, overflow: 'hidden', borderWidth: 1, borderColor: COLORS.outlineVariant, backgroundColor: COLORS.surfaceContainerHigh }}>
+    <View style={{ borderRadius: 4, overflow: 'hidden', backgroundColor: COLORS.tile }}>
       {cover ? (
         <ImageBackground source={{ uri: cover }} resizeMode="cover" accessibilityLabel={`Capa de ${table.name}`}>{body}</ImageBackground>
       ) : (

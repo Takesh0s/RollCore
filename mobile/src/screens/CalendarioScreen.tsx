@@ -7,7 +7,7 @@ import { AccessiblePressable as Pressable, AccessibleText as Text } from '../com
 import { AppHeader } from '../components/AppHeader';
 import { EventModal } from '../components/calendar/EventModal';
 import { RsvpBadge } from '../components/calendar/EventParts';
-import { Btn, StateBlock } from '../components/Controls';
+import { Btn, SectionTitle, StateBlock } from '../components/Controls';
 import { COLORS, appFontSize } from '../design/shared';
 import {
   EVENT_COLORS, WEEKDAY_HEADERS, dayLabel, hourLabel, monthGrid, monthTitle, myStatus, occurrencesBetween, sameDay,
@@ -23,6 +23,8 @@ const BOLD = 'AtkinsonHyperlegible_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 /** Calendário de sessões: mês, próximos eventos e legenda das mesas (no celular só há a visão do mês, como no web). */
+const navBtn = { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(192,192,192,0.6)' } as const;
+
 export default function CalendarioScreen() {
   useAcessibilidade();
   const router = useRouter();
@@ -60,21 +62,21 @@ export default function CalendarioScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <AppHeader title="Calendário" />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }}>
-        <View style={{ borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: COLORS.surfaceContainerHighest, backgroundColor: COLORS.surfaceContainerHigh }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 8, paddingVertical: 4, backgroundColor: COLORS.surfaceContainerHighest }}>
-            <Pressable onPress={() => step(-1)} accessibilityLabel="Mês anterior" style={{ padding: 10 }}><MaterialIcons name="chevron-left" size={26} color={COLORS.primary} /></Pressable>
+        <View style={{ gap: 6 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <Pressable onPress={() => step(-1)} accessibilityLabel="Mês anterior" style={navBtn}><MaterialIcons name="chevron-left" size={22} color={COLORS.onSurface} /></Pressable>
             <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(18) }}>{monthTitle(anchor)}</Text>
-            <Pressable onPress={() => step(1)} accessibilityLabel="Próximo mês" style={{ padding: 10 }}><MaterialIcons name="chevron-right" size={26} color={COLORS.primary} /></Pressable>
+            <Pressable onPress={() => step(1)} accessibilityLabel="Próximo mês" style={navBtn}><MaterialIcons name="chevron-right" size={22} color={COLORS.onSurface} /></Pressable>
           </View>
 
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{ flexDirection: 'row', gap: 6 }}>
             {WEEKDAY_HEADERS.map((d) => (
-              <Text key={d} style={{ flex: 1, textAlign: 'center', paddingVertical: 6, color: COLORS.outline, fontFamily: BOLD, fontSize: appFontSize(11) }}>{d}</Text>
+              <Text key={d} style={{ flex: 1, textAlign: 'center', paddingVertical: 4, color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(11) }}>{d}</Text>
             ))}
           </View>
 
           {weeks.map((week, wi) => (
-            <View key={wi} style={{ flexDirection: 'row' }}>
+            <View key={wi} style={{ flexDirection: 'row', gap: 6 }}>
               {week.map((d) => {
                 const iso = toISO(d);
                 const list = byDay.get(iso) ?? [];
@@ -85,13 +87,13 @@ export default function CalendarioScreen() {
                   <Pressable key={iso} disabled={!list.length} onPress={() => setPicked((p) => (p === iso ? null : iso))}
                     accessibilityLabel={`${dayLabel(iso)}${list.length ? `, ${list.length} evento${list.length > 1 ? 's' : ''}` : ''}`}
                     accessibilityState={{ selected: sel }}
-                    style={{ flex: 1, height: 54, padding: 4, alignItems: 'center', borderWidth: sel ? 2 : 0.5, borderColor: sel ? COLORS.primary : COLORS.outlineVariant,
-                      backgroundColor: out ? COLORS.surfaceContainerLowest : COLORS.surfaceContainer }}>
-                    <View style={{ minWidth: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: isToday ? COLORS.primary : 'transparent' }}>
-                      <Text style={{ color: isToday ? COLORS.onPrimary : out ? COLORS.outline : COLORS.onSurface, fontFamily: isToday ? BOLD : BODY, fontSize: appFontSize(12) }}>{d.getDate()}</Text>
+                    style={{ flex: 1, height: 46, paddingTop: 5, alignItems: 'center', borderRadius: 8, borderWidth: sel ? 2 : 1, borderColor: sel ? COLORS.sapphire : COLORS.outlineVariant,
+                      backgroundColor: out ? 'transparent' : COLORS.surfaceContainerHigh, opacity: out ? 0.5 : 1 }}>
+                    <View style={{ minWidth: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: isToday ? COLORS.field : 'transparent' }}>
+                      <Text style={{ color: isToday ? COLORS.fieldText : COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(12) }}>{d.getDate()}</Text>
                     </View>
-                    <View style={{ flexDirection: 'row', gap: 3, marginTop: 4 }}>
-                      {list.slice(0, 4).map((o) => <View key={o.event.id} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: EVENT_COLORS[o.event.color] }} />)}
+                    <View style={{ flexDirection: 'row', gap: 3, marginTop: 2 }}>
+                      {list.slice(0, 4).map((o) => <View key={o.event.id} style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: EVENT_COLORS[o.event.color] }} />)}
                     </View>
                   </Pressable>
                 );
@@ -102,9 +104,7 @@ export default function CalendarioScreen() {
 
         {canCreate && <Btn label="+ Criar evento" kind="primary" onPress={() => router.push('/novo-evento' as any)} />}
 
-        <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20) }}>
-          {picked ? `Eventos de ${dayLabel(picked)}` : 'Próximos eventos'}
-        </Text>
+        <SectionTitle align="start">{picked ? `Eventos de ${dayLabel(picked)}` : 'Próximos eventos'}</SectionTitle>
 
         {!loaded && loading ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>Carregando eventos…</Text>
           : shown.length === 0 ? <StateBlock icon="event-busy" title={picked ? 'Nenhum evento neste dia.' : 'Nenhum evento marcado.'} text={picked ? undefined : canCreate ? 'Crie o primeiro!' : undefined} />

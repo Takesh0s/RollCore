@@ -193,7 +193,7 @@ export function InventoryTab({ char }: { char: Character }) {
               <ScrollView contentContainerStyle={{ gap: 12 }} keyboardShouldPersistTaps="handled">
                 <Text style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20) }}>{draft.id ? 'Editar item' : 'Novo item'}</Text>
                 <FormGroup label="Nome">
-                  <TextInput value={draft.name} onChangeText={(t) => setDraft({ ...draft, name: t })} maxLength={80} style={inputStyle()} placeholderTextColor={COLORS.onSurfaceVariant} />
+                  <TextInput value={draft.name} onChangeText={(t) => setDraft({ ...draft, name: t })} maxLength={80} style={inputStyle()} placeholderTextColor={COLORS.placeholder} />
                 </FormGroup>
                 <FormGroup label="Categoria">
                   <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
@@ -209,11 +209,11 @@ export function InventoryTab({ char }: { char: Character }) {
                   </FormGroup></View>
                 </View>
                 <FormGroup label="Dano ou CA">
-                  <TextInput value={draft.damage} onChangeText={(t) => setDraft({ ...draft, damage: t })} maxLength={40} placeholder="1D8 Cort. · 11 + Dex CA" placeholderTextColor={COLORS.onSurfaceVariant} style={inputStyle()} />
+                  <TextInput value={draft.damage} onChangeText={(t) => setDraft({ ...draft, damage: t })} maxLength={40} placeholder="1D8 Cort. · 11 + Dex CA" placeholderTextColor={COLORS.placeholder} style={inputStyle()} />
                 </FormGroup>
                 <FormGroup label="Descrição">
                   <TextInput value={draft.description} onChangeText={(t) => setDraft({ ...draft, description: t })} maxLength={500} multiline numberOfLines={3}
-                    placeholder="Notas, efeitos, dano…" placeholderTextColor={COLORS.onSurfaceVariant} style={[inputStyle(), { minHeight: 84, paddingTop: 12, textAlignVertical: 'top' }]} />
+                    placeholder="Notas, efeitos, dano…" placeholderTextColor={COLORS.placeholder} style={[inputStyle(), { minHeight: 84, paddingTop: 12, textAlignVertical: 'top' }]} />
                 </FormGroup>
                 <View style={{ gap: 10 }}>
                   <Pressable onPress={saveDraft} disabled={saving} style={{ minHeight: 50, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary, opacity: saving ? 0.6 : 1 }}>

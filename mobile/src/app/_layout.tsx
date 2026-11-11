@@ -1,8 +1,9 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider, usePathname, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { Fragment, useEffect } from 'react';
-import { AppState, useColorScheme } from 'react-native';
-import { applyAccessibilityPalette, resolvedThemeMode } from '../design/shared';
+import { AppState, View, useColorScheme } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS, applyAccessibilityPalette, resolvedThemeMode } from '../design/shared';
 import { onSessionExpired } from '../services/api';
 import { QuickRollModal } from '../components/dice/QuickRollModal';
 import { QuickSearchModal } from '../components/QuickSearchModal';
@@ -44,6 +45,24 @@ function NotificationsPoller() {
   return null;
 }
 
+// Moldura do web: o painel ocupa a tela, com um filete prateado por dentro e a borda inferior recortada (a "franja").
+function Frame({ children }: { children: React.ReactNode }) {
+  const insets = useSafeAreaInsets();
+  const notch = 26;
+  const teeth = Array.from({ length: 12 });
+  return (
+    <View style={{ flex: 1, backgroundColor: COLORS.canvas }}>
+      <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+        {children}
+        <View pointerEvents="none" style={{ position: 'absolute', top: insets.top + 6, left: 8, right: 8, bottom: 8, borderWidth: 1, borderColor: 'rgba(192,192,192,0.75)' }} />
+      </View>
+      <View pointerEvents="none" style={{ height: notch + insets.bottom, flexDirection: 'row', backgroundColor: COLORS.canvas, paddingLeft: 10, overflow: 'hidden' }}>
+        {teeth.map((_, i) => <View key={i} style={{ width: 22, height: notch, marginRight: 32, backgroundColor: COLORS.background }} />)}
+      </View>
+    </View>
+  );
+}
+
 // When the refresh token is rejected the session is over: send the user to login.
 function SessionWatcher() {
   const router = useRouter();
@@ -68,7 +87,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={resolvedThemeMode() === 'dark' ? DarkTheme : DefaultTheme}>
       <Fragment key={paletteKey}>
-        <Stack screenOptions={{ headerShown: false }} />
+        <Frame><Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} /></Frame>
         <ScreenNarrator />
         <SessionWatcher />
         <NotificationsPoller />

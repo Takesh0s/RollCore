@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, ScrollView, View } from 'react-native';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../accessible-text';
-import { Chip, FormGroup, inputStyle } from '../Controls';
+import { Chip, FormGroup, SectionTitle, inputStyle } from '../Controls';
 import { COLORS, appFontSize } from '../../design/shared';
 import { validateFormula } from '../../lib/dice';
 import { fetchCharacterSpells } from '../../lib/characters';
@@ -25,7 +25,7 @@ const groupOf = (r: Rollable): Filter => (r.kind === 'weapon' ? 'weapon' : r.kin
 
 function Card({ title, sub, tag, children, onRemove }: { title: string; sub: string; tag: string; children: React.ReactNode; onRemove?: () => void }) {
   return (
-    <View style={{ width: 200, gap: 4, padding: 12, borderRadius: 12, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+    <View style={{ width: 200, gap: 4, padding: 12, borderRadius: 12, backgroundColor: COLORS.tile, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6 }}>
         <Text numberOfLines={2} style={{ flex: 1, color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{title}</Text>
         {onRemove ? (
@@ -88,7 +88,7 @@ export function ShortcutsSection({ characters, shortcuts, rolling, currentFormul
 
   return (
     <View style={{ gap: 10 }}>
-      <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(18) }}>Atalhos</Text>
+      <SectionTitle>Atalhos</SectionTitle>
 
       {characters.length > 0 && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} accessibilityRole="radiogroup">
@@ -162,11 +162,11 @@ function NewShortcutModal({ initialFormula, onClose, onSave }: { initialFormula:
             Armas, magias e itens da ficha aparecem sozinhos na lista, com o bônus do personagem. Aqui você cria um atalho com uma fórmula exata.
           </Text>
           <FormGroup label="Nome">
-            <TextInput value={name} onChangeText={setName} maxLength={40} placeholder="Bola de fogo" placeholderTextColor={COLORS.onSurfaceVariant} style={inputStyle()} />
+            <TextInput value={name} onChangeText={setName} maxLength={40} placeholder="Bola de fogo" placeholderTextColor={COLORS.placeholder} style={inputStyle()} />
           </FormGroup>
           <FormGroup label="Fórmula exata" error={formula && !ok ? 'Use NdX, NdX+M ou NdX-M com d4, d6, d8, d10, d12, d20 ou d100.' : undefined}
             hint={ok ? '✓ Fórmula válida' : 'Digite a fórmula.'}>
-            <TextInput value={formula} onChangeText={setFormula} placeholder="8d6+2" placeholderTextColor={COLORS.onSurfaceVariant} autoCapitalize="none" autoCorrect={false}
+            <TextInput value={formula} onChangeText={setFormula} placeholder="8d6+2" placeholderTextColor={COLORS.placeholder} autoCapitalize="none" autoCorrect={false}
               style={inputStyle(!!formula && !ok, ok)} />
           </FormGroup>
           <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'flex-end' }}>
