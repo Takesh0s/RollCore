@@ -22,7 +22,8 @@ const ROTAS_PENDENTES: string[] = [];
 // Ordem do menu: a mesma do Figma, com Fichas, Dados, Inventário e Livraria
 // no começo por serem as telas mais usadas.
 const MENU_ITEMS: { label: string; icon: string; route: string; color?: string }[] = [
-  { label: 'Home Page', icon: 'home', route: '/mesas' },
+  { label: 'Home Page', icon: 'home', route: '/inicio' },
+  { label: 'Mesas', icon: 'sofa-outline', route: '/mesas' },
   { label: 'Fichas', icon: 'account-details-outline', route: '/skills' },
   { label: 'Dados', icon: 'dice-multiple-outline', route: '/dados' },
   { label: 'Rolagem rápida', icon: 'dice-d20-outline', route: 'quick-roll' },

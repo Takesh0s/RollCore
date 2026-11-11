@@ -68,26 +68,26 @@ export default function CadastroScreen() {
     const apelidoLimpo = apelido.trim();
     const emailLimpo = email.trim();
     if (!/^[a-zA-Z0-9_]{3,20}$/.test(apelidoLimpo)) {
-      setErro('O nome de usuário deve ter de 3 a 20 caracteres: letras sem acento, números ou _.');
+      setErro('3–20 caracteres. Apenas letras, números e _');
       return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpo)) {
-      setErro('Informe um e-mail válido para continuar.');
+      setErro('Informe um e-mail válido');
       return;
     }
-    if (senha.length < 8 || !/[A-Z]/.test(senha) || !/[a-z]/.test(senha) || !/[0-9]/.test(senha)) {
-      setErro('A senha precisa ter ao menos 8 caracteres, uma letra maiúscula, uma minúscula e um número.');
+    if (senha.length < 8 || !/[A-Z]/.test(senha) || !/[0-9]/.test(senha)) {
+      setErro('Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.');
       return;
     }
     if (senha !== confirmarSenha) {
-      setErro('A confirmação precisa ser igual à senha. Confira os dois campos.');
+      setErro('As senhas não coincidem');
       return;
     }
     setErro('');
     setCarregando(true);
     try {
       await cadastrarConta({ apelido: apelidoLimpo, email: emailLimpo, senha });
-      router.replace('/mesas');
+      router.replace('/inicio');
     } catch (error) {
       setErro(mensagemDeErro(error));
     } finally {

@@ -68,7 +68,7 @@ export default function LoginScreen() {
     setCarregando(true);
     try {
       await autenticarConta(email, senha);
-      router.replace('/mesas');
+      router.replace('/inicio');
     } catch (error) {
       Alert.alert('Não foi possível entrar', mensagemDeErro(error));
     } finally {
@@ -85,7 +85,7 @@ export default function LoginScreen() {
     setCarregando(true);
     try {
       await autenticarComGoogle(idToken);
-      router.replace('/mesas');
+      router.replace('/inicio');
     } catch (error) {
       Alert.alert('Não foi possível entrar com o Google', mensagemDeErro(error));
     } finally {
