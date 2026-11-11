@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
+import { DEFAULT_THEME, THEME_IDS, type ModePref, type ThemeId } from '../lib/theme';
 
 export type FontSizeChoice = 'Pequeno' | 'Padrão' | 'Grande';
 export type DaltonismType = 'protanopia' | 'deuteranopia' | 'tritanopia' | 'acromatopsia';
@@ -13,6 +14,9 @@ export interface Acessibilidade {
   velocidadeNarracao: NarrationSpeed;
   descreverVisuais: boolean;
   feedbackSonoro: boolean;
+  /** Tema de cores do app (mesmos seis do web) e modo escuro/claro/sistema. */
+  tema: ThemeId;
+  modoTema: ModePref;
 }
 const KEY = '@rollcore/acessibilidade-v3';
 const LEGACY_KEYS = ['@rollcore/acessibilidade-v2', '@rollcore/acessibilidade-v1'];
@@ -24,10 +28,16 @@ let settings: Acessibilidade = {
   velocidadeNarracao: 'Normal',
   descreverVisuais: false,
   feedbackSonoro: false,
+  tema: DEFAULT_THEME,
+  modoTema: 'dark',
 };
 let revision = 0;
 const listeners = new Set<() => void>();
-const emit = () => listeners.forEach((listener) => listener());
+// As cores do app são lidas de um objeto mutável (design/shared). Ele precisa estar atualizado ANTES de as telas
+// re-renderizarem, então a troca de paleta acontece aqui, antes de avisar os ouvintes.
+let paletteApplier: (() => void) | null = null;
+export function setPaletteApplier(fn: () => void) { paletteApplier = fn; fn(); }
+const emit = () => { paletteApplier?.(); listeners.forEach((listener) => listener()); };
 const TIPOS: DaltonismType[] = ['protanopia', 'deuteranopia', 'tritanopia', 'acromatopsia'];
 const SPEEDS: NarrationSpeed[] = ['Lenta', 'Normal', 'Rápida'];
 
@@ -51,6 +61,8 @@ async function hydrate() {
         velocidadeNarracao: SPEEDS.includes(parsed.velocidadeNarracao as NarrationSpeed) ? parsed.velocidadeNarracao as NarrationSpeed : 'Normal',
         descreverVisuais: parsed.descreverVisuais === true,
         feedbackSonoro: parsed.feedbackSonoro === true,
+        tema: THEME_IDS.includes(parsed.tema as ThemeId) ? parsed.tema as ThemeId : DEFAULT_THEME,
+        modoTema: parsed.modoTema === 'light' || parsed.modoTema === 'system' ? parsed.modoTema : 'dark',
       };
     }
   } catch (error) { console.warn('Falha ao carregar acessibilidade', error); }

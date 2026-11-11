@@ -3,7 +3,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Modal, ScrollView, StyleSheet, Text as NativeText, TouchableOpacity as NativeTouchableOpacity, View } from 'react-native';
 import { AccessibleText as Text, AccessibleTouchableOpacity as TouchableOpacity } from './accessible-text';
-import { COLORS, appFontSize } from '../design/shared';
+import { COLORS, themedStyles, paletteKey, appFontSize } from '../design/shared';
 import { useNotifications } from '../store/useNotifications';
 import { useQuickRoll } from '../store/useQuickRoll';
 
@@ -107,7 +107,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => ({
   overlay: { flex: 1, flexDirection: 'row' },
   backdrop: {
     position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
@@ -132,4 +132,4 @@ const styles = StyleSheet.create({
     color: COLORS.onSurface, fontSize: appFontSize(18),
     fontFamily: 'SourceSerif4_700Bold', marginLeft: 16,
   },
-});
+}), paletteKey);

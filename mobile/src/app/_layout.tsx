@@ -1,8 +1,8 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider, usePathname, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { Fragment, useEffect } from 'react';
 import { AppState, useColorScheme } from 'react-native';
-import { applyAccessibilityPalette } from '../design/shared';
+import { applyAccessibilityPalette, resolvedThemeMode } from '../design/shared';
 import { onSessionExpired } from '../services/api';
 import { QuickRollModal } from '../components/dice/QuickRollModal';
 import { ToastHost } from '../components/ToastHost';
@@ -56,18 +56,24 @@ function SessionWatcher() {
 // criamos um layout aninhado próprio com a barra Dashboard/Dice/Skills/Vault
 // só para essas rotas, sem afetar as telas de auth.
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const { daltonico, tipoDaltonismo } = useAcessibilidade();
-  useEffect(() => applyAccessibilityPalette(daltonico, tipoDaltonismo), [daltonico, tipoDaltonismo]);
+  const systemScheme = useColorScheme(); // re-renderiza quando o aparelho troca entre claro e escuro
+  const { daltonico, tipoDaltonismo, tema, modoTema } = useAcessibilidade();
+  // Aplicada durante o render, antes das telas filhas lerem as cores (também reage à troca claro/escuro do sistema).
+  applyAccessibilityPalette(daltonico, tipoDaltonismo);
+  // O React Compiler guarda o resultado das telas que não dependem de estado e trata COLORS como constante;
+  // trocar a chave refaz a árvore inteira quando a paleta muda (ação rara: tema, modo, daltonismo ou claro/escuro do sistema).
+  const paletteKey = `${daltonico ? tipoDaltonismo : 'normal'}|${tema}|${modoTema}|${systemScheme}`;
   SplashScreen.hideAsync();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }} />
-      <ScreenNarrator />
-      <SessionWatcher />
-      <NotificationsPoller />
-      <QuickRollModal />
-      <ToastHost />
+    <ThemeProvider value={resolvedThemeMode() === 'dark' ? DarkTheme : DefaultTheme}>
+      <Fragment key={paletteKey}>
+        <Stack screenOptions={{ headerShown: false }} />
+        <ScreenNarrator />
+        <SessionWatcher />
+        <NotificationsPoller />
+        <QuickRollModal />
+        <ToastHost />
+      </Fragment>
     </ThemeProvider>
   );
 }

@@ -88,6 +88,21 @@ export default function ConfiguracoesScreen() {
           </Card>
         </View>
 
+        {/* Aparência */}
+        <View>
+          <SectionTitle icon="palette">Aparência</SectionTitle>
+          <Card>
+            <Pressable onPress={() => router.push('/tema' as any)} accessibilityRole="button" accessibilityLabel="Tema e paleta. Escolha o tema e o modo claro ou escuro"
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48 }}>
+              <View style={{ flex: 1, gap: 3 }}>
+                <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>Tema e paleta</Text>
+                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>Seis temas, com modo claro, escuro ou do sistema</Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={24} color={COLORS.onSurfaceVariant} />
+            </Pressable>
+          </Card>
+        </View>
+
         {/* Acessibilidade */}
         <View>
           <SectionTitle icon="accessibility-new">Acessibilidade</SectionTitle>

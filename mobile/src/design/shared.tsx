@@ -5,7 +5,9 @@ import { useFonts } from 'expo-font';
 import { useState } from 'react';
 import { Pressable as NativePressable, StyleSheet, TextInputProps, View } from 'react-native';
 import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
-import { DaltonismType } from '../store/acessibilidade';
+import { Appearance } from 'react-native';
+import { appColors, getTheme, type ThemeMode } from '../lib/theme';
+import { DaltonismType, getAcessibilidade, setPaletteApplier } from '../store/acessibilidade';
 
 const NORMAL_COLORS = {
   background: '#353839', surface: '#353839', surfaceContainer: '#353E43', surfaceContainerLowest: '#353839',
@@ -31,17 +33,56 @@ const ACCESSIBLE_AUTH_BASE = { canvas: '#0B1020', panel: '#172A43', profilePanel
 // Mantém a interface dos tokens estável e atualiza os valores em tempo de execução.
 export const COLORS = { ...NORMAL_COLORS } as { -readonly [K in keyof typeof NORMAL_COLORS]: string };
 export const AUTH_COLORS = { ...NORMAL_AUTH } as { -readonly [K in keyof typeof NORMAL_AUTH]: string };
-let appliedPalette = 'normal';
+let appliedPalette = 'normal|medieval|dark';
+
+/** Claro ou escuro de fato: com "Sistema", o do aparelho. */
+export function resolvedThemeMode(): ThemeMode {
+  const { modoTema } = getAcessibilidade();
+  return modoTema === 'system' ? (Appearance.getColorScheme() === 'light' ? 'light' : 'dark') : modoTema;
+}
+
+/**
+ * Aplica as cores do app. O modo daltônico tem prioridade (paleta própria de alto contraste);
+ * sem ele valem o tema e o modo escolhidos em Tema e paleta. Medieval escuro é a paleta original.
+ */
 export function applyAccessibilityPalette(enabled: boolean, type: DaltonismType = 'deuteranopia') {
-  const paletteId = enabled ? type : 'normal';
+  const { tema } = getAcessibilidade();
+  const mode = resolvedThemeMode();
+  const paletteId = enabled ? `${type}` : `normal|${tema}|${mode}`;
   if (appliedPalette === paletteId) return;
-  const accents = TYPE_ACCENTS[type];
-  const palette = enabled ? { ...ACCESSIBLE_BASE, ...accents, primaryFixedDim: accents.primary } : NORMAL_COLORS;
-  const authPalette = enabled ? { ...ACCESSIBLE_AUTH_BASE, mint: accents.primary, button: accents.primaryContainer } : NORMAL_AUTH;
+  let palette: Record<string, string>;
+  let authPalette: Record<string, string>;
+  if (enabled) {
+    const accents = TYPE_ACCENTS[type];
+    palette = { ...ACCESSIBLE_BASE, ...accents, primaryFixedDim: accents.primary };
+    authPalette = { ...ACCESSIBLE_AUTH_BASE, mint: accents.primary, button: accents.primaryContainer };
+  } else if (tema === 'medieval' && mode === 'dark') {
+    palette = NORMAL_COLORS;
+    authPalette = NORMAL_AUTH;
+  } else {
+    ({ colors: palette, auth: authPalette } = appColors(getTheme(tema)[mode], mode));
+  }
   Object.assign(COLORS, palette);
   Object.assign(AUTH_COLORS, authPalette);
   appliedPalette = paletteId;
 }
+setPaletteApplier(() => { const a = getAcessibilidade(); applyAccessibilityPalette(a.daltonico, a.tipoDaltonismo); });
+
+/** Estilos que usam cores do tema: recriados quando a paleta muda (StyleSheet.create congelaria as cores do primeiro render). */
+export const paletteKey = () => appliedPalette;
+
+export function themedStyles<T extends StyleSheet.NamedStyles<T>>(make: () => T, key: () => string): T {
+  let cached: T | null = null;
+  let cachedKey = '';
+  return new Proxy({} as T, {
+    get(_, name) {
+      const k = key();
+      if (!cached || cachedKey !== k) { cached = StyleSheet.create(make()) as T; cachedKey = k; }
+      return (cached as Record<string | symbol, unknown>)[name];
+    },
+  });
+}
+
 export function appFontSize(size: number): number {
   // Mantido como utilitário de compatibilidade; a escala é aplicada globalmente
   // pelos wrappers AccessibleText e AccessibleTextInput durante cada render.
@@ -62,7 +103,7 @@ export function Header({ title, onMenu, onBack, rightIcon = 'person', onRightPre
   return (
     <View style={[styles.header, { backgroundColor: COLORS.background, borderBottomColor: COLORS.outlineVariant }]}>
       <Pressable onPress={leftAction} disabled={!leftAction} style={styles.headerButton} accessibilityLabel={onMenu ? 'Abrir menu' : 'Voltar'}>{leftAction ? <MaterialIcons name={onMenu ? 'menu' : 'arrow-back'} size={28} color={onMenu ? COLORS.primary : COLORS.onSurfaceVariant} /> : null}</Pressable>
-      <Text style={[styles.headerTitle, { fontSize: appFontSize(22) }]}>{title}</Text>
+      <Text style={[styles.headerTitle, { color: COLORS.primary, fontSize: appFontSize(22) }]}>{title}</Text>
       <Pressable onPress={onRightPress} style={[styles.headerAvatar, { backgroundColor: COLORS.primary }]} disabled={!onRightPress} accessibilityLabel={rightIcon}><MaterialIcons name={rightIcon} size={18} color={COLORS.onPrimary} /></Pressable>
     </View>
   );
@@ -109,7 +150,7 @@ export function BottomNavBar({ active, onNavigate }: { active: string; onNavigat
   })}</View>;
 }
 
-const styles = StyleSheet.create({
+const styles = themedStyles(() => ({
   outer: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center' },
   main: { flex: 1, width: '100%', maxWidth: 480, backgroundColor: COLORS.background },
   header: { height: 64, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, backgroundColor: COLORS.background, borderBottomWidth: 1, borderBottomColor: COLORS.outlineVariant },
@@ -131,4 +172,4 @@ const styles = StyleSheet.create({
   linkText: { color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 14, textDecorationLine: 'underline' },
   passwordStrength: { color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 12 },
   passwordHint: { color: COLORS.outline, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 11 },
-});
+}), () => appliedPalette);
