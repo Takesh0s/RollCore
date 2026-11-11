@@ -81,3 +81,18 @@ export async function pickImage({ aspect, maxWidth }: { aspect: [number, number]
     return null;
   }
 }
+
+/**
+ * Foto do perfil: recorte quadrado reduzido a 256 px e gravado como JPEG em data URL,
+ * o mesmo formato que o web guarda em `avatarUrl`. Devolve `null` se o usuário cancelar.
+ */
+export async function pickAvatarDataUrl(): Promise<string | null> {
+  const img = await pickImage({ aspect: [1, 1], maxWidth: 256 });
+  if (!img) return null;
+  try {
+    const out = await manipulateAsync(img.uri, [], { compress: 0.8, format: SaveFormat.JPEG, base64: true });
+    return out.base64 ? `data:image/jpeg;base64,${out.base64}` : null;
+  } catch {
+    return null;
+  }
+}

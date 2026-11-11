@@ -19,7 +19,8 @@ import { useTables } from './useTables';
 export interface Conta {
   apelido: string;
   email: string;
-  fotoUri?: string;
+  /** Foto do perfil: data URL (JPEG 256 px), igual ao web, ou endereço de imagem do servidor. */
+  avatarUrl?: string;
 }
 
 const PROFILE_KEY = '@rollcore/conta-v2';
@@ -37,21 +38,33 @@ function persistProfile() {
 
 async function abrirSessao(resposta: AuthResponse): Promise<void> {
   await setSession(resposta);
-  let fotoUri: string | undefined;
-  try {
-    // keep the locally chosen photo when the same account logs in again
-    const raw = await AsyncStorage.getItem(PROFILE_KEY);
-    const previous = raw ? (JSON.parse(raw) as Conta) : null;
-    if (previous && previous.email === resposta.email) fotoUri = previous.fotoUri;
-  } catch {
-    // ignore corrupt local profile
-  }
+  limparEstadoDaConta();
+  contaAtiva = { apelido: resposta.username, email: resposta.email };
+  persistProfile();
+  emit();
+  void carregarPerfil();
+}
+
+function limparEstadoDaConta() {
   useTables.getState().clear(); useCalendar.getState().clear(); useNotifications.getState().clear();
   useCharacters.getState().clear();
   useDice.getState().clear(); useMaps.getState().clear();
-  contaAtiva = { apelido: resposta.username, email: resposta.email, fotoUri };
-  persistProfile();
-  emit();
+}
+
+interface PerfilApi { userId: string; username: string; email: string; plan: string; avatarUrl?: string | null }
+
+/** Traz nome, e-mail e foto da conta, para todos os aparelhos mostrarem o mesmo perfil. */
+export async function carregarPerfil(): Promise<void> {
+  if (!contaAtiva) return;
+  try {
+    const data = await request<PerfilApi>('/users/me');
+    if (!contaAtiva) return;
+    contaAtiva = { ...contaAtiva, apelido: data.username, email: data.email, avatarUrl: data.avatarUrl ?? undefined };
+    persistProfile();
+    emit();
+  } catch {
+    // sem rede: segue com o perfil guardado
+  }
 }
 
 /** Creates the account on the API and signs in. Throws ApiError. */
@@ -98,6 +111,7 @@ export async function restaurarSessao(): Promise<boolean> {
     }
     contaAtiva = profile;
     emit();
+    void carregarPerfil();
     return true;
   } catch {
     return false;
@@ -108,19 +122,43 @@ export function obterContaAtiva(): Conta | null {
   return contaAtiva;
 }
 
-// The API has no profile-editing endpoint yet, so nickname and photo changes are
-// kept on this device only.
-export function atualizarApelido(apelido: string): void {
-  const novoApelido = apelido.trim();
-  if (!novoApelido || !contaAtiva) return;
-  contaAtiva = { ...contaAtiva, apelido: novoApelido };
+/** Salva nome de usuário e/ou foto (PUT /users/me). Lança ApiError (409 = nome já em uso). */
+export async function salvarPerfil(mudancas: { apelido?: string; avatarUrl?: string | null }): Promise<void> {
+  if (!contaAtiva) return;
+  const body: { username?: string; avatarUrl?: string } = {};
+  if (mudancas.apelido !== undefined && mudancas.apelido !== contaAtiva.apelido) body.username = mudancas.apelido;
+  if (mudancas.avatarUrl !== undefined && (mudancas.avatarUrl ?? undefined) !== contaAtiva.avatarUrl) body.avatarUrl = mudancas.avatarUrl ?? '';
+  if (!Object.keys(body).length) return;
+  const data = await request<PerfilApi>('/users/me', { method: 'PUT', body });
+  contaAtiva = { ...(contaAtiva as Conta), apelido: data.username, avatarUrl: data.avatarUrl ?? undefined };
   persistProfile();
   emit();
 }
 
-export function atualizarFotoPerfil(fotoUri?: string): void {
+/** Troca o e-mail de login. Lança ApiError (403 = senha errada, 409 = e-mail em uso). */
+export async function alterarEmail(novoEmail: string, senhaAtual: string): Promise<void> {
+  const data = await request<PerfilApi>('/users/me/email', { method: 'PUT', body: { newEmail: novoEmail, currentPassword: senhaAtual } });
   if (!contaAtiva) return;
-  contaAtiva = { ...contaAtiva, fotoUri };
+  contaAtiva = { ...contaAtiva, email: data.email };
+  persistProfile();
+  emit();
+}
+
+/** Troca a senha. Os outros aparelhos são desconectados; o servidor devolve tokens novos para este. */
+export async function alterarSenha(senhaAtual: string, novaSenha: string): Promise<void> {
+  const tokens = await request<{ accessToken: string; refreshToken: string }>('/users/me/password', {
+    method: 'PUT',
+    body: { currentPassword: senhaAtual, newPassword: novaSenha },
+  });
+  await setSession(tokens);
+}
+
+/** Apaga a conta (fichas, mesas e imagens vão junto) e encerra a sessão neste aparelho. */
+export async function excluirConta(): Promise<void> {
+  await request<void>('/auth/me', { method: 'DELETE' });
+  await clearSession();
+  limparEstadoDaConta();
+  contaAtiva = null;
   persistProfile();
   emit();
 }
@@ -136,18 +174,14 @@ export async function encerrarSessao(): Promise<void> {
     }
   }
   await clearSession();
-  useTables.getState().clear(); useCalendar.getState().clear(); useNotifications.getState().clear();
-  useCharacters.getState().clear();
-  useDice.getState().clear(); useMaps.getState().clear();
+  limparEstadoDaConta();
   contaAtiva = null;
   emit();
 }
 
 // When the refresh token is rejected the session is over: drop the local account.
 onSessionExpired(() => {
-  useTables.getState().clear(); useCalendar.getState().clear(); useNotifications.getState().clear();
-  useCharacters.getState().clear();
-  useDice.getState().clear(); useMaps.getState().clear();
+  limparEstadoDaConta();
   contaAtiva = null;
   emit();
 });
