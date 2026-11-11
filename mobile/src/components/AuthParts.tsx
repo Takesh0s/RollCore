@@ -16,7 +16,7 @@ export function AuthShell({ subtitle, children }: { subtitle: string; children: 
     <SafeAreaView style={{ flex: 1, backgroundColor: AUTH_COLORS.canvas }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 20 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-          <View style={{ width: '100%', maxWidth: 420, alignSelf: 'center', paddingHorizontal: 24, paddingTop: 36, paddingBottom: 30, backgroundColor: AUTH_COLORS.panel, borderWidth: 1, borderColor: AUTH_COLORS.gray, gap: 4 }}>
+          <View style={{ width: '100%', maxWidth: 420, alignSelf: 'center', paddingHorizontal: 12, paddingTop: 16, paddingBottom: 16, gap: 4 }}>
             <View style={{ alignItems: 'center', marginBottom: 22 }}>
               <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ marginBottom: 14 }}><RollCoreLogo size={72} color={AUTH_COLORS.mint} /></View>
               <Text accessibilityRole="header" style={{ color: AUTH_COLORS.mint, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(30), letterSpacing: 3 }}>RollCore</Text>
