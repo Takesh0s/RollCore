@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Modal, ScrollView, StyleSheet, Text as NativeText, TouchableOpacity as NativeTouchableOpacity, View } from 'react-native';
 import { AccessibleText as Text, AccessibleTouchableOpacity as TouchableOpacity } from './accessible-text';
 import { COLORS, appFontSize } from '../design/shared';
+import { useNotifications } from '../store/useNotifications';
 import { useQuickRoll } from '../store/useQuickRoll';
 
 interface DrawerMenuProps {
@@ -42,6 +43,7 @@ const MENU_ITEMS: { label: string; icon: string; route: string; color?: string }
 export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
   useAcessibilidade();
   const router = useRouter();
+  const unread = useNotifications((s) => s.unread);
 
   const handleNavigation = (route: string) => {
     onClose();
@@ -91,6 +93,11 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
                 <Text style={[styles.menuText, { color: item.label === 'Créditos' ? COLORS.primary : COLORS.onSurface }]}>
                   {item.label}
                 </Text>
+                {item.route === '/notificacoes' && unread > 0 && (
+                  <View accessibilityLabel={`${unread} não lidas`} style={styles.badge}>
+                    <Text style={styles.badgeText}>{unread > 9 ? '9+' : unread}</Text>
+                  </View>
+                )}
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -119,6 +126,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     paddingVertical: 16, paddingHorizontal: 20,
   },
+  badge: { marginLeft: 10, minWidth: 22, height: 22, paddingHorizontal: 6, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary },
+  badgeText: { color: COLORS.onPrimary, fontSize: appFontSize(12), fontFamily: 'AtkinsonHyperlegible_700Bold' },
   menuText: {
     color: COLORS.onSurface, fontSize: appFontSize(18),
     fontFamily: 'SourceSerif4_700Bold', marginLeft: 16,
