@@ -198,3 +198,20 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
   );
 }
 
+
+/** Campo de senha com botão de mostrar/ocultar. */
+export function PasswordField({ value, onChangeText, label, error, autoComplete = 'current-password' }: {
+  value: string; onChangeText: (t: string) => void; label: string; error?: boolean; autoComplete?: 'current-password' | 'new-password';
+}) {
+  const [shown, setShown] = useState(false);
+  return (
+    <View>
+      <TextInput value={value} onChangeText={onChangeText} secureTextEntry={!shown} autoCapitalize="none" autoCorrect={false}
+        autoComplete={autoComplete} accessibilityLabel={label} style={[inputStyle(error), { paddingRight: 48 }]} />
+      <Pressable onPress={() => setShown((v) => !v)} accessibilityRole="button" accessibilityLabel={shown ? 'Ocultar senha' : 'Mostrar senha'}
+        style={{ position: 'absolute', right: 0, top: 0, width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
+        <MaterialIcons name={shown ? 'visibility-off' : 'visibility'} size={22} color={COLORS.onSurfaceVariant} />
+      </Pressable>
+    </View>
+  );
+}
