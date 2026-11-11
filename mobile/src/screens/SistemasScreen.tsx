@@ -6,7 +6,7 @@ import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePre
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppHeader } from '../components/AppHeader';
 import { COLORS, useAppFonts, appFontSize } from '../design/shared';
-import { usePagante } from '../store/eventos';
+import { usePagante } from '../store/pagante';
 
 type SystemCategory = 'Proprietários' | 'Independentes' | 'Autorais';
 type GameSystem = {

@@ -9,7 +9,7 @@ import { Chip, inputStyle } from '../components/Controls';
 import { COLORS, appFontSize } from '../design/shared';
 import { FORMULA_REGEX, VALID_SIDES, validateFormula } from '../lib/dice';
 import { useAcessibilidade } from '../store/acessibilidade';
-import { carregarMesas, useMesas } from '../store/mesas';
+import { useTables } from '../store/useTables';
 import { useCharacters } from '../store/useCharacters';
 import { useDice } from '../store/useDice';
 import { showToast } from '../store/useToast';
@@ -65,7 +65,8 @@ export default function DadosScreen() {
   useAcessibilidade();
   const { characters, loaded, load } = useCharacters();
   const { history, shortcuts, loadHistory, loadShortcuts, roll, addShortcut, removeShortcut } = useDice();
-  const mesas = useMesas();
+  const mesas = useTables((s) => s.tables);
+  const carregarMesas = useTables((s) => s.load);
 
   const [formula, setFormula] = useState('1d20');
   const [mode, setMode] = useState<DiceMode>('normal');
@@ -107,7 +108,7 @@ export default function DadosScreen() {
     if (rolling) return;
     setRolling(true);
     const table = mesas.find((m) => m.id === tableId);
-    const res = await roll({ formula: normalize(f), label, mode, tableId: tableId || undefined, tableName: table?.titulo });
+    const res = await roll({ formula: normalize(f), label, mode, tableId: tableId || undefined, tableName: table?.name });
     setRolling(false);
     if (!res.ok) showToast(res.error, 'error');
   }
@@ -152,7 +153,7 @@ export default function DadosScreen() {
           <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Mesa</Text>
           <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             <Chip label="Sem mesa" on={!tableId} onPress={() => setTableId('')} />
-            {mesas.map((t) => <Chip key={t.id} label={t.titulo} on={tableId === t.id} onPress={() => setTableId(t.id)} />)}
+            {mesas.map((t) => <Chip key={t.id} label={t.name} on={tableId === t.id} onPress={() => setTableId(t.id)} />)}
           </View>
 
           <Pressable onPress={() => doRoll(formula)} disabled={!valid || rolling} accessibilityRole="button"

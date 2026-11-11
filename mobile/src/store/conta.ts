@@ -12,7 +12,8 @@ import {
 import { useCharacters } from './useCharacters';
 import { useDice } from './useDice';
 import { useMaps } from './useMaps';
-import { limparMesas } from './mesas';
+import { useCalendar } from './useCalendar';
+import { useTables } from './useTables';
 
 export interface Conta {
   apelido: string;
@@ -44,7 +45,7 @@ async function abrirSessao(resposta: AuthResponse): Promise<void> {
   } catch {
     // ignore corrupt local profile
   }
-  limparMesas();
+  useTables.getState().clear(); useCalendar.getState().clear();
   useCharacters.getState().clear();
   useDice.getState().clear(); useMaps.getState().clear();
   contaAtiva = { apelido: resposta.username, email: resposta.email, fotoUri };
@@ -134,7 +135,7 @@ export async function encerrarSessao(): Promise<void> {
     }
   }
   await clearSession();
-  limparMesas();
+  useTables.getState().clear(); useCalendar.getState().clear();
   useCharacters.getState().clear();
   useDice.getState().clear(); useMaps.getState().clear();
   contaAtiva = null;
@@ -143,7 +144,7 @@ export async function encerrarSessao(): Promise<void> {
 
 // When the refresh token is rejected the session is over: drop the local account.
 onSessionExpired(() => {
-  limparMesas();
+  useTables.getState().clear(); useCalendar.getState().clear();
   useCharacters.getState().clear();
   useDice.getState().clear(); useMaps.getState().clear();
   contaAtiva = null;
