@@ -1,156 +1,95 @@
-import { MaterialIcons } from '@expo/vector-icons';
+import { useAcessibilidade } from '../store/acessibilidade';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable as NativePressable, ScrollView, Text as NativeText, TextInput as NativeTextInput, View } from 'react-native';
-import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AUTH_COLORS, useAppFonts, appFontSize } from '../design/shared';
+import { View } from 'react-native';
+import { AccessibleText as Text } from '../components/accessible-text';
+import { AuthButton, AuthField, AuthLink, AuthShell } from '../components/AuthParts';
+import { appFontSize } from '../design/shared';
 import { mensagemDeErro } from '../services/api';
 import { SLOW_HINT_TEXT, useSlowHint } from '../services/useSlowHint';
 import { cadastrarConta } from '../store/conta';
-import { useAcessibilidade } from '../store/acessibilidade';
+import { showToast } from '../store/useToast';
+import { AUTH_COLORS } from '../design/shared';
 
-type FieldProps = {
-  label: string;
-  hint?: string;
-  value: string;
-  onChangeText: (value: string) => void;
-  secureTextEntry?: boolean;
-  passwordVisible?: boolean;
-  onToggleVisibility?: () => void;
-  keyboardType?: 'default' | 'email-address';
-  autoCapitalize?: 'none' | 'sentences';
-};
+const USERNAME_MSG = '3–20 caracteres. Apenas letras, números e _';
+const EMAIL_MSG = 'Informe um e-mail válido';
+const PASS_MSG = 'Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.';
+const MATCH_MSG = 'As senhas não coincidem';
+const STRENGTH_COLORS = ['', '#e05555', '#e8a020', '#d4b830', '#4ade80'];
 
-function FigmaField({ label, hint, value, onChangeText, secureTextEntry, passwordVisible, onToggleVisibility, keyboardType, autoCapitalize }: FieldProps) {
-  return (
-    <View style={{ gap: 6 }}>
-      <Text style={{ color: AUTH_COLORS.white, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>{label}</Text>
-      <View style={{ flexDirection: 'row', alignItems: 'center', minHeight: 52, borderRadius: 9, borderWidth: 1.5, borderColor: AUTH_COLORS.gray, backgroundColor: AUTH_COLORS.field }}>
-        <TextInput
-          value={value}
-          onChangeText={onChangeText}
-          secureTextEntry={secureTextEntry ? !passwordVisible : false}
-          keyboardType={keyboardType}
-          autoCapitalize={autoCapitalize ?? (keyboardType === 'email-address' ? 'none' : 'sentences')}
-          autoCorrect={false}
-          placeholder={hint}
-          placeholderTextColor={AUTH_COLORS.placeholder}
-          accessibilityLabel={label}
-          style={{ flex: 1, minHeight: 50, paddingHorizontal: 13, paddingRight: secureTextEntry ? 4 : 13, color: AUTH_COLORS.typed, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(15) }}
-        />
-        {secureTextEntry && <Pressable onPress={onToggleVisibility} accessibilityRole="button" accessibilityLabel={passwordVisible ? `Ocultar ${label.toLowerCase()}` : `Mostrar ${label.toLowerCase()}`} style={{ width: 48, minHeight: 50, alignItems: 'center', justifyContent: 'center' }}>
-          <MaterialIcons name={passwordVisible ? 'visibility' : 'visibility-off'} size={21} color={AUTH_COLORS.white} />
-        </Pressable>}
-      </View>
-    </View>
-  );
-}
+const validUsername = (u: string) => /^[a-zA-Z0-9_]{3,20}$/.test(u);
+const validEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+const isStrong = (p: string) => p.length >= 8 && /[A-Z]/.test(p) && /[0-9]/.test(p);
+const strengthScore = (p: string) => [p.length >= 8, /[A-Z]/.test(p), /[0-9]/.test(p), p.length >= 12].filter(Boolean).length;
 
+/** Cadastro, no mesmo fluxo do web: validação por campo, barra de força da senha e erros do servidor no campo certo. */
 export default function CadastroScreen() {
   useAcessibilidade();
   const router = useRouter();
-  const fontsLoaded = useAppFonts();
-  const [apelido, setApelido] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [confirmarSenha, setConfirmarSenha] = useState('');
-  const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
-  const [erro, setErro] = useState('');
-  const [carregando, setCarregando] = useState(false);
-  const lento = useSlowHint(carregando);
+  const [pass, setPass] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [usernameErr, setUsernameErr] = useState('');
+  const [emailErr, setEmailErr] = useState('');
+  const [passErr, setPassErr] = useState('');
+  const [confirmErr, setConfirmErr] = useState('');
+  const [loading, setLoading] = useState(false);
+  const lento = useSlowHint(loading);
+  const score = strengthScore(pass);
 
-  if (!fontsLoaded) return null;
+  const blurUsername = () => { const v = username.trim(); if (v) setUsernameErr(validUsername(v) ? '' : USERNAME_MSG); };
+  const blurEmail = () => { const v = email.trim(); if (v) setEmailErr(validEmail(v) ? '' : EMAIL_MSG); };
+  const changePass = (v: string) => {
+    setPass(v);
+    setPassErr(v && !isStrong(v) ? PASS_MSG : '');
+    if (confirm) setConfirmErr(confirm !== v ? MATCH_MSG : '');
+  };
+  const changeConfirm = (v: string) => { setConfirm(v); setConfirmErr(v && v !== pass ? MATCH_MSG : ''); };
 
-  const criarConta = async () => {
-    if (carregando) return;
-    const apelidoLimpo = apelido.trim();
-    const emailLimpo = email.trim();
-    if (!/^[a-zA-Z0-9_]{3,20}$/.test(apelidoLimpo)) {
-      setErro('3–20 caracteres. Apenas letras, números e _');
-      return;
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailLimpo)) {
-      setErro('Informe um e-mail válido');
-      return;
-    }
-    if (senha.length < 8 || !/[A-Z]/.test(senha) || !/[0-9]/.test(senha)) {
-      setErro('Senha fraca. Use ao menos 8 caracteres, uma letra maiúscula e um número.');
-      return;
-    }
-    if (senha !== confirmarSenha) {
-      setErro('As senhas não coincidem');
-      return;
-    }
-    setErro('');
-    setCarregando(true);
+  const register = async () => {
+    if (loading) return;
+    const u = username.trim();
+    const e = email.trim();
+    let ok = true;
+    if (!validUsername(u)) { setUsernameErr(USERNAME_MSG); ok = false; }
+    if (!validEmail(e)) { setEmailErr(EMAIL_MSG); ok = false; }
+    if (!isStrong(pass)) { setPassErr(PASS_MSG); ok = false; }
+    if (pass !== confirm) { setConfirmErr(MATCH_MSG); ok = false; }
+    if (!ok) return;
+    setLoading(true);
     try {
-      await cadastrarConta({ apelido: apelidoLimpo, email: emailLimpo, senha });
+      await cadastrarConta({ apelido: u, email: e, senha: pass });
       router.replace('/inicio');
     } catch (error) {
-      setErro(mensagemDeErro(error));
+      // Conflito de e-mail ou usuário vem do servidor: a mensagem vai para o campo certo.
+      const msg = mensagemDeErro(error);
+      if (/e-?mail/i.test(msg)) setEmailErr(msg);
+      else if (/usu[aá]rio|username/i.test(msg)) setUsernameErr(msg);
+      else showToast(msg, 'error');
     } finally {
-      setCarregando(false);
+      setLoading(false);
     }
   };
 
-  const regras = [
-    { label: '8 caracteres', ok: senha.length >= 8 },
-    { label: 'Maiúscula', ok: /[A-Z]/.test(senha) },
-    { label: 'Minúscula', ok: /[a-z]/.test(senha) },
-    { label: 'Número', ok: /[0-9]/.test(senha) },
-  ];
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: AUTH_COLORS.canvas }}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20, paddingVertical: 24 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
-          <View style={{ width: '100%', maxWidth: 420 }}>
-            <View style={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 20, backgroundColor: AUTH_COLORS.panel, borderWidth: 1, borderColor: AUTH_COLORS.gray, borderRadius: 14 }}>
-              <View style={{ alignItems: 'center', marginBottom: 22, gap: 4 }}>
-                <View style={{ width: 64, height: 64, alignItems: 'center', justifyContent: 'center', borderRadius: 32, backgroundColor: `${AUTH_COLORS.mint}20` }}>
-                  <MaterialIcons name="casino" size={40} color={AUTH_COLORS.mint} />
-                </View>
-                <Text style={{ marginTop: 5, color: AUTH_COLORS.mint, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(26) }}>Criar sua conta</Text>
-                <Text style={{ color: AUTH_COLORS.gray, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14), textAlign: 'center' }}>Entre na aventura com um perfil só seu.</Text>
-              </View>
+    <AuthShell subtitle="Cadastro">
+      <AuthField label="Nome de usuário" value={username} onChangeText={(v) => { setUsername(v); setUsernameErr(''); }} onBlur={blurUsername}
+        error={usernameErr} valid={!!username && !usernameErr && validUsername(username.trim())} placeholder="3–20 caracteres. Letras, números e _ apenas" maxLength={20} autoComplete="username" />
+      <AuthField label="e-mail" value={email} onChangeText={(v) => { setEmail(v); setEmailErr(''); }} onBlur={blurEmail}
+        error={emailErr} valid={!!email && !emailErr && validEmail(email.trim())} placeholder="seu@email.com" keyboardType="email-address" autoComplete="email" />
+      <View>
+        <AuthField label="senha" password value={pass} onChangeText={changePass} error={passErr} valid={!!pass && !passErr}
+          placeholder="Mín. 8 caracteres, 1 maiúscula e 1 número" autoComplete="new-password" />
+        <View accessibilityLabel={`Força da senha: ${score} de 4`} style={{ height: 4, marginTop: -6, marginBottom: 12, borderRadius: 2, backgroundColor: AUTH_COLORS.gray, opacity: 0.6, overflow: 'hidden' }}>
+          <View style={{ width: `${score * 25}%`, height: '100%', backgroundColor: STRENGTH_COLORS[score] || 'transparent' }} />
+        </View>
+      </View>
+      <AuthField label="confirmar senha" password value={confirm} onChangeText={changeConfirm} error={confirmErr} valid={!!confirm && !confirmErr} autoComplete="new-password" />
 
-              <View style={{ gap: 15 }}>
-                <FigmaField label="Nome de usuário" hint="3–20 caracteres: letras, números e _" value={apelido} onChangeText={(value) => { setApelido(value); setErro(''); }} autoCapitalize="none" />
-                <FigmaField label="E-mail" hint="seu@email.com" value={email} onChangeText={(value) => { setEmail(value); setErro(''); }} keyboardType="email-address" />
-                <FigmaField label="Senha" hint="Crie uma senha segura" value={senha} onChangeText={(value) => { setSenha(value); setErro(''); }} secureTextEntry passwordVisible={mostrarSenha} onToggleVisibility={() => setMostrarSenha((visible) => !visible)} autoCapitalize="none" />
-
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 7 }} accessibilityLabel="Requisitos da senha">
-                  {regras.map((regra) => <View key={regra.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 5, borderRadius: 14, backgroundColor: regra.ok ? `${AUTH_COLORS.mint}24` : AUTH_COLORS.canvas, borderWidth: 1, borderColor: regra.ok ? AUTH_COLORS.mint : AUTH_COLORS.gray }}>
-                    <MaterialIcons name={regra.ok ? 'check-circle' : 'radio-button-unchecked'} size={13} color={regra.ok ? AUTH_COLORS.mint : AUTH_COLORS.gray} />
-                    <Text style={{ color: regra.ok ? AUTH_COLORS.white : AUTH_COLORS.gray, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(11) }}>{regra.label}</Text>
-                  </View>)}
-                </View>
-
-                <FigmaField label="Confirmar senha" hint="Digite a senha novamente" value={confirmarSenha} onChangeText={(value) => { setConfirmarSenha(value); setErro(''); }} secureTextEntry passwordVisible={mostrarConfirmacao} onToggleVisibility={() => setMostrarConfirmacao((visible) => !visible)} autoCapitalize="none" />
-              </View>
-
-              {erro ? <View accessibilityRole="alert" style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginTop: 14, padding: 11, borderRadius: 8, backgroundColor: '#542D35', borderWidth: 1, borderColor: '#FF9BA3' }}>
-                <MaterialIcons name="error-outline" size={19} color="#FFD7DA" />
-                <Text style={{ flex: 1, color: '#FFFFFF', fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>{erro}</Text>
-              </View> : null}
-
-              <Pressable onPress={criarConta} disabled={carregando} accessibilityRole="button" accessibilityState={{ busy: carregando, disabled: carregando }} style={({ pressed }) => ({ minHeight: 52, alignItems: 'center', justifyContent: 'center', marginTop: 18, borderRadius: 10, backgroundColor: AUTH_COLORS.button, borderWidth: 1, borderColor: AUTH_COLORS.mint, opacity: carregando ? 0.6 : pressed ? 0.78 : 1 })}>
-                <Text style={{ color: AUTH_COLORS.mint, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(17) }}>{carregando ? 'Criando conta…' : 'Criar conta e continuar'}</Text>
-              </Pressable>
-              {lento ? <Text accessibilityLiveRegion="polite" style={{ marginTop: 10, textAlign: 'center', color: AUTH_COLORS.gray, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>{SLOW_HINT_TEXT}</Text> : null}
-
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 5, marginTop: 16 }}>
-                <Text style={{ color: AUTH_COLORS.gray, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>Já tem uma conta?</Text>
-                <Pressable onPress={() => router.replace('/login')} accessibilityRole="link" hitSlop={8}>
-                  <Text style={{ color: AUTH_COLORS.mint, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13), textDecorationLine: 'underline' }}>Entrar</Text>
-                </Pressable>
-              </View>
-            </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      <AuthButton label="Criar conta" onPress={register} busy={loading} />
+      {lento ? <Text accessibilityLiveRegion="polite" style={{ color: AUTH_COLORS.white, textAlign: 'center', fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13), marginTop: 8 }}>{SLOW_HINT_TEXT}</Text> : null}
+      <AuthLink hint="Já tenho conta?" label="Entrar" onPress={() => router.replace('/login')} />
+    </AuthShell>
   );
 }
