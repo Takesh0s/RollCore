@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useMemo, useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, ScrollView, View } from 'react-native';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../accessible-text';
-import { inputStyle } from '../Controls';
+import { Btn, Sheet, inputStyle } from '../Controls';
 import { COLORS, appFontSize } from '../../design/shared';
 import { decodeLayers, kindLabel, MAX_NAME, type Grid } from '../../lib/maps';
 import { showToast } from '../../store/useToast';
@@ -24,38 +24,6 @@ export function usePaintOf(m: MapItem) {
 /** Mensagem curta com tipo, formato e tamanho: "Medieval · Hexágonos · 30 × 20". */
 export const mapSummary = (m: MapItem) =>
   `${kindLabel(m.kind)} · ${m.gridType === 'HEX' ? 'Hexágonos' : 'Quadrados'} · ${m.cols} × ${m.rows}`;
-
-export function Btn({ label, onPress, kind = 'outline', disabled, accessibilityLabel }: {
-  label: string; onPress: () => void; kind?: 'primary' | 'outline' | 'danger'; disabled?: boolean; accessibilityLabel?: string;
-}) {
-  const bg = kind === 'primary' ? COLORS.primary : kind === 'danger' ? '#c0392b' : 'transparent';
-  const fg = kind === 'primary' ? COLORS.onPrimary : kind === 'danger' ? '#fff' : COLORS.onSurface;
-  return (
-    <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label}
-      style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: bg,
-        borderWidth: kind === 'outline' ? 1 : 0, borderColor: COLORS.outlineVariant, opacity: disabled ? 0.5 : 1 }}>
-      <Text style={{ color: fg, fontFamily: BOLD, fontSize: appFontSize(14) }}>{label}</Text>
-    </Pressable>
-  );
-}
-
-/** Folha que sobe de baixo com título e botão de fechar. */
-export function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
-  return (
-    <Modal visible transparent animationType="slide" onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.55)' }}>
-        <Pressable style={{ flex: 1 }} onPress={onClose} accessibilityLabel="Fechar" />
-        <View accessibilityViewIsModal style={{ maxHeight: '90%', padding: 18, borderTopLeftRadius: 18, borderTopRightRadius: 18, backgroundColor: COLORS.surfaceContainerHigh }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-            <Text accessibilityRole="header" numberOfLines={1} style={{ flex: 1, color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20) }}>{title}</Text>
-            <Pressable onPress={onClose} accessibilityLabel="Fechar"><MaterialIcons name="close" size={24} color={COLORS.onSurfaceVariant} /></Pressable>
-          </View>
-          <ScrollView contentContainerStyle={{ gap: 12 }} keyboardShouldPersistTaps="handled">{children}</ScrollView>
-        </View>
-      </KeyboardAvoidingView>
-    </Modal>
-  );
-}
 
 /** Campo de nome (3 a 100 caracteres) com botões Cancelar / Salvar nome. */
 function RenameForm({ name, onSave, onCancel }: { name: string; onSave: (name: string) => void; onCancel: () => void }) {
@@ -149,4 +117,4 @@ export function MapPreviewModal({ map, width, onClose, children }: { map: MapIte
   );
 }
 
-export { useMapExport };
+export { Btn, Sheet, useMapExport };

@@ -1,2 +1,2 @@
-import CriarOuEntrarEmMesaScreen from '../screens/CriarOuEntrarEmMesaScreen';
-export default CriarOuEntrarEmMesaScreen; 
+import MesaFormScreen from '../screens/MesaFormScreen';
+export default MesaFormScreen;

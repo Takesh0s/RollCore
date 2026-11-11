@@ -60,3 +60,24 @@ export async function uploadImage(image: PreparedImage): Promise<string | null> 
     return null;
   }
 }
+
+/**
+ * Escolhe uma foto na galeria, recortada na proporção `aspect` (largura / altura) e reduzida a `maxWidth` px,
+ * como JPEG pronto para `uploadImage`. Devolve null se o usuário cancelar ou negar o acesso.
+ */
+export async function pickImage({ aspect, maxWidth }: { aspect: [number, number]; maxWidth: number }): Promise<PreparedImage | null> {
+  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (!permission.granted) {
+    Alert.alert('Acesso às fotos necessário', 'Permita o acesso à galeria nas configurações do aparelho para escolher uma imagem.');
+    return null;
+  }
+  const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect, quality: 1 });
+  if (picked.canceled || !picked.assets[0]) return null;
+  const a = picked.assets[0];
+  try {
+    const out = await manipulateAsync(a.uri, a.width > maxWidth ? [{ resize: { width: maxWidth } }] : [], { compress: 0.85, format: SaveFormat.JPEG });
+    return { uri: out.uri, width: out.width, height: out.height, mime: 'image/jpeg' };
+  } catch {
+    return null;
+  }
+}

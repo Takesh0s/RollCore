@@ -1,362 +1,98 @@
-import { useAcessibilidade } from '../store/acessibilidade';
-// CalendarioScreen.tsx — RollCore
-//
-// Calendário mensal com eventos das mesas (design: Calendário).
-// - Toque num dia para ver os eventos dele; sem dia selecionado, lista os do mês.
-// - Cada evento tem Confirmar / Recusar.
-// - "Criar Evento" abre o formulário (usuário não pagante vê um aviso).
-
 import { MaterialIcons } from '@expo/vector-icons';
-import { useState } from 'react';
-import { Modal, Pressable as NativePressable, ScrollView, Text as NativeText, View } from 'react-native';
-import { AccessibleText as Text, AccessiblePressable as Pressable } from '../components/accessible-text';
+import { useRouter } from 'expo-router';
+import { useEffect, useMemo, useState } from 'react';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
 import { AppHeader } from '../components/AppHeader';
-import EventoFormModal from '../components/EventoFormModal';
-import { COLORS, useAppFonts, appFontSize } from '../design/shared';
+import { EventModal } from '../components/calendar/EventModal';
+import { RsvpBadge } from '../components/calendar/EventParts';
+import { Btn, StateBlock } from '../components/Controls';
+import { COLORS, appFontSize } from '../design/shared';
 import {
-  Evento,
-  addEvento,
-  doISO,
-  formatarCurto,
-  paraISO,
-  responderEvento,
-  useEventos,
-  usePagante,
-} from '../store/eventos';
-import { useMesas } from '../store/mesas';
+  EVENT_COLORS, WEEKDAY_HEADERS, dayLabel, hourLabel, monthGrid, monthTitle, myStatus, occurrencesBetween, sameDay,
+  tableLegend, toISO, upcoming, type Occurrence,
+} from '../lib/calendar';
+import { useAcessibilidade } from '../store/acessibilidade';
+import { useContaAtiva } from '../store/conta';
+import { useCalendar } from '../store/useCalendar';
+import { useTables } from '../store/useTables';
 
-const MESES = [
-  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
-];
-const DIAS_SEMANA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-const VERDE = '#6fbf9b';
-const VERMELHO = '#e57373';
+const BODY = 'AtkinsonHyperlegible_400Regular';
+const BOLD = 'AtkinsonHyperlegible_700Bold';
+const SERIF = 'SourceSerif4_700Bold';
 
-function gerarGrade(ano: number, mes: number): Date[] {
-  const primeiro = new Date(ano, mes, 1);
-  const diasNoMes = new Date(ano, mes + 1, 0).getDate();
-  const total = Math.ceil((primeiro.getDay() + diasNoMes) / 7) * 7;
-  return Array.from({ length: total }, (_, i) => new Date(ano, mes, 1 - primeiro.getDay() + i));
-}
-
-function EventoItem({ evento, mesaTitulo }: { evento: Evento; mesaTitulo?: string }) {
-  const confirmado = evento.resposta === 'confirmado';
-  const recusado = evento.resposta === 'recusado';
-  return (
-    <View
-      style={{
-        backgroundColor: COLORS.surfaceContainerHigh,
-        borderWidth: 1,
-        borderColor: COLORS.surfaceContainerHighest,
-        borderRadius: 12,
-        padding: 14,
-        gap: 10,
-      }}>
-      <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
-        <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: evento.cor, marginTop: 2 }} />
-        <View style={{ flex: 1, gap: 2 }}>
-          <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(15) }}>
-            {formatarCurto(evento.data)}: {evento.titulo} ({evento.confirmados}/{evento.total} confirmados)
-          </Text>
-          {mesaTitulo && (
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12) }}>
-              {mesaTitulo}
-            </Text>
-          )}
-          {evento.descricao ? (
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>
-              {evento.descricao}
-            </Text>
-          ) : null}
-        </View>
-      </View>
-
-      <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'center' }}>
-        <Pressable
-          onPress={() => responderEvento(evento.id, 'confirmado')}
-          accessibilityLabel="Confirmar presença"
-          accessibilityState={{ selected: confirmado }}
-          style={{
-            minHeight: 44,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-            paddingHorizontal: 18,
-            borderRadius: 999,
-            borderWidth: 1,
-            borderColor: VERDE,
-            backgroundColor: confirmado ? VERDE : 'transparent',
-          }}>
-          <MaterialIcons name="check" size={20} color={confirmado ? '#353839' : VERDE} />
-          <Text style={{ color: confirmado ? '#353839' : VERDE, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>
-            Confirmar
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => responderEvento(evento.id, 'recusado')}
-          accessibilityLabel="Recusar presença"
-          accessibilityState={{ selected: recusado }}
-          style={{
-            minHeight: 44,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-            paddingHorizontal: 18,
-            borderRadius: 999,
-            borderWidth: 1,
-            borderColor: VERMELHO,
-            backgroundColor: recusado ? VERMELHO : 'transparent',
-          }}>
-          <MaterialIcons name="close" size={20} color={recusado ? '#353839' : VERMELHO} />
-          <Text style={{ color: recusado ? '#353839' : VERMELHO, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>
-            Recusar
-          </Text>
-        </Pressable>
-      </View>
-    </View>
-  );
-}
-
-function Aviso({
-  visible,
-  icon,
-  titulo,
-  texto,
-  primario,
-  secundario,
-}: {
-  visible: boolean;
-  icon: keyof typeof MaterialIcons.glyphMap;
-  titulo: string;
-  texto: string;
-  primario: { label: string; onPress: () => void };
-  secundario?: { label: string; onPress: () => void };
-}) {
-  return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={secundario?.onPress ?? primario.onPress}>
-      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <View
-          style={{
-            width: '100%',
-            maxWidth: 420,
-            backgroundColor: COLORS.surfaceContainerHigh,
-            borderWidth: 1,
-            borderColor: COLORS.outlineVariant,
-            borderRadius: 16,
-            padding: 20,
-            gap: 12,
-            alignItems: 'center',
-          }}>
-          <MaterialIcons name={icon} size={36} color={COLORS.primary} />
-          <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(20), textAlign: 'center' }}>
-            {titulo}
-          </Text>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(15), textAlign: 'center' }}>
-            {texto}
-          </Text>
-          <View style={{ flexDirection: 'row', gap: 12, marginTop: 8 }}>
-            {secundario && (
-              <Pressable
-                onPress={secundario.onPress}
-                style={{
-                  minHeight: 44,
-                  paddingHorizontal: 16,
-                  justifyContent: 'center',
-                  borderRadius: 8,
-                  borderWidth: 1,
-                  borderColor: COLORS.outlineVariant,
-                  backgroundColor: COLORS.surfaceContainerHighest,
-                }}>
-                <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>
-                  {secundario.label}
-                </Text>
-              </Pressable>
-            )}
-            <Pressable
-              onPress={primario.onPress}
-              style={{
-                minHeight: 44,
-                paddingHorizontal: 16,
-                justifyContent: 'center',
-                borderRadius: 8,
-                backgroundColor: COLORS.primary,
-              }}>
-              <Text style={{ color: COLORS.onPrimary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>
-                {primario.label}
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-}
-
+/** Calendário de sessões: mês, próximos eventos e legenda das mesas (no celular só há a visão do mês, como no web). */
 export default function CalendarioScreen() {
   useAcessibilidade();
-  const fontsLoaded = useAppFonts();
-  const eventos = useEventos();
-  const mesas = useMesas();
-  const pagante = usePagante();
+  const router = useRouter();
+  const me = useContaAtiva()?.apelido ?? '';
+  const { events, loading, loaded, load } = useCalendar();
+  const tables = useTables((s) => s.tables);
+  const loadTables = useTables((s) => s.load);
+  const canCreate = tables.some((t) => t.myRole !== 'PLAYER');
+  const today = useMemo(() => new Date(), []);
+  const [anchor, setAnchor] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  const [picked, setPicked] = useState<string | null>(null);
+  const [open, setOpen] = useState<Occurrence | null>(null);
 
-  const hoje = new Date();
-  const hojeISO = paraISO(hoje);
-  const [cursor, setCursor] = useState(new Date(hoje.getFullYear(), hoje.getMonth(), 1));
-  const [selecionado, setSelecionado] = useState<string | null>(null);
-  const [formAberto, setFormAberto] = useState(false);
-  const [premiumAberto, setPremiumAberto] = useState(false);
-  const [criado, setCriado] = useState<Evento | null>(null);
+  useEffect(() => { void loadTables(); void load(); }, [loadTables, load]);
 
-  if (!fontsLoaded) return null;
+  const grid = useMemo(() => monthGrid(anchor), [anchor]);
+  const occ = useMemo(() => occurrencesBetween(events, grid[0], grid[grid.length - 1]), [events, grid]);
+  const byDay = useMemo(() => {
+    const m = new Map<string, Occurrence[]>();
+    occ.forEach((o) => m.set(o.date, [...(m.get(o.date) ?? []), o]));
+    return m;
+  }, [occ]);
+  const next = useMemo(() => upcoming(events, today, 5), [events, today]);
+  const legend = useMemo(() => tableLegend(events), [events]);
+  const shown = picked ? (byDay.get(picked) ?? []) : next;
+  const weeks: Date[][] = [];
+  for (let i = 0; i < grid.length; i += 7) weeks.push(grid.slice(i, i + 7));
 
-  const ano = cursor.getFullYear();
-  const mes = cursor.getMonth();
-  const grade = gerarGrade(ano, mes);
-  const semanas: Date[][] = [];
-  for (let i = 0; i < grade.length; i += 7) semanas.push(grade.slice(i, i + 7));
-
-  const porDia: Record<string, Evento[]> = {};
-  eventos.forEach((e) => {
-    (porDia[e.data] ??= []).push(e);
-  });
-
-  const lista = (selecionado
-    ? porDia[selecionado] ?? []
-    : eventos.filter((e) => {
-        const d = doISO(e.data);
-        return d.getFullYear() === ano && d.getMonth() === mes;
-      })
-  )
-    .slice()
-    .sort((a, b) => a.data.localeCompare(b.data));
-
-  const mudarMes = (delta: number) => {
-    setCursor(new Date(ano, mes + delta, 1));
-    setSelecionado(null);
-  };
-
-  const tituloMesa = (id: string) => mesas.find((m) => m.id === id)?.titulo;
-
-  const abrirCriar = () => (pagante ? setFormAberto(true) : setPremiumAberto(true));
-
-  const salvar = (dados: Parameters<typeof addEvento>[0]) => {
-    const novo = addEvento(dados);
-    setFormAberto(false);
-    setCriado(novo);
-  };
-
-  const irParaEvento = () => {
-    if (!criado) return;
-    const d = doISO(criado.data);
-    setCursor(new Date(d.getFullYear(), d.getMonth(), 1));
-    setSelecionado(criado.data);
-    setCriado(null);
-  };
+  function step(dir: -1 | 1) {
+    setPicked(null);
+    setAnchor((a) => new Date(a.getFullYear(), a.getMonth() + dir, 1));
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <AppHeader title="Calendário" />
-
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
-        {/* Calendário */}
-        <View
-          style={{
-            backgroundColor: COLORS.surfaceContainerHigh,
-            borderRadius: 12,
-            overflow: 'hidden',
-            borderWidth: 1,
-            borderColor: COLORS.surfaceContainerHighest,
-          }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              backgroundColor: COLORS.surfaceContainerHighest,
-            }}>
-            <Pressable onPress={() => mudarMes(-1)} accessibilityLabel="Mês anterior" style={{ padding: 10 }}>
-              <MaterialIcons name="chevron-left" size={26} color={COLORS.primary} />
-            </Pressable>
-            <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(18) }}>
-              {MESES[mes]} {ano}
-            </Text>
-            <Pressable onPress={() => mudarMes(1)} accessibilityLabel="Próximo mês" style={{ padding: 10 }}>
-              <MaterialIcons name="chevron-right" size={26} color={COLORS.primary} />
-            </Pressable>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }}>
+        <View style={{ borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: COLORS.surfaceContainerHighest, backgroundColor: COLORS.surfaceContainerHigh }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 8, paddingVertical: 4, backgroundColor: COLORS.surfaceContainerHighest }}>
+            <Pressable onPress={() => step(-1)} accessibilityLabel="Mês anterior" style={{ padding: 10 }}><MaterialIcons name="chevron-left" size={26} color={COLORS.primary} /></Pressable>
+            <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(18) }}>{monthTitle(anchor)}</Text>
+            <Pressable onPress={() => step(1)} accessibilityLabel="Próximo mês" style={{ padding: 10 }}><MaterialIcons name="chevron-right" size={26} color={COLORS.primary} /></Pressable>
           </View>
 
           <View style={{ flexDirection: 'row' }}>
-            {DIAS_SEMANA.map((d, i) => (
-              <Text
-                key={i}
-                style={{
-                  flex: 1,
-                  textAlign: 'center',
-                  paddingVertical: 6,
-                  color: COLORS.outline,
-                  fontFamily: 'AtkinsonHyperlegible_700Bold',
-                  fontSize: appFontSize(12),
-                }}>
-                {d}
-              </Text>
+            {WEEKDAY_HEADERS.map((d) => (
+              <Text key={d} style={{ flex: 1, textAlign: 'center', paddingVertical: 6, color: COLORS.outline, fontFamily: BOLD, fontSize: appFontSize(11) }}>{d}</Text>
             ))}
           </View>
 
-          {semanas.map((semana, si) => (
-            <View key={si} style={{ flexDirection: 'row' }}>
-              {semana.map((dia) => {
-                const iso = paraISO(dia);
-                const dentro = dia.getMonth() === mes;
-                const evs = porDia[iso] ?? [];
-                const sel = iso === selecionado;
-                const ehHoje = iso === hojeISO;
+          {weeks.map((week, wi) => (
+            <View key={wi} style={{ flexDirection: 'row' }}>
+              {week.map((d) => {
+                const iso = toISO(d);
+                const list = byDay.get(iso) ?? [];
+                const out = d.getMonth() !== anchor.getMonth();
+                const sel = picked === iso;
+                const isToday = sameDay(d, today);
                 return (
-                  <Pressable
-                    key={iso}
-                    onPress={() => setSelecionado(sel ? null : iso)}
-                    accessibilityLabel={`${dia.getDate()} de ${MESES[dia.getMonth()]}${
-                      evs.length ? `, ${evs.length} evento(s)` : ''
-                    }`}
-                    style={{
-                      flex: 1,
-                      height: 54,
-                      padding: 3,
-                      borderWidth: sel ? 2 : 0.5,
-                      borderColor: sel ? COLORS.primary : COLORS.outlineVariant,
-                      backgroundColor: dentro ? COLORS.surfaceContainer : COLORS.surfaceContainerLowest,
-                    }}>
-                    <Text
-                      style={{
-                        color: ehHoje ? COLORS.primary : dentro ? COLORS.onSurface : COLORS.outline,
-                        fontFamily: ehHoje ? 'AtkinsonHyperlegible_700Bold' : 'AtkinsonHyperlegible_400Regular',
-                        fontSize: appFontSize(12),
-                      }}>
-                      {dia.getDate()}
-                    </Text>
-                    {evs.length > 0 && (
-                      <View
-                        style={{
-                          position: 'absolute',
-                          right: 3,
-                          bottom: 3,
-                          minWidth: 26,
-                          height: 26,
-                          paddingHorizontal: 3,
-                          borderRadius: 13,
-                          borderWidth: 1.5,
-                          borderColor: evs[0].cor,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}>
-                        <Text style={{ color: evs[0].cor, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(9) }}>
-                          {evs.length === 1 ? `${evs[0].confirmados}/${evs[0].total}` : `${evs.length}`}
-                        </Text>
-                      </View>
-                    )}
+                  <Pressable key={iso} disabled={!list.length} onPress={() => setPicked((p) => (p === iso ? null : iso))}
+                    accessibilityLabel={`${dayLabel(iso)}${list.length ? `, ${list.length} evento${list.length > 1 ? 's' : ''}` : ''}`}
+                    accessibilityState={{ selected: sel }}
+                    style={{ flex: 1, height: 54, padding: 4, alignItems: 'center', borderWidth: sel ? 2 : 0.5, borderColor: sel ? COLORS.primary : COLORS.outlineVariant,
+                      backgroundColor: out ? COLORS.surfaceContainerLowest : COLORS.surfaceContainer }}>
+                    <View style={{ minWidth: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: isToday ? COLORS.primary : 'transparent' }}>
+                      <Text style={{ color: isToday ? COLORS.onPrimary : out ? COLORS.outline : COLORS.onSurface, fontFamily: isToday ? BOLD : BODY, fontSize: appFontSize(12) }}>{d.getDate()}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', gap: 3, marginTop: 4 }}>
+                      {list.slice(0, 4).map((o) => <View key={o.event.id} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: EVENT_COLORS[o.event.color] }} />)}
+                    </View>
                   </Pressable>
                 );
               })}
@@ -364,71 +100,42 @@ export default function CalendarioScreen() {
           ))}
         </View>
 
-        {/* Eventos */}
-        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>
-          {selecionado ? `Eventos de ${formatarCurto(selecionado)}` : `Eventos de ${MESES[mes]}`}
+        {canCreate && <Btn label="+ Criar evento" kind="primary" onPress={() => router.push('/novo-evento' as any)} />}
+
+        <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20) }}>
+          {picked ? `Eventos de ${dayLabel(picked)}` : 'Próximos eventos'}
         </Text>
 
-        {lista.length === 0 ? (
-          <Text
-            style={{
-              color: COLORS.onSurfaceVariant,
-              fontFamily: 'AtkinsonHyperlegible_400Regular',
-              fontSize: appFontSize(15),
-              textAlign: 'center',
-              marginVertical: 12,
-            }}>
-            Nenhum evento {selecionado ? 'neste dia' : 'neste mês'}.
-          </Text>
-        ) : (
-          lista.map((e) => <EventoItem key={e.id} evento={e} mesaTitulo={tituloMesa(e.mesaId)} />)
+        {!loaded && loading ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>Carregando eventos…</Text>
+          : shown.length === 0 ? <StateBlock icon="event-busy" title={picked ? 'Nenhum evento neste dia.' : 'Nenhum evento marcado.'} text={picked ? undefined : canCreate ? 'Crie o primeiro!' : undefined} />
+          : shown.map((o) => (
+            <Pressable key={o.event.id + o.date} onPress={() => setOpen(o)} accessibilityRole="button" accessibilityLabel={`${o.event.title}, ${dayLabel(o.date)}, ${hourLabel(o.event.start)}. Detalhes`}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: COLORS.surfaceContainerHighest, borderLeftWidth: 4,
+                borderLeftColor: EVENT_COLORS[o.event.color], backgroundColor: COLORS.surfaceContainerHigh }}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(15) }}>{o.event.title}</Text>
+                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>{dayLabel(o.date)} · {hourLabel(o.event.start)}</Text>
+              </View>
+              <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                {o.event.askRsvp && <RsvpBadge status={myStatus(o.event, me)} />}
+                <Text style={{ color: COLORS.primary, fontFamily: BOLD, fontSize: appFontSize(12) }}>Detalhes ›</Text>
+              </View>
+            </Pressable>
+          ))}
+
+        {legend.length > 0 && (
+          <View style={{ gap: 8, marginTop: 4 }}>
+            <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Legenda das mesas</Text>
+            {legend.map((l) => (
+              <View key={l.tableId} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: EVENT_COLORS[l.color] }} />
+                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>{l.name}</Text>
+              </View>
+            ))}
+          </View>
         )}
-
-        <Pressable
-          onPress={abrirCriar}
-          accessibilityLabel="Criar Evento"
-          style={{
-            alignSelf: 'center',
-            marginTop: 8,
-            minHeight: 48,
-            paddingHorizontal: 24,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-            borderRadius: 999,
-            backgroundColor: COLORS.primary,
-          }}>
-          <MaterialIcons name="add" size={22} color={COLORS.onPrimary} />
-          <Text style={{ color: COLORS.onPrimary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
-            Criar Evento
-          </Text>
-        </Pressable>
       </ScrollView>
-
-      <EventoFormModal
-        visible={formAberto}
-        dataInicial={selecionado ?? hojeISO}
-        mesas={mesas}
-        onClose={() => setFormAberto(false)}
-        onSalvar={salvar}
-      />
-
-      <Aviso
-        visible={criado !== null}
-        icon="event-available"
-        titulo="Evento criado!"
-        texto={criado ? `“${criado.titulo}” foi criado para ${formatarCurto(criado.data)}. Os jogadores serão avisados para confirmar presença.` : ''}
-        primario={{ label: 'Ir para o evento', onPress: irParaEvento }}
-        secundario={{ label: 'Fechar', onPress: () => setCriado(null) }}
-      />
-
-      <Aviso
-        visible={premiumAberto}
-        icon="lock"
-        titulo="Recurso para usuários pagantes"
-        texto="Criar eventos no calendário está disponível apenas para usuários pagantes."
-        primario={{ label: 'Entendi', onPress: () => setPremiumAberto(false) }}
-      />
+      {open && <EventModal event={open.event} date={open.date} onClose={() => setOpen(null)} />}
     </SafeAreaView>
   );
 }

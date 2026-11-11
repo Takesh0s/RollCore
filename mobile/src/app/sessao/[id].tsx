@@ -1,2 +1,2 @@
-import SessaoAtivaScreen from '../../screens/SessaoAtivaScreen';
-export default SessaoAtivaScreen;
+import MesaScreen from '../../screens/MesaScreen';
+export default MesaScreen;
