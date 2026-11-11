@@ -7,7 +7,7 @@ import { ApiError } from '../services/api';
 import { alterarEmail, alterarSenha, excluirConta } from '../store/conta';
 import { showToast } from '../store/useToast';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
+const BODY = 'Inter_400Regular';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_RE = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 

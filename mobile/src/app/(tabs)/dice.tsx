@@ -41,7 +41,7 @@ export default function ListingsScreen() {
           <Text style={{ color: COLORS.primary, fontSize: appFontSize(20), fontFamily: 'SourceSerif4_700Bold' }}>
             Feitiços
           </Text>
-          <Text style={{ color: COLORS.secondary, fontSize: appFontSize(13), fontFamily: 'AtkinsonHyperlegible_700Bold' }}>
+          <Text style={{ color: COLORS.secondary, fontSize: appFontSize(13), fontFamily: 'Inter_700Bold' }}>
             Nome: A-Z
           </Text>
         </View>
@@ -63,13 +63,13 @@ export default function ListingsScreen() {
               </View>
 
               <View style={{ flex: 1 }}>
-                <Text style={{ color: COLORS.onSurface, fontSize: appFontSize(16), fontFamily: 'AtkinsonHyperlegible_700Bold' }}>
+                <Text style={{ color: COLORS.onSurface, fontSize: appFontSize(16), fontFamily: 'Inter_700Bold' }}>
                   {item.titulo}
                 </Text>
-                <Text style={{ color: COLORS.secondary, fontSize: appFontSize(13), fontFamily: 'AtkinsonHyperlegible_400Regular' }}>
+                <Text style={{ color: COLORS.secondary, fontSize: appFontSize(13), fontFamily: 'Inter_400Regular' }}>
                   {item.subtitulo}
                 </Text>
-                <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(12), fontFamily: 'AtkinsonHyperlegible_400Regular', fontStyle: 'italic' }}>
+                <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(12), fontFamily: 'Inter_400Regular', fontStyle: 'italic' }}>
                   {item.fonte}
                 </Text>
               </View>

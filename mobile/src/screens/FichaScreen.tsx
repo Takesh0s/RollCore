@@ -19,8 +19,8 @@ import { useCharacters } from '../store/useCharacters';
 import { showToast } from '../store/useToast';
 import { LEVEL_LABELS, SCHOOL_COLORS, type Character, type Spell, type SpellSlots } from '../types';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 type Tab = 'combat' | 'skills' | 'inventory' | 'spells' | 'traits';

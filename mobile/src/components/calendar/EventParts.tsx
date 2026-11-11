@@ -3,7 +3,7 @@ import { AccessibleText as Text } from '../accessible-text';
 import { COLORS, appFontSize } from '../../design/shared';
 import { RSVP_LABELS, type Rsvp } from '../../lib/calendar';
 
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BOLD = 'Inter_700Bold';
 const BADGE: Record<Rsvp, string> = { yes: '#6fbf9b', maybe: '#d6a93a', no: '#e57373', pending: '#9aa0a6' };
 
 export function RsvpBadge({ status }: { status: Rsvp }) {

@@ -19,7 +19,7 @@ export default function NotFoundScreen() {
           <MaterialIcons name="explore-off" size={44} color={COLORS.outline} />
         </View>
         <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(22), textAlign: 'center' }}>Página não encontrada</Text>
-        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(15), textAlign: 'center' }}>O link pode ter expirado ou a mesa foi removida.</Text>
+        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(15), textAlign: 'center' }}>O link pode ter expirado ou a mesa foi removida.</Text>
         <View style={{ alignSelf: 'stretch', gap: 10, marginTop: 8 }}>
           <Btn label="Voltar ao início" kind="primary" onPress={() => router.replace('/inicio' as any)} />
           <Btn label="Ver minhas mesas" onPress={() => router.replace('/mesas' as any)} />

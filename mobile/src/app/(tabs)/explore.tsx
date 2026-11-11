@@ -74,7 +74,7 @@ export default function ExploreScreen() {
             style={{
               flex: 1,
               color: COLORS.onSurface,
-              fontFamily: 'AtkinsonHyperlegible_400Regular',
+              fontFamily: 'Inter_400Regular',
               fontSize: appFontSize(15),
             }}
           />
@@ -91,7 +91,7 @@ export default function ExploreScreen() {
           <Text
             style={{
               color: COLORS.onSurfaceVariant,
-              fontFamily: 'AtkinsonHyperlegible_400Regular',
+              fontFamily: 'Inter_400Regular',
               fontSize: appFontSize(15),
               textAlign: 'center',
               marginTop: 40,
@@ -103,7 +103,7 @@ export default function ExploreScreen() {
           <Text
             style={{
               color: COLORS.onSurfaceVariant,
-              fontFamily: 'AtkinsonHyperlegible_400Regular',
+              fontFamily: 'Inter_400Regular',
               fontSize: appFontSize(15),
               textAlign: 'center',
               marginTop: 40,
@@ -133,7 +133,7 @@ export default function ExploreScreen() {
                     style={{
                       color: COLORS.onSurfaceVariant,
                       fontSize: appFontSize(11),
-                      fontFamily: 'AtkinsonHyperlegible_700Bold',
+                      fontFamily: 'Inter_700Bold',
                       textTransform: 'uppercase',
                     }}
                   >
@@ -152,7 +152,7 @@ export default function ExploreScreen() {
                     style={{
                       color: COLORS.secondary,
                       fontSize: appFontSize(13),
-                      fontFamily: 'AtkinsonHyperlegible_400Regular',
+                      fontFamily: 'Inter_400Regular',
                       marginTop: 2,
                     }}
                   >

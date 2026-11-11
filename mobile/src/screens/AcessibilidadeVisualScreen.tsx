@@ -49,7 +49,7 @@ export default function AcessibilidadeVisualScreen() {
               }}
             />
             <View style={{ gap: 8 }}>
-              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>Velocidade da narração</Text>
+              <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>Velocidade da narração</Text>
               <SegmentedControl
                 options={['Lenta', 'Normal', 'Rápida']}
                 selected={velocidadeNarracao}
@@ -73,11 +73,11 @@ export default function AcessibilidadeVisualScreen() {
               <PrimaryButton title="Testar narração" icon="play-arrow" onPress={testarNarração} />
               <Pressable onPress={lerTela} accessibilityRole="button" accessibilityLabel="Ler conteúdo desta tela" style={{ minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 10, borderWidth: 1, borderColor: COLORS.outlineVariant, backgroundColor: COLORS.surfaceContainerHigh, paddingHorizontal: 14 }}>
                 <MaterialIcons name="menu-book" size={19} color={COLORS.primary} />
-                <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>Ler conteúdo desta tela</Text>
+                <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(14) }}>Ler conteúdo desta tela</Text>
               </Pressable>
               <Pressable onPress={pararLeitura} accessibilityRole="button" accessibilityLabel="Parar narração" style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 10, paddingHorizontal: 14 }}>
                 <MaterialIcons name="stop-circle" size={19} color={COLORS.onSurfaceVariant} />
-                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>Parar narração</Text>
+                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_700Bold', fontSize: appFontSize(13) }}>Parar narração</Text>
               </Pressable>
             </View>
           </View>
@@ -95,7 +95,7 @@ export default function AcessibilidadeVisualScreen() {
                 if (value) feedbackDeAcao('Feedback falado e vibração ativados.', 'Configuração');
               }}
             />
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(12) }}>
               A leitura usa a voz instalada no sistema e funciona nas telas e botões que têm rótulos acessíveis. O idioma e a disponibilidade da voz dependem do dispositivo.
             </Text>
           </View>

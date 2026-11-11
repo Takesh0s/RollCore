@@ -12,8 +12,8 @@ import { useAcessibilidade } from '../store/acessibilidade';
 import { useCalendar } from '../store/useCalendar';
 import { useNotifications, type AppNotification } from '../store/useNotifications';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 type Filter = 'all' | 'tables' | 'events';

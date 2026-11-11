@@ -17,8 +17,8 @@ import { useContaAtiva } from '../store/conta';
 import { showToast } from '../store/useToast';
 import { useTables, type TableMember } from '../store/useTables';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 type Dialog = { kind: 'delete' | 'leave' | 'profile' } | { kind: 'actions' | 'transfer' | 'remove'; member: TableMember } | null;

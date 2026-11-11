@@ -15,8 +15,8 @@ import { useDice } from '../store/useDice';
 import { showToast } from '../store/useToast';
 import type { DiceMode, HistoryEntry } from '../types';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 const MODES: { id: DiceMode; label: string }[] = [

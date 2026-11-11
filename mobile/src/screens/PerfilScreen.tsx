@@ -13,8 +13,8 @@ import { useAcessibilidade } from '../store/acessibilidade';
 import { encerrarSessao, salvarPerfil, useContaAtiva } from '../store/conta';
 import { showToast } from '../store/useToast';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 const isValidUsername = (u: string) => /^[a-zA-Z0-9_]{3,20}$/.test(u);

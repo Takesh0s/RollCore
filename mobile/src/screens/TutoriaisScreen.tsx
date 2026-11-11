@@ -120,7 +120,7 @@ export default function TutoriaisScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 6 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 10, backgroundColor: COLORS.surfaceContainer, borderBottomWidth: 1, borderBottomColor: COLORS.outlineVariant }}>
           <MaterialIcons name="search" size={21} color={COLORS.onSurfaceVariant} />
-          <TextInput value={search} onChangeText={setSearch} placeholder="Buscar tutorial..." placeholderTextColor={COLORS.placeholder} accessibilityLabel="Buscar tutorial" style={{ flex: 1, height: 42, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }} />
+          <TextInput value={search} onChangeText={setSearch} placeholder="Buscar tutorial..." placeholderTextColor={COLORS.placeholder} accessibilityLabel="Buscar tutorial" style={{ flex: 1, height: 42, color: COLORS.onSurface, fontFamily: 'Inter_400Regular', fontSize: appFontSize(14) }} />
           {search.length > 0 && <Pressable onPress={() => setSearch('')} accessibilityLabel="Limpar busca"><MaterialIcons name="close" size={19} color={COLORS.onSurfaceVariant} /></Pressable>}
         </View>
       </View>
@@ -129,7 +129,7 @@ export default function TutoriaisScreen() {
           const active = category === option;
           return (
             <Pressable key={option} onPress={() => setCategory(option)} style={{ minHeight: 38, justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 8, borderRadius: 18, backgroundColor: active ? COLORS.primaryContainer : COLORS.surfaceContainer, borderWidth: 1, borderColor: active ? COLORS.primaryContainer : COLORS.outlineVariant }}>
-              <Text style={{ color: active ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13), lineHeight: 18 }}>{option}</Text>
+              <Text style={{ color: active ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant, fontFamily: 'Inter_700Bold', fontSize: appFontSize(13), lineHeight: 18 }}>{option}</Text>
             </Pressable>
           );
         })}
@@ -139,7 +139,7 @@ export default function TutoriaisScreen() {
         {visibleTutorials.length === 0 ? (
           <View style={{ alignItems: 'center', paddingVertical: 48, gap: 8 }}>
             <MaterialIcons name="search-off" size={36} color={COLORS.outline} />
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(15) }}>Nenhum tutorial encontrado.</Text>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(15) }}>Nenhum tutorial encontrado.</Text>
           </View>
         ) : visibleTutorials.map((tutorial) => {
           const expanded = expandedId === tutorial.id;
@@ -150,8 +150,8 @@ export default function TutoriaisScreen() {
                   <MaterialIcons name={tutorial.icon} size={23} color={COLORS.primary} />
                 </View>
                 <View style={{ flex: 1, gap: 3 }}>
-                  <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>{tutorial.title}</Text>
-                  <Text numberOfLines={2} style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12), lineHeight: 16 }}>{tutorial.summary}</Text>
+                  <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>{tutorial.title}</Text>
+                  <Text numberOfLines={2} style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(12), lineHeight: 16 }}>{tutorial.summary}</Text>
                 </View>
                 <MaterialIcons name={expanded ? 'expand-less' : 'expand-more'} size={22} color={COLORS.onSurfaceVariant} />
               </Pressable>
@@ -161,13 +161,13 @@ export default function TutoriaisScreen() {
                   {tutorial.steps.map((step, index) => (
                     <View key={`${tutorial.id}-${index}`} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
                       <View style={{ width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.surfaceContainerHighest }}>
-                        <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(11) }}>{index + 1}</Text>
+                        <Text style={{ color: COLORS.primary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(11) }}>{index + 1}</Text>
                       </View>
-                      <Text style={{ flex: 1, color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13), lineHeight: 19 }}>{step}</Text>
+                      <Text style={{ flex: 1, color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(13), lineHeight: 19 }}>{step}</Text>
                     </View>
                   ))}
                   <Pressable onPress={() => router.push(tutorial.route as any)} style={{ minHeight: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 2, borderRadius: 8, backgroundColor: COLORS.primary }}>
-                    <Text style={{ color: COLORS.onPrimary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>{tutorial.actionLabel}</Text>
+                    <Text style={{ color: COLORS.onPrimary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(14) }}>{tutorial.actionLabel}</Text>
                     <MaterialIcons name="arrow-forward" size={18} color={COLORS.onPrimary} />
                   </Pressable>
                 </View>

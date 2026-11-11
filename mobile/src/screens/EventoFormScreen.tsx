@@ -13,8 +13,8 @@ import { useCalendar } from '../store/useCalendar';
 import { useTables } from '../store/useTables';
 import { showToast } from '../store/useToast';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 
 const REPEATS = Object.keys(REPEAT_LABELS) as Repeat[];
 

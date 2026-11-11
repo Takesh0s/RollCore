@@ -74,7 +74,7 @@ export default function DetalheCampanhaScreen() {
             borderWidth: 1,
             borderColor: 'rgba(192,192,192,0.2)',
           }}>
-          <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>
+          <Text style={{ color: COLORS.primary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(13) }}>
             {produto.preco}
           </Text>
         </View>
@@ -90,7 +90,7 @@ export default function DetalheCampanhaScreen() {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 6, borderRadius: 999, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: 'rgba(192,192,192,0.3)' }}>
               <MaterialIcons name="casino" size={16} color={COLORS.primary} />
-              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12) }}>{produto.categoria}</Text>
+              <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(12) }}>{produto.categoria}</Text>
             </View>
           </View>
 
@@ -100,7 +100,7 @@ export default function DetalheCampanhaScreen() {
               <MaterialIcons name="auto-stories" size={20} color={COLORS.primaryContainer} />
               <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(18) }}>Sinopse</Text>
             </View>
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(15), lineHeight: 22 }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(15), lineHeight: 22 }}>
               {produto.sinopse}
             </Text>
           </View>
@@ -129,7 +129,7 @@ export default function DetalheCampanhaScreen() {
                     borderColor: COLORS.surfaceContainerHighest,
                   }}>
                   <MaterialIcons name={d.icon} size={20} color={COLORS.secondary} />
-                  <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13), flexShrink: 1 }}>
+                  <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_400Regular', fontSize: appFontSize(13), flexShrink: 1 }}>
                     {d.label}
                   </Text>
                 </View>
@@ -145,7 +145,7 @@ export default function DetalheCampanhaScreen() {
             </View>
             {produto.conteudo.map((ch) => (
               <View key={ch} style={{ backgroundColor: COLORS.surfaceContainer, borderRadius: 8, padding: 12, borderWidth: 1, borderColor: 'rgba(192,192,192,0.2)' }}>
-                <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>{ch}</Text>
+                <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(14) }}>{ch}</Text>
               </View>
             ))}
           </View>
@@ -159,10 +159,10 @@ export default function DetalheCampanhaScreen() {
             {REVIEWS.map((r) => (
               <View key={r.name} style={{ backgroundColor: COLORS.surfaceContainer, borderRadius: 8, padding: 12, gap: 4 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>{r.name}</Text>
+                  <Text style={{ color: COLORS.primary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(13) }}>{r.name}</Text>
                   <Stars count={r.stars} />
                 </View>
-                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13), fontStyle: 'italic' }}>
+                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(13), fontStyle: 'italic' }}>
                   "{r.text}"
                 </Text>
               </View>
@@ -197,11 +197,11 @@ export default function DetalheCampanhaScreen() {
             justifyContent: 'center',
             gap: 10,
           }}>
-          <Text style={{ color: COLORS.onPrimaryContainer, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15), textTransform: 'uppercase' }}>
+          <Text style={{ color: COLORS.onPrimaryContainer, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15), textTransform: 'uppercase' }}>
             Comprar
           </Text>
           <View style={{ borderLeftWidth: 1, borderLeftColor: 'rgba(192,192,192,0.3)', paddingLeft: 10 }}>
-            <Text style={{ color: COLORS.onPrimaryContainer, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
+            <Text style={{ color: COLORS.onPrimaryContainer, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>
               {produto.preco}
             </Text>
           </View>
@@ -213,11 +213,11 @@ export default function DetalheCampanhaScreen() {
           <View style={{ width: '100%', maxWidth: 420, padding: 20, gap: 12, borderRadius: 16, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
             <MaterialIcons name="info-outline" size={30} color={COLORS.primary} style={{ alignSelf: 'center' }} />
             <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(20), textAlign: 'center' }}>Checkout indisponível</Text>
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14), lineHeight: 20, textAlign: 'center' }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(14), lineHeight: 20, textAlign: 'center' }}>
               A compra de produtos ainda não está conectada. Nenhum pagamento foi iniciado.
             </Text>
             <Pressable onPress={() => setCheckoutInfoVisible(false)} style={{ minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 8, backgroundColor: COLORS.primary }}>
-              <Text style={{ color: COLORS.onPrimary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>Entendi</Text>
+              <Text style={{ color: COLORS.onPrimary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(14) }}>Entendi</Text>
             </Pressable>
           </View>
         </View>

@@ -42,7 +42,7 @@ function Bubble({ msg }: { msg: Message }) {
         style={{
           alignSelf: 'center',
           color: COLORS.onSurfaceVariant,
-          fontFamily: 'AtkinsonHyperlegible_400Regular',
+          fontFamily: 'Inter_400Regular',
           fontSize: appFontSize(12),
           fontStyle: 'italic',
           marginVertical: 4,
@@ -55,7 +55,7 @@ function Bubble({ msg }: { msg: Message }) {
   return (
     <View style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: '80%', marginVertical: 4 }}>
       {!isMe && (
-        <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12), marginBottom: 2 }}>
+        <Text style={{ color: COLORS.primary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(12), marginBottom: 2 }}>
           {msg.author}
         </Text>
       )}
@@ -69,7 +69,7 @@ function Bubble({ msg }: { msg: Message }) {
         <Text
           style={{
             color: isMe ? COLORS.onPrimaryContainer : COLORS.onSurface,
-            fontFamily: 'AtkinsonHyperlegible_400Regular',
+            fontFamily: 'Inter_400Regular',
             fontSize: appFontSize(14),
           }}>
           {msg.text}
@@ -105,7 +105,7 @@ export default function ComunidadeChatScreen() {
     id === 'floral-dragons' ? 'Clã do Dragão Floral' : id === 'mestres' ? 'Guilda dos Mestres' : 'Taverna dos Aventureiros';
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
       <View
         style={{
           height: 56,
@@ -164,7 +164,7 @@ export default function ComunidadeChatScreen() {
                 borderRadius: 999,
                 paddingHorizontal: 16,
                 color: COLORS.onSurface,
-                fontFamily: 'AtkinsonHyperlegible_400Regular',
+                fontFamily: 'Inter_400Regular',
                 fontSize: appFontSize(14),
               }}
             />
@@ -195,7 +195,7 @@ export default function ComunidadeChatScreen() {
               padding: 12,
               gap: 12,
             }}>
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(11), letterSpacing: 1 }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_700Bold', fontSize: appFontSize(11), letterSpacing: 1 }}>
               PARTICIPANTES
             </Text>
             {PARTICIPANTS.map((p) => (
@@ -209,10 +209,10 @@ export default function ComunidadeChatScreen() {
                   }}
                 />
                 <View style={{ flex: 1 }}>
-                  <Text numberOfLines={1} style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12) }}>
+                  <Text numberOfLines={1} style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(12) }}>
                     {p.name}
                   </Text>
-                  <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(10) }}>
+                  <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(10) }}>
                     {p.role}
                   </Text>
                 </View>

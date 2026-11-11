@@ -9,8 +9,8 @@ import { COLORS, appFontSize } from '../design/shared';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { useCharacters } from '../store/useCharacters';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 
 /** Lista de fichas do usuário (mesma da web): avatar, nome, classe · raça · nível, PV com barra e CA. */
 export default function FichasScreen() {

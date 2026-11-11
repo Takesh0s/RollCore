@@ -4,8 +4,8 @@ import { Image, KeyboardAvoidingView, Modal, Platform, Pressable as NativePressa
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from './accessible-text';
 import { COLORS, appFontSize } from '../design/shared';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 /** Round portrait: the photo when there is one, otherwise the initial of the name. */
@@ -147,7 +147,7 @@ export function StateBlock({ icon, title, text, actionLabel, onAction }: { icon:
       {text ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14), textAlign: 'center' }}>{text}</Text> : null}
       {actionLabel && onAction ? (
         <Pressable onPress={onAction} style={{ marginTop: 6, paddingHorizontal: 20, minHeight: 46, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.btn }}>
-          <Text style={{ color: COLORS.btnText, fontFamily: BODY, fontSize: appFontSize(15) }}>{actionLabel}</Text>
+          <Text style={{ color: COLORS.btnText, fontFamily: 'FugazOne_400Regular', fontSize: appFontSize(15) }}>{actionLabel}</Text>
         </Pressable>
       ) : null}
     </View>

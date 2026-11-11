@@ -11,7 +11,7 @@ import { COLORS, appFontSize } from '../design/shared';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { useTables } from '../store/useTables';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
+const BODY = 'Inter_400Regular';
 
 /** Lista de mesas do usuário (mesma do web), com busca por nome, "Entrar com código" e criar mesa. */
 export default function MesasScreen() {

@@ -21,7 +21,7 @@ export default function LivrariaScreen() {
           <Text style={{ color: COLORS.primary, fontSize: appFontSize(20), fontFamily: 'SourceSerif4_700Bold' }}>
             Manuais e Compêndios
           </Text>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(14), fontFamily: 'AtkinsonHyperlegible_400Regular' }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(14), fontFamily: 'Inter_400Regular' }}>
             {PRODUTOS.length} Livros
           </Text>
         </View>
@@ -36,7 +36,7 @@ export default function LivrariaScreen() {
                   resizeMode="cover"
                 />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(12), fontFamily: 'AtkinsonHyperlegible_700Bold', textTransform: 'uppercase' }}>
+                  <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(12), fontFamily: 'Inter_700Bold', textTransform: 'uppercase' }}>
                     {produto.categoria}
                   </Text>
                   <Text style={{ color: COLORS.primary, fontSize: appFontSize(20), fontFamily: 'SourceSerif4_700Bold', marginTop: 2 }}>
@@ -50,10 +50,10 @@ export default function LivrariaScreen() {
               </View>
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                <Text style={{ color: COLORS.secondary, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>
+                <Text style={{ color: COLORS.secondary, fontFamily: 'Inter_400Regular', fontSize: appFontSize(13) }}>
                   {produto.descricaoCurta}
                 </Text>
-                <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>
+                <Text style={{ color: COLORS.primary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(14) }}>
                   {produto.preco}
                 </Text>
               </View>

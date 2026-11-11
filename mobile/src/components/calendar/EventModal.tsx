@@ -10,8 +10,8 @@ import { useTables } from '../../store/useTables';
 import { showToast } from '../../store/useToast';
 import { ConfirmedBar, RsvpBadge } from './EventParts';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 
 /** Quem está na lista de convidados, com a resposta de cada um. */
 export function GuestList({ event, me }: { event: CalendarEvent; me: string }) {

@@ -63,7 +63,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
         <Text style={{ flex: 1, color: active ? COLORS.sapphire : COLORS.onSurfaceVariant, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(16) }}>{item.label}</Text>
         {item.route === '/notificacoes' && unread > 0 && (
           <View accessibilityLabel={`${unread} não lidas`} style={{ minWidth: 22, height: 22, paddingHorizontal: 6, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.sapphire }}>
-            <Text style={{ color: '#10202E', fontSize: appFontSize(12), fontFamily: 'AtkinsonHyperlegible_700Bold' }}>{unread > 9 ? '9+' : unread}</Text>
+            <Text style={{ color: '#10202E', fontSize: appFontSize(12), fontFamily: 'Inter_700Bold' }}>{unread > 9 ? '9+' : unread}</Text>
           </View>
         )}
       </Pressable>
@@ -81,7 +81,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
                 <Avatar uri={imageSrc(conta?.avatarUrl)} name={conta?.apelido ?? '?'} size={56} />
                 <View style={{ flex: 1 }}>
                   <Text numberOfLines={1} style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(17) }}>{conta?.apelido ?? ''}</Text>
-                  {!!conta?.apelido && <Text numberOfLines={1} style={{ color: COLORS.outline, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13) }}>{`@${conta.apelido.toLowerCase()}`}</Text>}
+                  {!!conta?.apelido && <Text numberOfLines={1} style={{ color: COLORS.outline, fontFamily: 'Inter_400Regular', fontSize: appFontSize(13) }}>{`@${conta.apelido.toLowerCase()}`}</Text>}
                 </View>
               </View>
               {line}

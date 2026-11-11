@@ -6,8 +6,8 @@ import { COLORS, Header, appFontSize, resolvedThemeMode } from '../design/shared
 import { getTheme, THEMES, type ModePref } from '../lib/theme';
 import { updateAcessibilidade, useAcessibilidade } from '../store/acessibilidade';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 const MODES: { id: ModePref; label: string; hint: string }[] = [
@@ -24,7 +24,7 @@ export default function TemaScreen() {
   const preview = resolvedThemeMode();
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
       <Header title="Tema e paleta" onBack={() => (router.canGoBack() ? router.back() : router.replace('/configuracoes'))} />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }}>
         {daltonico && (

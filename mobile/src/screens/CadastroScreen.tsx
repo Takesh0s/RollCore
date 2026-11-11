@@ -88,7 +88,7 @@ export default function CadastroScreen() {
       <AuthField label="confirmar senha" password value={confirm} onChangeText={changeConfirm} error={confirmErr} valid={!!confirm && !confirmErr} autoComplete="new-password" />
 
       <AuthButton label="Criar conta" onPress={register} busy={loading} />
-      {lento ? <Text accessibilityLiveRegion="polite" style={{ color: AUTH_COLORS.white, textAlign: 'center', fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13), marginTop: 8 }}>{SLOW_HINT_TEXT}</Text> : null}
+      {lento ? <Text accessibilityLiveRegion="polite" style={{ color: AUTH_COLORS.white, textAlign: 'center', fontFamily: 'Inter_400Regular', fontSize: appFontSize(13), marginTop: 8 }}>{SLOW_HINT_TEXT}</Text> : null}
       <AuthLink hint="Já tenho conta?" label="Entrar" onPress={() => router.replace('/login')} />
     </AuthShell>
   );

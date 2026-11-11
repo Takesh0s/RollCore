@@ -39,14 +39,14 @@ export default function CreditosScreen() {
             <MaterialIcons name="casino" size={42} color={COLORS.primary} />
           </View>
           <Text style={{ color: COLORS.primary, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(28) }}>RollCore</Text>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }}>Seu espaço para criar e viver aventuras de RPG.</Text>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(14) }}>Seu espaço para criar e viver aventuras de RPG.</Text>
           <View style={{ paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16, backgroundColor: COLORS.surfaceContainerHighest }}>
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12) }}>Versão 1.0.0</Text>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_700Bold', fontSize: appFontSize(12) }}>Versão 1.0.0</Text>
           </View>
         </View>
 
         <InfoCard title="Sobre o projeto" icon="auto-awesome">
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14), lineHeight: 21 }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(14), lineHeight: 21 }}>
             RollCore reúne ferramentas para apoiar campanhas de RPG: fichas, mesas, rolagens, inventário, comunidade e recursos para mestres. Este projeto está em desenvolvimento.
           </Text>
         </InfoCard>
@@ -59,8 +59,8 @@ export default function CreditosScreen() {
                   <MaterialIcons name={technology.icon} size={19} color={COLORS.primary} />
                 </View>
                 <View style={{ flex: 1, gap: 2 }}>
-                  <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>{technology.name}</Text>
-                  <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>{technology.detail}</Text>
+                  <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(14) }}>{technology.name}</Text>
+                  <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(12) }}>{technology.detail}</Text>
                 </View>
               </View>
             ))}
@@ -68,12 +68,12 @@ export default function CreditosScreen() {
         </InfoCard>
 
         <InfoCard title="Autoria e créditos" icon="groups">
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14), lineHeight: 21 }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(14), lineHeight: 21 }}>
             Os nomes de colaboradores, autores de conteúdo e licenças de recursos serão informados aqui quando os dados e as autorizações correspondentes forem definidos pelo projeto.
           </Text>
         </InfoCard>
 
-        <Text style={{ paddingHorizontal: 8, paddingTop: 4, color: COLORS.outline, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(11), lineHeight: 16, textAlign: 'center' }}>
+        <Text style={{ paddingHorizontal: 8, paddingTop: 4, color: COLORS.outline, fontFamily: 'Inter_400Regular', fontSize: appFontSize(11), lineHeight: 16, textAlign: 'center' }}>
           RollCore é um projeto independente. Marcas, sistemas e obras citados pertencem aos seus respectivos titulares.
         </Text>
       </ScrollView>

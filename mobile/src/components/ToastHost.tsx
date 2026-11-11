@@ -19,7 +19,7 @@ export function ToastHost() {
         style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, paddingVertical: 11, borderRadius: 12, maxWidth: 520,
           backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: color }}>
         <MaterialIcons name={ICON[kind]} size={18} color={color} />
-        <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14), flexShrink: 1 }}>{message}</Text>
+        <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_400Regular', fontSize: appFontSize(14), flexShrink: 1 }}>{message}</Text>
       </View>
     </View>
   );

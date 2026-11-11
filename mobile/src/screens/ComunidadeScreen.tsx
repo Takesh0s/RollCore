@@ -73,17 +73,17 @@ function CommunityCard({ community, onPress }: { community: Community; onPress: 
         <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_600SemiBold', fontSize: appFontSize(16) }}>
           {community.name}
         </Text>
-        <Text numberOfLines={2} style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>
+        <Text numberOfLines={2} style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(12) }}>
           {community.description}
         </Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 2 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#4ADE80' }} />
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(11) }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(11) }}>
               {community.online} online
             </Text>
           </View>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(11) }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(11) }}>
             {community.members} membros
           </Text>
         </View>
@@ -98,7 +98,7 @@ function CommunityCard({ community, onPress }: { community: Community; onPress: 
             borderRadius: 999,
             backgroundColor: COLORS.primary,
           }}>
-          <Text style={{ color: COLORS.onPrimary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12) }}>
+          <Text style={{ color: COLORS.onPrimary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(12) }}>
             Entrar
           </Text>
         </View>
@@ -146,7 +146,7 @@ export default function ComunidadeScreen() {
             onChangeText={setBusca}
             placeholder="Digite algo..."
             placeholderTextColor={COLORS.placeholder}
-            style={{ flex: 1, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }}
+            style={{ flex: 1, color: COLORS.onSurface, fontFamily: 'Inter_400Regular', fontSize: appFontSize(14) }}
           />
         </View>
 
@@ -163,7 +163,7 @@ export default function ComunidadeScreen() {
             }}>
             <Text
               style={{
-                fontFamily: 'AtkinsonHyperlegible_700Bold',
+                fontFamily: 'Inter_700Bold',
                 fontSize: appFontSize(13),
                 color: tab === 'minhas' ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant,
               }}>
@@ -182,7 +182,7 @@ export default function ComunidadeScreen() {
             }}>
             <Text
               style={{
-                fontFamily: 'AtkinsonHyperlegible_700Bold',
+                fontFamily: 'Inter_700Bold',
                 fontSize: appFontSize(13),
                 color: tab === 'descobrir' ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant,
               }}>
@@ -197,7 +197,7 @@ export default function ComunidadeScreen() {
           <CommunityCard key={c.id} community={c} onPress={() => openChat(c)} />
         ))}
         {list.length === 0 && (
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14), textAlign: 'center', marginTop: 24 }}>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(14), textAlign: 'center', marginTop: 24 }}>
             Nada por aqui ainda.
           </Text>
         )}

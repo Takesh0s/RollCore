@@ -6,8 +6,8 @@ import { COLORS, appFontSize } from '../../design/shared';
 import { imageSrc, pickImage, type PreparedImage } from '../../lib/mapImage';
 import { useTables, type TableMember, type TablePreview, type TableRole, type TableSummary } from '../../store/useTables';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 
 export const ROLE_LABEL: Record<TableRole, string> = { MASTER: 'Mestre', MODERATOR: 'Moderador', PLAYER: 'Jogador' };
 

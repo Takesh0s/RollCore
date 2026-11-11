@@ -1,4 +1,6 @@
-import { AtkinsonHyperlegible_400Regular, AtkinsonHyperlegible_700Bold } from '@expo-google-fonts/atkinson-hyperlegible';
+import { Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
+import { FugazOne_400Regular } from '@expo-google-fonts/fugaz-one';
+import { KumarOneOutline_400Regular } from '@expo-google-fonts/kumar-one-outline';
 import { SourceSerif4_600SemiBold, SourceSerif4_700Bold } from '@expo-google-fonts/source-serif-4';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
@@ -8,6 +10,7 @@ import { imageSrc } from '../lib/mapImage';
 import { useContaAtiva } from '../store/conta';
 import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
 import { Appearance } from 'react-native';
+import { OutlineText } from '../components/OutlineText';
 import { appColors, getTheme, type ThemeMode } from '../lib/theme';
 import { DaltonismType, getAcessibilidade, setPaletteApplier } from '../store/acessibilidade';
 
@@ -93,7 +96,7 @@ export function appFontSize(size: number): number {
 }
 
 export function useAppFonts() {
-  const [loaded] = useFonts({ SourceSerif4_700Bold, SourceSerif4_600SemiBold, AtkinsonHyperlegible_400Regular, AtkinsonHyperlegible_700Bold });
+  const [loaded] = useFonts({ SourceSerif4_700Bold, SourceSerif4_600SemiBold, Inter_400Regular, Inter_500Medium, Inter_700Bold, FugazOne_400Regular, KumarOneOutline_400Regular });
   return loaded;
 }
 
@@ -111,7 +114,7 @@ export function Header({ title, onMenu, onBack, rightIcon = 'person', onRightPre
       <Pressable onPress={leftAction} disabled={!leftAction} style={{ width: 44, height: 44, justifyContent: 'center', alignItems: 'flex-start' }} accessibilityLabel={onMenu ? 'Abrir menu' : 'Voltar'}>
         {leftAction ? <MaterialIcons name={onMenu ? 'menu' : 'arrow-back'} size={34} color={COLORS.onSurfaceVariant} /> : null}
       </Pressable>
-      <Text numberOfLines={1} accessibilityRole="header" style={{ flex: 1, textAlign: 'center', color: COLORS.primary, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(26) }}>{title}</Text>
+      <View style={{ flex: 1 }}><OutlineText size={appFontSize(30)} color={COLORS.primary}>{title}</OutlineText></View>
       <Pressable onPress={onRightPress} disabled={!onRightPress} style={{ width: 44, height: 44, alignItems: 'flex-end', justifyContent: 'center' }} accessibilityLabel={avatar || rightIcon === 'person' ? 'Perfil' : rightIcon}>
         {avatar
           ? <Image source={{ uri: avatar }} style={{ width: 38, height: 38, borderRadius: 19, borderWidth: 2, borderColor: COLORS.onSurfaceVariant }} />
@@ -144,10 +147,10 @@ export function PasswordStrength({ strength, label, hint = 'Mín. 8 caracteres' 
   return <View style={{ gap: 4 }}><View style={{ flexDirection: 'row', gap: 4, height: 6 }}>{[0, 1, 2, 3].map((i) => <View key={i} style={{ flex: 1, borderRadius: 3, backgroundColor: i < strength ? COLORS.primary : 'rgba(112,181,150,0.25)' }} />)}</View><View style={{ flexDirection: 'row', justifyContent: 'space-between' }}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><MaterialIcons name="shield" size={14} color={COLORS.primary} /><Text style={[styles.passwordStrength, { fontSize: appFontSize(12) }]}>{label}</Text></View><Text style={[styles.passwordHint, { fontSize: appFontSize(11) }]}>{hint}</Text></View></View>;
 }
 export function Toggle({ label, description, value, onValueChange }: { label: string; description?: string; value: boolean; onValueChange: (value: boolean) => void }) {
-  return <Pressable onPress={() => onValueChange(!value)} accessibilityRole="switch" accessibilityState={{ checked: value }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 48 }}><View style={{ flex: 1, gap: 3 }}><Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>{label}</Text>{description ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>{description}</Text> : null}</View><View style={{ width: 48, height: 28, borderRadius: 15, padding: 3, justifyContent: 'center', backgroundColor: value ? COLORS.primary : COLORS.surfaceContainerHighest }}><View style={{ width: 22, height: 22, borderRadius: 11, alignSelf: value ? 'flex-end' : 'flex-start', backgroundColor: value ? COLORS.onPrimary : COLORS.onSurfaceVariant }} /></View></Pressable>;
+  return <Pressable onPress={() => onValueChange(!value)} accessibilityRole="switch" accessibilityState={{ checked: value }} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, minHeight: 48 }}><View style={{ flex: 1, gap: 3 }}><Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>{label}</Text>{description ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(12) }}>{description}</Text> : null}</View><View style={{ width: 48, height: 28, borderRadius: 15, padding: 3, justifyContent: 'center', backgroundColor: value ? COLORS.primary : COLORS.surfaceContainerHighest }}><View style={{ width: 22, height: 22, borderRadius: 11, alignSelf: value ? 'flex-end' : 'flex-start', backgroundColor: value ? COLORS.onPrimary : COLORS.onSurfaceVariant }} /></View></Pressable>;
 }
 export function SegmentedControl({ options, selected, onSelect }: { options: string[]; selected: string; onSelect: (value: string) => void }) {
-  return <View style={{ flexDirection: 'row', gap: 4, padding: 4, borderRadius: 9, backgroundColor: COLORS.surfaceContainerLowest, borderWidth: 1, borderColor: COLORS.outlineVariant }}>{options.map((option) => { const active = option === selected; return <Pressable key={option} onPress={() => onSelect(option)} accessibilityRole="button" accessibilityState={{ selected: active }} style={{ flex: 1, minHeight: 38, alignItems: 'center', justifyContent: 'center', borderRadius: 6, paddingHorizontal: 4, backgroundColor: active ? COLORS.primaryContainer : 'transparent', borderWidth: active ? 1 : 0, borderColor: COLORS.primary }}><Text style={{ color: active ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant, fontFamily: active ? 'AtkinsonHyperlegible_700Bold' : 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12), textAlign: 'center' }}>{option}</Text></Pressable>; })}</View>;
+  return <View style={{ flexDirection: 'row', gap: 4, padding: 4, borderRadius: 9, backgroundColor: COLORS.surfaceContainerLowest, borderWidth: 1, borderColor: COLORS.outlineVariant }}>{options.map((option) => { const active = option === selected; return <Pressable key={option} onPress={() => onSelect(option)} accessibilityRole="button" accessibilityState={{ selected: active }} style={{ flex: 1, minHeight: 38, alignItems: 'center', justifyContent: 'center', borderRadius: 6, paddingHorizontal: 4, backgroundColor: active ? COLORS.primaryContainer : 'transparent', borderWidth: active ? 1 : 0, borderColor: COLORS.primary }}><Text style={{ color: active ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant, fontFamily: active ? 'Inter_700Bold' : 'Inter_400Regular', fontSize: appFontSize(12), textAlign: 'center' }}>{option}</Text></Pressable>; })}</View>;
 }
 export function Divider() { return <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: COLORS.outlineVariant }} />; }
 
@@ -160,7 +163,7 @@ const NAV_ITEMS = [
 export function BottomNavBar({ active, onNavigate }: { active: string; onNavigate: (route: string) => void }) {
   return <View style={{ minHeight: 64, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingHorizontal: 8, backgroundColor: COLORS.surfaceContainerLowest, borderTopWidth: 1, borderTopColor: COLORS.outlineVariant }}>{NAV_ITEMS.map((item) => {
     const selected = active.toLowerCase() === item.label.toLowerCase() || active.toLowerCase() === item.route.replace('/', '').toLowerCase();
-    return <Pressable key={item.label} onPress={() => onNavigate(item.route)} accessibilityRole="button" accessibilityState={{ selected }} style={{ minWidth: 64, minHeight: 54, alignItems: 'center', justifyContent: 'center', gap: 3, paddingHorizontal: 6, borderRadius: 12, backgroundColor: selected ? COLORS.primaryContainer : 'transparent' }}><MaterialIcons name={item.icon} size={20} color={selected ? COLORS.primary : COLORS.onSurfaceVariant} /><Text style={{ color: selected ? COLORS.primary : COLORS.onSurfaceVariant, fontFamily: selected ? 'AtkinsonHyperlegible_700Bold' : 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(10) }}>{item.label}</Text></Pressable>;
+    return <Pressable key={item.label} onPress={() => onNavigate(item.route)} accessibilityRole="button" accessibilityState={{ selected }} style={{ minWidth: 64, minHeight: 54, alignItems: 'center', justifyContent: 'center', gap: 3, paddingHorizontal: 6, borderRadius: 12, backgroundColor: selected ? COLORS.primaryContainer : 'transparent' }}><MaterialIcons name={item.icon} size={20} color={selected ? COLORS.primary : COLORS.onSurfaceVariant} /><Text style={{ color: selected ? COLORS.primary : COLORS.onSurfaceVariant, fontFamily: selected ? 'Inter_700Bold' : 'Inter_400Regular', fontSize: appFontSize(10) }}>{item.label}</Text></Pressable>;
   })}</View>;
 }
 
@@ -174,16 +177,16 @@ const styles = themedStyles(() => ({
   logoCircle: { alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(112,181,150,0.3)', backgroundColor: 'rgba(112,181,150,0.08)' },
   card: { backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant, borderRadius: 12, padding: 16 },
   fieldWrapper: { gap: 6 },
-  fieldLabel: { color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 14, paddingLeft: 4 },
+  fieldLabel: { color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: 14, paddingLeft: 4 },
   fieldRow: { position: 'relative', justifyContent: 'center' },
   fieldIcon: { position: 'absolute', left: 14, zIndex: 1 },
-  fieldInput: { minHeight: 48, borderRadius: 8, borderWidth: 2, borderColor: COLORS.outlineVariant, backgroundColor: COLORS.surfaceContainerLowest, paddingHorizontal: 16, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 16 },
+  fieldInput: { minHeight: 48, borderRadius: 8, borderWidth: 2, borderColor: COLORS.outlineVariant, backgroundColor: COLORS.surfaceContainerLowest, paddingHorizontal: 16, color: COLORS.onSurface, fontFamily: 'Inter_400Regular', fontSize: 16 },
   fieldTrailingIcon: { position: 'absolute', right: 12, padding: 6 },
   primaryButton: { minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 24, backgroundColor: COLORS.primary, paddingHorizontal: 20 },
-  primaryButtonText: { color: COLORS.onPrimary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 15 },
+  primaryButtonText: { color: COLORS.onPrimary, fontFamily: 'Inter_700Bold', fontSize: 15 },
   secondaryButton: { minHeight: 46, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 24, borderWidth: 1, borderColor: COLORS.outlineVariant, backgroundColor: COLORS.surfaceContainerHigh, paddingHorizontal: 16 },
-  secondaryButtonText: { color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 15 },
-  linkText: { color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 14, textDecorationLine: 'underline' },
-  passwordStrength: { color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: 12 },
-  passwordHint: { color: COLORS.outline, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: 11 },
+  secondaryButtonText: { color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: 15 },
+  linkText: { color: COLORS.primary, fontFamily: 'Inter_700Bold', fontSize: 14, textDecorationLine: 'underline' },
+  passwordStrength: { color: COLORS.onSurfaceVariant, fontFamily: 'Inter_700Bold', fontSize: 12 },
+  passwordHint: { color: COLORS.outline, fontFamily: 'Inter_400Regular', fontSize: 11 },
 }), () => appliedPalette);

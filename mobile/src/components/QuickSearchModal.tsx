@@ -10,8 +10,8 @@ import { useQuickRoll } from '../store/useQuickRoll';
 import { useQuickSearch } from '../store/useQuickSearch';
 import { useTables } from '../store/useTables';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 

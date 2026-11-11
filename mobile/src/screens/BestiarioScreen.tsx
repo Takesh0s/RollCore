@@ -101,7 +101,7 @@ export default function BestiarioScreen() {
           placeholder="Buscar criatura..."
           placeholderTextColor={COLORS.placeholder}
           accessibilityLabel="Buscar criatura"
-          style={{ flex: 1, height: 42, color: COLORS.onSurface, borderBottomWidth: 1, borderBottomColor: COLORS.outlineVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(15) }}
+          style={{ flex: 1, height: 42, color: COLORS.onSurface, borderBottomWidth: 1, borderBottomColor: COLORS.outlineVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(15) }}
         />
         <Pressable onPress={() => setFilterOpen(true)} accessibilityLabel="Filtrar por categoria" style={{ padding: 8 }}>
           <MaterialIcons name="filter-list" size={24} color={selectedCategory === 'Todos' ? COLORS.onSurfaceVariant : COLORS.primary} />
@@ -110,7 +110,7 @@ export default function BestiarioScreen() {
 
       {selectedCategory !== 'Todos' && (
         <Pressable onPress={() => setSelectedCategory('Todos')} style={{ alignSelf: 'flex-start', marginLeft: 16, marginBottom: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 16, backgroundColor: COLORS.surfaceContainerHighest }}>
-          <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12) }}>{selectedCategory}  × Limpar</Text>
+          <Text style={{ color: COLORS.primary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(12) }}>{selectedCategory}  × Limpar</Text>
         </Pressable>
       )}
 
@@ -118,7 +118,7 @@ export default function BestiarioScreen() {
         {grouped.length === 0 ? (
           <View style={{ alignItems: 'center', paddingVertical: 48, gap: 8 }}>
             <MaterialIcons name="search-off" size={36} color={COLORS.outline} />
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(15) }}>Nenhuma criatura encontrada.</Text>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(15) }}>Nenhuma criatura encontrada.</Text>
           </View>
         ) : grouped.map((group) => (
           <View key={group.category}>
@@ -136,18 +136,18 @@ export default function BestiarioScreen() {
                       <MaterialIcons name={creature.icon} size={20} color={creature.color} />
                     </View>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(16) }}>{creature.name}</Text>
-                      {search.length > 0 ? <Text style={{ color: COLORS.outline, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(11) }}>{creature.system}</Text> : null}
+                      <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_400Regular', fontSize: appFontSize(16) }}>{creature.name}</Text>
+                      {search.length > 0 ? <Text style={{ color: COLORS.outline, fontFamily: 'Inter_400Regular', fontSize: appFontSize(11) }}>{creature.system}</Text> : null}
                     </View>
                     <MaterialIcons name={expanded ? 'expand-less' : 'expand-more'} size={22} color={COLORS.onSurfaceVariant} />
                   </Pressable>
                   {expanded && (
                     <View style={{ marginLeft: 44, marginBottom: 10, padding: 12, gap: 8, borderRadius: 10, backgroundColor: COLORS.surfaceContainer }}>
-                      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(13), lineHeight: 19 }}>{creature.description}</Text>
+                      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(13), lineHeight: 19 }}>{creature.description}</Text>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
-                        <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12) }}>PV: {creature.hp}</Text>
-                        <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12) }}>ND: {creature.threat}</Text>
-                        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>{creature.system}</Text>
+                        <Text style={{ color: COLORS.primary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(12) }}>PV: {creature.hp}</Text>
+                        <Text style={{ color: COLORS.primary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(12) }}>ND: {creature.threat}</Text>
+                        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(12) }}>{creature.system}</Text>
                       </View>
                     </View>
                   )}
@@ -161,7 +161,7 @@ export default function BestiarioScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 10, alignItems: 'center' }}>
         <Pressable onPress={() => setCreateOpen(true)} style={{ minHeight: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 20, borderRadius: 999, backgroundColor: COLORS.surfaceContainerHighest, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
           <MaterialIcons name="add" size={19} color={COLORS.primary} />
-          <Text style={{ color: COLORS.primary, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>Adicionar Criatura</Text>
+          <Text style={{ color: COLORS.primary, fontFamily: 'Inter_700Bold', fontSize: appFontSize(14) }}>Adicionar Criatura</Text>
         </Pressable>
       </View>
 
@@ -171,7 +171,7 @@ export default function BestiarioScreen() {
             <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(20) }}>Filtrar criaturas</Text>
             {CATEGORIES.map((category) => (
               <Pressable key={category} onPress={() => { setSelectedCategory(category); setFilterOpen(false); }} style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, borderRadius: 8, backgroundColor: selectedCategory === category ? COLORS.surfaceContainerHighest : 'transparent' }}>
-                <Text style={{ color: selectedCategory === category ? COLORS.primary : COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>{category}</Text>
+                <Text style={{ color: selectedCategory === category ? COLORS.primary : COLORS.onSurfaceVariant, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>{category}</Text>
                 {selectedCategory === category ? <MaterialIcons name="check" size={20} color={COLORS.primary} /> : null}
               </Pressable>
             ))}
@@ -186,18 +186,18 @@ export default function BestiarioScreen() {
               <Text style={{ color: COLORS.onSurface, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(21) }}>Nova criatura</Text>
               <Pressable onPress={() => setCreateOpen(false)} accessibilityLabel="Fechar formulário"><MaterialIcons name="close" size={24} color={COLORS.onSurfaceVariant} /></Pressable>
             </View>
-            <TextInput value={newName} onChangeText={setNewName} placeholder="Nome da criatura" placeholderTextColor={COLORS.placeholder} style={{ minHeight: 48, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular' }} />
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>Categoria</Text>
+            <TextInput value={newName} onChangeText={setNewName} placeholder="Nome da criatura" placeholderTextColor={COLORS.placeholder} style={{ minHeight: 48, paddingHorizontal: 12, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant, color: COLORS.onSurface, fontFamily: 'Inter_400Regular' }} />
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_700Bold', fontSize: appFontSize(13) }}>Categoria</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {CATEGORIES.slice(1).map((category) => (
                 <Pressable key={category} onPress={() => setNewCategory(category)} style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, backgroundColor: newCategory === category ? COLORS.primaryContainer : COLORS.surfaceContainerLowest }}>
-                  <Text style={{ color: newCategory === category ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(12) }}>{category}</Text>
+                  <Text style={{ color: newCategory === category ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant, fontFamily: 'Inter_700Bold', fontSize: appFontSize(12) }}>{category}</Text>
                 </Pressable>
               ))}
             </View>
-            <TextInput value={newDescription} onChangeText={setNewDescription} placeholder="Descrição (opcional)" placeholderTextColor={COLORS.placeholder} multiline style={{ minHeight: 82, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', textAlignVertical: 'top' }} />
+            <TextInput value={newDescription} onChangeText={setNewDescription} placeholder="Descrição (opcional)" placeholderTextColor={COLORS.placeholder} multiline style={{ minHeight: 82, padding: 12, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant, color: COLORS.onSurface, fontFamily: 'Inter_400Regular', textAlignVertical: 'top' }} />
             <Pressable onPress={addCreature} disabled={!newName.trim()} style={{ minHeight: 48, alignItems: 'center', justifyContent: 'center', borderRadius: 8, backgroundColor: newName.trim() ? COLORS.primary : COLORS.surfaceContainerHighest }}>
-              <Text style={{ color: newName.trim() ? COLORS.onPrimary : COLORS.outline, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>Adicionar ao Bestiário</Text>
+              <Text style={{ color: newName.trim() ? COLORS.onPrimary : COLORS.outline, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>Adicionar ao Bestiário</Text>
             </Pressable>
           </View>
         </View>

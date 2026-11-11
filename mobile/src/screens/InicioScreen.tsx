@@ -18,8 +18,8 @@ import { useQuickRoll } from '../store/useQuickRoll';
 import { useQuickSearch } from '../store/useQuickSearch';
 import { useTables, type TableRole } from '../store/useTables';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 const ROLE_BADGE: Record<TableRole, string> = { MASTER: 'MESTRE', MODERATOR: 'MODERADOR', PLAYER: 'JOGADOR' };

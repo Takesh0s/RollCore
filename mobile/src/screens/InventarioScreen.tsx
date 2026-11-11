@@ -10,8 +10,8 @@ import { COLORS, Card, appFontSize } from '../design/shared';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { useCharacters } from '../store/useCharacters';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 
 /** O inventário é de cada ficha: esta tela escolhe o personagem e abre a aba Inventário dele. */
 export default function InventarioScreen() {

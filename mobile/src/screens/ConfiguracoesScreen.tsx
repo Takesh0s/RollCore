@@ -81,8 +81,8 @@ export default function ConfiguracoesScreen() {
             <Pressable onPress={() => router.push('/tema' as any)} accessibilityRole="button" accessibilityLabel="Tema e paleta. Escolha o tema e o modo claro ou escuro"
               style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48 }}>
               <View style={{ flex: 1, gap: 3 }}>
-                <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>Tema e paleta</Text>
-                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(12) }}>Seis temas, com modo claro, escuro ou do sistema</Text>
+                <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>Tema e paleta</Text>
+                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(12) }}>Seis temas, com modo claro, escuro ou do sistema</Text>
               </View>
               <MaterialIcons name="chevron-right" size={24} color={COLORS.onSurfaceVariant} />
             </Pressable>
@@ -101,19 +101,19 @@ export default function ConfiguracoesScreen() {
             />
 
             {daltonico && <View style={{ gap: 6, paddingTop: 2 }}>
-              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(14) }}>Perfil de daltonismo</Text>
+              <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(14) }}>Perfil de daltonismo</Text>
               {DALTONISM_OPTIONS.map((option) => {
                 const selected = tipoDaltonismo === option.id;
                 return <Pressable key={option.id} onPress={() => { updateAcessibilidade({ tipoDaltonismo: option.id }); applyAccessibilityPalette(true, option.id); }} accessibilityRole="radio" accessibilityState={{ selected }} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, borderWidth: selected ? 2 : 1, borderColor: selected ? COLORS.primary : COLORS.outlineVariant, backgroundColor: selected ? COLORS.primaryContainer : 'transparent' }}>
                   <MaterialIcons name={selected ? 'radio-button-checked' : 'radio-button-unchecked'} size={20} color={COLORS.primary} />
-                  <View style={{ flex: 1, gap: 2 }}><Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(13) }}>{option.label}</Text><Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(11) }}>{option.detail}</Text></View>
+                  <View style={{ flex: 1, gap: 2 }}><Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(13) }}>{option.label}</Text><Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(11) }}>{option.detail}</Text></View>
                 </Pressable>;
               })}
               <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(11) }}>A paleta melhora a distinção de elementos; não é uma simulação médica da visão.</Text>
             </View>}
 
             <View style={{ gap: 8 }}>
-              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
+              <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>
                 Tamanho de Fonte
               </Text>
               <SegmentedControl options={['Pequeno', 'Padrão', 'Grande']} selected={fonte} onSelect={(value) => updateAcessibilidade({ fonte: value as 'Pequeno' | 'Padrão' | 'Grande' })} />
@@ -130,7 +130,7 @@ export default function ConfiguracoesScreen() {
               }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <MaterialIcons name="record-voice-over" size={20} color={COLORS.primary} />
-                <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
+                <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>
                   Acessibilidade Visual e Áudio
                 </Text>
               </View>
@@ -157,7 +157,7 @@ export default function ConfiguracoesScreen() {
                 gap: 8,
               }}>
               <MaterialIcons name="logout" size={20} color={COLORS.onSurface} />
-              <Text style={{ color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
+              <Text style={{ color: COLORS.onSurface, fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>
                 Sair da Conta (Logout)
               </Text>
             </Pressable>
@@ -175,7 +175,7 @@ export default function ConfiguracoesScreen() {
                 gap: 8,
               }}>
               <MaterialIcons name="delete-forever" size={20} color="#ffb4ab" />
-              <Text style={{ color: '#ffb4ab', fontFamily: 'AtkinsonHyperlegible_700Bold', fontSize: appFontSize(15) }}>
+              <Text style={{ color: '#ffb4ab', fontFamily: 'Inter_700Bold', fontSize: appFontSize(15) }}>
                 Excluir Conta
               </Text>
             </Pressable>

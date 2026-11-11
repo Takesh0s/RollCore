@@ -12,8 +12,8 @@ import { useContaAtiva } from '../store/conta';
 import { useCalendar } from '../store/useCalendar';
 import { showToast } from '../store/useToast';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 const ANSWERS: { status: Exclude<Rsvp, 'pending'>; label: string; ok: string }[] = [

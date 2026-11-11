@@ -10,8 +10,8 @@ import { useQuickRoll } from '../../store/useQuickRoll';
 import { showToast } from '../../store/useToast';
 import type { HistoryEntry } from '../../types';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 
 /** Rolagem rápida: escolhe o dado, soma um modificador e rola sem sair da tela atual. Montada no layout raiz. */
 export function QuickRollModal() {

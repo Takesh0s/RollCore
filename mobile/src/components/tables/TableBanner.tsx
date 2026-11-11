@@ -5,7 +5,7 @@ import { COLORS, appFontSize } from '../../design/shared';
 import { imageSrc } from '../../lib/mapImage';
 import type { TableSummary } from '../../store/useTables';
 
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BOLD = 'Inter_700Bold';
 
 /** Faixa de uma mesa, como na lista do web: capa, nome por cima e botão "Entrar". Sem capa, usa um fundo liso com ícone. */
 export function TableBanner({ table, onEnter }: { table: TableSummary; onEnter: () => void }) {
@@ -16,7 +16,7 @@ export function TableBanner({ table, onEnter }: { table: TableSummary; onEnter: 
       <View style={{ alignItems: 'center' }}>
         <Pressable onPress={onEnter} accessibilityRole="button" accessibilityLabel={`Entrar na mesa ${table.name}`}
           style={{ minHeight: 38, paddingHorizontal: 24, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.btn, shadowColor: '#fff', shadowOpacity: 0.3, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }}>
-          <Text style={{ color: COLORS.btnText, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }}>Entrar</Text>
+          <Text style={{ color: COLORS.btnText, fontFamily: 'Inter_400Regular', fontSize: appFontSize(14) }}>Entrar</Text>
         </Pressable>
       </View>
     </View>
