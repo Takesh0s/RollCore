@@ -120,7 +120,7 @@ export default function TutoriaisScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 6 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 10, backgroundColor: COLORS.surfaceContainer, borderBottomWidth: 1, borderBottomColor: COLORS.outlineVariant }}>
           <MaterialIcons name="search" size={21} color={COLORS.onSurfaceVariant} />
-          <TextInput value={search} onChangeText={setSearch} placeholder="Buscar tutorial..." placeholderTextColor={COLORS.outline} accessibilityLabel="Buscar tutorial" style={{ flex: 1, height: 42, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }} />
+          <TextInput value={search} onChangeText={setSearch} placeholder="Buscar tutorial..." placeholderTextColor={COLORS.placeholder} accessibilityLabel="Buscar tutorial" style={{ flex: 1, height: 42, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }} />
           {search.length > 0 && <Pressable onPress={() => setSearch('')} accessibilityLabel="Limpar busca"><MaterialIcons name="close" size={19} color={COLORS.onSurfaceVariant} /></Pressable>}
         </View>
       </View>

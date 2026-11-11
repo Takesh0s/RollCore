@@ -32,16 +32,16 @@ export default function MesasScreen() {
     <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }} keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={loading && loaded} onRefresh={load} tintColor={COLORS.primary} />}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, ...inputStyle() }}>
-          <MaterialIcons name="search" size={20} color={COLORS.onSurfaceVariant} />
-          <TextInput value={query} onChangeText={setQuery} placeholder="Buscar mesa" placeholderTextColor={COLORS.onSurfaceVariant} accessibilityLabel="Buscar mesa"
-            style={{ flex: 1, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(16) }} returnKeyType="search" />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, ...inputStyle(), borderRadius: 24, borderWidth: 0 }}>
+          <MaterialIcons name="search" size={20} color={COLORS.fieldText} />
+          <TextInput value={query} onChangeText={setQuery} placeholder="Buscar mesa" placeholderTextColor={COLORS.placeholder} accessibilityLabel="Buscar mesa"
+            style={{ flex: 1, color: COLORS.fieldText, fontFamily: BODY, fontSize: appFontSize(16) }} returnKeyType="search" />
         </View>
         <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
           <View style={{ flex: 1 }}><Btn label="Entrar com código" onPress={() => setJoining(true)} /></View>
           <Pressable onPress={create} accessibilityRole="button" accessibilityLabel="Criar mesa"
-            style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary }}>
-            <MaterialIcons name="add" size={28} color={COLORS.onPrimary} />
+            style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.btn }}>
+            <MaterialIcons name="add" size={28} color={COLORS.btnText} />
           </Pressable>
         </View>
 

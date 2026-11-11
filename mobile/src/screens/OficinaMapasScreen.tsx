@@ -74,9 +74,9 @@ export default function OficinaMapasScreen() {
       <Header title="Oficina de mapas" onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }} keyboardShouldPersistTaps="handled">
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, ...inputStyle() }}>
-          <MaterialIcons name="search" size={20} color={COLORS.onSurfaceVariant} />
-          <TextInput value={query} onChangeText={setQuery} placeholder="Buscar mapa" placeholderTextColor={COLORS.onSurfaceVariant} accessibilityLabel="Buscar mapa na Oficina"
-            style={{ flex: 1, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(16) }} returnKeyType="search" />
+          <MaterialIcons name="search" size={20} color={COLORS.fieldText} />
+          <TextInput value={query} onChangeText={setQuery} placeholder="Buscar mapa" placeholderTextColor={COLORS.placeholder} accessibilityLabel="Buscar mapa na Oficina"
+            style={{ flex: 1, color: COLORS.fieldText, fontFamily: BODY, fontSize: appFontSize(16) }} returnKeyType="search" />
         </View>
         <Select title="Filtrar por tipo" value={KINDS.find((k) => k.id === kind)?.label ?? ''} options={kindOptions} placeholder="Todos os tipos" allowClear
           onChange={(v) => setKind(kindFromLabel(v))} />

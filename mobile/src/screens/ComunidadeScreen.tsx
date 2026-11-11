@@ -145,7 +145,7 @@ export default function ComunidadeScreen() {
             value={busca}
             onChangeText={setBusca}
             placeholder="Digite algo..."
-            placeholderTextColor={COLORS.outline}
+            placeholderTextColor={COLORS.placeholder}
             style={{ flex: 1, color: COLORS.onSurface, fontFamily: 'AtkinsonHyperlegible_400Regular', fontSize: appFontSize(14) }}
           />
         </View>

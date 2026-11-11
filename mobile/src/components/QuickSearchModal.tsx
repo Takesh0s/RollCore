@@ -65,10 +65,10 @@ function Content({ onClose }: { onClose: () => void }) {
             <Pressable onPress={onClose} accessibilityLabel="Fechar"><MaterialIcons name="close" size={24} color={COLORS.onSurfaceVariant} /></Pressable>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, ...inputStyle() }}>
-            <MaterialIcons name="search" size={20} color={COLORS.onSurfaceVariant} />
-            <TextInput autoFocus value={query} onChangeText={setQuery} placeholder="Buscar mesas, fichas, comandos…" placeholderTextColor={COLORS.onSurfaceVariant}
+            <MaterialIcons name="search" size={20} color={COLORS.fieldText} />
+            <TextInput autoFocus value={query} onChangeText={setQuery} placeholder="Buscar mesas, fichas, comandos…" placeholderTextColor={COLORS.placeholder}
               accessibilityLabel="Buscar" returnKeyType="search" onSubmitEditing={() => hits[0]?.run()}
-              style={{ flex: 1, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(16) }} />
+              style={{ flex: 1, color: COLORS.fieldText, fontFamily: BODY, fontSize: appFontSize(16) }} />
           </View>
           <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ gap: 6 }}>
             {hits.length === 0 ? (

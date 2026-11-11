@@ -229,7 +229,7 @@ export default function FichaFormScreen() {
           </FormGroup>
           <FormGroup label="Nome do personagem" error={errors.name}>
             <TextInput value={name} onChangeText={(t) => { setName(t); clearErr('name'); }} maxLength={100} placeholder="Ex: Aragorn"
-              placeholderTextColor={COLORS.onSurfaceVariant} style={inputStyle(!!errors.name, !!name.trim())} />
+              placeholderTextColor={COLORS.placeholder} style={inputStyle(!!errors.name, !!name.trim())} />
           </FormGroup>
           <FormGroup label="Raça" error={errors.race}>
             <Select title="Raça" value={race} options={sys.races} custom={isCustom} error={!!errors.race} onChange={(v) => { setRace(v); clearErr('race'); }} />
@@ -258,7 +258,7 @@ export default function FichaFormScreen() {
                 <MaterialIcons name="remove" size={22} color={COLORS.onSurface} />
               </Pressable>
               <TextInput value={level} onChangeText={(t) => { setLevel(t.replace(/\D/g, '')); clearErr('level'); }} keyboardType="number-pad" maxLength={2} placeholder="1–20"
-                placeholderTextColor={COLORS.onSurfaceVariant} accessibilityLabel="Nível" style={[inputStyle(!!errors.level, !!level), { flex: 1, textAlign: 'center' }]} />
+                placeholderTextColor={COLORS.placeholder} accessibilityLabel="Nível" style={[inputStyle(!!errors.level, !!level), { flex: 1, textAlign: 'center' }]} />
               <Pressable onPress={() => stepLevel(1)} accessibilityLabel="Aumentar nível" style={{ width: 52, height: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
                 <MaterialIcons name="add" size={22} color={COLORS.onSurface} />
               </Pressable>
@@ -278,7 +278,7 @@ export default function FichaFormScreen() {
                 <View key={k} style={{ width: '30%', alignItems: 'center', gap: 4 }}>
                   <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BOLD, fontSize: appFontSize(12) }}>{ATTR_LABELS[k]}</Text>
                   <TextInput value={attrs[k]} onChangeText={(t) => { setAttrs((p) => ({ ...p, [k]: t.replace(/\D/g, '') })); clearErr(k); }}
-                    keyboardType="number-pad" maxLength={2} placeholder="1–20" placeholderTextColor={COLORS.onSurfaceVariant} accessibilityLabel={`Atributo ${ATTR_LABELS[k]}`}
+                    keyboardType="number-pad" maxLength={2} placeholder="1–20" placeholderTextColor={COLORS.placeholder} accessibilityLabel={`Atributo ${ATTR_LABELS[k]}`}
                     style={[inputStyle(!!errors[k], !!attrs[k] && !errors[k]), { width: '100%', textAlign: 'center' }]} />
                   <Text style={{ color: COLORS.primary, fontFamily: BOLD, fontSize: appFontSize(13) }}>{mod}</Text>
                   {bonus ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(11) }}>+{bonus} racial</Text> : null}
@@ -302,13 +302,13 @@ export default function FichaFormScreen() {
             <View style={{ flex: 1 }}>
               <FormGroup label="HP máximo" error={errors.maxHp}>
                 <TextInput value={maxHp} onChangeText={(t) => { setMaxHp(t.replace(/\D/g, '')); clearErr('maxHp'); }} keyboardType="number-pad" placeholder="Ex: 12"
-                  placeholderTextColor={COLORS.onSurfaceVariant} style={[inputStyle(!!errors.maxHp, !!maxHp), { textAlign: 'center' }]} />
+                  placeholderTextColor={COLORS.placeholder} style={[inputStyle(!!errors.maxHp, !!maxHp), { textAlign: 'center' }]} />
               </FormGroup>
             </View>
             <View style={{ flex: 1 }}>
               <FormGroup label="Classe de armadura" error={errors.ac}>
                 <TextInput value={ac} onChangeText={(t) => { setAc(t.replace(/\D/g, '')); clearErr('ac'); }} keyboardType="number-pad" placeholder="Ex: 14"
-                  placeholderTextColor={COLORS.onSurfaceVariant} style={[inputStyle(!!errors.ac, !!ac), { textAlign: 'center' }]} />
+                  placeholderTextColor={COLORS.placeholder} style={[inputStyle(!!errors.ac, !!ac), { textAlign: 'center' }]} />
               </FormGroup>
             </View>
           </View>
