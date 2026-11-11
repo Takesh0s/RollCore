@@ -5,6 +5,7 @@ import { AppState, useColorScheme } from 'react-native';
 import { applyAccessibilityPalette, resolvedThemeMode } from '../design/shared';
 import { onSessionExpired } from '../services/api';
 import { QuickRollModal } from '../components/dice/QuickRollModal';
+import { QuickSearchModal } from '../components/QuickSearchModal';
 import { ToastHost } from '../components/ToastHost';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { useContaAtiva } from '../store/conta';
@@ -72,6 +73,7 @@ export default function RootLayout() {
         <SessionWatcher />
         <NotificationsPoller />
         <QuickRollModal />
+        <QuickSearchModal />
         <ToastHost />
       </Fragment>
     </ThemeProvider>

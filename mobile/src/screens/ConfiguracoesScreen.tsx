@@ -59,7 +59,6 @@ export default function ConfiguracoesScreen() {
   const router = useRouter();
   const fontsLoaded = useAppFonts();
 
-  const [notificacoes, setNotificacoes] = useState(true);
   const { daltonico, tipoDaltonismo, fonte } = useAcessibilidade();
 
   if (!fontsLoaded) return null;
@@ -75,19 +74,6 @@ export default function ConfiguracoesScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <Header title="Configurações" onBack={goBack} rightIcon="person" />
       <ScrollView contentContainerStyle={{ padding: 16, gap: 24 }}>
-        {/* Geral */}
-        <View>
-          <SectionTitle icon="tune">Geral</SectionTitle>
-          <Card>
-            <Toggle
-              label="Notificações"
-              description="Alertas de campanhas e atualizações"
-              value={notificacoes}
-              onValueChange={setNotificacoes}
-            />
-          </Card>
-        </View>
-
         {/* Aparência */}
         <View>
           <SectionTitle icon="palette">Aparência</SectionTitle>
