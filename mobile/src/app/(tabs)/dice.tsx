@@ -2,7 +2,7 @@ import { useAcessibilidade } from '../../store/acessibilidade';
 import { MaterialIcons } from '@expo/vector-icons';
 import { ScrollView, Text as NativeText, View } from 'react-native';
 import { AccessibleText as Text } from '../../components/accessible-text';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../../components/SafeArea';
 import { COLORS, appFontSize } from '../../design/shared';
 
 interface ItemListagem {

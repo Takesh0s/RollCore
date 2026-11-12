@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import { ScrollView, Text as NativeText, View } from 'react-native';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { COLORS, Header, PrimaryButton, SegmentedControl, Toggle, useAppFonts, appFontSize } from '../design/shared';
 import { NarrationSpeed, updateAcessibilidade, useAcessibilidade } from '../store/acessibilidade';
 import { falar, pararLeitura, textoTesteNarração, feedbackDeAcao } from '../utils/acessibilidadeAudio';

@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Image, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { FormGroup, inputStyle } from '../components/Controls';
 import { Choice, ChoiceRow } from '../components/maps/Choice';

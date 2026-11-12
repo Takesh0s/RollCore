@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { Select, StateBlock, inputStyle } from '../components/Controls';
 import { BODY, Btn, MapPreviewModal, SERIF, gridOf, mapSummary, usePaintOf } from '../components/maps/MapModals';

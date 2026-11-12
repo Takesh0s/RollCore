@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessibleText as Text } from '../components/accessible-text';
 import { GuestList } from '../components/calendar/EventModal';
 import { Btn, StateBlock } from '../components/Controls';

@@ -2,7 +2,6 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider, usePathname, useRouter }
 import * as SplashScreen from 'expo-splash-screen';
 import { Fragment, useEffect } from 'react';
 import { AppState, View, useColorScheme, useWindowDimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, applyAccessibilityPalette, resolvedThemeMode, useAppFonts } from '../design/shared';
 import { onSessionExpired } from '../services/api';
 import { QuickRollModal } from '../components/dice/QuickRollModal';
@@ -52,7 +51,6 @@ const FRAME_TOP = 40;
 const FRAME_SIDE = 18;
 const NOTCH = 41;
 function Frame({ children }: { children: React.ReactNode }) {
-  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { tema } = useAcessibilidade();
   const teeth = tema === 'medieval';
@@ -62,7 +60,7 @@ function Frame({ children }: { children: React.ReactNode }) {
   const count = Math.ceil(width / tile);
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <View style={{ flex: 1, paddingTop: FRAME_TOP, paddingBottom: Math.max(0, band - insets.bottom) }}>{children}</View>
+      <View style={{ flex: 1, paddingTop: FRAME_TOP, paddingBottom: band, paddingHorizontal: FRAME_SIDE }}>{children}</View>
       <View pointerEvents="none" style={{ position: 'absolute', top: FRAME_TOP, left: FRAME_SIDE, right: FRAME_SIDE, bottom: band, borderWidth: 1, borderColor: 'rgba(192,192,192,0.75)' }} />
       <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: band, backgroundColor: COLORS.background, overflow: 'hidden' }}>
         {teeth && Array.from({ length: count }).map((_, i) => (

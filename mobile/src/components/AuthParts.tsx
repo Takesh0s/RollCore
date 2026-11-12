@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View, type TextInputProps } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from './SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from './accessible-text';
 import { OutlineText } from './OutlineText';
 import { RollCoreLogo } from './RollCoreLogo';
@@ -20,7 +20,7 @@ export function AuthShell({ subtitle, children }: { subtitle: string; children: 
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: AUTH_COLORS.canvas }}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: 20 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingVertical: 8 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <View style={{ width: '100%', maxWidth: 420, alignSelf: 'center', paddingHorizontal: 14, paddingTop: 40, paddingBottom: 16 }}>
             <View style={{ alignItems: 'center', marginBottom: 14 }}>
               <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ marginBottom: 4 }}><RollCoreLogo size={108} color={AUTH_COLORS.mint} /></View>

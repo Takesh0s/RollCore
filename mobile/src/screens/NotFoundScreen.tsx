@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessibleText as Text } from '../components/accessible-text';
 import { Btn } from '../components/Controls';
 import { COLORS, Header, appFontSize } from '../design/shared';

@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, Switch, useWindowDimensions, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
 import { Chip, ConfirmDialog, Select, StateBlock } from '../components/Controls';
 import { BODY, BOLD, Btn, RenameMapModal, SERIF, gridOf } from '../components/maps/MapModals';

@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Image, Pressable as NativePressable, ScrollView, Text as NativeText, TextInput as NativeTextInput, View } from 'react-native';
 import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { COLORS, Header, useAppFonts, appFontSize } from '../design/shared';
 
 interface Community {

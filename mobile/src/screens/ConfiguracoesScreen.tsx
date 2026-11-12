@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable as NativePressable, ScrollView, Text as NativeText, View } from 'react-native';
 import { AccessibleText as Text, AccessiblePressable as Pressable } from '../components/accessible-text';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { applyAccessibilityPalette, COLORS, Header, SegmentedControl, Toggle, useAppFonts, appFontSize } from '../design/shared';
 import { encerrarSessao } from '../store/conta';
 import { DaltonismType, useAcessibilidade, updateAcessibilidade } from '../store/acessibilidade';

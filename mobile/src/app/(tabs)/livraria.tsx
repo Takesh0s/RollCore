@@ -2,7 +2,7 @@ import { useAcessibilidade } from '../../store/acessibilidade';
 import { useRouter } from 'expo-router';
 import { Image, Pressable as NativePressable, ScrollView, Text as NativeText, View } from 'react-native';
 import { AccessibleText as Text, AccessiblePressable as Pressable } from '../../components/accessible-text';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../../components/SafeArea';
 import { COLORS, Card, Divider, appFontSize } from '../../design/shared';
 import { PRODUTOS } from '../../store/produtos';
 

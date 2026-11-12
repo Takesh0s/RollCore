@@ -1,7 +1,7 @@
 import { useNavigation, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { Btn, ConfirmDialog, FormGroup, Select, StateBlock, inputStyle } from '../components/Controls';
 import { COLORS, Header, appFontSize } from '../design/shared';

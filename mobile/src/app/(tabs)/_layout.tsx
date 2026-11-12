@@ -1,15 +1,14 @@
 import { Tabs } from 'expo-router';
 import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/AppHeader';
 import { COLORS } from '../../design/shared';
 
 // Cabeçalho único das telas do grupo (tabs), no padrão do Figma:
 // hambúrguer (abre o menu lateral), título e ícone de perfil.
 function TabsHeader({ title }: { title: string }) {
-  const insets = useSafeAreaInsets();
+  // A moldura (Frame, em app/_layout) já reserva a barra de status: nada de inset aqui.
   return (
-    <View style={{ paddingTop: insets.top, backgroundColor: COLORS.background }}>
+    <View style={{ backgroundColor: COLORS.background }}>
       <AppHeader title={title} />
     </View>
   );

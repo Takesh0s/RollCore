@@ -2,7 +2,7 @@ import { Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-f
 import { FugazOne_400Regular } from '@expo-google-fonts/fugaz-one';
 import { KumarOneOutline_400Regular } from '@expo-google-fonts/kumar-one-outline';
 import { SourceSerif4_600SemiBold, SourceSerif4_700Bold } from '@expo-google-fonts/source-serif-4';
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { useState } from 'react';
 import { Image, Pressable as NativePressable, StyleSheet, TextInputProps, View } from 'react-native';
@@ -10,6 +10,7 @@ import { imageSrc } from '../lib/mapImage';
 import { useContaAtiva } from '../store/conta';
 import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
 import { Appearance } from 'react-native';
+import { NavIcon } from '../components/NavIcon';
 import { OutlineText } from '../components/OutlineText';
 import { appColors, getTheme, type ThemeMode } from '../lib/theme';
 import { DaltonismType, getAcessibilidade, setPaletteApplier } from '../store/acessibilidade';
@@ -108,19 +109,21 @@ export function Header({ title, onMenu, onBack, rightIcon = 'person', onRightPre
   const leftAction = onMenu ?? onBack;
   const conta = useContaAtiva();
   const avatar = rightIcon === 'person' ? imageSrc(conta?.avatarUrl) : null;
-  // Cabeçalho do web: botão à esquerda, título em serifa centralizado e o perfil à direita, com um filete embaixo.
+  // Cabeçalho do web no celular: botão (46 px) à esquerda, título em Kumar One Outline no centro e o perfil à direita, com um filete embaixo.
+  // A moldura já reserva 40 px do topo e 18 px dos lados; o cabeçalho começa 6 px abaixo da linha e a 13 px dela (31 px da borda, como no Figma).
+  const icon = COLORS.onSurfaceVariant;
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 18, marginTop: 6, paddingTop: 4, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: COLORS.outlineVariant, backgroundColor: 'transparent' }}>
-      <Pressable onPress={leftAction} disabled={!leftAction} style={{ width: 44, height: 44, justifyContent: 'center', alignItems: 'flex-start' }} accessibilityLabel={onMenu ? 'Abrir menu' : 'Voltar'}>
-        {leftAction ? <MaterialIcons name={onMenu ? 'menu' : 'arrow-back'} size={34} color={COLORS.onSurfaceVariant} /> : null}
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6, marginHorizontal: 13, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(192,192,192,0.7)' }}>
+      <Pressable onPress={leftAction} disabled={!leftAction} style={{ width: 46, height: 46, alignItems: 'center', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={onMenu ? 'Abrir menu' : 'Voltar'}>
+        {leftAction ? <NavIcon name={onMenu ? 'menu' : 'back'} size={34} color={icon} /> : null}
       </Pressable>
       <View style={{ flex: 1 }}><OutlineText size={appFontSize(30)} color={COLORS.primary}>{title}</OutlineText></View>
-      <Pressable onPress={onRightPress} disabled={!onRightPress} style={{ width: 44, height: 44, alignItems: 'flex-end', justifyContent: 'center' }} accessibilityLabel={avatar || rightIcon === 'person' ? 'Perfil' : rightIcon}>
+      <Pressable onPress={onRightPress} disabled={!onRightPress} style={{ width: 46, height: 46, alignItems: 'center', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={rightIcon === 'person' ? 'Meu perfil' : rightIcon}>
         {avatar
-          ? <Image source={{ uri: avatar }} style={{ width: 38, height: 38, borderRadius: 19, borderWidth: 2, borderColor: COLORS.onSurfaceVariant }} />
+          ? <Image source={{ uri: avatar }} style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 2, borderColor: 'rgba(192,192,192,0.85)' }} />
           : rightIcon === 'person'
-            ? <MaterialCommunityIcons name="account-circle-outline" size={40} color={COLORS.onSurfaceVariant} />
-            : <MaterialIcons name={rightIcon} size={30} color={COLORS.onSurfaceVariant} />}
+            ? <NavIcon name="user" size={46} color={icon} />
+            : <MaterialIcons name={rightIcon} size={30} color={icon} />}
       </Pressable>
     </View>
   );
