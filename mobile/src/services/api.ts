@@ -92,6 +92,7 @@ async function toApiError(response: Response): Promise<ApiError> {
   } catch {
     // empty or non-JSON body
   }
+  if (__DEV__) console.log(`[api] erro ${response.status}: ${detail ?? JSON.stringify(fields) ?? '(sem corpo)'}`);
   const firstField = fields ? Object.values(fields)[0] : undefined;
   return new ApiError(response.status, firstField ?? friendlyMessage(response.status, detail), fields);
 }
@@ -172,6 +173,8 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     || (response.status === 403 && !(response.headers.get('content-type') ?? '').includes('json'));
   if (auth && looksExpired && (await refreshSession())) response = await send();
 
+  // Só em desenvolvimento: mostra no terminal do Metro para onde a chamada foi e o que o servidor respondeu.
+  if (__DEV__) console.log(`[api] ${method} ${API_URL}${path} -> ${response.status}`);
   if (!response.ok) throw await toApiError(response);
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
