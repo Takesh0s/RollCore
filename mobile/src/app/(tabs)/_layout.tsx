@@ -26,9 +26,6 @@ export default function TabsLayout() {
         header: ({ options }) => <TabsHeader title={options.title ?? ''} />,
         tabBarStyle: { display: 'none' },
       }}>
-      <Tabs.Screen name="livraria" options={{ title: 'Livraria' }} />
-      <Tabs.Screen name="dice" options={{ title: 'Grimório' }} />
-      <Tabs.Screen name="explore" options={{ title: 'Busca' }} />
       <Tabs.Screen name="skills" options={{ title: 'Fichas' }} />
       <Tabs.Screen name="mesas" options={{ title: 'Mesas' }} />
     </Tabs>

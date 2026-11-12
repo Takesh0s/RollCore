@@ -25,7 +25,7 @@ export default function TemaScreen() {
 
   return (
     <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <Header title="Tema e paleta" onBack={() => (router.canGoBack() ? router.back() : router.replace('/configuracoes'))} />
+      <Header title="Tema e paleta" onBack={() => (router.canGoBack() ? router.back() : router.replace('/inicio'))} />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }}>
         {daltonico && (
           <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>

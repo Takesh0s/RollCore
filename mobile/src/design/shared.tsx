@@ -16,9 +16,9 @@ import { appColors, getTheme, type ThemeMode } from '../lib/theme';
 import { DaltonismType, getAcessibilidade, setPaletteApplier } from '../store/acessibilidade';
 
 const NORMAL_COLORS = {
-  background: '#353839', surface: '#353839', surfaceContainer: '#353E43', surfaceContainerLowest: '#353839',
-  surfaceContainerHigh: '#353E43', surfaceContainerHighest: '#6A89A7', surfaceBright: '#6A89A7',
-  onSurface: '#FFFFFF', onSurfaceVariant: '#C0C0C0', outline: '#C0C0C0', outlineVariant: '#70787B',
+  background: '#353E43', surface: '#353E43', surfaceContainer: '#3B454B', surfaceContainerLowest: '#353E43',
+  surfaceContainerHigh: '#3B454B', surfaceContainerHighest: '#6A89A7', surfaceBright: '#6A89A7',
+  onSurface: '#FFFFFF', onSurfaceVariant: '#C0C0C0', outline: '#C0C0C0', outlineVariant: '#6C757A',
   primary: '#70B596', onPrimary: '#252525', primaryContainer: '#1E1E1E', onPrimaryContainer: '#70B596',
   primaryFixedDim: '#70B596', secondary: '#C0C0C0',
   canvas: '#587E9D', btn: '#252525', btnText: '#6A89A7', sapphire: '#8FB8DE', field: '#6A89A7', fieldText: '#10202E', placeholder: 'rgba(16,32,46,0.65)', tile: 'rgba(0,0,0,0.2)',
@@ -28,7 +28,7 @@ const ACCESSIBLE_BASE = {
   surfaceContainerHigh: '#172A43', surfaceContainerHighest: '#253B5B', surfaceBright: '#2A4868',
   onSurface: '#FFFFFF', onSurfaceVariant: '#E2EDF7', outline: '#F2F7FB', outlineVariant: '#B9D6E9',
 } as const;
-const NORMAL_AUTH = { canvas: '#353839', panel: '#353E43', profilePanel: '#353839', field: '#6A89A7', mint: '#70B596', white: '#FFFFFF', button: '#252525', gray: '#C0C0C0', typed: '#10202E', placeholder: 'rgba(16,32,46,0.65)' } as const;
+const NORMAL_AUTH = { canvas: '#353E43', panel: '#353E43', profilePanel: '#353E43', field: '#6A89A7', mint: '#70B596', white: '#FFFFFF', button: '#252525', gray: '#C0C0C0', typed: '#10202E', placeholder: 'rgba(16,32,46,0.65)' } as const;
 const TYPE_ACCENTS: Record<DaltonismType, { primary: string; onPrimary: string; primaryContainer: string; onPrimaryContainer: string; secondary: string }> = {
   protanopia: { primary: '#56B4E9', onPrimary: '#071522', primaryContainer: '#204A68', onPrimaryContainer: '#FFFFFF', secondary: '#E69F00' },
   deuteranopia: { primary: '#0072B2', onPrimary: '#FFFFFF', primaryContainer: '#164C70', onPrimaryContainer: '#FFFFFF', secondary: '#F0E442' },
@@ -156,19 +156,6 @@ export function SegmentedControl({ options, selected, onSelect }: { options: str
   return <View style={{ flexDirection: 'row', gap: 4, padding: 4, borderRadius: 9, backgroundColor: COLORS.surfaceContainerLowest, borderWidth: 1, borderColor: COLORS.outlineVariant }}>{options.map((option) => { const active = option === selected; return <Pressable key={option} onPress={() => onSelect(option)} accessibilityRole="button" accessibilityState={{ selected: active }} style={{ flex: 1, minHeight: 38, alignItems: 'center', justifyContent: 'center', borderRadius: 6, paddingHorizontal: 4, backgroundColor: active ? COLORS.primaryContainer : 'transparent', borderWidth: active ? 1 : 0, borderColor: COLORS.primary }}><Text style={{ color: active ? COLORS.onPrimaryContainer : COLORS.onSurfaceVariant, fontFamily: active ? 'Inter_700Bold' : 'Inter_400Regular', fontSize: appFontSize(12), textAlign: 'center' }}>{option}</Text></Pressable>; })}</View>;
 }
 export function Divider() { return <View style={{ height: StyleSheet.hairlineWidth, backgroundColor: COLORS.outlineVariant }} />; }
-
-const NAV_ITEMS = [
-  { label: 'Dashboard', icon: 'dashboard' as const, route: '/' },
-  { label: 'Dice', icon: 'casino' as const, route: '/dados' },
-  { label: 'Skills', icon: 'description' as const, route: '/skills' },
-  { label: 'Vault', icon: 'inventory-2' as const, route: '/vault' },
-];
-export function BottomNavBar({ active, onNavigate }: { active: string; onNavigate: (route: string) => void }) {
-  return <View style={{ minHeight: 64, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingHorizontal: 8, backgroundColor: COLORS.surfaceContainerLowest, borderTopWidth: 1, borderTopColor: COLORS.outlineVariant }}>{NAV_ITEMS.map((item) => {
-    const selected = active.toLowerCase() === item.label.toLowerCase() || active.toLowerCase() === item.route.replace('/', '').toLowerCase();
-    return <Pressable key={item.label} onPress={() => onNavigate(item.route)} accessibilityRole="button" accessibilityState={{ selected }} style={{ minWidth: 64, minHeight: 54, alignItems: 'center', justifyContent: 'center', gap: 3, paddingHorizontal: 6, borderRadius: 12, backgroundColor: selected ? COLORS.primaryContainer : 'transparent' }}><MaterialIcons name={item.icon} size={20} color={selected ? COLORS.primary : COLORS.onSurfaceVariant} /><Text style={{ color: selected ? COLORS.primary : COLORS.onSurfaceVariant, fontFamily: selected ? 'Inter_700Bold' : 'Inter_400Regular', fontSize: appFontSize(10) }}>{item.label}</Text></Pressable>;
-  })}</View>;
-}
 
 const styles = themedStyles(() => ({
   outer: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center' },

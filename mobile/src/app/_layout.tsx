@@ -98,7 +98,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={resolvedThemeMode() === 'dark' ? DarkTheme : DefaultTheme}>
       <Fragment key={paletteKey}>
-        <Frame><Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} /></Frame>
+        <Frame><Stack screenOptions={{ headerShown: false, animation: 'none', contentStyle: { backgroundColor: 'transparent' } }} /></Frame>
         <ScreenNarrator />
         <SessionWatcher />
         <NotificationsPoller />

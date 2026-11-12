@@ -8,13 +8,15 @@ import { imageSrc } from '../lib/mapImage';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { encerrarSessao, useContaAtiva } from '../store/conta';
 import { useNotifications } from '../store/useNotifications';
+import { showToast } from '../store/useToast';
 
 interface DrawerMenuProps {
   visible: boolean;
   onClose: () => void;
 }
 
-type Item = { label: string; icon: NavIconName; route: string };
+/** Sem `route`: o web ainda não tem a tela e mostra "chega em breve"; o app faz o mesmo. */
+type Item = { label: string; icon: NavIconName; route?: string };
 
 // O mesmo menu do web no celular (AppHeader.tsx), na mesma ordem. As rotas não levam o prefixo "/(tabs)": os grupos do expo-router não fazem parte da URL.
 const ITEMS: Item[] = [
@@ -24,24 +26,23 @@ const ITEMS: Item[] = [
   { label: 'Dados', icon: 'dice', route: '/dados' },
   { label: 'Mesas', icon: 'tables', route: '/mesas' },
   { label: 'Calendário', icon: 'calendar', route: '/calendario' },
-  { label: 'Comunidade', icon: 'community', route: '/comunidade' },
-  { label: 'Sistemas', icon: 'systems', route: '/sistemas' },
-  { label: 'Bestiário', icon: 'bestiary', route: '/bestiario' },
+  { label: 'Comunidade', icon: 'community' },
+  { label: 'Sistemas', icon: 'systems' },
+  { label: 'Bestiário', icon: 'bestiary' },
   { label: 'GM Tools', icon: 'tools', route: '/mapas' },
-  { label: 'Livraria', icon: 'store', route: '/livraria' },
-  { label: 'Tutoriais', icon: 'tutorials', route: '/tutoriais' },
+  { label: 'Livraria', icon: 'store' },
+  { label: 'Tutoriais', icon: 'tutorials' },
 ];
-const SETTINGS: Item = { label: 'Configurações', icon: 'settings', route: '/configuracoes' };
+const SETTINGS: Item = { label: 'Configurações', icon: 'settings', route: '/tema' };
 
 // Telas que pertencem a cada item (a ficha, o formulário de mesa etc. mantêm o item destacado).
 const ALSO: Record<string, string[]> = {
   '/skills': ['/personagens', '/criar-personagem'],
-  '/mesas': ['/mesa', '/sessao', '/campanha'],
+  '/mesas': ['/mesa', '/sessao'],
   '/calendario': ['/evento', '/novo-evento'],
   '/mapas': ['/mapa-novo', '/mapa-editor', '/oficina-mapas'],
-  '/configuracoes': ['/tema', '/acessibilidade-visual'],
 };
-const isActive = (path: string, route: string) => [route, ...(ALSO[route] ?? [])].some((r) => path === r || path.startsWith(`${r}/`));
+const isActive = (path: string, route?: string) => !!route && [route, ...(ALSO[route] ?? [])].some((r) => path === r || path.startsWith(`${r}/`));
 
 const MUTED = '#C0C0C0';
 const SERIF = 'SourceSerif4_700Bold';
@@ -55,7 +56,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
   const unread = useNotifications((s) => s.unread);
   const { width } = useWindowDimensions();
 
-  const go = (route: string) => { onClose(); router.push(route as any); };
+  const go = (route?: string, label?: string) => { onClose(); if (route) router.push(route as any); else showToast(`${label} chega em breve.`); };
   const logout = async () => { onClose(); await encerrarSessao(); router.replace('/login'); };
   const avatar = imageSrc(conta?.avatarUrl);
   const name = conta?.apelido ?? '';
@@ -65,7 +66,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
     const active = isActive(path, item.route);
     const color = active ? COLORS.sapphire : MUTED;
     return (
-      <Pressable key={item.label} onPress={() => go(item.route)} accessibilityRole="button" accessibilityState={{ selected: active }}
+      <Pressable key={item.label} onPress={() => go(item.route, item.label)} accessibilityRole="button" accessibilityState={{ selected: active }}
         style={{ flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 48, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 12, backgroundColor: active ? 'rgba(255,255,255,0.1)' : 'transparent' }}>
         {item.icon === 'dice'
           ? <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}><RollCoreLogo size={26} color={color} /></View>
