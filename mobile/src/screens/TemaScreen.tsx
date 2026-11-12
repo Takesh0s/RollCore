@@ -1,13 +1,13 @@
 import { useRouter } from 'expo-router';
 import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
 import { COLORS, Header, appFontSize, resolvedThemeMode } from '../design/shared';
 import { getTheme, THEMES, type ModePref } from '../lib/theme';
 import { updateAcessibilidade, useAcessibilidade } from '../store/acessibilidade';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 const MODES: { id: ModePref; label: string; hint: string }[] = [
@@ -24,8 +24,8 @@ export default function TemaScreen() {
   const preview = resolvedThemeMode();
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <Header title="Tema e paleta" onBack={() => (router.canGoBack() ? router.back() : router.replace('/configuracoes'))} />
+    <SafeAreaView edges={['bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
+      <Header title="Tema e paleta" onBack={() => (router.canGoBack() ? router.back() : router.replace('/inicio'))} />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }}>
         {daltonico && (
           <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>

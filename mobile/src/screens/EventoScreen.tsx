@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessibleText as Text } from '../components/accessible-text';
 import { GuestList } from '../components/calendar/EventModal';
 import { Btn, StateBlock } from '../components/Controls';
@@ -12,8 +12,8 @@ import { useContaAtiva } from '../store/conta';
 import { useCalendar } from '../store/useCalendar';
 import { showToast } from '../store/useToast';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 const ANSWERS: { status: Exclude<Rsvp, 'pending'>; label: string; ok: string }[] = [

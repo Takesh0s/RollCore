@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { ChangeEmailModal, ChangePasswordModal, DeleteAccountModal } from '../components/AccountModals';
 import { Avatar, Btn, ConfirmDialog, FormGroup, inputStyle } from '../components/Controls';
@@ -13,8 +13,8 @@ import { useAcessibilidade } from '../store/acessibilidade';
 import { encerrarSessao, salvarPerfil, useContaAtiva } from '../store/conta';
 import { showToast } from '../store/useToast';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 const isValidUsername = (u: string) => /^[a-zA-Z0-9_]{3,20}$/.test(u);

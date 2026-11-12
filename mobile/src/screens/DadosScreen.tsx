@@ -1,11 +1,10 @@
-import { MaterialIcons } from '@expo/vector-icons';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useEffect, useMemo, useState } from 'react';
+import { ScrollView, View } from 'react-native';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
+import { RollCoreLogo } from '../components/RollCoreLogo';
+import { BODY, BOLD, BTN, CRIT, FAIL, SERIF, ChipRow, DiceBadge, DiceChip, DiceTitle, fieldStyle } from '../components/dice/parts';
 import { AppHeader } from '../components/AppHeader';
 import { ShortcutsSection } from '../components/dice/ShortcutsSection';
-import { Chip, SectionTitle, inputStyle } from '../components/Controls';
 import { COLORS, appFontSize } from '../design/shared';
 import { FORMULA_REGEX, VALID_SIDES, validateFormula } from '../lib/dice';
 import { useAcessibilidade } from '../store/acessibilidade';
@@ -15,9 +14,6 @@ import { useDice } from '../store/useDice';
 import { showToast } from '../store/useToast';
 import type { DiceMode, HistoryEntry } from '../types';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
-const SERIF = 'SourceSerif4_700Bold';
 
 const MODES: { id: DiceMode; label: string }[] = [
   { id: 'normal', label: 'Normal' }, { id: 'advantage', label: 'Vantagem' }, { id: 'disadvantage', label: 'Desvantagem' },
@@ -52,14 +48,6 @@ function breakdownOf(e: HistoryEntry): string {
   return t;
 }
 
-function Badge({ kind }: { kind: 'crit' | 'fail' }) {
-  return (
-    <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, backgroundColor: kind === 'crit' ? '#2e8b57' : '#c0392b' }}>
-      <Text style={{ color: '#fff', fontFamily: BOLD, fontSize: appFontSize(11) }}>{kind === 'crit' ? 'CRÍTICO' : 'FALHA'}</Text>
-    </View>
-  );
-}
-
 /** Tela de Dados (mesma do web): dados, atalhos, rolador, última rolagem e histórico. */
 export default function DadosScreen() {
   useAcessibilidade();
@@ -90,14 +78,6 @@ export default function DadosScreen() {
   const shown = history.filter((h) => !filter || h.tableName === filter);
   const visible = showAll ? shown : shown.slice(0, HISTORY_PREVIEW);
 
-  // O número da última rolagem "salta" a cada nova rolagem
-  const pop = useRef(new Animated.Value(1)).current;
-  useEffect(() => {
-    if (!last) return;
-    pop.setValue(0.6);
-    Animated.spring(pop, { toValue: 1, friction: 4, useNativeDriver: true }).start();
-  }, [last?.timestamp, last?.result.total, pop]);
-
   /** Troca o tipo de dado mantendo quantidade e bônus: 2d6+3 → 2d20+3. */
   function pickSides(s: number) {
     const m = valid ? clean.match(FORMULA_REGEX)! : null;
@@ -119,19 +99,21 @@ export default function DadosScreen() {
     return res.ok;
   }
 
-  const section = (t: string) => <SectionTitle>{t}</SectionTitle>;
+  const dieColor = lastCrit === 'fail' ? FAIL : COLORS.sapphire;
+  const showTotal = !!last && (last.result.sides === 100 || last.result.rolls.length > 1 || last.result.total !== last.result.rolls[0]);
+  const box = { borderWidth: 1, borderColor: COLORS.outlineVariant, borderRadius: 14 } as const;
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       <AppHeader title="Dados" />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 16 }} keyboardShouldPersistTaps="handled">
-        {section('Dados')}
-        <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+      <ScrollView contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 14, paddingBottom: 18 }} keyboardShouldPersistTaps="handled">
+        <DiceTitle>Dados</DiceTitle>
+        <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 8 }}>
           {VALID_SIDES.map((s) => (
             <Pressable key={s} onPress={() => pickSides(s)} accessibilityRole="radio" accessibilityState={{ checked: sides === s }} accessibilityLabel={`Dado d${s}`}
-              style={{ width: 68, height: 58, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
-                backgroundColor: sides === s ? COLORS.sapphire : 'transparent', borderWidth: 1, borderColor: sides === s ? COLORS.sapphire : COLORS.outlineVariant }}>
-              <Text style={{ color: sides === s ? '#10202E' : COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(20) }}>d{s}</Text>
+              style={{ width: '22.5%', height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 1,
+                backgroundColor: sides === s ? COLORS.sapphire : 'transparent', borderColor: sides === s ? COLORS.sapphire : COLORS.outlineVariant }}>
+              <Text style={{ color: sides === s ? '#10202E' : '#C0C0C0', fontFamily: SERIF, fontSize: appFontSize(22) }}>d{s}</Text>
             </Pressable>
           ))}
         </View>
@@ -139,57 +121,59 @@ export default function DadosScreen() {
         <ShortcutsSection characters={characters} shortcuts={shortcuts} rolling={rolling} currentFormula={formula}
           onRoll={(f, label) => { setFormula(f); void doRoll(f, label); }} onCreate={createShortcut} onRemove={(id) => { void removeShortcut(id).then((r) => { if (!r.ok) showToast(r.error, 'error'); }); }} />
 
-        <View style={{ gap: 12, padding: 14, borderRadius: 14, backgroundColor: COLORS.tile, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-          <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Fórmula</Text>
-          <TextInput value={formula} onChangeText={setFormula} placeholder="1d20 + 5" placeholderTextColor={COLORS.placeholder} autoCapitalize="none" autoCorrect={false}
-            accessibilityLabel="Fórmula de dados" onSubmitEditing={() => valid && doRoll(formula)} returnKeyType="go" style={inputStyle(!!formula && !valid, valid)} />
-          {formula && !valid ? <Text style={{ color: '#e57373', fontFamily: BODY, fontSize: appFontSize(12) }}>Fórmula inválida. Use NdX, NdX+M ou NdX-M (ex: 2d6+3).</Text> : null}
-
-          <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Modo</Text>
-          <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {MODES.map((m) => <Chip key={m.id} label={m.label} on={mode === m.id} onPress={() => setMode(m.id)} />)}
+        <View style={{ ...box, padding: 14, paddingBottom: 16, marginTop: 12, marginBottom: 14, gap: 10 }}>
+          <View style={{ gap: 4 }}>
+            <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>Fórmula</Text>
+            <TextInput value={formula} onChangeText={setFormula} placeholder="1d20 + 5" placeholderTextColor={COLORS.placeholder} autoCapitalize="none" autoCorrect={false}
+              accessibilityLabel="Fórmula de dados" onSubmitEditing={() => valid && doRoll(formula)} returnKeyType="go" style={fieldStyle(!!formula && !valid)} />
           </View>
-
-          <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Mesa</Text>
-          <View accessibilityRole="radiogroup" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            <Chip label="Sem mesa" on={!tableId} onPress={() => setTableId('')} />
-            {mesas.map((t) => <Chip key={t.id} label={t.name} on={tableId === t.id} onPress={() => setTableId(t.id)} />)}
+          <View style={{ gap: 4 }}>
+            <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>Modo</Text>
+            <ChipRow>{MODES.map((m) => <DiceChip key={m.id} label={m.label} on={mode === m.id} onPress={() => setMode(m.id)} />)}</ChipRow>
           </View>
-
-          <Pressable onPress={() => doRoll(formula)} disabled={!valid || rolling} accessibilityRole="button"
-            style={{ minHeight: 54, borderRadius: 12, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8, backgroundColor: COLORS.primary, opacity: !valid || rolling ? 0.5 : 1 }}>
-            <MaterialIcons name="casino" size={22} color={COLORS.onPrimary} />
-            <Text style={{ color: COLORS.onPrimary, fontFamily: BOLD, fontSize: appFontSize(17) }}>{rolling ? 'Rolando…' : 'Rolar dados'}</Text>
+          <View style={{ gap: 4 }}>
+            <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>Mesa</Text>
+            <ChipRow>
+              <DiceChip label="Sem mesa" on={!tableId} onPress={() => setTableId('')} />
+              {mesas.map((t) => <DiceChip key={t.id} label={t.name} on={tableId === t.id} onPress={() => setTableId(t.id)} />)}
+            </ChipRow>
+          </View>
+          <Pressable onPress={() => doRoll(formula)} disabled={!valid || rolling} accessibilityRole="button" accessibilityLabel="Rolar dados"
+            style={{ height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.btn, opacity: !valid || rolling ? 0.55 : 1,
+              shadowColor: '#fff', shadowOpacity: 0.35, shadowRadius: 7, shadowOffset: { width: 0, height: 0 }, elevation: !valid || rolling ? 0 : 4 }}>
+            <Text style={{ color: COLORS.btnText, fontFamily: BTN, fontSize: appFontSize(15) }}>{rolling ? 'Rolando…' : 'Rolar dados'}</Text>
           </Pressable>
+          {formula && !valid ? <Text style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>Fórmula inválida. Use NdX, NdX+M ou NdX-M (ex: 2d6+3).</Text> : null}
         </View>
 
-        <View accessibilityLiveRegion="polite" style={{ alignItems: 'center', gap: 8, padding: 18, borderRadius: 14, backgroundColor: COLORS.surfaceContainer, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BOLD, fontSize: appFontSize(12), textTransform: 'uppercase' }}>
+        <View accessibilityLiveRegion="polite" style={{ ...box, alignItems: 'center', gap: 8, padding: 16, marginBottom: 14 }}>
+          <Text style={{ alignSelf: 'stretch', color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>
             Última rolagem{last?.tableName ? ` · ${last.tableName}` : ''}
           </Text>
-          {last ? (
-            <>
-              <Animated.Text accessibilityLabel={`Resultado ${last.result.total}`}
-                style={{ transform: [{ scale: pop }], color: lastCrit === 'crit' ? COLORS.primary : lastCrit === 'fail' ? '#e57373' : COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(72), lineHeight: appFontSize(80) }}>
-                {last.result.total}
-              </Animated.Text>
-              {lastCrit ? <Badge kind={lastCrit} /> : null}
-              <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13), textAlign: 'center' }}>
-                {baseOf(last.formula)} → {breakdownOf(last)}
-                {last.discarded && last.discarded.length > 0 ? ` (descartado: ${last.discarded.join(' + ')})` : ''}
-                {last.label ? ` · ${last.label}` : ''}
-              </Text>
-            </>
-          ) : <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>Nenhuma rolagem ainda.</Text>}
+          <View style={{ width: 200, height: 200, alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ position: 'absolute', opacity: rolling ? 0.9 : 0.55 }}><RollCoreLogo size={200} color={dieColor} /></View>
+            {last && !showTotal ? (
+              <Text accessibilityLabel={`Resultado ${last.result.total}`} style={{ color: dieColor, fontFamily: SERIF, fontSize: appFontSize(64), lineHeight: appFontSize(70) }}>{last.result.total}</Text>
+            ) : null}
+          </View>
+          {last && showTotal ? (
+            <Text accessibilityLabel={`Total ${last.result.total}`} style={{ color: dieColor, fontFamily: SERIF, fontSize: appFontSize(38), lineHeight: appFontSize(42) }}>
+              <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(14) }}>Total </Text>{last.result.total}
+            </Text>
+          ) : null}
+          {last && lastCrit ? <DiceBadge kind={lastCrit} /> : null}
+          <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(13), textAlign: 'center' }}>
+            {last ? `${baseOf(last.formula)} → ${breakdownOf(last)}${last.discarded && last.discarded.length > 0 ? ` (descartado: ${last.discarded.join(' + ')})` : ''}${last.label ? ` · ${last.label}` : ''}` : 'Nenhuma rolagem ainda.'}
+          </Text>
         </View>
 
-        {section('Histórico')}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} accessibilityRole="radiogroup">
-          <Chip label="Todas" on={!filter} onPress={() => setFilter('')} />
-          {tableNames.map((n) => <Chip key={n} label={n} on={filter === n} onPress={() => setFilter(n)} />)}
-        </ScrollView>
-        <View style={{ gap: 8 }}>
-          {visible.length === 0 && <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>Nenhuma rolagem ainda.</Text>}
+        <DiceTitle>Histórico</DiceTitle>
+        <ChipRow>
+          <DiceChip label="Todas" on={!filter} onPress={() => setFilter('')} />
+          {tableNames.map((n) => <DiceChip key={n} label={n} on={filter === n} onPress={() => setFilter(n)} />)}
+        </ChipRow>
+        <View style={{ gap: 8, marginTop: 6 }}>
+          {visible.length === 0 && <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(14), paddingVertical: 12 }}>Nenhuma rolagem ainda.</Text>}
           {visible.map((h, i) => {
             const c = critOf(h);
             const multi = h.result.rolls.length > 1 && h.result.mod === 0;
@@ -197,26 +181,26 @@ export default function DadosScreen() {
             return (
               <View key={`${h.timestamp}-${i}`} accessible
                 accessibilityLabel={`${baseOf(h.formula)}, total ${h.result.total}${c ? (c === 'crit' ? ', crítico' : ', falha') : ''}, ${whenOf(h.timestamp)}${meta ? `, ${meta}` : ''}`}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 10, backgroundColor: COLORS.tile, borderWidth: 1,
-                  borderColor: c === 'crit' ? COLORS.primary : c === 'fail' ? '#c0392b' : COLORS.outlineVariant }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+                <View style={{ flex: 1, minWidth: 0 }}>
+                  <Text style={{ color: '#C0C0C0', fontFamily: BOLD, fontSize: appFontSize(13) }}>
                     {baseOf(h.formula)}{h.result.mod ? (h.result.mod > 0 ? `+${h.result.mod}` : h.result.mod) : ''} → {multi ? `[${h.result.rolls.join(', ')}]` : h.result.total}
                   </Text>
-                  <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{whenOf(h.timestamp)}{meta ? ` · ${meta}` : ''}</Text>
+                  <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(10), marginTop: 3 }}>{whenOf(h.timestamp)}{meta ? ` · ${meta}` : ''}</Text>
                 </View>
-                {c ? <Badge kind={c} /> : null}
-                <Text style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(22), minWidth: 36, textAlign: 'right' }}>{h.result.total}</Text>
+                {c ? <DiceBadge kind={c} /> : null}
+                <Text style={{ color: c === 'fail' ? FAIL : COLORS.sapphire, fontFamily: SERIF, fontSize: appFontSize(24), minWidth: 36, textAlign: 'right' }}>{h.result.total}</Text>
               </View>
             );
           })}
         </View>
         {shown.length > HISTORY_PREVIEW && (
-          <Pressable onPress={() => setShowAll((v) => !v)} style={{ minHeight: 46, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-            <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{showAll ? 'Mostrar menos' : 'Ver histórico completo'}</Text>
+          <Pressable onPress={() => setShowAll((v) => !v)} accessibilityRole="button"
+            style={{ marginTop: 14, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.sapphire }}>
+            <Text style={{ color: COLORS.sapphire, fontFamily: BOLD, fontSize: appFontSize(14) }}>{showAll ? 'Mostrar menos' : 'Ver histórico completo'}</Text>
           </Pressable>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

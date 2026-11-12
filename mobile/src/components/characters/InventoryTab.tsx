@@ -9,8 +9,8 @@ import { mensagemDeErro } from '../../services/api';
 import { showToast } from '../../store/useToast';
 import type { Character, Coins, InventoryItem } from '../../types';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 const CATEGORIES: { id: InventoryItem['category']; label: string }[] = [

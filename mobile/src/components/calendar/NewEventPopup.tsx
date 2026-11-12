@@ -11,8 +11,8 @@ import { useNotifications } from '../../store/useNotifications';
 
 const SEEN_KEY = 'rollcore_seen_event_popups';
 const FRESH_MS = 24 * 3600 * 1000;
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 
 async function readSeen(): Promise<string[]> {
   try { return JSON.parse((await AsyncStorage.getItem(SEEN_KEY)) ?? '[]'); } catch { return []; }

@@ -10,8 +10,8 @@ import { bodyOf, useMaps, type MapItem } from '../../store/useMaps';
 import { MapView } from './MapView';
 import { useMapExport } from './exportMap';
 
-export const BODY = 'AtkinsonHyperlegible_400Regular';
-export const BOLD = 'AtkinsonHyperlegible_700Bold';
+export const BODY = 'Inter_400Regular';
+export const BOLD = 'Inter_700Bold';
 export const SERIF = 'SourceSerif4_700Bold';
 
 export const gridOf = (m: MapItem): Grid => ({ type: m.gridType, cols: m.cols, rows: m.rows, cell: m.cellSize });

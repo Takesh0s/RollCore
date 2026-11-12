@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { SpellDetail } from '../components/characters/SpellDetail';
 import { SpellSearchModal } from '../components/characters/SpellSearchModal';
@@ -19,8 +19,8 @@ import { useCharacters } from '../store/useCharacters';
 import { showToast } from '../store/useToast';
 import { LEVEL_LABELS, SCHOOL_COLORS, type Character, type Spell, type SpellSlots } from '../types';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 type Tab = 'combat' | 'skills' | 'inventory' | 'spells' | 'traits';

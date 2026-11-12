@@ -3,8 +3,8 @@ import { AccessiblePressable as Pressable, AccessibleText as Text } from '../acc
 import { COLORS, appFontSize } from '../../design/shared';
 import { LEVEL_LABELS, SCHOOL_COLORS, type Spell } from '../../types';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 
 function Row({ label, value }: { label: string; value: string }) {
   return (

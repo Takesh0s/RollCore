@@ -2,7 +2,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ImageBackground, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessibleText as Text } from '../components/accessible-text';
 import { Btn, StateBlock } from '../components/Controls';
 import {
@@ -17,8 +17,8 @@ import { useContaAtiva } from '../store/conta';
 import { showToast } from '../store/useToast';
 import { useTables, type TableMember } from '../store/useTables';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 type Dialog = { kind: 'delete' | 'leave' | 'profile' } | { kind: 'actions' | 'transfer' | 'remove'; member: TableMember } | null;

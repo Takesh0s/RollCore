@@ -2,8 +2,8 @@ import { View } from 'react-native';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../accessible-text';
 import { COLORS, appFontSize } from '../../design/shared';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 
 /** Botão de escolha (tipo de mapa, formato, tamanho…) com título e uma linha de apoio. */
 export function Choice({ title, hint, on, disabled, onPress, width }: { title: string; hint?: string; on?: boolean; disabled?: boolean; onPress: () => void; width: `${number}%` }) {

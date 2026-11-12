@@ -11,8 +11,8 @@ import { showToast } from '../../store/useToast';
 import { LEVEL_LABELS, SCHOOL_COLORS, type Spell } from '../../types';
 import { SpellDetail } from './SpellDetail';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const LEVELS: (number | null)[] = [null, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 /** Compêndio de magias (SRD) com busca, filtro de nível e botão de adicionar à ficha. */

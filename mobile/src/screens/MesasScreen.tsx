@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { Btn, StateBlock, inputStyle } from '../components/Controls';
 import { TableBanner } from '../components/tables/TableBanner';
@@ -11,7 +11,7 @@ import { COLORS, appFontSize } from '../design/shared';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { useTables } from '../store/useTables';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
+const BODY = 'Inter_400Regular';
 
 /** Lista de mesas do usuário (mesma do web), com busca por nome, "Entrar com código" e criar mesa. */
 export default function MesasScreen() {

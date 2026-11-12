@@ -2,7 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { Avatar, ConfirmDialog, FormGroup, Select, StateBlock, inputStyle } from '../components/Controls';
 import { COLORS, Header, appFontSize } from '../design/shared';
@@ -15,8 +15,8 @@ import { showToast } from '../store/useToast';
 import type { AttrKey, Attributes } from '../types';
 import { pickAvatarDataUrl } from '../utils/avatar';
 
-const BODY = 'AtkinsonHyperlegible_400Regular';
-const BOLD = 'AtkinsonHyperlegible_700Bold';
+const BODY = 'Inter_400Regular';
+const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 const EMPTY_ATTRS: Record<AttrKey, string> = { STR: '', DEX: '', CON: '', INT: '', WIS: '', CHA: '' };

@@ -1,9 +1,8 @@
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider, usePathname, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { Fragment, useEffect } from 'react';
-import { AppState, View, useColorScheme } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, applyAccessibilityPalette, resolvedThemeMode } from '../design/shared';
+import { AppState, View, useColorScheme, useWindowDimensions } from 'react-native';
+import { COLORS, applyAccessibilityPalette, resolvedThemeMode, useAppFonts } from '../design/shared';
 import { onSessionExpired } from '../services/api';
 import { QuickRollModal } from '../components/dice/QuickRollModal';
 import { QuickSearchModal } from '../components/QuickSearchModal';
@@ -45,19 +44,28 @@ function NotificationsPoller() {
   return null;
 }
 
-// Moldura do web: o painel ocupa a tela, com um filete prateado por dentro e a borda inferior recortada (a "franja").
+// Moldura do web no celular (Figma 412 x 917): filete prateado a 18 px dos lados e 40 px do topo, e embaixo a faixa de dentes
+// (5 dentes escuros, um em cada ponta e três entre os vãos, com 4 vãos azuis iguais; tudo escala com a largura) colada na borda da tela, atrás da barra de navegação.
+// Os outros temas não têm dentes: o filete fecha a 9 px da borda.
+const FRAME_TOP = 40;
+const FRAME_SIDE = 18;
+const NOTCH = 41;
 function Frame({ children }: { children: React.ReactNode }) {
-  const insets = useSafeAreaInsets();
-  const notch = 26;
-  const teeth = Array.from({ length: 12 });
+  const { width } = useWindowDimensions();
+  const { tema } = useAcessibilidade();
+  const teeth = tema === 'medieval';
+  const band = (teeth ? NOTCH : 0) + 9;
+  const tile = width * 0.2257;
+  const gap = tile * 0.441;
+  const count = Math.ceil(width / tile);
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.canvas }}>
-      <View style={{ flex: 1, backgroundColor: COLORS.background }}>
-        {children}
-        <View pointerEvents="none" style={{ position: 'absolute', top: insets.top + 6, left: 8, right: 8, bottom: 8, borderWidth: 1, borderColor: 'rgba(192,192,192,0.75)' }} />
-      </View>
-      <View pointerEvents="none" style={{ height: notch + insets.bottom, flexDirection: 'row', backgroundColor: COLORS.canvas, paddingLeft: 10, overflow: 'hidden' }}>
-        {teeth.map((_, i) => <View key={i} style={{ width: 22, height: notch, marginRight: 32, backgroundColor: COLORS.background }} />)}
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+      <View style={{ flex: 1, paddingTop: FRAME_TOP, paddingBottom: band, paddingHorizontal: FRAME_SIDE }}>{children}</View>
+      <View pointerEvents="none" style={{ position: 'absolute', top: FRAME_TOP, left: FRAME_SIDE, right: FRAME_SIDE, bottom: band, borderWidth: 1, borderColor: 'rgba(192,192,192,0.75)' }} />
+      <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: band, backgroundColor: COLORS.background, overflow: 'hidden' }}>
+        {teeth && Array.from({ length: count }).map((_, i) => (
+          <View key={i} style={{ position: 'absolute', bottom: 0, height: NOTCH, left: i * tile + gap, width: tile - gap, backgroundColor: COLORS.canvas }} />
+        ))}
       </View>
     </View>
   );
@@ -83,11 +91,14 @@ export default function RootLayout() {
   // O React Compiler guarda o resultado das telas que não dependem de estado e trata COLORS como constante;
   // trocar a chave refaz a árvore inteira quando a paleta muda (ação rara: tema, modo, daltonismo ou claro/escuro do sistema).
   const paletteKey = `${daltonico ? tipoDaltonismo : 'normal'}|${tema}|${modoTema}|${systemScheme}`;
-  SplashScreen.hideAsync();
+  // As fontes do Figma (Inter, Source Serif 4, Fugaz One, Kumar One Outline) carregam uma vez, aqui, antes de qualquer tela.
+  const fontsLoaded = useAppFonts();
+  if (!fontsLoaded) return null;
+  void SplashScreen.hideAsync();
   return (
     <ThemeProvider value={resolvedThemeMode() === 'dark' ? DarkTheme : DefaultTheme}>
       <Fragment key={paletteKey}>
-        <Frame><Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' } }} /></Frame>
+        <Frame><Stack screenOptions={{ headerShown: false, animation: 'none', contentStyle: { backgroundColor: 'transparent' } }} /></Frame>
         <ScreenNarrator />
         <SessionWatcher />
         <NotificationsPoller />
