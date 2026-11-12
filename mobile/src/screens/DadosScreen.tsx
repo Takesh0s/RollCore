@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
-import { RollCoreLogo } from '../components/RollCoreLogo';
+import { DiceStage } from '../components/dice/DiceStage';
 import { BODY, BOLD, BTN, CRIT, FAIL, SERIF, ChipRow, DiceBadge, DiceChip, DiceTitle, fieldStyle } from '../components/dice/parts';
 import { AppHeader } from '../components/AppHeader';
 import { ShortcutsSection } from '../components/dice/ShortcutsSection';
@@ -99,8 +99,6 @@ export default function DadosScreen() {
     return res.ok;
   }
 
-  const dieColor = lastCrit === 'fail' ? FAIL : COLORS.sapphire;
-  const showTotal = !!last && (last.result.sides === 100 || last.result.rolls.length > 1 || last.result.total !== last.result.rolls[0]);
   const box = { borderWidth: 1, borderColor: COLORS.outlineVariant, borderRadius: 14 } as const;
 
   return (
@@ -113,7 +111,7 @@ export default function DadosScreen() {
             <Pressable key={s} onPress={() => pickSides(s)} accessibilityRole="radio" accessibilityState={{ checked: sides === s }} accessibilityLabel={`Dado d${s}`}
               style={{ width: '22.5%', height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 1,
                 backgroundColor: sides === s ? COLORS.sapphire : 'transparent', borderColor: sides === s ? COLORS.sapphire : COLORS.outlineVariant }}>
-              <Text style={{ color: sides === s ? '#10202E' : '#C0C0C0', fontFamily: SERIF, fontSize: appFontSize(22) }}>d{s}</Text>
+              <Text style={{ color: sides === s ? '#10202E' : '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(22) }}>d{s}</Text>
             </Pressable>
           ))}
         </View>
@@ -147,22 +145,13 @@ export default function DadosScreen() {
         </View>
 
         <View accessibilityLiveRegion="polite" style={{ ...box, alignItems: 'center', gap: 8, padding: 16, marginBottom: 14 }}>
-          <Text style={{ alignSelf: 'stretch', color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>
+          <Text style={{ alignSelf: 'stretch', textAlign: 'center', color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>
             Última rolagem{last?.tableName ? ` · ${last.tableName}` : ''}
           </Text>
-          <View style={{ width: 200, height: 200, alignItems: 'center', justifyContent: 'center' }}>
-            <View style={{ position: 'absolute', opacity: rolling ? 0.9 : 0.55 }}><RollCoreLogo size={200} color={dieColor} /></View>
-            {last && !showTotal ? (
-              <Text accessibilityLabel={`Resultado ${last.result.total}`} style={{ color: dieColor, fontFamily: SERIF, fontSize: appFontSize(64), lineHeight: appFontSize(70) }}>{last.result.total}</Text>
-            ) : null}
-          </View>
-          {last && showTotal ? (
-            <Text accessibilityLabel={`Total ${last.result.total}`} style={{ color: dieColor, fontFamily: SERIF, fontSize: appFontSize(38), lineHeight: appFontSize(42) }}>
-              <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(14) }}>Total </Text>{last.result.total}
-            </Text>
-          ) : null}
+          <DiceStage sides={sides ?? 20} rolling={rolling} edge={COLORS.sapphire}
+            result={last ? { id: last.timestamp, sides: last.result.sides, rolls: last.result.rolls, total: last.result.total, tone: lastCrit ?? '' } : null} />
           {last && lastCrit ? <DiceBadge kind={lastCrit} /> : null}
-          <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(13), textAlign: 'center' }}>
+          <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(13), textAlign: 'center' }}>
             {last ? `${baseOf(last.formula)} → ${breakdownOf(last)}${last.discarded && last.discarded.length > 0 ? ` (descartado: ${last.discarded.join(' + ')})` : ''}${last.label ? ` · ${last.label}` : ''}` : 'Nenhuma rolagem ainda.'}
           </Text>
         </View>
@@ -183,7 +172,7 @@ export default function DadosScreen() {
                 accessibilityLabel={`${baseOf(h.formula)}, total ${h.result.total}${c ? (c === 'crit' ? ', crítico' : ', falha') : ''}, ${whenOf(h.timestamp)}${meta ? `, ${meta}` : ''}`}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 52, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
                 <View style={{ flex: 1, minWidth: 0 }}>
-                  <Text style={{ color: '#C0C0C0', fontFamily: BOLD, fontSize: appFontSize(13) }}>
+                  <Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(13) }}>
                     {baseOf(h.formula)}{h.result.mod ? (h.result.mod > 0 ? `+${h.result.mod}` : h.result.mod) : ''} → {multi ? `[${h.result.rolls.join(', ')}]` : h.result.total}
                   </Text>
                   <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(10), marginTop: 3 }}>{whenOf(h.timestamp)}{meta ? ` · ${meta}` : ''}</Text>
