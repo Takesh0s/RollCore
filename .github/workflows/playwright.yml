@@ -27,7 +27,10 @@ jobs:
   e2e:
     name: E2E — Chromium
     timeout-minutes: 30
-    runs-on: ubuntu-latest
+    # Pinned on purpose: `ubuntu-latest` now resolves to Ubuntu 26.04, which
+    # Playwright does not support yet (`playwright install --with-deps` fails).
+    # Move to a newer image only after Playwright lists it as supported.
+    runs-on: ubuntu-24.04
 
     services:
       postgres:
