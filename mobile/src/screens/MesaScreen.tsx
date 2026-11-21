@@ -2,14 +2,13 @@ import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ImageBackground, ScrollView, View } from 'react-native';
-import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessibleText as Text } from '../components/accessible-text';
-import { Btn, StateBlock } from '../components/Controls';
+import { StateBlock } from '../components/Controls';
 import {
   DeleteTableModal, LeaveTableModal, MemberActionsModal, MyTableProfileModal, ROLE_LABEL, RemoveMemberModal, TransferHostModal,
 } from '../components/tables/TableModals';
 import { Pressable } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { BODY, BOLD, MUTED, PillBtn, ProfileRow, RuleTitle, SERIF } from '../components/tables/parts';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import { imageSrc } from '../lib/mapImage';
 import { useAcessibilidade } from '../store/acessibilidade';
@@ -17,20 +16,7 @@ import { useContaAtiva } from '../store/conta';
 import { showToast } from '../store/useToast';
 import { useTables, type TableMember } from '../store/useTables';
 
-const BODY = 'Inter_400Regular';
-const BOLD = 'Inter_700Bold';
-const SERIF = 'SourceSerif4_700Bold';
-
 type Dialog = { kind: 'delete' | 'leave' | 'profile' } | { kind: 'actions' | 'transfer' | 'remove'; member: TableMember } | null;
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: COLORS.outlineVariant }}>
-      <Text style={{ flexShrink: 1, color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>{label}</Text>
-      {children}
-    </View>
-  );
-}
 
 /** Visão geral da mesa: capa, dados da campanha, código de convite e membros (mesma do web). */
 export default function MesaScreen() {
@@ -55,12 +41,12 @@ export default function MesaScreen() {
 
   if (state !== 'ok' || !detail || detail.table.id !== id) {
     return (
-      <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
+      <View style={{ flex: 1, backgroundColor: COLORS.background }}>
         <Header title="Mesa" onBack={back} />
         {state === 'notfound' ? <StateBlock icon="search-off" title="Mesa não encontrada" text="Ela pode ter sido excluída, ou você saiu dela." actionLabel="Voltar às mesas" onAction={toList} />
           : state === 'error' ? <StateBlock icon="cloud-off" title="Não foi possível abrir a mesa" actionLabel="Tentar de novo" onAction={() => setAttempt((a) => a + 1)} />
           : <StateBlock icon="hourglass-empty" title="Carregando mesa…" />}
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -73,39 +59,39 @@ export default function MesaScreen() {
     try { await Clipboard.setStringAsync(inviteCode); showToast('Código copiado!', 'success'); } catch { showToast(`Código: ${inviteCode}`); }
   }
 
-  const header = (t: string) => <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20), marginTop: 10 }}>{t}</Text>;
+  const val = { color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) } as const;
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       <Header title={table.name} onBack={back} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 8 }}>
-        {cover && <ImageBackground source={{ uri: cover }} resizeMode="cover" accessibilityLabel={`Capa de ${table.name}`} style={{ height: 150, borderRadius: 12, overflow: 'hidden', marginBottom: 8 }} />}
+      <ScrollView contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 14, paddingBottom: 24 }}>
+        {cover && <ImageBackground source={{ uri: cover }} resizeMode="cover" accessibilityLabel={`Capa de ${table.name}`} style={{ height: 130, marginBottom: 10, backgroundColor: '#2a3237' }} />}
 
-        <Row label="Sistema"><Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{table.gameSystem}</Text></Row>
-        <Row label="Seu papel"><Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{ROLE_LABEL[table.myRole]}</Text></Row>
-        <Row label="Mestre"><Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{table.ownerUsername}</Text></Row>
-        <Row label="Jogadores"><Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{table.playerCount}/{table.maxPlayers}</Text></Row>
+        <ProfileRow label="Sistema"><Text style={val}>{table.gameSystem}</Text></ProfileRow>
+        <ProfileRow label="Seu papel"><Text style={val}>{ROLE_LABEL[table.myRole]}</Text></ProfileRow>
+        <ProfileRow label="Mestre"><Text style={val}>{table.ownerUsername}</Text></ProfileRow>
+        <ProfileRow label="Jogadores"><Text style={val}>{table.playerCount}/{table.maxPlayers}</Text></ProfileRow>
 
-        {!!table.description && (<>{header('Descrição')}<Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(15) }}>{table.description}</Text></>)}
+        {!!table.description && (<><RuleTitle>Descrição</RuleTitle><Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14), lineHeight: appFontSize(21) }}>{table.description}</Text></>)}
 
         {!!inviteCode && (
           <>
-            {header('Convite')}
-            <View accessible accessibilityLabel={`Código ${inviteCode}`} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            <RuleTitle>Convite</RuleTitle>
+            <View accessible accessibilityLabel={`Código ${inviteCode}`} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {inviteCode.split('').map((ch, i) => (
-                <View key={i} accessibilityElementsHidden style={{ width: 38, height: 46, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-                  <Text style={{ color: COLORS.primary, fontFamily: BOLD, fontSize: appFontSize(20) }}>{ch}</Text>
+                <View key={i} accessibilityElementsHidden style={{ width: 38, height: 46, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.field }}>
+                  <Text style={{ color: COLORS.fieldText, fontFamily: SERIF, fontSize: appFontSize(21) }}>{ch}</Text>
                 </View>
               ))}
             </View>
-            <View style={{ flexDirection: 'row', gap: 10, flexWrap: 'wrap' }}>
-              <View style={{ flexGrow: 1 }}><Btn label="Copiar código" kind="primary" onPress={copyInvite} /></View>
-              {table.myRole === 'MASTER' && <View style={{ flexGrow: 1 }}><Btn label="Gerar novo código" onPress={() => regenerateInvite(table.id)} /></View>}
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+              <PillBtn kind="primary" label="Copiar código" onPress={copyInvite} />
+              {table.myRole === 'MASTER' && <PillBtn label="Gerar novo código" onPress={() => regenerateInvite(table.id)} />}
             </View>
           </>
         )}
 
-        {header('Membros')}
+        <RuleTitle>Membros</RuleTitle>
         {members.map((m) => {
           const isMe = m.username === conta?.apelido;
           const canRemove = staff && m.role !== 'MASTER' && !isMe;
@@ -113,30 +99,31 @@ export default function MesaScreen() {
           const canTransfer = !!detail.canTransferHost && m.role !== 'MASTER' && !isMe;
           const name = m.displayName || m.username;
           return (
-            <Row key={m.userId} label={name}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{ROLE_LABEL[m.role]}</Text>
+            <ProfileRow key={m.userId} label={name}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>{ROLE_LABEL[m.role]}</Text>
                 {(canRemove || canPromote || canTransfer) && (
-                  <Pressable onPress={() => setDialog({ kind: 'actions', member: m })} accessibilityRole="button" accessibilityLabel={`Ações de ${name}`} style={{ padding: 6 }}>
-                    <MaterialIcons name="more-horiz" size={22} color={COLORS.onSurfaceVariant} />
+                  <Pressable onPress={() => setDialog({ kind: 'actions', member: m })} accessibilityRole="button" accessibilityLabel={`Ações de ${name}`}
+                    style={{ width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+                    <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(16), lineHeight: appFontSize(18) }}>…</Text>
                   </Pressable>
                 )}
               </View>
-            </Row>
+            </ProfileRow>
           );
         })}
 
-        <View style={{ marginTop: 14, padding: 14, borderRadius: 12, gap: 4, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-          <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(15) }}>Sessão ao vivo</Text>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>As rolagens em tempo real e quem está online chegam em breve.</Text>
+        <View style={{ marginTop: 18, padding: 18, alignItems: 'center', gap: 4, borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(192,192,192,0.5)' }}>
+          <Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>Sessão ao vivo</Text>
+          <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(13), textAlign: 'center' }}>As rolagens em tempo real e quem está online chegam em breve.</Text>
         </View>
 
-        <View style={{ marginTop: 14, gap: 10 }}>
-          <Btn label="Meu perfil na mesa" onPress={() => setDialog({ kind: 'profile' })} />
-          {table.myRole === 'MASTER' && <Btn label="Editar mesa" onPress={() => router.push(`/mesa?id=${table.id}` as any)} />}
+        <View style={{ marginTop: 22, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 10 }}>
+          <PillBtn label="Meu perfil na mesa" onPress={() => setDialog({ kind: 'profile' })} />
+          {table.myRole === 'MASTER' && <PillBtn label="Editar mesa" onPress={() => router.push(`/mesa?id=${table.id}` as any)} />}
           {table.myRole === 'MASTER'
-            ? <Btn label="Excluir mesa" kind="danger" onPress={() => setDialog({ kind: 'delete' })} />
-            : <Btn label="Sair da mesa" kind="danger" onPress={() => setDialog({ kind: 'leave' })} />}
+            ? <PillBtn kind="danger" pill={false} label="Excluir mesa" onPress={() => setDialog({ kind: 'delete' })} />
+            : <PillBtn kind="danger" pill={false} label="Sair da mesa" onPress={() => setDialog({ kind: 'leave' })} />}
         </View>
       </ScrollView>
 
@@ -153,6 +140,6 @@ export default function MesaScreen() {
       )}
       {dialog?.kind === 'transfer' && <TransferHostModal tableId={table.id} member={dialog.member} onClose={() => setDialog(null)} />}
       {dialog?.kind === 'remove' && <RemoveMemberModal tableId={table.id} member={dialog.member} onClose={() => setDialog(null)} />}
-    </SafeAreaView>
+    </View>
   );
 }

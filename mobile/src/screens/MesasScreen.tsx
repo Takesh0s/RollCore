@@ -1,19 +1,17 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
-import { SafeArea as SafeAreaView } from '../components/SafeArea';
-import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
-import { Btn, StateBlock, inputStyle } from '../components/Controls';
+import { AccessiblePressable as Pressable, AccessibleTextInput as TextInput } from '../components/accessible-text';
+import { StateBlock } from '../components/Controls';
+import { NavIcon } from '../components/NavIcon';
 import { TableBanner } from '../components/tables/TableBanner';
 import { JoinTableModal } from '../components/tables/TableModals';
+import { BODY, FAINT, MUTED, PillBtn } from '../components/tables/parts';
 import { COLORS, appFontSize } from '../design/shared';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { useTables } from '../store/useTables';
 
-const BODY = 'Inter_400Regular';
-
-/** Lista de mesas do usuário (mesma do web), com busca por nome, "Entrar com código" e criar mesa. */
+/** Lista de mesas (TableListScreen do web): busca, "Entrar com código", "+" e uma faixa por mesa. */
 export default function MesasScreen() {
   useAcessibilidade();
   const router = useRouter();
@@ -29,19 +27,18 @@ export default function MesasScreen() {
   const open = (id: string) => router.push(`/sessao/${id}` as any);
 
   return (
-    <SafeAreaView edges={['left', 'right', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }} keyboardShouldPersistTaps="handled"
-        refreshControl={<RefreshControl refreshing={loading && loaded} onRefresh={load} tintColor={COLORS.primary} />}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, ...inputStyle(), borderRadius: 24, borderWidth: 0 }}>
-          <MaterialIcons name="search" size={20} color={COLORS.fieldText} />
-          <TextInput value={query} onChangeText={setQuery} placeholder="Buscar mesa" placeholderTextColor={COLORS.placeholder} accessibilityLabel="Buscar mesa"
-            style={{ flex: 1, color: COLORS.fieldText, fontFamily: BODY, fontSize: appFontSize(16) }} returnKeyType="search" />
-        </View>
-        <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-          <View style={{ flex: 1 }}><Btn label="Entrar com código" onPress={() => setJoining(true)} /></View>
-          <Pressable onPress={create} accessibilityRole="button" accessibilityLabel="Criar mesa"
-            style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.btn }}>
-            <MaterialIcons name="add" size={28} color={COLORS.btnText} />
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+      <ScrollView contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 14, paddingBottom: 18 }} keyboardShouldPersistTaps="handled"
+        refreshControl={<RefreshControl refreshing={loading && loaded} onRefresh={load} tintColor="#70B596" />}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
+          <View style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 8, paddingHorizontal: 10, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.18)' }}>
+            <NavIcon name="search" size={22} color={MUTED} />
+            <TextInput value={query} onChangeText={setQuery} placeholder="Buscar mesa" placeholderTextColor={FAINT} accessibilityLabel="Buscar mesa" returnKeyType="search"
+              style={{ flex: 1, minWidth: 0, paddingVertical: 8, color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }} />
+          </View>
+          <PillBtn label="Entrar com código" onPress={() => setJoining(true)} />
+          <Pressable onPress={create} accessibilityRole="button" accessibilityLabel="Criar mesa" style={{ width: 38, height: 34, marginLeft: 6, alignItems: 'center', justifyContent: 'center' }}>
+            <NavIcon name="plus" size={30} color={MUTED} />
           </Pressable>
         </View>
 
@@ -56,6 +53,6 @@ export default function MesasScreen() {
         {shown.map((t) => <TableBanner key={t.id} table={t} onEnter={() => open(t.id)} />)}
       </ScrollView>
       {joining && <JoinTableModal onClose={() => setJoining(false)} onJoined={(id) => { setJoining(false); router.push(`/sessao/${id}` as any); }} />}
-    </SafeAreaView>
+    </View>
   );
 }
