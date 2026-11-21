@@ -1,0 +1,50 @@
+name: Linked issue
+
+# Every pull request must be linked to an issue that it closes (a closing keyword in
+# the description such as "Closes #123", or the Development sidebar). A plain
+# "Refs #123" is not a closing reference and does not count. PRs that genuinely have no
+# issue (dependency bumps, tiny chores) opt out with the `no-issue` label.
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+jobs:
+  linked-issue:
+    name: Linked issue
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require a linked issue or the no-issue label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+          ACTOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$ACTOR" == *"[bot]" ]]; then
+            echo "Bot pull request, skipping."; exit 0
+          fi
+          if echo "$LABELS" | jq -e 'index("no-issue")' >/dev/null; then
+            echo "Label no-issue present, skipping."; exit 0
+          fi
+
+          owner="${REPO%/*}"; name="${REPO#*/}"
+          count=$(gh api graphql \
+            -f query='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){pullRequest(number:$number){closingIssuesReferences(first:1){totalCount}}}}' \
+            -f owner="$owner" -f name="$name" -F number="$PR_NUMBER" \
+            --jq '.data.repository.pullRequest.closingIssuesReferences.totalCount')
+
+          if [[ "$count" -ge 1 ]]; then
+            echo "Linked issues: $count"; exit 0
+          fi
+          echo "::error::This pull request is not linked to an issue. Add 'Closes #<number>' to the description (or link it in the Development sidebar), or add the 'no-issue' label if there is none."
+          exit 1
