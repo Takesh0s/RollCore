@@ -11,9 +11,10 @@ on:
   push:
     branches: [main, develop, mobile-rollcore]
     paths: ['web/**', 'mobile/**', '.github/workflows/frontend.yml']
+  # No path filter on pull requests: Web (Vite) and Mobile (Expo) are required status
+  # checks, and a required check that never runs leaves the PR blocked forever.
   pull_request:
     branches: [main, develop, mobile-rollcore]
-    paths: ['web/**', 'mobile/**', '.github/workflows/frontend.yml']
 
 concurrency:
   group: frontend-${{ github.event_name }}-${{ github.ref }}
