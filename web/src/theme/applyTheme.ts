@@ -18,7 +18,7 @@ const VARS = [
   '--field', '--input-bg', '--field-text', '--text', '--text-bright', '--text-muted', '--text-faint',
   '--primary', '--primary-dark', '--mint', '--gold', '--gold-dim', '--emerald', '--gold-glow', '--gold-subtle',
   '--border-gold', '--border-glow', '--success', '--fail', '--crimson', '--crit', '--danger', '--blood',
-  '--btn-dark', '--btn-text', '--font-display',
+  '--btn-dark', '--btn-text', '--font-display', '--sapphire',
 ]
 
 function read(): ThemePrefs {
@@ -47,6 +47,7 @@ function cssVars(p: Palette, fontDisplay: string): Record<string, string> {
     '--field': p.field, '--input-bg': p.field, '--field-text': p.fieldText,
     '--text': p.text, '--text-bright': p.text2, '--text-muted': p.text, '--text-faint': p.dim,
     '--primary': p.accentTx, '--mint': p.accentTx, '--gold': p.accentTx, '--emerald': p.accentTx,
+    '--sapphire': p.accentTx,
     '--primary-dark': p.accent, '--gold-dim': p.accent,
     '--gold-glow':   `color-mix(in srgb, ${p.accent} 25%, transparent)`,
     '--gold-subtle': `color-mix(in srgb, ${p.accent} 12%, transparent)`,
