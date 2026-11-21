@@ -54,10 +54,12 @@ interface SelectProps {
   disabledOptions?: Record<string, string>;
   error?: boolean;
   allowClear?: boolean;
+  /** `select.form-input.select-compact` do web: caixa pequena cinza ao lado do rótulo. */
+  compact?: boolean;
 }
 
 /** Field that opens a bottom sheet with the options; with `custom` it also accepts typed text. */
-export function Select({ value, options, onChange, placeholder = 'Selecione...', title, disabled, custom, disabledOptions, error, allowClear }: SelectProps) {
+export function Select({ value, options, onChange, placeholder = 'Selecione...', title, disabled, custom, disabledOptions, error, allowClear, compact }: SelectProps) {
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState('');
   const pick = (v: string) => { onChange(v); setOpen(false); };
@@ -65,9 +67,13 @@ export function Select({ value, options, onChange, placeholder = 'Selecione...',
     <>
       <Pressable accessibilityRole="button" accessibilityLabel={`${title}: ${value || 'nenhum selecionado'}`} disabled={disabled}
         onPress={() => { setTyped(''); setOpen(true); }}
-        style={[inputStyle(error, !!value), { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', opacity: disabled ? 0.5 : 1 }]}>
-        <Text numberOfLines={1} style={{ color: value ? COLORS.onSurface : COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(16), flex: 1 }}>{value || placeholder}</Text>
-        <MaterialIcons name="expand-more" size={22} color={COLORS.onSurfaceVariant} />
+        style={compact
+          ? { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 5, paddingHorizontal: 8, borderRadius: 4, backgroundColor: '#D9D9D9', opacity: disabled ? 0.5 : 1 }
+          : [inputStyle(error, !!value), { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', opacity: disabled ? 0.5 : 1 }]}>
+        <Text numberOfLines={1} style={compact
+          ? { color: '#252525', fontFamily: BODY, fontSize: appFontSize(14) }
+          : { color: value ? COLORS.onSurface : COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(16), flex: 1 }}>{value || placeholder}</Text>
+        <MaterialIcons name="expand-more" size={compact ? 18 : 22} color={compact ? '#252525' : COLORS.onSurfaceVariant} />
       </Pressable>
       <Modal visible={open} transparent animationType="slide" onRequestClose={() => setOpen(false)}>
         <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.55)' }}>

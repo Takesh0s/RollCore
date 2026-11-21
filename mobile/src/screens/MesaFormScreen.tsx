@@ -1,19 +1,22 @@
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Image, ScrollView, View } from 'react-native';
-import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
-import { Btn, ConfirmDialog, FormGroup, Select, StateBlock, inputStyle } from '../components/Controls';
+import { ConfirmDialog, Select, StateBlock } from '../components/Controls';
+import { NavIcon } from '../components/NavIcon';
 import { TableLimitModal } from '../components/tables/TableModals';
+import { BODY, FAIL, MUTED, PillBtn, RuleTitle } from '../components/tables/parts';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import { imageSrc, pickImage, type PreparedImage } from '../lib/mapImage';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { showToast } from '../store/useToast';
 import { useTables } from '../store/useTables';
 
-const BODY = 'Inter_400Regular';
-const BOLD = 'Inter_700Bold';
-const SERIF = 'SourceSerif4_700Bold';
+/** `.form-input` do web: fundo --field, texto --field-text, raio 10 e 15 px. */
+const field = (error?: boolean) => ({ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.field, color: COLORS.fieldText, fontFamily: BODY, fontSize: appFontSize(15),
+  borderWidth: 1, borderColor: error ? FAIL : 'transparent' }) as const;
+const label = { color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) } as const;
+
 const SYSTEMS = ['D&D 5e', 'Tormenta20', 'Call of Cthulhu', 'Pathfinder 2e', 'Outro'];
 
 /** Criar / editar mesa (mesmo fluxo do web: nome, sistema, descrição, jogadores e capa). */
@@ -100,43 +103,57 @@ export default function MesaFormScreen() {
 
   if (isEdit && !current) {
     return (
-      <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
+      <View style={{ flex: 1, backgroundColor: COLORS.background }}>
         <Header title="Editar mesa" onBack={() => router.back()} />
         <StateBlock icon="hourglass-empty" title="Carregando mesa…" />
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       <Header title={isEdit ? 'Editar mesa' : 'Criação de Mesa'} onBack={() => router.back()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }} keyboardShouldPersistTaps="handled">
-        <FormGroup label="Nome da campanha:" error={nameErr}>
-          <TextInput value={name} onChangeText={(t) => { setName(t); setNameErr(''); }} maxLength={100} accessibilityLabel="Nome da campanha" style={inputStyle(!!nameErr)} />
-        </FormGroup>
-        <FormGroup label="Sistema">
-          <Select title="Sistema" value={system} options={systems} onChange={setSystem} />
-        </FormGroup>
-        <FormGroup label="Descrição da campanha (Opcional):">
+      <ScrollView contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 14, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
+        <View style={{ marginBottom: 14 }}>
+          <Text style={[label, { marginBottom: 4 }]}>Nome da campanha:</Text>
+          <TextInput value={name} onChangeText={(t) => { setName(t); setNameErr(''); }} maxLength={100} accessibilityLabel="Nome da campanha" style={field(!!nameErr)} />
+          {nameErr ? <Text accessibilityLiveRegion="polite" style={{ marginTop: 4, color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>{nameErr}</Text> : null}
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+          <Text style={label}>Sistema</Text>
+          <Select compact title="Sistema" value={system} options={systems} onChange={setSystem} />
+        </View>
+
+        <View style={{ marginBottom: 14 }}>
+          <Text style={[label, { marginBottom: 4 }]}>Descrição da campanha (Opcional):</Text>
           <TextInput value={description} onChangeText={setDescription} maxLength={2000} multiline numberOfLines={6} accessibilityLabel="Descrição da campanha"
-            style={[inputStyle(), { minHeight: 130, paddingTop: 12, textAlignVertical: 'top' }]} />
-        </FormGroup>
-        <FormGroup label="Número de jogadores">
-          <Select title="Número de jogadores" value={String(maxPlayers)} options={Array.from({ length: 20 }, (_, i) => String(i + 1))} onChange={(v) => setMaxPlayers(Number(v))} />
-        </FormGroup>
+            style={[field(), { minHeight: 136, textAlignVertical: 'top' }]} />
+        </View>
 
-        <FormGroup label={`${shownCover ? 'Capa' : 'Adicionar Capa'} (Opcional)`} hint="A capa fica salva na mesa e aparece para todos os jogadores. Máx. 2 MB.">
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+          <Text style={label}>Número de jogadores</Text>
+          <Select compact title="Número de jogadores" value={String(maxPlayers)} options={Array.from({ length: 20 }, (_, i) => String(i + 1))} onChange={(v) => setMaxPlayers(Number(v))} />
+        </View>
+
+        <View style={{ marginBottom: 14 }}>
+          <Text style={label}>{shownCover ? 'Capa' : 'Adicionar Capa'} (Opcional)</Text>
           <Pressable onPress={pickCover} accessibilityRole="button" accessibilityLabel="Escolher capa da mesa"
-            style={{ height: 130, borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: COLORS.outlineVariant, backgroundColor: COLORS.surfaceContainerHigh }}>
-            {shownCover ? <Image source={{ uri: shownCover }} resizeMode="cover" style={{ width: '100%', height: '100%' }} /> : <Text style={{ color: COLORS.primary, fontFamily: BOLD, fontSize: appFontSize(32) }}>+</Text>}
+            style={{ width: '100%', minHeight: shownCover ? 140 : 120, marginTop: 6, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
+            {shownCover ? <Image source={{ uri: shownCover }} resizeMode="cover" style={{ position: 'absolute', width: '100%', height: '100%' }} /> : <NavIcon name="plus" size={44} color="#1b2226" />}
           </Pressable>
-          {shownCover ? <View style={{ marginTop: 8 }}><Btn label="Remover capa" onPress={() => { setCover(null); setRemoveCover(true); }} /></View> : null}
-        </FormGroup>
+          {shownCover ? <View style={{ marginTop: 10, alignSelf: 'flex-start' }}><PillBtn label="Remover capa" onPress={() => { setCover(null); setRemoveCover(true); }} /></View> : null}
+          <Text style={{ marginTop: 4, color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>A capa fica salva na mesa e aparece para todos os jogadores. Máx. 2 MB.</Text>
+        </View>
 
-        <Btn label={loading ? '…' : isEdit ? 'Salvar alterações' : 'Salvar'} kind="primary" disabled={loading} onPress={save} />
+        <View style={{ alignItems: 'center', marginTop: 8 }}>
+          <PillBtn kind="primary" pill={false} label={loading ? '…' : isEdit ? 'Salvar alterações' : 'Salvar'} disabled={loading} onPress={save} />
+        </View>
 
-        <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20), marginTop: 8 }}>Mapas</Text>
-        <Btn label="Adicionar mapa" kind="primary" onPress={() => router.push('/mapas' as any)} />
+        <RuleTitle>Mapas</RuleTitle>
+        <View style={{ alignItems: 'center' }}>
+          <PillBtn kind="primary" pill={false} label="Adicionar mapa" onPress={() => router.push('/mapas' as any)} />
+        </View>
       </ScrollView>
 
       {!!limit && <TableLimitModal message={limit} onClose={() => setLimit('')} onManage={() => { setLimit(''); leavingRef.current = true; router.replace('/mesas' as any); }} />}
@@ -144,6 +161,6 @@ export default function MesaFormScreen() {
         message={`Você ${current ? 'editou' : 'começou a criar'} ${name.trim() || 'a mesa'} e ainda não salvou.`} confirmLabel="Descartar" cancelLabel="Continuar editando"
         onCancel={() => setLeaveAction(null)}
         onConfirm={() => { const a = leaveAction; setLeaveAction(null); leavingRef.current = true; (navigation as any).dispatch(a); }} />
-    </SafeAreaView>
+    </View>
   );
 }
