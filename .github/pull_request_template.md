@@ -2,7 +2,7 @@
 
 <!-- What changes and why, in one or two sentences. -->
 
-Closes #<!-- issue number; use "Refs #" if it should not close the issue; add the `no-issue` label if there is none -->
+Closes #<!-- issue number (Closes/Fixes/Resolves); if there is no issue, remove this line and add the `no-issue` label -->
 
 ## Changes
 

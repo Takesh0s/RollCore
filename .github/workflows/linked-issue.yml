@@ -1,7 +1,8 @@
 name: Linked issue
 
-# Every pull request must close or reference an issue (keyword in the description
-# such as "Closes #123", or the Development sidebar). PRs that genuinely have no
+# Every pull request must be linked to an issue that it closes (a closing keyword in
+# the description such as "Closes #123", or the Development sidebar). A plain
+# "Refs #123" is not a closing reference and does not count. PRs that genuinely have no
 # issue (dependency bumps, tiny chores) opt out with the `no-issue` label.
 
 on:
