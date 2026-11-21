@@ -1,0 +1,4 @@
+# Default code owner. GitHub requests a review from the owner on every pull request
+# that touches a matching path, so nobody has to remember to add a reviewer.
+# Pull requests opened by the owner are not asked to review themselves.
+*  @LuckyGuerra
