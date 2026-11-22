@@ -1,13 +1,16 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Image, ScrollView, View } from 'react-native';
+import Svg, { Line, Path } from 'react-native-svg';
 import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { SpellDetail } from '../components/characters/SpellDetail';
 import { SpellSearchModal } from '../components/characters/SpellSearchModal';
 import { InventoryTab } from '../components/characters/InventoryTab';
-import { Avatar, StateBlock, inputStyle } from '../components/Controls';
+import { StateBlock, inputStyle } from '../components/Controls';
+import { BTN, FAIL, FAINT, MUTED, PillBtn, RuleTitle } from '../components/tables/parts';
+import { imageSrc } from '../lib/mapImage';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import {
   ATTR_KEYS, ATTR_LABELS, SKILLS, calcMod, formatMod, getMaxSpellSlots, getRaceTraits, getSkillBonus,
@@ -23,25 +26,37 @@ const BODY = 'Inter_400Regular';
 const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
-type Tab = 'combat' | 'skills' | 'inventory' | 'spells' | 'traits';
+type Tab = 'info' | 'inventory' | 'spells';
 
+/** `.section-title` com botão à direita (cabeçalho de seção das magias). */
 function Section({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
-      <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(18) }}>{title}</Text>
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 14, marginBottom: 10 }}>
+      <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(14) }}>{title}</Text>
       {right}
     </View>
   );
 }
 
-function StatBox({ label, value, sub }: { label: string; value: string | number; sub: string }) {
+/** `.attr-box`: cartão com rótulo, valor grande e complemento (modificador / unidade). */
+function StatBox({ label, value, sub, wide }: { label: string; value: string | number; sub?: string; wide?: boolean }) {
   return (
-    <View accessible accessibilityLabel={`${label}: ${value}, ${sub}`}
-      style={{ width: '30%', alignItems: 'center', paddingVertical: 12, borderRadius: 12, gap: 2, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BOLD, fontSize: appFontSize(11), textTransform: 'uppercase' }}>{label}</Text>
-      <Text style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(26) }}>{value}</Text>
-      <Text style={{ color: COLORS.primary, fontFamily: BODY, fontSize: appFontSize(12) }}>{sub}</Text>
+    <View accessible accessibilityLabel={`${label}: ${value}${sub ? `, ${sub}` : ''}`}
+      style={{ width: wide ? '100%' : '48%', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8, borderRadius: 10, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+      <Text style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(9), letterSpacing: 2, textTransform: 'uppercase' }}>{label}</Text>
+      <Text style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(26), marginTop: 6, marginBottom: 3 }}>{value}</Text>
+      {sub ? <Text style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(13) }}>{sub}</Text> : null}
     </View>
+  );
+}
+
+/** Pena do "Editar ficha" (`IconFeather` do web). */
+function Feather({ color }: { color: string }) {
+  return (
+    <Svg width={24} height={24} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
+      <Path d="M20 4c-8 0-13 4-13 11l-2 5 5-2c7 0 10-5 10-14z" />
+      <Line x1="8" y1="16" x2="15" y2="9" />
+    </Svg>
   );
 }
 
@@ -52,10 +67,14 @@ function Pip({ available, onPress, label }: { available: boolean; onPress: () =>
   );
 }
 
-function ghost(label: string, onPress: () => void) {
+const ghost = (label: string, onPress: () => void) => <PillBtn label={label} onPress={onPress} kind="outline" />;
+
+/** Botões de PV (`.btn-danger`, `.btn-heal`, `.btn-temp`, `.btn-ghost`): contorno colorido, Fugaz One. */
+function HpBtn({ label, color, border, bg, onPress, accessibilityLabel }: { label: string; color: string; border: string; bg: string; onPress: () => void; accessibilityLabel: string }) {
   return (
-    <Pressable onPress={onPress} style={{ paddingHorizontal: 10, minHeight: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-      <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(12) }}>{label}</Text>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel}
+      style={{ flex: 1, minHeight: 40, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: bg, borderWidth: 1, borderColor: border }}>
+      <Text style={{ color, fontFamily: BTN, fontSize: appFontSize(13) }}>{label}</Text>
     </Pressable>
   );
 }
@@ -68,7 +87,7 @@ export default function FichaScreen() {
   const { characters, loaded, load, update, patchLocal } = useCharacters();
   const char = characters.find((c) => c.id === id);
 
-  const [tab, setTab] = useState<Tab>(tabParam === 'inventory' ? 'inventory' : 'combat');
+  const [tab, setTab] = useState<Tab>(tabParam === 'inventory' ? 'inventory' : 'info');
   const [hpDelta, setHpDelta] = useState('');
   const [knownSpells, setKnownSpells] = useState<Spell[]>([]);
   const [spellsLoaded, setSpellsLoaded] = useState(false);
@@ -118,7 +137,7 @@ export default function FichaScreen() {
   const c: Character = char;
   const maxHp = c.max_hp ?? c.hp;
   const hpPct = Math.max(0, Math.min(100, (c.hp / Math.max(1, maxHp)) * 100));
-  const hpColor = hpPct > 60 ? COLORS.primary : hpPct > 30 ? '#e8a020' : '#e57373';
+  const hpColor = hpPct > 60 ? COLORS.primary : hpPct > 30 ? '#e8a020' : FAIL;
   const maxSlots = getMaxSpellSlots(c.class, c.level, c.subclass);
   const spellDC = getSpellSaveDC(c.class, c.level, c.attributes, c.subclass);
   const spellAtk = getSpellAttackBonus(c.class, c.level, c.attributes, c.subclass);
@@ -183,63 +202,74 @@ export default function FichaScreen() {
     }
   }
 
-  const tabs: { id: Tab; label: string }[] = [
-    { id: 'combat', label: 'Combate' },
-    { id: 'skills', label: 'Perícias' },
+  const tabs: { id: Tab | 'notes'; label: string }[] = [
+    { id: 'info', label: 'Informações' },
     { id: 'inventory', label: 'Inventário' },
-    ...(casterType !== 'none' ? [{ id: 'spells' as Tab, label: 'Magias' }] : []),
-    ...(raceTraits.length > 0 ? [{ id: 'traits' as Tab, label: 'Traços' }] : []),
+    ...(casterType !== 'none' ? [{ id: 'spells' as Tab, label: 'Grimório' }] : []),
+    { id: 'notes', label: 'Anotações' },
   ];
+  const portrait = imageSrc(c.avatar_url);
+  const sectionPad = { paddingHorizontal: 14 } as const;
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <Header title="Ficha" onBack={back} rightIcon="edit" onRightPress={() => router.push(`/criar-personagem?id=${c.id}` as any)} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }} keyboardShouldPersistTaps="handled">
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-          <Avatar uri={c.avatar_url} name={c.name} size={72} />
-          <View style={{ flex: 1 }}>
-            <Text style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(24) }}>{c.name}</Text>
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>
+      <Header title="Ficha" onBack={back} />
+      <ScrollView contentContainerStyle={{ paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+        {/* Nome, classe · raça · nível e a pena de editar (.sheet-title-row) */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, marginHorizontal: 14 }}>
+          <View style={{ flex: 1, minWidth: 0, alignItems: 'center', paddingLeft: 34 }}>
+            <Text numberOfLines={1} style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(20) }}>{c.name}</Text>
+            <Text style={{ color: FAINT, fontFamily: BODY, fontSize: appFontSize(12), textAlign: 'center' }}>
               {c.class}{c.subclass ? ` · ${c.subclass}` : ''} · {c.race} · Nível {c.level}
             </Text>
           </View>
+          <Pressable onPress={() => router.push(`/criar-personagem?id=${c.id}` as any)} accessibilityRole="button" accessibilityLabel="Editar ficha"
+            style={{ width: 34, height: 34, alignItems: 'center', justifyContent: 'center' }}>
+            <Feather color={MUTED} />
+          </Pressable>
         </View>
 
-        {/* Pontos de vida */}
-        <View style={{ gap: 10, padding: 14, borderRadius: 14, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+        {/* Pontos de vida (.hp-tracker) */}
+        <View style={{ marginTop: 10, marginBottom: 8, marginHorizontal: 14, padding: 16, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.16)', borderWidth: 1, borderColor: 'rgba(192,192,192,0.35)' }}>
           <View accessible accessibilityLabel={`Pontos de vida: ${c.hp} de ${maxHp}${c.temp_hp > 0 ? `, mais ${c.temp_hp} temporários` : ''}`}
-            style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-            <Text style={{ color: hpColor, fontFamily: SERIF, fontSize: appFontSize(40) }}>{c.hp}</Text>
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(22) }}>/ {maxHp}</Text>
-            {c.temp_hp > 0 && <Text style={{ color: '#64b5f6', fontFamily: BOLD, fontSize: appFontSize(14), marginLeft: 6 }}>+{c.temp_hp} temp</Text>}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
+            {portrait && <Image source={{ uri: portrait }} style={{ width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: 'rgba(112,181,150,0.55)' }} />}
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
+              <Text style={{ color: hpColor, fontFamily: SERIF, fontSize: appFontSize(52) }}>{c.hp}</Text>
+              <Text style={{ color: FAINT, fontFamily: SERIF, fontSize: appFontSize(26) }}>/</Text>
+              <Text style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(24) }}>{maxHp}</Text>
+              {c.temp_hp > 0 && (
+                <Text style={{ marginLeft: 8, paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20, overflow: 'hidden', color: COLORS.sapphire, borderWidth: 1, borderColor: COLORS.sapphire, fontFamily: SERIF, fontSize: appFontSize(13) }}>+{c.temp_hp} temp</Text>
+              )}
+            </View>
           </View>
-          <View accessibilityElementsHidden style={{ height: 10, borderRadius: 5, backgroundColor: COLORS.surfaceContainerLowest, overflow: 'hidden' }}>
-            <View style={{ width: `${hpPct}%`, height: '100%', backgroundColor: hpColor }} />
+          <View accessibilityElementsHidden style={{ height: 8, borderRadius: 4, marginBottom: 16, backgroundColor: 'rgba(255,255,255,0.05)' }}>
+            <View style={{ width: `${hpPct}%`, height: '100%', borderRadius: 4, backgroundColor: hpColor, shadowColor: hpColor, shadowOpacity: 0.8, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }} />
+            {c.temp_hp > 0 && <View style={{ position: 'absolute', top: -2, right: 0, height: 12, borderRadius: 4, width: `${Math.min(100, (c.temp_hp / Math.max(1, maxHp)) * 100)}%`, backgroundColor: COLORS.sapphire, opacity: 0.4 }} />}
           </View>
-          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
             <TextInput value={hpDelta} onChangeText={(t) => setHpDelta(t.replace(/\D/g, ''))} keyboardType="number-pad" placeholder="Valor"
-              placeholderTextColor={COLORS.placeholder} accessibilityLabel="Valor de dano, cura ou HP temporário" style={[inputStyle(), { width: 84, textAlign: 'center' }]} />
-            {([['− Dano', '#c0392b', applyDamage], ['+ Cura', '#2e8b57', applyHeal], ['⚡ Temp', '#2f6fa8', addTemp]] as const).map(([label, bg, fn]) => (
-              <Pressable key={label} onPress={fn} accessibilityLabel={label.replace('−', 'Aplicar').replace('+', 'Aplicar').replace('⚡', 'Aplicar HP')}
-                style={{ flex: 1, minHeight: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: bg }}>
-                <Text style={{ color: '#fff', fontFamily: BOLD, fontSize: appFontSize(13) }}>{label}</Text>
-              </Pressable>
-            ))}
-            <Pressable onPress={resetHp} accessibilityLabel="Restaurar HP máximo" style={{ width: 48, minHeight: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-              <MaterialIcons name="restore" size={22} color={COLORS.onSurface} />
-            </Pressable>
+              placeholderTextColor={COLORS.placeholder} accessibilityLabel="Valor de dano, cura ou HP temporário"
+              style={[inputStyle(), { width: '100%', textAlign: 'center', fontFamily: SERIF, fontSize: appFontSize(16), paddingVertical: 9 }]} />
+            <HpBtn label="− Dano" color={FAIL} border={FAIL} bg="rgba(255,138,128,0.06)" onPress={applyDamage} accessibilityLabel="Aplicar dano" />
+            <HpBtn label="+ Cura" color={COLORS.primary} border="rgba(112,181,150,0.55)" bg="rgba(112,181,150,0.08)" onPress={applyHeal} accessibilityLabel="Aplicar cura" />
+            <HpBtn label="⚡ Temp" color={COLORS.sapphire} border={COLORS.sapphire} bg="rgba(143,184,222,0.08)" onPress={addTemp} accessibilityLabel="Aplicar HP temporário" />
+            <HpBtn label="↺" color={MUTED} border="rgba(192,192,192,0.5)" bg="rgba(255,255,255,0.08)" onPress={resetHp} accessibilityLabel="Restaurar HP máximo" />
           </View>
         </View>
 
-        {/* Abas */}
-        <View accessibilityRole="tablist" style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+        {/* Seções da ficha (.sheet-chips) */}
+        <View accessibilityRole="tablist" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10, marginHorizontal: 14 }}>
           {tabs.map((t) => {
             const on = t.id === tab;
+            const soon = t.id === 'notes';
             return (
-              <Pressable key={t.id} accessibilityRole="tab" accessibilityState={{ selected: on }} onPress={() => setTab(t.id)}
-                style={{ paddingHorizontal: 16, minHeight: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center',
-                  backgroundColor: on ? COLORS.primary : 'transparent', borderWidth: 1, borderColor: on ? COLORS.primary : COLORS.outlineVariant }}>
-                <Text style={{ color: on ? COLORS.onPrimary : COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>
+              <Pressable key={t.id} accessibilityRole="tab" accessibilityState={{ selected: on, disabled: soon }} disabled={soon}
+                accessibilityLabel={soon ? `${t.label}, em breve` : t.label}
+                onPress={() => setTab(t.id as Tab)}
+                style={{ paddingHorizontal: 15, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: on ? COLORS.sapphire : COLORS.outlineVariant,
+                  backgroundColor: on ? COLORS.sapphire : 'transparent', opacity: soon ? 0.45 : 1 }}>
+                <Text style={{ color: on ? '#10202E' : '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(12) }}>
                   {t.label}{t.id === 'spells' && knownSpells.length > 0 ? ` (${knownSpells.length})` : ''}
                 </Text>
               </Pressable>
@@ -247,38 +277,54 @@ export default function FichaScreen() {
           })}
         </View>
 
-        {tab === 'combat' && (
+        <View style={[sectionPad, { gap: 4 }]}>
+        {tab === 'info' && (
           <>
-            <Section title="Atributos" />
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'space-between' }}>
+            <RuleTitle>Atributos</RuleTitle>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between' }}>
               {ATTR_KEYS.map((k) => <StatBox key={k} label={ATTR_LABELS[k]} value={c.attributes[k]} sub={formatMod(calcMod(c.attributes[k]))} />)}
             </View>
-            <Section title="Combate" />
-            <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'space-between' }}>
+            <RuleTitle>Combate</RuleTitle>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between' }}>
               <StatBox label="Proficiência" value={`+${profBonus(c.level)}`} sub="bônus" />
-              <StatBox label="HP máx." value={maxHp} sub="pontos" />
+              <StatBox label="HP Máx." value={maxHp} sub="pontos" />
               <StatBox label="CA" value={c.ac} sub="armadura" />
             </View>
-          </>
-        )}
-
-        {tab === 'skills' && (
-          <>
-            <Section title="Perícias" />
-            <View style={{ borderRadius: 12, overflow: 'hidden', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-              {SKILLS.map((skill, i) => {
+            <RuleTitle>Perícias</RuleTitle>
+            <View style={{ gap: 4 }}>
+              {SKILLS.map((skill) => {
                 const bonus = getSkillBonus(skill.name, c.attributes, c.level);
                 return (
                   <View key={skill.name} accessible accessibilityLabel={`${skill.name}, ${ATTR_LABELS[skill.attr]}, bônus ${formatMod(bonus)}`}
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 12, backgroundColor: COLORS.surfaceContainerHigh,
-                      borderTopWidth: i === 0 ? 0 : 1, borderTopColor: COLORS.outlineVariant }}>
-                    <Text style={{ width: 36, color: COLORS.onSurfaceVariant, fontFamily: BOLD, fontSize: appFontSize(11) }}>{ATTR_LABELS[skill.attr]}</Text>
-                    <Text style={{ flex: 1, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(15) }}>{skill.name}</Text>
-                    <Text style={{ color: bonus >= 0 ? COLORS.primary : '#e57373', fontFamily: BOLD, fontSize: appFontSize(15) }}>{formatMod(bonus)}</Text>
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+                    <Text numberOfLines={1} style={{ width: 32, color: FAINT, fontFamily: SERIF, fontSize: appFontSize(8), letterSpacing: 1.5 }}>{ATTR_LABELS[skill.attr]}</Text>
+                    <Text style={{ flex: 1, color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(13) }}>{skill.name}</Text>
+                    <Text style={{ minWidth: 28, textAlign: 'right', color: bonus >= 0 ? COLORS.primary : FAIL, fontFamily: SERIF, fontSize: appFontSize(13) }}>{formatMod(bonus)}</Text>
                   </View>
                 );
               })}
             </View>
+            {raceTraits.length > 0 && (
+              <>
+                <RuleTitle>{`Traços Raciais — ${c.race}`}</RuleTitle>
+                <View style={{ gap: 10 }}>
+                  {raceTraits.map((t) => {
+                    const tone = t.type === 'choice' ? COLORS.sapphire : COLORS.primary;
+                    return (
+                      <View key={t.name} style={{ paddingVertical: 14, paddingHorizontal: 16, borderRadius: 10, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant, borderLeftWidth: 3, borderLeftColor: tone }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+                          <Text style={{ flex: 1, color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(13) }}>{t.name}</Text>
+                          <Text style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20, overflow: 'hidden', color: tone, borderWidth: 1, borderColor: tone, fontFamily: SERIF, fontSize: appFontSize(8), letterSpacing: 1.5, textTransform: 'uppercase' }}>
+                            {t.type === 'stat_bonus' ? 'Bônus' : t.type === 'choice' ? 'Escolha' : 'Passivo'}
+                          </Text>
+                        </View>
+                        <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(13), lineHeight: 21 }}>{t.description}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </>
+            )}
           </>
         )}
 
@@ -287,15 +333,15 @@ export default function FichaScreen() {
         {tab === 'spells' && (
           <>
             {spellDC !== null && (
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <View style={{ flex: 1 }}><StatBoxWide label="CD das magias" value={spellDC} /></View>
-                <View style={{ flex: 1 }}><StatBoxWide label="Ataque mágico" value={formatMod(spellAtk ?? 0)} /></View>
+              <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'space-between', marginTop: 10 }}>
+                <StatBox label="CD das Magias" value={spellDC} />
+                <StatBox label="Ataque Mágico" value={formatMod(spellAtk ?? 0)} />
               </View>
             )}
 
             {(casterType === 'full' || casterType === 'half') && slots && maxSlots && (
               <>
-                <Section title="Espaços de magia" right={ghost('↺ Descanso longo', restoreAllSlots)} />
+                <Section title="Espaços de Magia" right={ghost('↺ Descanso Longo', restoreAllSlots)} />
                 <View style={{ gap: 10 }}>
                   {([1, 2, 3, 4, 5, 6, 7, 8, 9] as const).map((lvl) => {
                     const max = maxSlots[lvl];
@@ -319,7 +365,7 @@ export default function FichaScreen() {
 
             {casterType === 'warlock' && wSlots && (
               <>
-                <Section title="Magia de pacto" right={ghost('↺ Descanso curto', restoreWarlock)} />
+                <Section title="Magia de Pacto" right={ghost('↺ Descanso Curto', restoreWarlock)} />
                 <View style={{ gap: 10, padding: 14, borderRadius: 12, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
                   <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>
                     Nível do espaço: <Text style={{ fontFamily: BOLD }}>{wSlots.level}°</Text> — recupera em descanso curto ou longo
@@ -334,12 +380,9 @@ export default function FichaScreen() {
               </>
             )}
 
-            <Section title={`Magias conhecidas${knownSpells.length > 0 ? ` (${knownSpells.length})` : ''}`}
+            <Section title={`Magias Conhecidas${knownSpells.length > 0 ? ` (${knownSpells.length})` : ''}`}
               right={
-                <Pressable onPress={() => setShowSearch(true)} accessibilityLabel="Adicionar magia"
-                  style={{ paddingHorizontal: 14, minHeight: 38, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary }}>
-                  <Text style={{ color: COLORS.onPrimary, fontFamily: BOLD, fontSize: appFontSize(13) }}>+ Adicionar</Text>
-                </Pressable>
+                <PillBtn label="+ Adicionar" kind="primary" onPress={() => setShowSearch(true)} accessibilityLabel="Adicionar magia" />
               } />
             {loadingSpells && <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, textAlign: 'center', paddingVertical: 16 }}>Carregando magias…</Text>}
             {spellsFailed && !loadingSpells && <StateBlock icon="cloud-off" title="Não foi possível carregar as magias" actionLabel="Tentar de novo" onAction={() => { setSpellsFailed(false); loadSpells(); }} />}
@@ -380,24 +423,7 @@ export default function FichaScreen() {
           </>
         )}
 
-        {tab === 'traits' && (
-          <>
-            <Section title={`Traços raciais — ${c.race}`} />
-            <View style={{ gap: 10 }}>
-              {raceTraits.map((t) => (
-                <View key={t.name} style={{ gap: 6, padding: 14, borderRadius: 12, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                    <Text style={{ flex: 1, color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(15) }}>{t.name}</Text>
-                    <Text style={{ color: COLORS.primary, fontFamily: BOLD, fontSize: appFontSize(11), textTransform: 'uppercase' }}>
-                      {t.type === 'stat_bonus' ? 'Bônus' : t.type === 'choice' ? 'Escolha' : 'Passivo'}
-                    </Text>
-                  </View>
-                  <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>{t.description}</Text>
-                </View>
-              ))}
-            </View>
-          </>
-        )}
+        </View>
       </ScrollView>
 
       {showSearch && (
@@ -405,15 +431,5 @@ export default function FichaScreen() {
           onAdded={(spell) => setKnownSpells((prev) => [...prev, spell])} onClose={() => setShowSearch(false)} />
       )}
     </SafeAreaView>
-  );
-}
-
-function StatBoxWide({ label, value }: { label: string; value: string | number }) {
-  return (
-    <View accessible accessibilityLabel={`${label}: ${value}`}
-      style={{ alignItems: 'center', paddingVertical: 12, borderRadius: 12, gap: 2, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BOLD, fontSize: appFontSize(11), textTransform: 'uppercase' }}>{label}</Text>
-      <Text style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(26) }}>{value}</Text>
-    </View>
   );
 }
