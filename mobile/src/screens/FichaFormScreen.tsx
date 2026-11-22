@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
-import { Avatar, ConfirmDialog, FormGroup, Select, StateBlock, inputStyle } from '../components/Controls';
+import { Avatar, ConfirmDialog, Select, StateBlock } from '../components/Controls';
+import { BODY, BOLD, FAIL, MUTED, PillBtn, RuleTitle, SERIF } from '../components/tables/parts';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import { ATTR_KEYS, ATTR_LABELS, calcMod, formatMod, getRaceBonuses, profBonus } from '../lib/engine';
 import { ATTR_INPUT_MAX, ATTR_INPUT_MIN, calcMaxHp, calcUnarmoredAC } from '../lib/engine-hp';
@@ -14,10 +15,6 @@ import { useCharacters } from '../store/useCharacters';
 import { showToast } from '../store/useToast';
 import type { AttrKey, Attributes } from '../types';
 import { pickAvatarDataUrl } from '../utils/avatar';
-
-const BODY = 'Inter_400Regular';
-const BOLD = 'Inter_700Bold';
-const SERIF = 'SourceSerif4_700Bold';
 
 const EMPTY_ATTRS: Record<AttrKey, string> = { STR: '', DEX: '', CON: '', INT: '', WIS: '', CHA: '' };
 
@@ -203,129 +200,136 @@ export default function FichaFormScreen() {
     );
   }
 
-  const section = (t: string) => <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(18), marginTop: 10 }}>{t}</Text>;
+  const lbl = { color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) } as const;
+  const fld = (error?: boolean) => ({ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.field, color: COLORS.fieldText,
+    fontFamily: BODY, fontSize: appFontSize(15), borderWidth: 1, borderColor: error ? FAIL : 'transparent' }) as const;
+  const hint = (t: string) => <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>{t}</Text>;
+  const err = (t?: string) => (t ? <Text accessibilityLiveRegion="polite" style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>{t}</Text> : null);
+  const step = (icon: 'add' | 'remove', onPress: () => void, a11y: string) => (
+    <Pressable onPress={onPress} accessibilityLabel={a11y} style={{ width: 44, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(192,192,192,0.5)' }}>
+      <MaterialIcons name={icon} size={20} color="#FFFFFF" />
+    </Pressable>
+  );
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
-      <Header title={isEdit ? (existing?.name || 'Ficha') : 'Criar ficha'} onBack={back} rightIcon="save" onRightPress={save} />
+      <Header title={isEdit ? (existing?.name || 'Ficha') : 'Criar ficha'} onBack={back} />
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 48, gap: 14 }} keyboardShouldPersistTaps="handled">
-          <View style={{ alignItems: 'center', gap: 8 }}>
+        <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 48, gap: 6 }} keyboardShouldPersistTaps="handled">
+          <View style={{ alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <Pressable onPress={changePhoto} accessibilityRole="button" accessibilityLabel="Escolher foto do personagem">
               <Avatar uri={avatarUrl} name={name} size={88} />
-              <View style={{ position: 'absolute', right: -2, bottom: -2, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary }}>
-                <MaterialIcons name="photo-camera" size={16} color={COLORS.onPrimary} />
+              <View style={{ position: 'absolute', right: -2, bottom: -2, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.btn }}>
+                <MaterialIcons name="photo-camera" size={16} color="#FFFFFF" />
               </View>
             </Pressable>
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Foto do personagem (opcional)</Text>
-            {avatarUrl ? (
-              <Pressable onPress={() => setAvatarUrl('')}><Text style={{ color: COLORS.primary, fontFamily: BOLD, fontSize: appFontSize(12) }}>Remover foto</Text></Pressable>
-            ) : null}
+            <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>Foto do personagem (opcional)</Text>
+            {avatarUrl ? <PillBtn label="Remover foto" onPress={() => setAvatarUrl('')} /> : null}
           </View>
 
-          {section('Identidade')}
-          <FormGroup label="Sistema" hint={isCustom ? 'Personalizado oferece as classes, raças e subclasses de todos os sistemas e aceita nomes digitados por você. Bônus raciais não são aplicados automaticamente.' : undefined}>
-            <Select title="Sistema" value={system} options={SYSTEMS.map((s) => s.id)} disabledOptions={disabledSystems} onChange={changeSystem} />
-          </FormGroup>
-          <FormGroup label="Nome do personagem" error={errors.name}>
-            <TextInput value={name} onChangeText={(t) => { setName(t); clearErr('name'); }} maxLength={100} placeholder="Ex: Aragorn"
-              placeholderTextColor={COLORS.placeholder} style={inputStyle(!!errors.name, !!name.trim())} />
-          </FormGroup>
-          <FormGroup label="Raça" error={errors.race}>
-            <Select title="Raça" value={race} options={sys.races} custom={isCustom} error={!!errors.race} onChange={(v) => { setRace(v); clearErr('race'); }} />
-          </FormGroup>
-          <FormGroup label="Classe" error={errors.cls}>
-            <Select title="Classe" value={cls} options={sys.classes} custom={isCustom} error={!!errors.cls}
-              onChange={(v) => { setCls(v); if (!isCustom) setSubclass(''); clearErr('cls'); }} />
-          </FormGroup>
-          <FormGroup label="Subclasse" hint={belowChoiceLevel ? `Normalmente escolhida a partir do nível ${subclassInfo!.choiceLevel}.` : undefined}>
-            <Select title="Subclasse" value={subclass} options={subclassOptions} custom={isCustom} disabled={!showSubclass} allowClear
-              placeholder={showSubclass ? 'Selecione (opcional)' : '—'} onChange={setSubclass} />
-          </FormGroup>
-
-          {!!race && Object.keys(raceBonuses).length > 0 && (
-            <View style={{ padding: 12, borderRadius: 10, backgroundColor: COLORS.primaryContainer, borderWidth: 1, borderColor: COLORS.primary }}>
-              <Text style={{ color: COLORS.onPrimaryContainer, fontFamily: BODY, fontSize: appFontSize(13) }}>
-                <Text style={{ fontFamily: BOLD }}>{race}: </Text>
-                {Object.entries(raceBonuses).map(([k, v]) => `${ATTR_LABELS[k as AttrKey]} +${v}`).join(', ')} — aplicados automaticamente ao salvar.
-              </Text>
+          <RuleTitle>Identidade</RuleTitle>
+          <View style={{ gap: 14 }}>
+            <View style={{ gap: 6 }}>
+              <Text style={lbl}>Sistema</Text>
+              <Select title="Sistema" value={system} options={SYSTEMS.map((s) => s.id)} disabledOptions={disabledSystems} onChange={changeSystem} />
+              {isCustom ? hint('Personalizado oferece as classes, raças e subclasses de todos os sistemas e aceita nomes digitados por você. Bônus raciais não são aplicados automaticamente.') : null}
             </View>
-          )}
-
-          <FormGroup label="Nível" error={errors.level} hint={`Bônus de proficiência: ${!isNaN(lvlNum) && lvlNum >= 1 && lvlNum <= 20 ? `+${profBonus(lvlNum)}` : '—'}`}>
-            <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-              <Pressable onPress={() => stepLevel(-1)} accessibilityLabel="Diminuir nível" style={{ width: 52, height: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-                <MaterialIcons name="remove" size={22} color={COLORS.onSurface} />
-              </Pressable>
-              <TextInput value={level} onChangeText={(t) => { setLevel(t.replace(/\D/g, '')); clearErr('level'); }} keyboardType="number-pad" maxLength={2} placeholder="1–20"
-                placeholderTextColor={COLORS.placeholder} accessibilityLabel="Nível" style={[inputStyle(!!errors.level, !!level), { flex: 1, textAlign: 'center' }]} />
-              <Pressable onPress={() => stepLevel(1)} accessibilityLabel="Aumentar nível" style={{ width: 52, height: 48, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-                <MaterialIcons name="add" size={22} color={COLORS.onSurface} />
-              </Pressable>
+            <View style={{ gap: 6 }}>
+              <Text style={lbl}>Nome do Personagem</Text>
+              <TextInput value={name} onChangeText={(t) => { setName(t); clearErr('name'); }} maxLength={100} placeholder="Ex: Aragorn"
+                placeholderTextColor={COLORS.placeholder} accessibilityLabel="Nome do personagem" style={fld(!!errors.name)} />
+              {err(errors.name)}
             </View>
-          </FormGroup>
-
-          {section('Atributos')}
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>
-            {isCustom ? 'Digite o valor final de cada atributo (1–20).' : 'Digite o valor base (1–20). Bônus raciais são aplicados automaticamente ao salvar.'}
-          </Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'space-between' }}>
-            {ATTR_KEYS.map((k) => {
-              const num = parseInt(attrs[k], 10);
-              const mod = !isNaN(num) && num >= ATTR_INPUT_MIN && num <= ATTR_INPUT_MAX ? formatMod(calcMod(num)) : '—';
-              const bonus = raceBonuses[k];
-              return (
-                <View key={k} style={{ width: '30%', alignItems: 'center', gap: 4 }}>
-                  <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BOLD, fontSize: appFontSize(12) }}>{ATTR_LABELS[k]}</Text>
-                  <TextInput value={attrs[k]} onChangeText={(t) => { setAttrs((p) => ({ ...p, [k]: t.replace(/\D/g, '') })); clearErr(k); }}
-                    keyboardType="number-pad" maxLength={2} placeholder="1–20" placeholderTextColor={COLORS.placeholder} accessibilityLabel={`Atributo ${ATTR_LABELS[k]}`}
-                    style={[inputStyle(!!errors[k], !!attrs[k] && !errors[k]), { width: '100%', textAlign: 'center' }]} />
-                  <Text style={{ color: COLORS.primary, fontFamily: BOLD, fontSize: appFontSize(13) }}>{mod}</Text>
-                  {bonus ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(11) }}>+{bonus} racial</Text> : null}
-                  {errors[k] ? <Text style={{ color: '#e57373', fontFamily: BODY, fontSize: appFontSize(11) }}>{errors[k]}</Text> : null}
-                </View>
-              );
-            })}
-          </View>
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-            {section('Combate')}
-            <Pressable onPress={autoCalc} accessibilityLabel="Calcular HP e CA automaticamente"
-              style={{ paddingHorizontal: 12, minHeight: 38, borderRadius: 8, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-              <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(12) }}>⚡ Calcular automaticamente</Text>
-            </Pressable>
-          </View>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>
-            HP usa a média por nível (PHB p.15). CA assume sem armadura — ajuste manualmente se necessário.
-          </Text>
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <View style={{ flex: 1 }}>
-              <FormGroup label="HP máximo" error={errors.maxHp}>
-                <TextInput value={maxHp} onChangeText={(t) => { setMaxHp(t.replace(/\D/g, '')); clearErr('maxHp'); }} keyboardType="number-pad" placeholder="Ex: 12"
-                  placeholderTextColor={COLORS.placeholder} style={[inputStyle(!!errors.maxHp, !!maxHp), { textAlign: 'center' }]} />
-              </FormGroup>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <View style={{ flex: 1, gap: 6 }}>
+                <Text style={lbl}>Raça</Text>
+                <Select title="Raça" value={race} options={sys.races} custom={isCustom} error={!!errors.race} onChange={(v) => { setRace(v); clearErr('race'); }} />
+                {err(errors.race)}
+              </View>
+              <View style={{ flex: 1, gap: 6 }}>
+                <Text style={lbl}>Classe</Text>
+                <Select title="Classe" value={cls} options={sys.classes} custom={isCustom} error={!!errors.cls}
+                  onChange={(v) => { setCls(v); if (!isCustom) setSubclass(''); clearErr('cls'); }} />
+                {err(errors.cls)}
+              </View>
             </View>
-            <View style={{ flex: 1 }}>
-              <FormGroup label="Classe de armadura" error={errors.ac}>
-                <TextInput value={ac} onChangeText={(t) => { setAc(t.replace(/\D/g, '')); clearErr('ac'); }} keyboardType="number-pad" placeholder="Ex: 14"
-                  placeholderTextColor={COLORS.placeholder} style={[inputStyle(!!errors.ac, !!ac), { textAlign: 'center' }]} />
-              </FormGroup>
+            <View style={{ gap: 6 }}>
+              <Text style={lbl}>Subclasse</Text>
+              <Select title="Subclasse" value={subclass} options={subclassOptions} custom={isCustom} disabled={!showSubclass} allowClear
+                placeholder={showSubclass ? 'Selecione (opcional)' : '—'} onChange={setSubclass} />
+              {belowChoiceLevel ? hint(`Normalmente escolhida a partir do nível ${subclassInfo!.choiceLevel}.`) : null}
             </View>
-          </View>
 
-          <View style={{ gap: 10, marginTop: 10 }}>
-            <Pressable onPress={save} disabled={saving} accessibilityRole="button"
-              style={{ minHeight: 52, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary, opacity: saving ? 0.6 : 1 }}>
-              <Text style={{ color: COLORS.onPrimary, fontFamily: BOLD, fontSize: appFontSize(16) }}>{saving ? 'Salvando…' : isEdit ? 'Salvar alterações' : 'Criar personagem'}</Text>
-            </Pressable>
-            <Pressable onPress={back} disabled={saving} style={{ minHeight: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-              <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(15) }}>Cancelar</Text>
-            </Pressable>
-            {isEdit && (
-              <Pressable onPress={() => setShowDelete(true)} disabled={saving} style={{ minHeight: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: '#c0392b' }}>
-                <Text style={{ color: '#fff', fontFamily: BOLD, fontSize: appFontSize(15) }}>Excluir ficha</Text>
-              </Pressable>
+            {!!race && Object.keys(raceBonuses).length > 0 && (
+              <View style={{ padding: 12, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(192,192,192,0.5)' }}>
+                <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(13) }}>
+                  <Text style={{ fontFamily: BOLD }}>{race}: </Text>
+                  {Object.entries(raceBonuses).map(([k, v]) => `${ATTR_LABELS[k as AttrKey]} +${v}`).join(', ')} — aplicados automaticamente ao salvar.
+                </Text>
+              </View>
             )}
+
+            <View style={{ gap: 6 }}>
+              <Text style={lbl}>Nível</Text>
+              <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                {step('remove', () => stepLevel(-1), 'Diminuir nível')}
+                <TextInput value={level} onChangeText={(t) => { setLevel(t.replace(/\D/g, '')); clearErr('level'); }} keyboardType="number-pad" maxLength={2} placeholder="1–20"
+                  placeholderTextColor={COLORS.placeholder} accessibilityLabel="Nível" style={[fld(!!errors.level), { flex: 1, minWidth: 0, textAlign: 'center' }]} />
+                {step('add', () => stepLevel(1), 'Aumentar nível')}
+              </View>
+              {errors.level ? err(errors.level) : hint(`Bônus de proficiência: ${!isNaN(lvlNum) && lvlNum >= 1 && lvlNum <= 20 ? `+${profBonus(lvlNum)}` : '—'}`)}
+            </View>
+          </View>
+
+          <RuleTitle>Atributos</RuleTitle>
+          <View style={{ gap: 12 }}>
+            {hint(isCustom ? 'Digite o valor final de cada atributo (1–20).' : 'Digite o valor base (1–20). Bônus raciais são aplicados automaticamente ao salvar.')}
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'space-between' }}>
+              {ATTR_KEYS.map((k) => {
+                const num = parseInt(attrs[k], 10);
+                const mod = !isNaN(num) && num >= ATTR_INPUT_MIN && num <= ATTR_INPUT_MAX ? formatMod(calcMod(num)) : '—';
+                const bonus = raceBonuses[k];
+                return (
+                  <View key={k} style={{ width: '30%', alignItems: 'center', gap: 4 }}>
+                    <Text style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(11), letterSpacing: 2 }}>{ATTR_LABELS[k]}</Text>
+                    <TextInput value={attrs[k]} onChangeText={(t) => { setAttrs((p) => ({ ...p, [k]: t.replace(/\D/g, '') })); clearErr(k); }}
+                      keyboardType="number-pad" maxLength={2} placeholder="1–20" placeholderTextColor={COLORS.placeholder} accessibilityLabel={`Atributo ${ATTR_LABELS[k]}`}
+                      style={[fld(!!errors[k]), { width: '100%', textAlign: 'center' }]} />
+                    <Text style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(14) }}>{mod}</Text>
+                    {bonus ? <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(11) }}>+{bonus} racial</Text> : null}
+                    {errors[k] ? <Text style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(11) }}>{errors[k]}</Text> : null}
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+
+          <RuleTitle>Combate</RuleTitle>
+          <View style={{ gap: 12 }}>
+            <View style={{ alignSelf: 'flex-start' }}>
+              <PillBtn label="⚡ Calcular automaticamente" accessibilityLabel="Calcular HP e CA automaticamente" onPress={autoCalc} />
+            </View>
+            {hint('HP usa a média por nível (PHB p.15). CA assume sem armadura — ajuste manualmente se necessário.')}
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <View style={{ flex: 1, gap: 6 }}>
+                <Text style={lbl}>HP Máximo</Text>
+                <TextInput value={maxHp} onChangeText={(t) => { setMaxHp(t.replace(/\D/g, '')); clearErr('maxHp'); }} keyboardType="number-pad" placeholder="Ex: 12"
+                  placeholderTextColor={COLORS.placeholder} accessibilityLabel="HP máximo" style={[fld(!!errors.maxHp), { textAlign: 'center' }]} />
+                {err(errors.maxHp)}
+              </View>
+              <View style={{ flex: 1, gap: 6 }}>
+                <Text style={lbl}>Classe de Armadura</Text>
+                <TextInput value={ac} onChangeText={(t) => { setAc(t.replace(/\D/g, '')); clearErr('ac'); }} keyboardType="number-pad" placeholder="Ex: 14"
+                  placeholderTextColor={COLORS.placeholder} accessibilityLabel="Classe de armadura" style={[fld(!!errors.ac), { textAlign: 'center' }]} />
+                {err(errors.ac)}
+              </View>
+            </View>
+          </View>
+
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginTop: 22 }}>
+            <PillBtn kind="primary" pill={false} label={saving ? 'Salvando…' : isEdit ? 'Salvar Alterações' : 'Criar Personagem'} disabled={saving} onPress={save} />
+            <PillBtn pill={false} label="Cancelar" disabled={saving} onPress={back} />
+            {isEdit ? <PillBtn kind="danger" pill={false} label="Excluir" disabled={saving} onPress={() => setShowDelete(true)} /> : null}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
