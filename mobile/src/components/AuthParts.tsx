@@ -13,7 +13,6 @@ const FAIL = '#e05555';
 const BTN = 'FugazOne_400Regular';
 const SERIF = 'SourceSerif4_700Bold';
 const FAINT = '#9AA4A8';
-const SAPPHIRE = '#8FB8DE';
 
 /** Moldura das telas de acesso (Login, Cadastro, Recuperar senha), como no web: logo, nome, subtítulo e o formulário. */
 export function AuthShell({ subtitle, children }: { subtitle: string; children: ReactNode }) {
@@ -76,8 +75,8 @@ export function AuthButton({ label, onPress, disabled, busy }: { label: string; 
   const off = disabled || busy;
   return (
     <Pressable onPress={onPress} disabled={off} accessibilityRole="button" accessibilityState={{ disabled: off, busy }}
-      style={{ height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: AUTH_COLORS.button, borderWidth: 1, borderColor: SAPPHIRE, opacity: off ? 0.55 : 1,
-        shadowColor: SAPPHIRE, shadowOpacity: off ? 0 : 0.55, shadowRadius: 10, shadowOffset: { width: 0, height: 0 }, elevation: off ? 0 : 6 }}>
+      style={{ height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: AUTH_COLORS.button, borderWidth: 1, borderColor: COLORS.sapphire, opacity: off ? 0.55 : 1,
+        shadowColor: COLORS.sapphire, shadowOpacity: off ? 0 : 0.55, shadowRadius: 10, shadowOffset: { width: 0, height: 0 }, elevation: off ? 0 : 6 }}>
       <Text style={{ color: COLORS.btnText, fontFamily: BTN, fontSize: appFontSize(15) }}>{busy ? '…' : label}</Text>
     </Pressable>
   );
@@ -89,7 +88,7 @@ export function AuthLink({ label, onPress, hint, align = 'center' }: { label: st
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: align === 'center' ? 'center' : 'flex-start', gap: 5, marginTop: 22 }}>
       {!!hint && <Text style={{ color: FAINT, fontFamily: BODY, fontSize: appFontSize(13) }}>{hint}</Text>}
       <Pressable onPress={onPress} accessibilityRole="link" hitSlop={8}>
-        <Text style={{ color: SAPPHIRE, fontFamily: SERIF, fontSize: appFontSize(13) }}>{label}</Text>
+        <Text style={{ color: COLORS.sapphire, fontFamily: SERIF, fontSize: appFontSize(13) }}>{label}</Text>
       </Pressable>
     </View>
   );

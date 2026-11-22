@@ -411,7 +411,7 @@ html[data-theme]:not([data-theme="medieval"]) .app-header-title { font-weight: 7
   .side-menu.docked .side-menu-icon { width: 28px; height: 28px; color: inherit; }
   html:not([data-theme]) .side-menu.docked .side-menu-item.active,
   html[data-theme="medieval"] .side-menu.docked .side-menu-item.active {
-    background: rgba(143, 180, 212, .16); color: #8fb4d4;
+    background: color-mix(in srgb, var(--sapphire) 16%, transparent); color: var(--sapphire);
   }
 }
 

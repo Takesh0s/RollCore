@@ -145,7 +145,8 @@ export function appColors(p: Palette, mode: ThemeMode) {
     onSurface: p.text2, onSurfaceVariant: p.text, outline: p.dim, outlineVariant: p.line,
     primary: p.accentTx, onPrimary: readableOn(p.accentTx), primaryContainer: p.card2, onPrimaryContainer: p.accentTx,
     primaryFixedDim: p.accentTx, secondary: p.text,
-    canvas: p.canvas, btn: mode === 'dark' ? p.btn : p.card2, btnText: p.btnText, sapphire: '#8FB8DE',
+    canvas: p.canvas, btn: mode === 'dark' ? p.btn : p.card2, btnText: p.btnText, // Medieval escuro mantém o safira original; os demais temas usam a própria cor de ação.
+    sapphire: p === THEMES[0].dark ? '#8FB8DE' : p.accentTx,
     field: p.field, fieldText: p.fieldText, placeholder: withAlpha(p.fieldText, 0.65), tile: mode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.05)',
   };
   const auth = {

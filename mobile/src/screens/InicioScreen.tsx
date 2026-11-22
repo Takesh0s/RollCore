@@ -20,7 +20,6 @@ const SERIF = 'SourceSerif4_700Bold';
 const BTN = 'FugazOne_400Regular';
 const MUTED = '#C0C0C0';
 const FAINT = '#9AA4A8';
-const SAPPHIRE = '#8FB8DE';
 
 const ROLE_BADGE: Record<TableRole, string> = { MASTER: 'MESTRE', MODERATOR: 'MODERADOR', PLAYER: 'JOGADOR' };
 
@@ -56,8 +55,8 @@ const Small = ({ children, color = FAINT }: { children: string; color?: string }
 function Enter({ label, onPress, a11y }: { label: string; onPress: () => void; a11y: string }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={a11y}
-      style={{ height: 28, paddingHorizontal: 18, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: '#252525', borderWidth: 1, borderColor: SAPPHIRE,
-        shadowColor: SAPPHIRE, shadowOpacity: 0.5, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 4 }}>
+      style={{ height: 28, paddingHorizontal: 18, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: '#252525', borderWidth: 1, borderColor: COLORS.sapphire,
+        shadowColor: COLORS.sapphire, shadowOpacity: 0.5, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 4 }}>
       <Text style={{ color: '#6A89A7', fontFamily: BTN, fontStyle: 'italic', fontSize: appFontSize(12) }}>{label}</Text>
     </Pressable>
   );
@@ -112,7 +111,7 @@ export default function InicioScreen() {
               : <View style={{ width: 54, height: 54, borderRadius: 8, backgroundColor: '#4a5a65', alignItems: 'center', justifyContent: 'center' }}><NavIcon name="tables" size={34} color="#fff" /></View>}
             <View style={{ flex: 1, minWidth: 0 }}>
               <Strong lines={2}>{next.name}</Strong>
-              <Small color={SAPPHIRE}>{`${next.gameSystem} · ${next.myRole === 'MASTER' ? 'você é o mestre' : `Mestre ${next.ownerUsername}`}`}</Small>
+              <Small color={COLORS.sapphire}>{`${next.gameSystem} · ${next.myRole === 'MASTER' ? 'você é o mestre' : `Mestre ${next.ownerUsername}`}`}</Small>
             </View>
             <Enter label="Entrar" onPress={() => open(next.id)} a11y={`Entrar na mesa ${next.name}`} />
           </Card>
@@ -129,7 +128,7 @@ export default function InicioScreen() {
 
         <SectionTitle>Situação na mesa</SectionTitle>
         {next ? (
-          <View style={{ gap: 4, paddingVertical: 10, paddingHorizontal: 12, marginBottom: 8, borderRadius: 12, borderWidth: 1, borderColor: SAPPHIRE, backgroundColor: 'rgba(0,0,0,0.14)' }}>
+          <View style={{ gap: 4, paddingVertical: 10, paddingHorizontal: 12, marginBottom: 8, borderRadius: 12, borderWidth: 1, borderColor: COLORS.sapphire, backgroundColor: 'rgba(0,0,0,0.14)' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
               <View style={{ flex: 1 }}><Strong lines={1}>{next.name}</Strong></View>
               <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: '#e8c25a' }}>
@@ -151,7 +150,7 @@ export default function InicioScreen() {
             const on = rollTable === c.id;
             return (
               <Pressable key={c.id ?? 'all'} onPress={() => setRollTable(c.id)} accessibilityRole="button" accessibilityState={{ selected: on }}
-                style={{ height: 28, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: on ? SAPPHIRE : 'rgba(192,192,192,0.6)', backgroundColor: on ? SAPPHIRE : 'transparent' }}>
+                style={{ height: 28, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: on ? COLORS.sapphire : 'rgba(192,192,192,0.6)', backgroundColor: on ? COLORS.sapphire : 'transparent' }}>
                 <Text style={{ color: on ? '#10202e' : MUTED, fontFamily: on ? BOLD : BODY, fontSize: appFontSize(12) }}>{c.name}</Text>
               </Pressable>
             );

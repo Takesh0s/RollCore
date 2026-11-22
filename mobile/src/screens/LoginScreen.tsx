@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import GoogleLoginButton from '../components/GoogleLoginButton';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
 import { AuthButton, AuthField, AuthDivider, AuthLink, AuthShell } from '../components/AuthParts';
-import { AUTH_COLORS, appFontSize } from '../design/shared';
+import { AUTH_COLORS, COLORS, appFontSize } from '../design/shared';
 import { ApiError, mensagemDeErro } from '../services/api';
 import { googleConfiguradoNestaPlataforma } from '../services/googleAuth';
 import { SLOW_HINT_TEXT, useSlowHint } from '../services/useSlowHint';
@@ -85,7 +85,7 @@ export default function LoginScreen() {
           <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>Mantenha conectado</Text>
         </Pressable>
         <Pressable onPress={() => router.push('/recuperar-senha')} accessibilityRole="link" hitSlop={8}>
-          <Text style={{ color: '#8FB8DE', fontFamily: BOLD, fontSize: appFontSize(12) }}>Esqueci minha senha</Text>
+          <Text style={{ color: COLORS.sapphire, fontFamily: BOLD, fontSize: appFontSize(12) }}>Esqueci minha senha</Text>
         </Pressable>
       </View>
 
