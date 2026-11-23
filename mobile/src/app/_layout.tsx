@@ -13,6 +13,7 @@ import { useNotifications } from '../store/useNotifications';
 import { falar, pararLeitura } from '../utils/acessibilidadeAudio';
 import { textoNarracaoDaTela } from '../utils/screenNarration';
 import { ThemeDecor } from '../components/ThemeDecor';
+import { BAND, FRAME_SIDE, FRAME_TOP, NOTCH } from '../design/frame';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -48,14 +49,11 @@ function NotificationsPoller() {
 // Moldura do web no celular (Figma 412 x 917): filete prateado a 18 px dos lados e 40 px do topo, e embaixo a faixa de dentes
 // (5 dentes escuros, um em cada ponta e três entre os vãos, com 4 vãos azuis iguais; tudo escala com a largura) colada na borda da tela, atrás da barra de navegação.
 // Nos temas do Figma a faixa tem a mesma altura; só Medieval e Pergaminho têm os dentes (nos outros ela fica lisa ou leva as engrenagens).
-const FRAME_TOP = 40;
-const FRAME_SIDE = 18;
-const NOTCH = 41;
 function Frame({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
   const { tema } = useAcessibilidade();
   const teeth = tema === 'medieval' || tema === 'pergaminho';
-  const band = NOTCH + 9;
+  const band = BAND;
   const chrome = themeChrome();
   const tile = width * 0.2257;
   const gap = tile * 0.441;
