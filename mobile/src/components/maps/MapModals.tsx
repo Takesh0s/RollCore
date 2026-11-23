@@ -2,7 +2,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useMemo, useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, ScrollView, View } from 'react-native';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../accessible-text';
-import { Btn, Sheet, inputStyle } from '../Controls';
+import { Btn, Sheet } from '../Controls';
+import { BTN, FAIL, MUTED, PillBtn } from '../tables/parts';
 import { COLORS, appFontSize } from '../../design/shared';
 import { decodeLayers, kindLabel, MAX_NAME, type Grid } from '../../lib/maps';
 import { showToast } from '../../store/useToast';
@@ -13,6 +14,20 @@ import { useMapExport } from './exportMap';
 export const BODY = 'Inter_400Regular';
 export const BOLD = 'Inter_700Bold';
 export const SERIF = 'SourceSerif4_700Bold';
+
+/** `.tm-danger`: pílula vinho cheia dos botões de exclusão das janelas. */
+export function DangerBtn({ label, onPress, disabled }: { label: string; onPress: () => void; disabled?: boolean }) {
+  return (
+    <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={label}
+      style={{ alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 999, backgroundColor: '#4A0000',
+        borderWidth: 1, borderColor: '#4A0000', opacity: disabled ? 0.45 : 1 }}>
+      <Text style={{ color: '#FFD9D9', fontFamily: BTN, fontSize: appFontSize(15) }}>{label}</Text>
+    </Pressable>
+  );
+}
+
+const field = (error?: boolean) => ({ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.field, color: COLORS.fieldText,
+  fontFamily: BODY, fontSize: appFontSize(15), borderWidth: 1, borderColor: error ? FAIL : 'transparent' }) as const;
 
 export const gridOf = (m: MapItem): Grid => ({ type: m.gridType, cols: m.cols, rows: m.rows, cell: m.cellSize });
 
@@ -32,13 +47,13 @@ function RenameForm({ name, onSave, onCancel }: { name: string; onSave: (name: s
   const valid = trimmed.length >= 3 && trimmed.length <= MAX_NAME;
   return (
     <>
-      <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Nome do mapa</Text>
-      <TextInput value={value} onChangeText={setValue} maxLength={MAX_NAME} autoFocus accessibilityLabel="Nome do mapa" style={inputStyle(!valid)}
+      <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>Nome do mapa</Text>
+      <TextInput value={value} onChangeText={setValue} maxLength={MAX_NAME} autoFocus accessibilityLabel="Nome do mapa" style={field(false)}
         onSubmitEditing={() => valid && onSave(trimmed)} />
-      {!valid && <Text style={{ color: '#e57373', fontFamily: BODY, fontSize: appFontSize(12) }}>O nome deve ter de 3 a 100 caracteres.</Text>}
-      <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'flex-end' }}>
-        <Btn label="Cancelar" onPress={onCancel} />
-        <Btn label="Salvar nome" kind="primary" disabled={!valid} onPress={() => onSave(trimmed)} />
+      {!valid && <Text style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>O nome deve ter de 3 a 100 caracteres.</Text>}
+      <View style={{ gap: 10, marginTop: 4 }}>
+        <PillBtn block pill={false} label="Cancelar" onPress={onCancel} />
+        <PillBtn block pill={false} kind="primary" label="Salvar nome" disabled={!valid} onPress={() => onSave(trimmed)} />
       </View>
     </>
   );
@@ -82,21 +97,23 @@ export function ManageMapModal({ map, onClose, onExport }: { map: MapItem; onClo
       {mode === 'rename' && <RenameForm name={map.name} onSave={rename} onCancel={() => setMode('menu')} />}
       {mode === 'delete' && (
         <>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(15) }}>{`"${map.name}" será apagado da sua biblioteca. Isso não pode ser desfeito.`}</Text>
-          <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'flex-end' }}>
-            <Btn label="Cancelar" onPress={() => setMode('menu')} />
-            <Btn label="Excluir" kind="danger" disabled={busy} onPress={del} />
+          <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14), lineHeight: appFontSize(21) }}>{`"${map.name}" será apagado da sua biblioteca. Isso não pode ser desfeito.`}</Text>
+          <View style={{ gap: 10 }}>
+            <PillBtn block pill={false} label="Cancelar" onPress={() => setMode('menu')} />
+            <DangerBtn label="Excluir" disabled={busy} onPress={del} />
           </View>
         </>
       )}
       {mode === 'menu' && (
         <>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>{mapSummary(map)}{map.published ? ' · Publicado na Oficina' : ''}</Text>
-          <Btn label="Renomear" disabled={busy} onPress={() => setMode('rename')} />
-          <Btn label="Duplicar" disabled={busy} onPress={duplicate} />
-          <Btn label={map.published ? 'Remover da Oficina' : 'Publicar na Oficina'} disabled={busy} onPress={togglePublish} />
-          <Btn label="Exportar PNG" disabled={busy} onPress={exportPng} />
-          <Btn label="Excluir mapa" kind="danger" disabled={busy} onPress={() => setMode('delete')} />
+          <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>{mapSummary(map)}{map.published ? ' · Publicado na Oficina' : ''}</Text>
+          <View style={{ gap: 8 }}>
+            <PillBtn block pill={false} label="Renomear" disabled={busy} onPress={() => setMode('rename')} />
+            <PillBtn block pill={false} label="Duplicar" disabled={busy} onPress={duplicate} />
+            <PillBtn block pill={false} label={map.published ? 'Remover da Oficina' : 'Publicar na Oficina'} disabled={busy} onPress={togglePublish} />
+            <PillBtn block pill={false} label="Exportar PNG" disabled={busy} onPress={exportPng} />
+            <DangerBtn label="Excluir mapa" disabled={busy} onPress={() => setMode('delete')} />
+          </View>
         </>
       )}
     </Sheet>
@@ -108,8 +125,8 @@ export function MapPreviewModal({ map, width, onClose, children }: { map: MapIte
   const paint = usePaintOf(map);
   return (
     <Sheet title={map.name} onClose={onClose}>
-      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>{mapSummary(map)} · por {map.authorName}</Text>
-      <View style={{ alignItems: 'center' }}>
+      <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>{mapSummary(map)} · por {map.authorName}</Text>
+      <View style={{ alignItems: 'center', borderRadius: 10, borderWidth: 1, borderColor: COLORS.outlineVariant, overflow: 'hidden' }}>
         <MapView grid={gridOf(map)} kind={map.kind} imageUrl={map.imageUrl} paint={paint} showGrid={map.gridVisible} fogEnabled={false} width={width} label={`Mapa ${map.name}`} />
       </View>
       {children}
