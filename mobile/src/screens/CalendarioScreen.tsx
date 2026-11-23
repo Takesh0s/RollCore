@@ -6,8 +6,9 @@ import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
 import { AppHeader } from '../components/AppHeader';
 import { EventModal } from '../components/calendar/EventModal';
-import { RsvpBadge } from '../components/calendar/EventParts';
-import { Btn, SectionTitle, StateBlock } from '../components/Controls';
+import { RsvpBadge, SERIF } from '../components/calendar/EventParts';
+import { StateBlock } from '../components/Controls';
+import { PillBtn } from '../components/tables/parts';
 import { COLORS, appFontSize } from '../design/shared';
 import {
   EVENT_COLORS, WEEKDAY_HEADERS, dayLabel, hourLabel, monthGrid, monthTitle, myStatus, occurrencesBetween, sameDay,
@@ -20,12 +21,11 @@ import { useTables } from '../store/useTables';
 
 const BODY = 'Inter_400Regular';
 const BOLD = 'Inter_700Bold';
-const SERIF = 'SourceSerif4_700Bold';
 
 /** Calendário de sessões: mês, próximos eventos e legenda das mesas (no celular só há a visão do mês, como no web). */
-const navBtn = { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(192,192,192,0.6)' } as const;
 
 export default function CalendarioScreen() {
+  const navBtn = { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant } as const;
   useAcessibilidade();
   const router = useRouter();
   const me = useContaAtiva()?.apelido ?? '';
@@ -63,15 +63,15 @@ export default function CalendarioScreen() {
       <AppHeader title="Calendário" />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }}>
         <View style={{ gap: 6 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <Pressable onPress={() => step(-1)} accessibilityLabel="Mês anterior" style={navBtn}><MaterialIcons name="chevron-left" size={22} color={COLORS.onSurface} /></Pressable>
-            <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(18) }}>{monthTitle(anchor)}</Text>
-            <Pressable onPress={() => step(1)} accessibilityLabel="Próximo mês" style={navBtn}><MaterialIcons name="chevron-right" size={22} color={COLORS.onSurface} /></Pressable>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <Pressable onPress={() => step(-1)} accessibilityLabel="Mês anterior" style={navBtn}><MaterialIcons name="chevron-left" size={20} color="#FFFFFF" /></Pressable>
+            <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(19) }}>{monthTitle(anchor)}</Text>
+            <Pressable onPress={() => step(1)} accessibilityLabel="Próximo mês" style={navBtn}><MaterialIcons name="chevron-right" size={20} color="#FFFFFF" /></Pressable>
           </View>
 
           <View style={{ flexDirection: 'row', gap: 6 }}>
             {WEEKDAY_HEADERS.map((d) => (
-              <Text key={d} style={{ flex: 1, textAlign: 'center', paddingVertical: 4, color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(11) }}>{d}</Text>
+              <Text key={d} style={{ flex: 1, textAlign: 'center', paddingTop: 6, paddingBottom: 2, color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{d}</Text>
             ))}
           </View>
 
@@ -87,13 +87,13 @@ export default function CalendarioScreen() {
                   <Pressable key={iso} disabled={!list.length} onPress={() => setPicked((p) => (p === iso ? null : iso))}
                     accessibilityLabel={`${dayLabel(iso)}${list.length ? `, ${list.length} evento${list.length > 1 ? 's' : ''}` : ''}`}
                     accessibilityState={{ selected: sel }}
-                    style={{ flex: 1, height: 46, paddingTop: 5, alignItems: 'center', borderRadius: 8, borderWidth: sel ? 2 : 1, borderColor: sel ? COLORS.sapphire : COLORS.outlineVariant,
-                      backgroundColor: out ? 'transparent' : COLORS.surfaceContainerHigh, opacity: out ? 0.5 : 1 }}>
-                    <View style={{ minWidth: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: isToday ? COLORS.field : 'transparent' }}>
-                      <Text style={{ color: isToday ? COLORS.fieldText : COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(12) }}>{d.getDate()}</Text>
+                    style={{ flex: 1, aspectRatio: 1 / 1.08, paddingTop: 6, alignItems: 'center', borderRadius: 10, borderWidth: sel ? 2 : 1, borderColor: sel ? COLORS.btnText : COLORS.outlineVariant,
+                      backgroundColor: COLORS.surfaceContainerHigh, opacity: out ? 0.45 : 1 }}>
+                    <View style={{ minWidth: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: isToday ? COLORS.btnText : 'transparent' }}>
+                      <Text style={{ color: isToday ? COLORS.btn : '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(13) }}>{d.getDate()}</Text>
                     </View>
-                    <View style={{ flexDirection: 'row', gap: 3, marginTop: 2 }}>
-                      {list.slice(0, 4).map((o) => <View key={o.event.id} style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: EVENT_COLORS[o.event.color] }} />)}
+                    <View style={{ position: 'absolute', left: 0, right: 0, bottom: 7, flexDirection: 'row', justifyContent: 'center', gap: 3 }}>
+                      {list.slice(0, 4).map((o) => <View key={o.event.id} style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: EVENT_COLORS[o.event.color] }} />)}
                     </View>
                   </Pressable>
                 );
@@ -102,34 +102,34 @@ export default function CalendarioScreen() {
           ))}
         </View>
 
-        {canCreate && <Btn label="+ Criar evento" kind="primary" onPress={() => router.push('/novo-evento' as any)} />}
+        {canCreate && <PillBtn block kind="primary" pill={false} label="+ Criar evento" onPress={() => router.push('/novo-evento' as any)} />}
 
-        <SectionTitle align="start">{picked ? `Eventos de ${dayLabel(picked)}` : 'Próximos eventos'}</SectionTitle>
+        <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(15), marginTop: 4 }}>{picked ? `Eventos de ${dayLabel(picked)}` : 'Próximos eventos'}</Text>
 
         {!loaded && loading ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>Carregando eventos…</Text>
           : shown.length === 0 ? <StateBlock icon="event-busy" title={picked ? 'Nenhum evento neste dia.' : 'Nenhum evento marcado.'} text={picked ? undefined : canCreate ? 'Crie o primeiro!' : undefined} />
           : shown.map((o) => (
             <Pressable key={o.event.id + o.date} onPress={() => setOpen(o)} accessibilityRole="button" accessibilityLabel={`${o.event.title}, ${dayLabel(o.date)}, ${hourLabel(o.event.start)}. Detalhes`}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 12, borderWidth: 1, borderColor: COLORS.surfaceContainerHighest, borderLeftWidth: 4,
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingLeft: 14, paddingRight: 12, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant, borderLeftWidth: 5,
                 borderLeftColor: EVENT_COLORS[o.event.color], backgroundColor: COLORS.surfaceContainerHigh }}>
               <View style={{ flex: 1, gap: 2 }}>
-                <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(15) }}>{o.event.title}</Text>
-                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>{dayLabel(o.date)} · {hourLabel(o.event.start)}</Text>
+                <Text style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(15) }}>{o.event.title}</Text>
+                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{dayLabel(o.date)} · {hourLabel(o.event.start)}</Text>
               </View>
               <View style={{ alignItems: 'flex-end', gap: 4 }}>
                 {o.event.askRsvp && <RsvpBadge status={myStatus(o.event, me)} />}
-                <Text style={{ color: COLORS.primary, fontFamily: BOLD, fontSize: appFontSize(12) }}>Detalhes ›</Text>
+                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(11) }}>Detalhes ›</Text>
               </View>
             </Pressable>
           ))}
 
         {legend.length > 0 && (
-          <View style={{ gap: 8, marginTop: 4 }}>
-            <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Legenda das mesas</Text>
+          <View style={{ gap: 8, marginTop: 4, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 10, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+            <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(14) }}>Legenda das mesas</Text>
             {legend.map((l) => (
               <View key={l.tableId} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: EVENT_COLORS[l.color] }} />
-                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>{l.name}</Text>
+                <View style={{ width: 11, height: 11, borderRadius: 3, backgroundColor: EVENT_COLORS[l.color] }} />
+                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{l.name}</Text>
               </View>
             ))}
           </View>
