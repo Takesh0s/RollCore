@@ -122,14 +122,24 @@ export const DISPLAY_FONT: Partial<Record<ThemeId, string>> = {
 };
 
 /**
- * Cores da moldura e do título por tema no modo escuro, lidas das páginas de tema do Figma mobile
- * (borda do frame, filete do cabeçalho e título). No claro valem as cores da paleta.
+ * Cores da moldura, do filete do cabeçalho e do título por tema, lidas das páginas de tema do Figma mobile
+ * (frames Escuro e Claro). O Neon só tem telas escuras no Figma: no claro vale a moldura roxa do CSS do web com o título da paleta.
+ * Medieval e Cyberpunk seguem as cores da paleta.
  */
-export const THEME_CHROME: Partial<Record<ThemeId, { frame: string; rule: string; title: string }>> = {
-  neon: { frame: '#9D5CFF', rule: 'rgba(157,92,255,0.8)', title: '#FF2E97' },
-  steampunk: { frame: '#5B6168', rule: 'rgba(207,198,180,0.8)', title: '#D9A441' },
-  pergaminho: { frame: '#6B5638', rule: 'rgba(217,199,160,0.8)', title: '#E0BB5A' },
-  terror: { frame: '#5D5C4C', rule: 'rgba(183,178,155,0.8)', title: '#CF2A33' },
+type Chrome = { frame: string; rule: string; title: string };
+export const THEME_CHROME: Record<ThemeMode, Partial<Record<ThemeId, Chrome>>> = {
+  dark: {
+    neon: { frame: '#9D5CFF', rule: 'rgba(157,92,255,0.8)', title: '#FF2E97' },
+    steampunk: { frame: '#5B6168', rule: 'rgba(207,198,180,0.8)', title: '#D9A441' },
+    pergaminho: { frame: '#6B5638', rule: 'rgba(217,199,160,0.8)', title: '#E0BB5A' },
+    terror: { frame: '#5D5C4C', rule: 'rgba(183,178,155,0.8)', title: '#CF2A33' },
+  },
+  light: {
+    neon: { frame: '#9D5CFF', rule: 'rgba(157,92,255,0.8)', title: '#C4166F' },
+    steampunk: { frame: '#8A7F6C', rule: 'rgba(59,50,40,0.8)', title: '#8A4A12' },
+    pergaminho: { frame: '#8C7650', rule: 'rgba(42,27,13,0.8)', title: '#6E2210' },
+    terror: { frame: '#6F6650', rule: 'rgba(58,52,42,0.8)', title: '#7D0D12' },
+  },
 };
 
 export const DEFAULT_THEME: ThemeId = 'medieval';

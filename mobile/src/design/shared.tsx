@@ -49,10 +49,10 @@ export const COLORS = { ...NORMAL_COLORS } as { -readonly [K in keyof typeof NOR
 export const AUTH_COLORS = { ...NORMAL_AUTH } as { -readonly [K in keyof typeof NORMAL_AUTH]: string };
 let appliedPalette = 'normal|medieval|dark';
 
-/** Moldura, filete do cabeçalho e título do tema atual (Figma); `null` quando valem as cores da paleta (claro, Medieval, Cyberpunk, Modo Daltônico). */
+/** Moldura, filete do cabeçalho e título do tema atual (Figma); `null` quando valem as cores da paleta (Medieval, Cyberpunk, Modo Daltônico). */
 export function themeChrome() {
   const { tema, daltonico } = getAcessibilidade();
-  return daltonico || resolvedThemeMode() !== 'dark' ? null : THEME_CHROME[tema] ?? null;
+  return daltonico ? null : THEME_CHROME[resolvedThemeMode()][tema] ?? null;
 }
 
 /** Claro ou escuro de fato: com "Sistema", o do aparelho. */

@@ -63,8 +63,8 @@ function Frame({ children }: { children: React.ReactNode }) {
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       <View style={{ flex: 1, paddingTop: FRAME_TOP, paddingBottom: band, paddingHorizontal: FRAME_SIDE }}>{children}</View>
-      <View pointerEvents="none" style={{ position: 'absolute', top: FRAME_TOP, left: FRAME_SIDE, right: FRAME_SIDE, bottom: band, borderWidth: chrome ? 1.5 : 1, borderColor: tema === 'cyberpunk' ? 'rgba(252,238,10,0.75)' : chrome?.frame ?? COLORS.rule }} />
-      <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: band, backgroundColor: COLORS.background, overflow: 'hidden' }}>
+      <View pointerEvents="none" style={{ position: 'absolute', top: FRAME_TOP, left: FRAME_SIDE, right: FRAME_SIDE, bottom: band, borderWidth: chrome ? 1.5 : 1, borderColor: tema === 'cyberpunk' ? (resolvedThemeMode() === 'light' ? 'rgba(122,113,0,0.75)' : 'rgba(252,238,10,0.75)') : chrome?.frame ?? COLORS.rule }} />
+      <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: band, backgroundColor: tema === 'steampunk' || tema === 'terror' ? COLORS.canvas : COLORS.background, overflow: 'hidden' }}>
         {teeth && Array.from({ length: count }).map((_, i) => (
           <View key={i} style={{ position: 'absolute', bottom: 0, height: NOTCH, left: i * tile + gap, width: tile - gap, backgroundColor: COLORS.canvas }} />
         ))}
