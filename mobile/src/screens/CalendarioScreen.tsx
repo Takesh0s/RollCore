@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { ScrollView, View, type ViewStyle } from 'react-native';
 import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
 import { AppHeader } from '../components/AppHeader';
@@ -23,7 +23,7 @@ const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 
 /** Calendário de sessões: mês, próximos eventos e legenda das mesas (no celular só há a visão do mês, como no web). */
-const navBtn = { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(192,192,192,0.6)' } as const;
+const navBtn = (): ViewStyle => ({ width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.ruleSoft });
 
 export default function CalendarioScreen() {
   useAcessibilidade();
@@ -64,9 +64,9 @@ export default function CalendarioScreen() {
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }}>
         <View style={{ gap: 6 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <Pressable onPress={() => step(-1)} accessibilityLabel="Mês anterior" style={navBtn}><MaterialIcons name="chevron-left" size={22} color={COLORS.onSurface} /></Pressable>
+            <Pressable onPress={() => step(-1)} accessibilityLabel="Mês anterior" style={navBtn()}><MaterialIcons name="chevron-left" size={22} color={COLORS.onSurface} /></Pressable>
             <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(18) }}>{monthTitle(anchor)}</Text>
-            <Pressable onPress={() => step(1)} accessibilityLabel="Próximo mês" style={navBtn}><MaterialIcons name="chevron-right" size={22} color={COLORS.onSurface} /></Pressable>
+            <Pressable onPress={() => step(1)} accessibilityLabel="Próximo mês" style={navBtn()}><MaterialIcons name="chevron-right" size={22} color={COLORS.onSurface} /></Pressable>
           </View>
 
           <View style={{ flexDirection: 'row', gap: 6 }}>

@@ -1,6 +1,11 @@
 import { Inter_400Regular, Inter_500Medium, Inter_700Bold } from '@expo-google-fonts/inter';
 import { FugazOne_400Regular } from '@expo-google-fonts/fugaz-one';
 import { KumarOneOutline_400Regular } from '@expo-google-fonts/kumar-one-outline';
+import { Orbitron_700Bold } from '@expo-google-fonts/orbitron';
+import { ChakraPetch_700Bold } from '@expo-google-fonts/chakra-petch';
+import { SpecialElite_400Regular } from '@expo-google-fonts/special-elite';
+import { Rye_400Regular } from '@expo-google-fonts/rye';
+import { Cinzel_700Bold } from '@expo-google-fonts/cinzel';
 import { SourceSerif4_600SemiBold, SourceSerif4_700Bold } from '@expo-google-fonts/source-serif-4';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
@@ -12,8 +17,8 @@ import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePre
 import { Appearance } from 'react-native';
 import { NavIcon } from '../components/NavIcon';
 import { OutlineText } from '../components/OutlineText';
-import { appColors, getTheme, type ThemeMode } from '../lib/theme';
-import { DaltonismType, getAcessibilidade, setPaletteApplier } from '../store/acessibilidade';
+import { appColors, DISPLAY_FONT, getTheme, THEME_CHROME, type ThemeMode } from '../lib/theme';
+import { DaltonismType, getAcessibilidade, setPaletteApplier, useAcessibilidade } from '../store/acessibilidade';
 
 const NORMAL_COLORS = {
   background: '#353E43', surface: '#353E43', surfaceContainer: '#3B454B', surfaceContainerLowest: '#353E43',
@@ -22,11 +27,13 @@ const NORMAL_COLORS = {
   primary: '#70B596', onPrimary: '#252525', primaryContainer: '#1E1E1E', onPrimaryContainer: '#70B596',
   primaryFixedDim: '#70B596', secondary: '#C0C0C0',
   canvas: '#587E9D', btn: '#252525', btnText: '#6A89A7', sapphire: '#8FB8DE', field: '#6A89A7', fieldText: '#10202E', placeholder: 'rgba(16,32,46,0.65)', tile: 'rgba(0,0,0,0.2)',
+  rule: 'rgba(192,192,192,0.7)', ruleSoft: 'rgba(192,192,192,0.5)', ruleFaint: 'rgba(192,192,192,0.3)', fill: 'rgba(255,255,255,0.08)', glow: '#FFFFFF',
 } as const;
 const ACCESSIBLE_BASE = {
   background: '#0B1020', surface: '#0B1020', surfaceContainer: '#121D31', surfaceContainerLowest: '#0B1020',
   surfaceContainerHigh: '#172A43', surfaceContainerHighest: '#253B5B', surfaceBright: '#2A4868',
   onSurface: '#FFFFFF', onSurfaceVariant: '#E2EDF7', outline: '#F2F7FB', outlineVariant: '#B9D6E9',
+  rule: 'rgba(226,237,247,0.7)', ruleSoft: 'rgba(226,237,247,0.5)', ruleFaint: 'rgba(226,237,247,0.3)', fill: 'rgba(255,255,255,0.08)', glow: '#FFFFFF',
 } as const;
 const NORMAL_AUTH = { canvas: '#353E43', panel: '#353E43', profilePanel: '#353E43', field: '#6A89A7', mint: '#70B596', white: '#FFFFFF', button: '#252525', gray: '#C0C0C0', typed: '#10202E', placeholder: 'rgba(16,32,46,0.65)' } as const;
 const TYPE_ACCENTS: Record<DaltonismType, { primary: string; onPrimary: string; primaryContainer: string; onPrimaryContainer: string; secondary: string }> = {
@@ -41,6 +48,12 @@ const ACCESSIBLE_AUTH_BASE = { canvas: '#0B1020', panel: '#172A43', profilePanel
 export const COLORS = { ...NORMAL_COLORS } as { -readonly [K in keyof typeof NORMAL_COLORS]: string };
 export const AUTH_COLORS = { ...NORMAL_AUTH } as { -readonly [K in keyof typeof NORMAL_AUTH]: string };
 let appliedPalette = 'normal|medieval|dark';
+
+/** Moldura, filete do cabeçalho e título do tema atual (Figma); `null` quando valem as cores da paleta (claro, Medieval, Cyberpunk, Modo Daltônico). */
+export function themeChrome() {
+  const { tema, daltonico } = getAcessibilidade();
+  return daltonico || resolvedThemeMode() !== 'dark' ? null : THEME_CHROME[tema] ?? null;
+}
 
 /** Claro ou escuro de fato: com "Sistema", o do aparelho. */
 export function resolvedThemeMode(): ThemeMode {
@@ -97,7 +110,7 @@ export function appFontSize(size: number): number {
 }
 
 export function useAppFonts() {
-  const [loaded] = useFonts({ SourceSerif4_700Bold, SourceSerif4_600SemiBold, Inter_400Regular, Inter_500Medium, Inter_700Bold, FugazOne_400Regular, KumarOneOutline_400Regular });
+  const [loaded] = useFonts({ SourceSerif4_700Bold, SourceSerif4_600SemiBold, Inter_400Regular, Inter_500Medium, Inter_700Bold, FugazOne_400Regular, KumarOneOutline_400Regular, Orbitron_700Bold, ChakraPetch_700Bold, SpecialElite_400Regular, Rye_400Regular, Cinzel_700Bold });
   return loaded;
 }
 
@@ -112,15 +125,22 @@ export function Header({ title, onMenu, onBack, rightIcon = 'person', onRightPre
   // Cabeçalho do web no celular: botão (46 px) à esquerda, título em Kumar One Outline no centro e o perfil à direita, com um filete embaixo.
   // A moldura já reserva 40 px do topo e 18 px dos lados; o cabeçalho começa 6 px abaixo da linha e a 13 px dela (31 px da borda, como no Figma).
   const icon = COLORS.onSurfaceVariant;
+  const { tema } = useAcessibilidade();
+  const display = DISPLAY_FONT[tema];
+  const chrome = themeChrome();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6, marginHorizontal: 13, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(192,192,192,0.7)' }}>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6, marginHorizontal: 13, paddingBottom: 8, borderBottomWidth: 1, borderBottomColor: chrome?.rule ?? COLORS.rule }}>
       <Pressable onPress={leftAction} disabled={!leftAction} style={{ width: 46, height: 46, alignItems: 'center', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={onMenu ? 'Abrir menu' : 'Voltar'}>
         {leftAction ? <NavIcon name={onMenu ? 'menu' : 'back'} size={34} color={icon} /> : null}
       </Pressable>
-      <View style={{ flex: 1 }}><OutlineText size={appFontSize(30)} color={COLORS.primary}>{title}</OutlineText></View>
+      <View style={{ flex: 1 }}>
+        {display && !getAcessibilidade().daltonico
+          ? <Text accessibilityRole="header" numberOfLines={1} adjustsFontSizeToFit style={{ textAlign: 'center', color: chrome?.title ?? COLORS.primary, fontFamily: display, fontSize: appFontSize(31), ...(tema === 'cyberpunk' ? { textTransform: 'uppercase', letterSpacing: 1.5, textShadowColor: '#FF003C', textShadowOffset: { width: 2, height: 0 }, textShadowRadius: 0 } : null) }}>{title}</Text>
+          : <OutlineText size={appFontSize(30)} color={COLORS.primary}>{title}</OutlineText>}
+      </View>
       <Pressable onPress={onRightPress} disabled={!onRightPress} style={{ width: 46, height: 46, alignItems: 'center', justifyContent: 'center' }} accessibilityRole="button" accessibilityLabel={rightIcon === 'person' ? 'Meu perfil' : rightIcon}>
         {avatar
-          ? <Image source={{ uri: avatar }} style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 2, borderColor: 'rgba(192,192,192,0.85)' }} />
+          ? <Image source={{ uri: avatar }} style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 2, borderColor: COLORS.rule }} />
           : rightIcon === 'person'
             ? <NavIcon name="user" size={46} color={icon} />
             : <MaterialIcons name={rightIcon} size={30} color={icon} />}

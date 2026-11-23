@@ -59,7 +59,7 @@ export default function MesaScreen() {
     try { await Clipboard.setStringAsync(inviteCode); showToast('Código copiado!', 'success'); } catch { showToast(`Código: ${inviteCode}`); }
   }
 
-  const val = { color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) } as const;
+  const val = { color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) } as const;
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
@@ -72,7 +72,7 @@ export default function MesaScreen() {
         <ProfileRow label="Mestre"><Text style={val}>{table.ownerUsername}</Text></ProfileRow>
         <ProfileRow label="Jogadores"><Text style={val}>{table.playerCount}/{table.maxPlayers}</Text></ProfileRow>
 
-        {!!table.description && (<><RuleTitle>Descrição</RuleTitle><Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14), lineHeight: appFontSize(21) }}>{table.description}</Text></>)}
+        {!!table.description && (<><RuleTitle>Descrição</RuleTitle><Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14), lineHeight: appFontSize(21) }}>{table.description}</Text></>)}
 
         {!!inviteCode && (
           <>
@@ -113,8 +113,8 @@ export default function MesaScreen() {
           );
         })}
 
-        <View style={{ marginTop: 18, padding: 18, alignItems: 'center', gap: 4, borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(192,192,192,0.5)' }}>
-          <Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>Sessão ao vivo</Text>
+        <View style={{ marginTop: 18, padding: 18, alignItems: 'center', gap: 4, borderWidth: 1, borderStyle: 'dashed', borderColor: COLORS.ruleSoft }}>
+          <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Sessão ao vivo</Text>
           <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(13), textAlign: 'center' }}>As rolagens em tempo real e quem está online chegam em breve.</Text>
         </View>
 

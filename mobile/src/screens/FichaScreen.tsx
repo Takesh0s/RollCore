@@ -32,7 +32,7 @@ type Tab = 'info' | 'inventory' | 'spells';
 function Section({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 14, marginBottom: 10 }}>
-      <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(14) }}>{title}</Text>
+      <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(14) }}>{title}</Text>
       {right}
     </View>
   );
@@ -44,7 +44,7 @@ function StatBox({ label, value, sub, wide }: { label: string; value: string | n
     <View accessible accessibilityLabel={`${label}: ${value}${sub ? `, ${sub}` : ''}`}
       style={{ width: wide ? '100%' : '48%', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8, borderRadius: 10, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
       <Text style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(9), letterSpacing: 2, textTransform: 'uppercase' }}>{label}</Text>
-      <Text style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(26), marginTop: 6, marginBottom: 3 }}>{value}</Text>
+      <Text style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(26), marginTop: 6, marginBottom: 3 }}>{value}</Text>
       {sub ? <Text style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(13) }}>{sub}</Text> : null}
     </View>
   );
@@ -230,7 +230,7 @@ export default function FichaScreen() {
         </View>
 
         {/* Pontos de vida (.hp-tracker) */}
-        <View style={{ marginTop: 10, marginBottom: 8, marginHorizontal: 14, padding: 16, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.16)', borderWidth: 1, borderColor: 'rgba(192,192,192,0.35)' }}>
+        <View style={{ marginTop: 10, marginBottom: 8, marginHorizontal: 14, padding: 16, borderRadius: 10, backgroundColor: 'rgba(0,0,0,0.16)', borderWidth: 1, borderColor: COLORS.ruleFaint }}>
           <View accessible accessibilityLabel={`Pontos de vida: ${c.hp} de ${maxHp}${c.temp_hp > 0 ? `, mais ${c.temp_hp} temporários` : ''}`}
             style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 8 }}>
             {portrait && <Image source={{ uri: portrait }} style={{ width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: 'rgba(112,181,150,0.55)' }} />}
@@ -243,7 +243,7 @@ export default function FichaScreen() {
               )}
             </View>
           </View>
-          <View accessibilityElementsHidden style={{ height: 8, borderRadius: 4, marginBottom: 16, backgroundColor: 'rgba(255,255,255,0.05)' }}>
+          <View accessibilityElementsHidden style={{ height: 8, borderRadius: 4, marginBottom: 16, backgroundColor: COLORS.fill }}>
             <View style={{ width: `${hpPct}%`, height: '100%', borderRadius: 4, backgroundColor: hpColor, shadowColor: hpColor, shadowOpacity: 0.8, shadowRadius: 6, shadowOffset: { width: 0, height: 0 } }} />
             {c.temp_hp > 0 && <View style={{ position: 'absolute', top: -2, right: 0, height: 12, borderRadius: 4, width: `${Math.min(100, (c.temp_hp / Math.max(1, maxHp)) * 100)}%`, backgroundColor: COLORS.sapphire, opacity: 0.4 }} />}
           </View>
@@ -269,7 +269,7 @@ export default function FichaScreen() {
                 onPress={() => setTab(t.id as Tab)}
                 style={{ paddingHorizontal: 15, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: on ? COLORS.sapphire : COLORS.outlineVariant,
                   backgroundColor: on ? COLORS.sapphire : 'transparent', opacity: soon ? 0.45 : 1 }}>
-                <Text style={{ color: on ? '#10202E' : '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(12) }}>
+                <Text style={{ color: on ? '#10202E' : COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(12) }}>
                   {t.label}{t.id === 'spells' && knownSpells.length > 0 ? ` (${knownSpells.length})` : ''}
                 </Text>
               </Pressable>
@@ -298,7 +298,7 @@ export default function FichaScreen() {
                   <View key={skill.name} accessible accessibilityLabel={`${skill.name}, ${ATTR_LABELS[skill.attr]}, bônus ${formatMod(bonus)}`}
                     style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
                     <Text numberOfLines={1} style={{ width: 32, color: FAINT, fontFamily: SERIF, fontSize: appFontSize(8), letterSpacing: 1.5 }}>{ATTR_LABELS[skill.attr]}</Text>
-                    <Text style={{ flex: 1, color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(13) }}>{skill.name}</Text>
+                    <Text style={{ flex: 1, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(13) }}>{skill.name}</Text>
                     <Text style={{ minWidth: 28, textAlign: 'right', color: bonus >= 0 ? COLORS.primary : FAIL, fontFamily: SERIF, fontSize: appFontSize(13) }}>{formatMod(bonus)}</Text>
                   </View>
                 );
@@ -313,7 +313,7 @@ export default function FichaScreen() {
                     return (
                       <View key={t.name} style={{ paddingVertical: 14, paddingHorizontal: 16, borderRadius: 10, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant, borderLeftWidth: 3, borderLeftColor: tone }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-                          <Text style={{ flex: 1, color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(13) }}>{t.name}</Text>
+                          <Text style={{ flex: 1, color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(13) }}>{t.name}</Text>
                           <Text style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20, overflow: 'hidden', color: tone, borderWidth: 1, borderColor: tone, fontFamily: SERIF, fontSize: appFontSize(8), letterSpacing: 1.5, textTransform: 'uppercase' }}>
                             {t.type === 'stat_bonus' ? 'Bônus' : t.type === 'choice' ? 'Escolha' : 'Passivo'}
                           </Text>

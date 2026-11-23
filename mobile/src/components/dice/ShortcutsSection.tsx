@@ -27,7 +27,7 @@ function Card({ title, sub, tag, tagColor, children, onRemove, dashed, onPress }
     <Wrap onPress={onPress} accessibilityLabel={onPress ? title : undefined}
       style={{ width: '48.5%', minHeight: 88, gap: 4, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: dashed ? 1.5 : 1, borderStyle: dashed ? 'dashed' : 'solid',
         borderColor: COLORS.outlineVariant, justifyContent: dashed ? 'center' : undefined }}>
-      <Text numberOfLines={1} style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(14), paddingRight: onRemove ? 16 : 0 }}>{title}</Text>
+      <Text numberOfLines={1} style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(14), paddingRight: onRemove ? 16 : 0 }}>{title}</Text>
       {sub ? <Text style={{ color: COLORS.sapphire, fontFamily: BOLD, fontSize: appFontSize(13) }}>{sub}</Text> : null}
       <Text numberOfLines={1} style={{ color: tagColor ?? COLORS.sapphire, fontFamily: BODY, fontSize: appFontSize(10) }}>{tag}</Text>
       {children ? <View style={{ flexDirection: 'row', gap: 10, marginTop: 'auto' }}>{children}</View> : null}
@@ -150,7 +150,7 @@ function NewShortcutModal({ initialFormula, onClose, onSave }: { initialFormula:
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'center', padding: 16, backgroundColor: 'rgba(8,12,14,0.62)' }}>
         <View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, alignSelf: 'center', gap: 12, padding: 20, borderRadius: 16, borderWidth: 1, borderColor: COLORS.outlineVariant, backgroundColor: COLORS.surfaceContainer }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(20) }}>Novo atalho</Text>
+            <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(20) }}>Novo atalho</Text>
             <Pressable onPress={onClose} accessibilityLabel="Fechar"><Text style={{ color: '#C0C0C0', fontSize: appFontSize(18) }}>✕</Text></Pressable>
           </View>
           <Text style={{ ...label }}>Armas, magias e itens que você já criou no site aparecem sozinhos na lista, com o bônus da ficha. Aqui você cria um atalho com uma fórmula exata.</Text>

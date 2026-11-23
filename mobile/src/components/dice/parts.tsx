@@ -12,11 +12,11 @@ export const FAIL = '#e8878a';
 
 /** `.section-title` (figma.css) com o ajuste do dice.css: serifa 14 branca, centralizada, filete de cada lado. */
 export function DiceTitle({ children }: { children: string }) {
-  const line = { flex: 1, height: 1, backgroundColor: 'rgba(192,192,192,0.7)' } as const;
+  const line = { flex: 1, height: 1, backgroundColor: COLORS.rule } as const;
   return (
     <View accessibilityRole="header" style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14, marginBottom: 10 }}>
       <View style={line} />
-      <Text style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(14) }}>{children}</Text>
+      <Text style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(14) }}>{children}</Text>
       <View style={line} />
     </View>
   );
@@ -27,7 +27,7 @@ export function DiceChip({ label, on, onPress }: { label: string; on: boolean; o
   return (
     <Pressable onPress={onPress} accessibilityRole="radio" accessibilityState={{ checked: on, selected: on }} accessibilityLabel={label}
       style={{ paddingHorizontal: 15, paddingVertical: 6, borderRadius: 999, borderWidth: 1, borderColor: on ? COLORS.sapphire : COLORS.outlineVariant, backgroundColor: on ? COLORS.sapphire : 'transparent' }}>
-      <Text numberOfLines={1} style={{ color: on ? '#10202E' : '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(12) }}>{label}</Text>
+      <Text numberOfLines={1} style={{ color: on ? '#10202E' : COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(12) }}>{label}</Text>
     </Pressable>
   );
 }

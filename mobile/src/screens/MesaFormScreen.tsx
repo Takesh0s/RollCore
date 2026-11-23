@@ -15,7 +15,7 @@ import { useTables } from '../store/useTables';
 /** `.form-input` do web: fundo --field, texto --field-text, raio 10 e 15 px. */
 const field = (error?: boolean) => ({ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.field, color: COLORS.fieldText, fontFamily: BODY, fontSize: appFontSize(15),
   borderWidth: 1, borderColor: error ? FAIL : 'transparent' }) as const;
-const label = { color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) } as const;
+const labelStyle = () => ({ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) });
 
 const SYSTEMS = ['D&D 5e', 'Tormenta20', 'Call of Cthulhu', 'Pathfinder 2e', 'Outro'];
 
@@ -115,29 +115,29 @@ export default function MesaFormScreen() {
       <Header title={isEdit ? 'Editar mesa' : 'Criação de Mesa'} onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 14, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
         <View style={{ marginBottom: 14 }}>
-          <Text style={[label, { marginBottom: 4 }]}>Nome da campanha:</Text>
+          <Text style={[labelStyle(), { marginBottom: 4 }]}>Nome da campanha:</Text>
           <TextInput value={name} onChangeText={(t) => { setName(t); setNameErr(''); }} maxLength={100} accessibilityLabel="Nome da campanha" style={field(!!nameErr)} />
           {nameErr ? <Text accessibilityLiveRegion="polite" style={{ marginTop: 4, color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>{nameErr}</Text> : null}
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <Text style={label}>Sistema</Text>
+          <Text style={labelStyle()}>Sistema</Text>
           <Select compact title="Sistema" value={system} options={systems} onChange={setSystem} />
         </View>
 
         <View style={{ marginBottom: 14 }}>
-          <Text style={[label, { marginBottom: 4 }]}>Descrição da campanha (Opcional):</Text>
+          <Text style={[labelStyle(), { marginBottom: 4 }]}>Descrição da campanha (Opcional):</Text>
           <TextInput value={description} onChangeText={setDescription} maxLength={2000} multiline numberOfLines={6} accessibilityLabel="Descrição da campanha"
             style={[field(), { minHeight: 136, textAlignVertical: 'top' }]} />
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-          <Text style={label}>Número de jogadores</Text>
+          <Text style={labelStyle()}>Número de jogadores</Text>
           <Select compact title="Número de jogadores" value={String(maxPlayers)} options={Array.from({ length: 20 }, (_, i) => String(i + 1))} onChange={(v) => setMaxPlayers(Number(v))} />
         </View>
 
         <View style={{ marginBottom: 14 }}>
-          <Text style={label}>{shownCover ? 'Capa' : 'Adicionar Capa'} (Opcional)</Text>
+          <Text style={labelStyle()}>{shownCover ? 'Capa' : 'Adicionar Capa'} (Opcional)</Text>
           <Pressable onPress={pickCover} accessibilityRole="button" accessibilityLabel="Escolher capa da mesa"
             style={{ width: '100%', minHeight: shownCover ? 140 : 120, marginTop: 6, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
             {shownCover ? <Image source={{ uri: shownCover }} resizeMode="cover" style={{ position: 'absolute', width: '100%', height: '100%' }} /> : <NavIcon name="plus" size={44} color="#1b2226" />}

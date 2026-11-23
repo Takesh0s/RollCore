@@ -98,9 +98,9 @@ export function AuthLink({ label, onPress, hint, align = 'center' }: { label: st
 export function AuthDivider() {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 14, marginBottom: 14 }}>
-      <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(192,192,192,0.5)' }} />
+      <View style={{ flex: 1, height: 1, backgroundColor: COLORS.ruleSoft }} />
       <Text style={{ color: FAINT, fontFamily: BODY, fontSize: appFontSize(11) }}>ou</Text>
-      <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(192,192,192,0.5)' }} />
+      <View style={{ flex: 1, height: 1, backgroundColor: COLORS.ruleSoft }} />
     </View>
   );
 }

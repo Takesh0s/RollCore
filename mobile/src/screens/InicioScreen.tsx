@@ -27,9 +27,9 @@ const ROLE_BADGE: Record<TableRole, string> = { MASTER: 'MESTRE', MODERATOR: 'MO
 function SectionTitle({ children }: { children: string }) {
   return (
     <View accessibilityRole="header" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 14, marginBottom: 8 }}>
-      <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(192,192,192,0.55)' }} />
+      <View style={{ flex: 1, height: 1, backgroundColor: COLORS.ruleSoft }} />
       <Text style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(15) }}>{children}</Text>
-      <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(192,192,192,0.55)' }} />
+      <View style={{ flex: 1, height: 1, backgroundColor: COLORS.ruleSoft }} />
     </View>
   );
 }
@@ -38,13 +38,13 @@ function SectionTitle({ children }: { children: string }) {
 function Card({ children, column, border }: { children: React.ReactNode; column?: boolean; border?: string }) {
   return (
     <View style={{ flexDirection: column ? 'column' : 'row', flexWrap: column ? undefined : 'wrap', alignItems: column ? 'flex-start' : 'center', gap: column ? 2 : 12, paddingVertical: 10, paddingHorizontal: 12, marginBottom: 8, borderRadius: 12, borderWidth: 1,
-      borderColor: border ?? 'rgba(192,192,192,0.18)', backgroundColor: 'rgba(0,0,0,0.14)' }}>
+      borderColor: border ?? COLORS.ruleFaint, backgroundColor: 'rgba(0,0,0,0.14)' }}>
       {children}
     </View>
   );
 }
 
-const Strong = ({ children, color = '#fff', lines }: { children: string; color?: string; lines?: number }) => (
+const Strong = ({ children, color = COLORS.onSurface, lines }: { children: string; color?: string; lines?: number }) => (
   <Text numberOfLines={lines} style={{ color, fontFamily: BOLD, fontSize: appFontSize(14) }}>{children}</Text>
 );
 const Small = ({ children, color = FAINT }: { children: string; color?: string }) => (
@@ -100,7 +100,7 @@ export default function InicioScreen() {
       <AppHeader title="Dashboard" />
       <ScrollView contentContainerStyle={{ paddingTop: 10, paddingHorizontal: 14, paddingBottom: 16 }} keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={loading} onRefresh={loadTables} tintColor="#70B596" />}>
-        <Text accessibilityRole="header" style={{ color: '#fff', fontFamily: SERIF, fontSize: appFontSize(20), marginTop: 6 }}>{`Olá, ${conta?.apelido || 'aventureiro'}`}</Text>
+        <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(20), marginTop: 6 }}>{`Olá, ${conta?.apelido || 'aventureiro'}`}</Text>
         <Text style={{ color: FAINT, fontFamily: BODY, fontSize: appFontSize(12), marginTop: 2, marginBottom: 8 }}>{date}</Text>
 
         <SectionTitle>Próxima sessão</SectionTitle>
@@ -150,7 +150,7 @@ export default function InicioScreen() {
             const on = rollTable === c.id;
             return (
               <Pressable key={c.id ?? 'all'} onPress={() => setRollTable(c.id)} accessibilityRole="button" accessibilityState={{ selected: on }}
-                style={{ height: 28, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: on ? COLORS.sapphire : 'rgba(192,192,192,0.6)', backgroundColor: on ? COLORS.sapphire : 'transparent' }}>
+                style={{ height: 28, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: on ? COLORS.sapphire : COLORS.ruleSoft, backgroundColor: on ? COLORS.sapphire : 'transparent' }}>
                 <Text style={{ color: on ? '#10202e' : MUTED, fontFamily: on ? BOLD : BODY, fontSize: appFontSize(12) }}>{c.name}</Text>
               </Pressable>
             );

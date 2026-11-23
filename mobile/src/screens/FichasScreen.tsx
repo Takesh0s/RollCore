@@ -50,7 +50,7 @@ export default function FichasScreen() {
               </View>
             </Pressable>
             <Pressable onPress={() => edit(c.id)} accessibilityRole="button" accessibilityLabel={`Editar ${c.name}`}
-              style={{ paddingVertical: 5, paddingHorizontal: 16, borderRadius: 999, backgroundColor: '#252525', shadowColor: '#fff', shadowOpacity: 0.3, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 3 }}>
+              style={{ paddingVertical: 5, paddingHorizontal: 16, borderRadius: 999, backgroundColor: COLORS.btn, shadowColor: COLORS.glow, shadowOpacity: 0.3, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 3 }}>
               <Text style={{ color: '#6A89A7', fontFamily: BTN, fontSize: appFontSize(13) }}>Editar</Text>
             </Pressable>
           </View>
@@ -62,7 +62,7 @@ export default function FichasScreen() {
           <View style={{ alignItems: 'center', paddingVertical: 36, paddingHorizontal: 8 }}>
             <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(15) }}>Nenhuma ficha criada ainda.</Text>
             <Pressable onPress={() => router.push('/criar-personagem')} accessibilityRole="button"
-              style={{ marginTop: 20, paddingVertical: 10, paddingHorizontal: 26, minWidth: 132, alignItems: 'center', borderRadius: 14, backgroundColor: '#252525', shadowColor: '#fff', shadowOpacity: 0.35, shadowRadius: 7, shadowOffset: { width: 0, height: 0 }, elevation: 4 }}>
+              style={{ marginTop: 20, paddingVertical: 10, paddingHorizontal: 26, minWidth: 132, alignItems: 'center', borderRadius: 14, backgroundColor: COLORS.btn, shadowColor: COLORS.glow, shadowOpacity: 0.35, shadowRadius: 7, shadowOffset: { width: 0, height: 0 }, elevation: 4 }}>
               <Text style={{ color: '#6A89A7', fontFamily: BTN, fontSize: appFontSize(15) }}>Criar ficha</Text>
             </Pressable>
           </View>
