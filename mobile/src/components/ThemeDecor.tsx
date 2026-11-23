@@ -5,9 +5,6 @@ import { resolvedThemeMode } from '../design/shared';
 import { useAcessibilidade } from '../store/acessibilidade';
 
 
-/** Os frames do Figma têm 412 x 917: as peças ficam coladas ao topo ou à base e se esticam na altura que sobrar. */
-const FIGMA_H = 917;
-
 /** Terror (Figma "Terror Mobile"): etiqueta de dossiê, rastro de sangue no topo e respingos na base. */
 function Terror({ height, light }: { height: number; light: boolean }) {
   // O mesmo desenho (401 x 850) vale para as duas pontas: o topo mostra só as gotas e a base só os respingos.
