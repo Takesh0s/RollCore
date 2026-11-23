@@ -1,11 +1,12 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { ChangeEmailModal, ChangePasswordModal, DeleteAccountModal } from '../components/AccountModals';
-import { Avatar, Btn, ConfirmDialog, FormGroup, inputStyle } from '../components/Controls';
+import { Image } from 'react-native';
+import { ConfirmDialog } from '../components/Controls';
+import { FAIL, MUTED, PillBtn, RuleTitle } from '../components/tables/parts';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import { pickAvatarDataUrl } from '../lib/mapImage';
 import { ApiError } from '../services/api';
@@ -19,17 +20,30 @@ const SERIF = 'SourceSerif4_700Bold';
 
 const isValidUsername = (u: string) => /^[a-zA-Z0-9_]{3,20}$/.test(u);
 
+/** `.acct-row`: cartão da seção Conta. */
 function Row({ title, sub, danger, onPress }: { title: string; sub: string; danger?: boolean; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`${title}. ${sub}`}
-      style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: 12, borderWidth: 1, backgroundColor: COLORS.surfaceContainerHigh,
-        borderColor: danger ? '#c0392b' : COLORS.surfaceContainerHighest }}>
+      style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1,
+        backgroundColor: COLORS.background, borderColor: COLORS.outlineVariant }}>
       <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ color: danger ? '#e57373' : COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(15) }}>{title}</Text>
+        <Text style={{ color: danger ? FAIL : '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>{title}</Text>
         <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{sub}</Text>
       </View>
-      <MaterialIcons name="chevron-right" size={24} color={COLORS.onSurfaceVariant} />
+      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(22) }}>›</Text>
     </Pressable>
+  );
+}
+
+/** `.form-label` / `.form-input` / `.field-hint` do web. */
+function Field({ label, hint, error, children }: { label: string; hint?: string; error?: string; children: React.ReactNode }) {
+  return (
+    <View style={{ gap: 6 }}>
+      <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>{label}</Text>
+      {children}
+      {hint ? <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>{hint}</Text> : null}
+      {error ? <Text accessibilityLiveRegion="polite" style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>{error}</Text> : null}
+    </View>
   );
 }
 
@@ -102,43 +116,55 @@ export default function PerfilScreen() {
     return (
       <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
         <Header title="Perfil" onBack={() => router.back()} />
-        <View style={{ padding: 16 }}><Btn label="Entrar ou criar conta" kind="primary" onPress={() => router.replace('/login')} /></View>
+        <View style={{ padding: 16 }}><PillBtn block kind="primary" pill={false} label="Entrar ou criar conta" onPress={() => router.replace('/login')} /></View>
       </SafeAreaView>
     );
   }
+
+  const fld = (error?: boolean) => ({ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.field, color: COLORS.fieldText,
+    fontFamily: BODY, fontSize: appFontSize(15), borderWidth: 1, borderColor: error ? FAIL : 'transparent' }) as const;
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
       <Header title="Perfil" onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }} keyboardShouldPersistTaps="handled">
-        <View style={{ alignItems: 'center', gap: 6 }}>
+        <View style={{ alignItems: 'center', gap: 4, paddingTop: 4 }}>
           <Pressable onPress={pickPhoto} accessibilityRole="button" accessibilityLabel="Alterar foto de perfil">
-            <Avatar uri={avatar} name={conta.apelido} size={92} />
-            <View style={{ position: 'absolute', right: 0, bottom: 0, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary }}>
-              <MaterialIcons name="photo-camera" size={16} color={COLORS.onPrimary} />
-            </View>
+            {avatar
+              ? <Image source={{ uri: avatar }} accessibilityIgnoresInvertColors style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: 'rgba(112,181,150,0.55)' }} />
+              : (
+                <View style={{ width: 80, height: 80, borderRadius: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary,
+                  shadowColor: COLORS.primary, shadowOpacity: 0.3, shadowRadius: 10, shadowOffset: { width: 0, height: 0 }, elevation: 4 }}>
+                  <Text style={{ color: '#252525', fontFamily: SERIF, fontSize: appFontSize(30) }}>{(conta.apelido.charAt(0) || '?').toUpperCase()}</Text>
+                </View>
+              )}
           </Pressable>
-          <Text style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(22) }}>{conta.apelido}</Text>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Toque na foto para alterar</Text>
-          {!!avatar && <Btn label="Remover foto" onPress={() => setAvatar(undefined)} />}
+          <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(14), marginTop: 8 }}>{conta.apelido}</Text>
+          <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12), textAlign: 'center' }}>Toque na foto para alterar · Máx. 2 MB</Text>
         </View>
 
-        <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20) }}>Informações</Text>
-        <FormGroup label="Nome de usuário" hint="3–20 caracteres. Letras, números e _ apenas." error={usernameErr}>
+        <RuleTitle>Informações</RuleTitle>
+        <Field label="Nome de usuário" hint="3–20 caracteres. Letras, números e _ apenas." error={usernameErr}>
           <TextInput value={username} onChangeText={(t) => { setUsername(t); setUsernameErr(''); }} maxLength={20} autoCapitalize="none" autoCorrect={false}
-            accessibilityLabel="Nome de usuário" style={inputStyle(!!usernameErr)} />
-        </FormGroup>
-        <FormGroup label="E-mail" hint="Para trocar o e-mail ou a senha, use a seção Conta abaixo.">
-          <TextInput value={conta.email} editable={false} accessibilityLabel="E-mail" style={[inputStyle(), { opacity: 0.7 }]} />
-        </FormGroup>
-        <Btn label={saving ? '…' : 'Salvar'} kind="primary" disabled={saving} onPress={save} />
+            accessibilityLabel="Nome de usuário" style={fld(!!usernameErr)} />
+        </Field>
+        <Field label="E-mail" hint="Para trocar o e-mail ou a senha, use a seção Conta abaixo.">
+          <TextInput value={conta.email} editable={false} accessibilityLabel="E-mail" style={fld()} />
+        </Field>
+        <View style={{ alignItems: 'center' }}>
+          <PillBtn kind="primary" pill={false} label={saving ? '…' : 'Salvar'} disabled={saving} onPress={save} />
+        </View>
 
-        <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20), marginTop: 6 }}>Conta</Text>
-        <Row title="Alterar e-mail" sub="Exige a sua senha atual" onPress={() => setDialog('email')} />
-        <Row title="Alterar senha" sub="Desconecta os outros aparelhos" onPress={() => setDialog('password')} />
-        <Row title="Excluir conta" sub="Apaga fichas, mesas e imagens para sempre" danger onPress={() => setDialog('delete')} />
+        <RuleTitle>Conta</RuleTitle>
+        <View style={{ gap: 8 }}>
+          <Row title="Alterar e-mail" sub="Exige a sua senha atual" onPress={() => setDialog('email')} />
+          <Row title="Alterar senha" sub="Desconecta os outros aparelhos" onPress={() => setDialog('password')} />
+          <Row title="Excluir conta" sub="Apaga fichas, mesas e imagens para sempre" danger onPress={() => setDialog('delete')} />
+        </View>
 
-        <View style={{ marginTop: 8 }}><Btn label="Sair da conta" kind="primary" onPress={() => setDialog('logout')} /></View>
+        <View style={{ alignItems: 'center', paddingTop: 22 }}>
+          <PillBtn kind="primary" pill={false} label="Sair da conta" onPress={() => setDialog('logout')} />
+        </View>
       </ScrollView>
 
       {dialog === 'email' && <ChangeEmailModal onClose={() => setDialog(null)} />}
