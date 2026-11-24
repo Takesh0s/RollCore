@@ -21,7 +21,7 @@ export function GuestList({ event, me, avatar }: { event: CalendarEvent; me: str
       {event.guests.map((g) => (
         <View key={g} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Avatar name={g} size={32} uri={g === me ? avatar : undefined} />
-          <Text style={{ flex: 1, color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>
+          <Text style={{ flex: 1, color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>
             {g}{g === me ? ' (você)' : g === event.createdBy ? ' (Mestre)' : ''}
           </Text>
           <RsvpBadge status={event.rsvp[g] ?? 'pending'} />
@@ -63,11 +63,11 @@ export function EventModal({ event, date, onClose }: { event: CalendarEvent; dat
         <View style={{ borderLeftWidth: 6, borderLeftColor: EVENT_COLORS[event.color], paddingLeft: 12, gap: 4 }}>
           <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>{dayLabel(date)} · {rangeLabel(event)}</Text>
           <Text style={{ color: COLORS.btnText, fontFamily: BODY, fontSize: appFontSize(13) }}>{event.tableName} · criado por {event.createdBy}</Text>
-          {!!event.description && <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14), marginTop: 6 }}>{event.description}</Text>}
+          {!!event.description && <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14), marginTop: 6 }}>{event.description}</Text>}
         </View>
         <View style={{ height: 1, backgroundColor: COLORS.outlineVariant }} />
 
-        <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(16) }}>
+        <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(16) }}>
           {confirmedCount(event)}/{event.guests.length} confirmados
         </Text>
         <ConfirmedBar confirmed={confirmedCount(event)} total={event.guests.length} />

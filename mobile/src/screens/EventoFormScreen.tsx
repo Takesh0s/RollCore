@@ -90,7 +90,7 @@ export default function EventoFormScreen() {
   }
 
   /** `.form-label` / `.form-input` do web. */
-  const lbl = { color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) } as const;
+  const lbl = { color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) } as const;
   const fld = (error?: boolean) => ({ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.field, color: COLORS.fieldText,
     fontFamily: BODY, fontSize: appFontSize(15), borderWidth: 1, borderColor: error ? FAIL : 'transparent' }) as const;
   const err = (t?: string) => (t ? <Text accessibilityLiveRegion="polite" style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>{t}</Text> : null);
@@ -143,8 +143,8 @@ export default function EventoFormScreen() {
             {COLOR_ORDER.map((c) => (
               <Pressable key={c} onPress={() => setColor(c)} accessibilityRole="radio" accessibilityLabel={COLOR_NAMES[c]} accessibilityState={{ checked: color === c }}
                 style={{ width: 38, height: 38, borderRadius: 19, backgroundColor: EVENT_COLORS[c], borderWidth: 3, borderColor: color === c ? COLORS.background : 'transparent',
-                  ...(color === c ? { shadowColor: '#FFFFFF', shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 0, height: 0 }, elevation: 0 } : null) }}>
-                {color === c ? <View pointerEvents="none" style={{ position: 'absolute', top: -5, left: -5, right: -5, bottom: -5, borderRadius: 24, borderWidth: 2, borderColor: '#FFFFFF' }} /> : null}
+                  ...(color === c ? { shadowColor: COLORS.onSurface, shadowOpacity: 1, shadowRadius: 0, shadowOffset: { width: 0, height: 0 }, elevation: 0 } : null) }}>
+                {color === c ? <View pointerEvents="none" style={{ position: 'absolute', top: -5, left: -5, right: -5, bottom: -5, borderRadius: 24, borderWidth: 2, borderColor: COLORS.onSurface }} /> : null}
               </Pressable>
             ))}
           </View>
@@ -156,7 +156,7 @@ export default function EventoFormScreen() {
             backgroundColor: askRsvp ? COLORS.btnText : COLORS.surfaceContainerHigh, alignItems: askRsvp ? 'flex-end' : 'flex-start' }}>
             <View style={{ width: 18, height: 18, borderRadius: 9, backgroundColor: askRsvp ? COLORS.btn : COLORS.onSurfaceVariant }} />
           </View>
-          <Text style={{ flex: 1, color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Pedir confirmação de presença dos jogadores</Text>
+          <Text style={{ flex: 1, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>Pedir confirmação de presença dos jogadores</Text>
         </Pressable>
 
         <View style={{ gap: 10, marginTop: 8 }}>

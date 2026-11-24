@@ -56,7 +56,7 @@ export default function EventoScreen() {
       <Header title="Evento" onBack={back} />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 16 }}>
         <View style={{ padding: 14, borderRadius: 12, gap: 2, borderWidth: 1, borderColor: COLORS.outlineVariant, backgroundColor: COLORS.background }}>
-          <Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>{event.tableName} · {event.title}</Text>
+          <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{event.tableName} · {event.title}</Text>
           <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{dayLabel(event.date)} · {rangeLabel(event)}</Text>
         </View>
         {!!event.description && <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>{event.description}</Text>}
@@ -72,7 +72,7 @@ export default function EventoScreen() {
 
         {event.askRsvp && (
           <View style={{ gap: 10 }}>
-            <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(15) }}>Você vai?</Text>
+            <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(15) }}>Você vai?</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {ANSWERS.map((a) => (
                 <PillBtn key={a.status} kind={mine === a.status ? 'primary' : 'outline'} label={a.label} onPress={() => answer(a)} accessibilityLabel={`${a.label}${mine === a.status ? ', selecionado' : ''}`} />
@@ -82,7 +82,7 @@ export default function EventoScreen() {
         )}
 
         <View style={{ padding: 14, gap: 10, borderRadius: 12, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-          <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(16) }}>Confirmações</Text>
+          <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(16) }}>Confirmações</Text>
           <GuestList event={event} me={me} avatar={conta?.avatarUrl} />
         </View>
       </ScrollView>
