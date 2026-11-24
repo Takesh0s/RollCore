@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, G, Path, Pattern, Rect, SvgXml } from 'react-native-svg';
 import { BAND, FRAME_SIDE, FRAME_TOP } from '../design/frame';
 import { resolvedThemeMode } from '../design/shared';
@@ -13,33 +12,35 @@ import { useAcessibilidade } from '../store/acessibilidade';
  */
 interface Box { w: number; h: number; left: number; right: number; top: number; bottom: number }
 
-/** Terror (Figma "Terror Mobile"): etiqueta de dossiê, rastro de sangue no topo e respingos na base. */
-function Terror({ box, light, statusBar }: { box: Box; light: boolean; statusBar: number }) {
+/**
+ * Terror (Figma "Terror Mobile"): etiqueta de dossiê, rastro de sangue no topo e respingos na base.
+ * No Figma a etiqueta fica no topo, na área da barra de status; no aparelho a barra é mais alta e a etiqueta cobriria o relógio ou o
+ * botão do menu, então ela vai para a faixa de baixo, no vão entre os dois respingos.
+ */
+function Terror({ box, light }: { box: Box; light: boolean }) {
   // O mesmo desenho (401 x 850) vale para as duas pontas: o topo mostra só as gotas e a base só os respingos.
   const blood = light ? LIGHT_ART.terrorBlood : TERROR_BLOOD;
   const top = blood.replace('width="401" height="850" viewBox="0 0 401 850"', 'width="401" height="80" viewBox="0 0 401 80"');
   const bottom = blood.replace('width="401" height="850" viewBox="0 0 401 850"', 'width="341" height="115" viewBox="60 735 341 115"');
-  // No Figma a etiqueta fica na área da barra de status (y = 12); no aparelho a barra é mais alta e cobriria o relógio, então a etiqueta
-  // desce para logo abaixo dela, ainda dentro do espaço do topo da moldura.
-  const tagTop = Math.max(12, statusBar + 2);
   return (
     <>
       <View style={{ position: 'absolute', left: 10, top: 37 }}><SvgXml xml={top} width={box.w - 11} height={80} preserveAspectRatio="none" /></View>
       <View style={{ position: 'absolute', right: 1, bottom: 30 }}><SvgXml xml={bottom} width={341} height={115} /></View>
-      <View style={{ position: 'absolute', left: FRAME_SIDE, top: tagTop }}><SvgXml xml={light ? LIGHT_ART.terrorTag : TERROR_TAG} width={150} height={20} /></View>
+      <View style={{ position: 'absolute', left: box.w - 299, bottom: 14 }}><SvgXml xml={light ? LIGHT_ART.terrorTag : TERROR_TAG} width={150} height={20} /></View>
     </>
   );
 }
 
-/** Cantos HUD nas pontas da tela, como no Figma: em cima à esquerda e embaixo à direita. */
+/** Cantos HUD nas pontas da tela, como no Figma: em cima à esquerda e embaixo à direita (um pouco para dentro, fora da curva do display). */
+const CORNER_INSET = 10;
 function Corners({ size, thick, tl, br }: { size: number; thick: number; tl: string; br: string }) {
   const bar = (style: object, color: string) => <View style={[{ position: 'absolute', backgroundColor: color }, style]} />;
   return (
     <>
-      {bar({ left: 0, top: 0, width: thick, height: size }, tl)}
-      {bar({ left: 0, top: 0, width: size, height: thick }, tl)}
-      {bar({ right: 0, bottom: 0, width: thick, height: size }, br)}
-      {bar({ right: 0, bottom: 0, width: size, height: thick }, br)}
+      {bar({ left: CORNER_INSET, top: CORNER_INSET, width: thick, height: size }, tl)}
+      {bar({ left: CORNER_INSET, top: CORNER_INSET, width: size, height: thick }, tl)}
+      {bar({ right: CORNER_INSET, bottom: CORNER_INSET, width: thick, height: size }, br)}
+      {bar({ right: CORNER_INSET, bottom: CORNER_INSET, width: size, height: thick }, br)}
     </>
   );
 }
@@ -118,7 +119,6 @@ export function ThemeDecor() {
   // O tamanho vem do próprio layout, não de useWindowDimensions: no Android a altura da janela não conta as barras do sistema
   // e fica uns 75 dp menor que a área onde a moldura (Frame em _layout) é desenhada, o que descolava tudo que é ancorado embaixo.
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
-  const insets = useSafeAreaInsets();
   const { tema, daltonico } = useAcessibilidade(); // modoTema também vem do store: a troca de modo refaz o componente
   if (daltonico) return null;
   const light = resolvedThemeMode() === 'light';
@@ -127,7 +127,7 @@ export function ThemeDecor() {
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill} onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
       {!box ? null
-        : tema === 'terror' ? <Terror box={box} light={light} statusBar={insets.top} />
+        : tema === 'terror' ? <Terror box={box} light={light} />
         : tema === 'neon' ? <Corners size={28} thick={2} tl={cyan} br={cyan} />
         : tema === 'steampunk' ? <Steampunk box={box} light={light} />
         : tema === 'pergaminho' ? <Pergaminho box={box} light={light} />
