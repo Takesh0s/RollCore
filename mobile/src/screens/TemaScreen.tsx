@@ -63,7 +63,7 @@ export default function TemaScreen() {
             const p = getTheme(t.id)[preview];
             return (
               <Pressable key={t.id} onPress={() => updateAcessibilidade({ tema: t.id })} accessibilityRole="radio" accessibilityState={{ checked: on }} accessibilityLabel={`${t.label}. ${on ? 'Em uso' : 'Usar este tema'}`}
-                style={[cardBase(on), { width: '48.5%' }]}>
+                style={[cardBase(on), { width: '48%' }]}>
                 <View style={{ flexDirection: 'row', gap: 6 }} importantForAccessibility="no-hide-descendants">
                   {[p.body, p.accent, p.green].map((c, i) => <View key={i} style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: c, borderWidth: 1, borderColor: COLORS.outlineVariant }} />)}
                 </View>

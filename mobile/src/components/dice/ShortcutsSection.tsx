@@ -25,7 +25,7 @@ function Card({ title, sub, tag, tagColor, children, onRemove, dashed, onPress }
   const Wrap: any = onPress ? Pressable : View;
   return (
     <Wrap onPress={onPress} accessibilityLabel={onPress ? title : undefined}
-      style={{ width: '48.5%', minHeight: 88, gap: 4, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: dashed ? 1.5 : 1, borderStyle: dashed ? 'dashed' : 'solid',
+      style={{ width: '48%', minHeight: 88, gap: 4, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: dashed ? 1.5 : 1, borderStyle: dashed ? 'dashed' : 'solid',
         borderColor: COLORS.outlineVariant, justifyContent: dashed ? 'center' : undefined }}>
       <Text numberOfLines={1} style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(14), paddingRight: onRemove ? 16 : 0 }}>{title}</Text>
       {sub ? <Text style={{ color: COLORS.sapphire, fontFamily: BOLD, fontSize: appFontSize(13) }}>{sub}</Text> : null}
