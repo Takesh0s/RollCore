@@ -31,15 +31,15 @@ function Terror({ box, light, statusBar }: { box: Box; light: boolean; statusBar
   );
 }
 
-/** Cantos HUD nas pontas da moldura: em cima à esquerda e embaixo à direita. */
-function Corners({ box, size, thick, tl, br }: { box: Box; size: number; thick: number; tl: string; br: string }) {
+/** Cantos HUD nas pontas da tela, como no Figma: em cima à esquerda e embaixo à direita. */
+function Corners({ size, thick, tl, br }: { size: number; thick: number; tl: string; br: string }) {
   const bar = (style: object, color: string) => <View style={[{ position: 'absolute', backgroundColor: color }, style]} />;
   return (
     <>
-      {bar({ left: box.left, top: box.top, width: thick, height: size }, tl)}
-      {bar({ left: box.left, top: box.top, width: size, height: thick }, tl)}
-      {bar({ right: box.w - box.right, bottom: box.h - box.bottom, width: thick, height: size }, br)}
-      {bar({ right: box.w - box.right, bottom: box.h - box.bottom, width: size, height: thick }, br)}
+      {bar({ left: 0, top: 0, width: thick, height: size }, tl)}
+      {bar({ left: 0, top: 0, width: size, height: thick }, tl)}
+      {bar({ right: 0, bottom: 0, width: thick, height: size }, br)}
+      {bar({ right: 0, bottom: 0, width: size, height: thick }, br)}
     </>
   );
 }
@@ -105,7 +105,7 @@ function Hud({ box, light }: { box: Box; light: boolean }) {
         </Defs>
         <Rect x={0} y={0} width={box.w} height={box.h} fill="url(#scan)" />
       </Svg>
-      <Corners box={box} size={34} thick={3} tl={yellow} br={cyan} />
+      <Corners size={34} thick={3} tl={yellow} br={cyan} />
     </>
   );
 }
@@ -128,7 +128,7 @@ export function ThemeDecor() {
     <View pointerEvents="none" style={StyleSheet.absoluteFill} onLayout={(e) => setSize({ w: e.nativeEvent.layout.width, h: e.nativeEvent.layout.height })}>
       {!box ? null
         : tema === 'terror' ? <Terror box={box} light={light} statusBar={insets.top} />
-        : tema === 'neon' ? <Corners box={box} size={28} thick={2} tl={cyan} br={cyan} />
+        : tema === 'neon' ? <Corners size={28} thick={2} tl={cyan} br={cyan} />
         : tema === 'steampunk' ? <Steampunk box={box} light={light} />
         : tema === 'pergaminho' ? <Pergaminho box={box} light={light} />
         : tema === 'cyberpunk' ? <Hud box={box} light={light} />
