@@ -4,7 +4,9 @@ import { ScrollView, View } from 'react-native';
 import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessibleText as Text } from '../components/accessible-text';
 import { GuestList } from '../components/calendar/EventModal';
-import { Btn, StateBlock } from '../components/Controls';
+import { SERIF } from '../components/calendar/EventParts';
+import { StateBlock } from '../components/Controls';
+import { PillBtn } from '../components/tables/parts';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import { confirmedCount, dayLabel, myStatus, rangeLabel, type Rsvp } from '../lib/calendar';
 import { useAcessibilidade } from '../store/acessibilidade';
@@ -14,7 +16,6 @@ import { showToast } from '../store/useToast';
 
 const BODY = 'Inter_400Regular';
 const BOLD = 'Inter_700Bold';
-const SERIF = 'SourceSerif4_700Bold';
 
 const ANSWERS: { status: Exclude<Rsvp, 'pending'>; label: string; ok: string }[] = [
   { status: 'yes', label: 'Vou', ok: 'Presença confirmada.' },
@@ -26,7 +27,8 @@ const ANSWERS: { status: Exclude<Rsvp, 'pending'>; label: string; ok: string }[]
 export default function EventoScreen() {
   useAcessibilidade();
   const router = useRouter();
-  const me = useContaAtiva()?.apelido ?? '';
+  const conta = useContaAtiva();
+  const me = conta?.apelido ?? '';
   const { events, selectedId, load, respond, loading } = useCalendar();
   const event = events.find((e) => e.id === selectedId);
   const back = () => (router.canGoBack() ? router.back() : router.replace('/calendario' as any));
@@ -53,16 +55,16 @@ export default function EventoScreen() {
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
       <Header title="Evento" onBack={back} />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 16 }}>
-        <View style={{ padding: 14, borderRadius: 12, gap: 2, borderWidth: 1, borderColor: COLORS.surfaceContainerHighest, backgroundColor: COLORS.surfaceContainerHigh }}>
-          <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(16) }}>{event.tableName} · {event.title}</Text>
-          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>{dayLabel(event.date)} · {rangeLabel(event)}</Text>
+        <View style={{ padding: 14, borderRadius: 12, gap: 2, borderWidth: 1, borderColor: COLORS.outlineVariant, backgroundColor: COLORS.background }}>
+          <Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>{event.tableName} · {event.title}</Text>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{dayLabel(event.date)} · {rangeLabel(event)}</Text>
         </View>
-        {!!event.description && <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>{event.description}</Text>}
+        {!!event.description && <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>{event.description}</Text>}
 
-        <View style={{ flexDirection: 'row', gap: 10 }}>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
           {[[event.guests.length, 'convidados'], [confirmedCount(event), 'confirmados']].map(([n, label]) => (
-            <View key={String(label)} style={{ flex: 1, alignItems: 'center', padding: 12, borderRadius: 12, backgroundColor: COLORS.surfaceContainerHigh }}>
-              <Text style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(24) }}>{n}</Text>
+            <View key={String(label)} style={{ flex: 1, alignItems: 'center', gap: 4, paddingVertical: 18, paddingHorizontal: 10, borderRadius: 12, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+              <Text style={{ color: COLORS.sapphire, fontFamily: SERIF, fontSize: appFontSize(30) }}>{n}</Text>
               <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{label}</Text>
             </View>
           ))}
@@ -70,19 +72,19 @@ export default function EventoScreen() {
 
         {event.askRsvp && (
           <View style={{ gap: 10 }}>
-            <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20) }}>Você vai?</Text>
-            <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(15) }}>Você vai?</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {ANSWERS.map((a) => (
-                <View key={a.status} style={{ flex: 1 }}>
-                  <Btn label={a.label} kind={mine === a.status ? 'primary' : 'outline'} onPress={() => answer(a)} accessibilityLabel={`${a.label}${mine === a.status ? ', selecionado' : ''}`} />
-                </View>
+                <PillBtn key={a.status} kind={mine === a.status ? 'primary' : 'outline'} label={a.label} onPress={() => answer(a)} accessibilityLabel={`${a.label}${mine === a.status ? ', selecionado' : ''}`} />
               ))}
             </View>
           </View>
         )}
 
-        <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20) }}>Confirmações</Text>
-        <GuestList event={event} me={me} />
+        <View style={{ padding: 14, gap: 10, borderRadius: 12, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+          <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(16) }}>Confirmações</Text>
+          <GuestList event={event} me={me} avatar={conta?.avatarUrl} />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

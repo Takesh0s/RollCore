@@ -3,7 +3,8 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { AccessibleText as Text } from '../accessible-text';
-import { Btn, Sheet } from '../Controls';
+import { Sheet } from '../Controls';
+import { PillBtn } from '../tables/parts';
 import { COLORS, appFontSize } from '../../design/shared';
 import { confirmedCount, dayLabel, rangeLabel } from '../../lib/calendar';
 import { useCalendar } from '../../store/useCalendar';
@@ -51,15 +52,17 @@ export function NewEventPopup() {
 
   return (
     <Sheet title="Novo evento na mesa" onClose={later}>
-      <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(15) }}>
+      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(15) }}>
         {`${note.actorName ?? 'Alguém'} criou um novo evento: ${event.title}, na mesa ${event.tableName}${event.askRsvp ? ', e precisa que você confirme a presença.' : '.'}`}
       </Text>
-      <View style={{ padding: 12, borderRadius: 12, gap: 2, backgroundColor: COLORS.surfaceContainerLowest }}>
-        <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(15) }}>{`${dayLabel(event.date)} · ${rangeLabel(event)}`}</Text>
-        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>{`${confirmedCount(event)}/${event.guests.length} confirmados`}</Text>
+      <View style={{ paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, gap: 2, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+        <Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>{`${dayLabel(event.date)} · ${rangeLabel(event)}`}</Text>
+        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{`${confirmedCount(event)}/${event.guests.length} confirmados`}</Text>
       </View>
-      <Btn label="Ir para o evento" kind="primary" onPress={go} />
-      <Btn label="Ver mais tarde" onPress={later} />
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+        <PillBtn kind="primary" pill={false} label="Ir para o evento" onPress={go} />
+        <PillBtn pill={false} label="Ver mais tarde" onPress={later} />
+      </View>
     </Sheet>
   );
 }
