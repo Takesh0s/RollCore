@@ -12,10 +12,15 @@ import { useAcessibilidade } from '../store/acessibilidade';
  */
 interface Box { w: number; h: number; left: number; right: number; top: number; bottom: number }
 
+const TAG_W = 120;
+const TAG_H = 16;
+/** A linha do cabeçalho fica a FRAME_TOP + 64 dp (altura do Header); a etiqueta pende logo abaixo dela. */
+const TAG_TOP = FRAME_TOP + 64 + 2;
+
 /**
  * Terror (Figma "Terror Mobile"): etiqueta de dossiê, rastro de sangue no topo e respingos na base.
- * No Figma a etiqueta fica no topo, na área da barra de status; no aparelho a barra é mais alta e a etiqueta cobriria o relógio ou o
- * botão do menu, então ela vai para a faixa de baixo, no vão entre os dois respingos.
+ * A etiqueta é uma aba presa à linha do cabeçalho, no lado direito da moldura: a faixa de cima do Figma é ocupada pela barra de status
+ * no aparelho, e no lado direito o conteúdo logo abaixo da linha costuma estar livre (o menu e os botões ficam à esquerda).
  */
 function Terror({ box, light }: { box: Box; light: boolean }) {
   // O mesmo desenho (401 x 850) vale para as duas pontas: o topo mostra só as gotas e a base só os respingos.
@@ -26,7 +31,7 @@ function Terror({ box, light }: { box: Box; light: boolean }) {
     <>
       <View style={{ position: 'absolute', left: 10, top: 37 }}><SvgXml xml={top} width={box.w - 11} height={80} preserveAspectRatio="none" /></View>
       <View style={{ position: 'absolute', right: 1, bottom: 30 }}><SvgXml xml={bottom} width={341} height={115} /></View>
-      <View style={{ position: 'absolute', left: box.w - 299, bottom: 14 }}><SvgXml xml={light ? LIGHT_ART.terrorTag : TERROR_TAG} width={150} height={20} /></View>
+      <View style={{ position: 'absolute', left: box.right - TAG_W, top: TAG_TOP }}><SvgXml xml={light ? LIGHT_ART.terrorTag : TERROR_TAG} width={TAG_W} height={TAG_H} /></View>
     </>
   );
 }
