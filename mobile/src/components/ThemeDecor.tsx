@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, G, Path, Pattern, Rect, SvgXml } from 'react-native-svg';
 import { BAND, FRAME_SIDE, FRAME_TOP } from '../design/frame';
 import { resolvedThemeMode } from '../design/shared';
@@ -13,21 +12,17 @@ import { useAcessibilidade } from '../store/acessibilidade';
  */
 interface Box { w: number; h: number; left: number; right: number; top: number; bottom: number }
 
-const TAG_H = 20;
-/** Abaixo disso o texto da etiqueta fica pequeno demais para ler, então ela é ocultada. */
-const TAG_MIN_SCALE = 0.55;
-/** O botão de menu e o título começam a ~53 dp; a etiqueta fica à esquerda, então só eles limitam, e ela termina um pouco antes. */
-const TAG_BOTTOM = 52;
+const TAG_W = 120;
+const TAG_H = 16;
+/** A linha do cabeçalho fica a FRAME_TOP + 64 dp (altura do Header); a etiqueta pende logo abaixo dela. */
+const TAG_TOP = FRAME_TOP + 64 + 2;
 
 /**
  * Terror (Figma "Terror Mobile"): etiqueta de dossiê, rastro de sangue no topo e respingos na base.
- * A etiqueta fica no topo, à esquerda da moldura, como no Figma. Lá a faixa de cima (0 a 40) é livre; no aparelho ela divide espaço com a barra
- * de status, então a etiqueta fica entre a base da barra e o topo dos botões do cabeçalho e encolhe se o vão for menor que ela.
+ * A etiqueta é uma aba presa à linha do cabeçalho, no lado direito da moldura: a faixa de cima do Figma é ocupada pela barra de status
+ * no aparelho, e no lado direito o conteúdo logo abaixo da linha costuma estar livre (o menu e os botões ficam à esquerda).
  */
 function Terror({ box, light }: { box: Box; light: boolean }) {
-  const { top: statusBar } = useSafeAreaInsets();
-  const tagTop = statusBar;
-  const scale = Math.min(1, (TAG_BOTTOM - tagTop) / TAG_H);
   // O mesmo desenho (401 x 850) vale para as duas pontas: o topo mostra só as gotas e a base só os respingos.
   const blood = light ? LIGHT_ART.terrorBlood : TERROR_BLOOD;
   const top = blood.replace('width="401" height="850" viewBox="0 0 401 850"', 'width="401" height="80" viewBox="0 0 401 80"');
@@ -36,7 +31,7 @@ function Terror({ box, light }: { box: Box; light: boolean }) {
     <>
       <View style={{ position: 'absolute', left: 10, top: 37 }}><SvgXml xml={top} width={box.w - 11} height={80} preserveAspectRatio="none" /></View>
       <View style={{ position: 'absolute', right: 1, bottom: 30 }}><SvgXml xml={bottom} width={341} height={115} /></View>
-      {scale >= TAG_MIN_SCALE && <View style={{ position: 'absolute', left: FRAME_SIDE, top: tagTop }}><SvgXml xml={light ? LIGHT_ART.terrorTag : TERROR_TAG} width={150 * scale} height={TAG_H * scale} /></View>}
+      <View style={{ position: 'absolute', left: box.right - TAG_W, top: TAG_TOP }}><SvgXml xml={light ? LIGHT_ART.terrorTag : TERROR_TAG} width={TAG_W} height={TAG_H} /></View>
     </>
   );
 }
