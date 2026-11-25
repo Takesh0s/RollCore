@@ -76,7 +76,7 @@ export default function MapaNovoScreen() {
     await build({ name: 'Novo mapa', kind: 'MEDIEVAL', gridType: 'SQUARE', cols: s.cols, rows: s.rows, cellSize: DEFAULT_CELL, layers: '{}', gridVisible: true, fogEnabled: false });
   }
 
-  const q = (text: string) => <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(15), marginTop: 14, marginBottom: 2 }}>{text}</Text>;
+  const q = (text: string) => <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(15), marginTop: 14, marginBottom: 2 }}>{text}</Text>;
   const step = (label: string, delta: number) => (
     <PillBtn key={label} label={label} accessibilityLabel={`${delta > 0 ? 'Aumentar' : 'Diminuir'} colunas em ${Math.abs(delta)}`} onPress={() => setCols((c) => Math.min(100, Math.max(10, c + delta)))} />
   );
@@ -86,9 +86,9 @@ export default function MapaNovoScreen() {
       <Header title="Criar mapa" onBack={() => router.back()} />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
         <View style={{ gap: 6, padding: 18, borderRadius: 14, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-          <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(24), marginBottom: 6 }}>Vamos iniciar um mapa novo!</Text>
+          <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(24), marginBottom: 6 }}>Vamos iniciar um mapa novo!</Text>
 
-          <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Nome do mapa</Text>
+          <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>Nome do mapa</Text>
           <TextInput value={name} onChangeText={setName} maxLength={MAX_NAME} accessibilityLabel="Nome do mapa"
             style={{ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.field, color: COLORS.fieldText, fontFamily: BODY, fontSize: appFontSize(15) }} />
 
@@ -112,7 +112,7 @@ export default function MapaNovoScreen() {
 
           {template === 'custom' && (
             <View style={{ gap: 8, marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderStyle: 'dashed', borderColor: COLORS.outlineVariant }}>
-              <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Tamanho do mapa</Text>
+              <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>Tamanho do mapa</Text>
               <ChoiceRow>
                 {SIZES.map((s) => <Choice key={s.id} title={s.label} hint={`${s.cols} × ${s.rows} células`} on={size === s.id} onPress={() => setSize(s.id)} width="48%" />)}
               </ChoiceRow>
@@ -127,7 +127,7 @@ export default function MapaNovoScreen() {
               {image && fit && (
                 <View style={{ gap: 10 }}>
                   <Image source={{ uri: image.uri }} accessibilityLabel="Prévia da imagem escolhida" resizeMode="cover" style={{ width: '100%', aspectRatio: 16 / 10, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant }} />
-                  <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Colunas da grade: {fit.cols}</Text>
+                  <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>Colunas da grade: {fit.cols}</Text>
                   <View style={{ flexDirection: 'row', gap: 8 }}>{step('−5', -5)}{step('−1', -1)}{step('+1', 1)}{step('+5', 5)}</View>
                   <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>A grade ficará com {fit.cols} × {fit.rows} células. Ajuste até casar com o desenho da imagem.</Text>
                 </View>
