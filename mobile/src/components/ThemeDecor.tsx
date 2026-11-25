@@ -14,8 +14,10 @@ import { useAcessibilidade } from '../store/acessibilidade';
 interface Box { w: number; h: number; left: number; right: number; top: number; bottom: number }
 
 const TAG_H = 20;
-/** Os botões do cabeçalho (menu, perfil) começam a ~48 dp; a etiqueta termina um pouco antes. */
-const TAG_BOTTOM = 46;
+/** Abaixo disso o texto da etiqueta fica pequeno demais para ler, então ela é ocultada. */
+const TAG_MIN_SCALE = 0.55;
+/** O botão de menu e o título começam a ~53 dp; a etiqueta fica à esquerda, então só eles limitam, e ela termina um pouco antes. */
+const TAG_BOTTOM = 52;
 
 /**
  * Terror (Figma "Terror Mobile"): etiqueta de dossiê, rastro de sangue no topo e respingos na base.
@@ -24,7 +26,7 @@ const TAG_BOTTOM = 46;
  */
 function Terror({ box, light }: { box: Box; light: boolean }) {
   const { top: statusBar } = useSafeAreaInsets();
-  const tagTop = statusBar + 2;
+  const tagTop = statusBar;
   const scale = Math.min(1, (TAG_BOTTOM - tagTop) / TAG_H);
   // O mesmo desenho (401 x 850) vale para as duas pontas: o topo mostra só as gotas e a base só os respingos.
   const blood = light ? LIGHT_ART.terrorBlood : TERROR_BLOOD;
@@ -34,7 +36,7 @@ function Terror({ box, light }: { box: Box; light: boolean }) {
     <>
       <View style={{ position: 'absolute', left: 10, top: 37 }}><SvgXml xml={top} width={box.w - 11} height={80} preserveAspectRatio="none" /></View>
       <View style={{ position: 'absolute', right: 1, bottom: 30 }}><SvgXml xml={bottom} width={341} height={115} /></View>
-      {scale >= 0.7 && <View style={{ position: 'absolute', left: FRAME_SIDE, top: tagTop }}><SvgXml xml={light ? LIGHT_ART.terrorTag : TERROR_TAG} width={150 * scale} height={TAG_H * scale} /></View>}
+      {scale >= TAG_MIN_SCALE && <View style={{ position: 'absolute', left: FRAME_SIDE, top: tagTop }}><SvgXml xml={light ? LIGHT_ART.terrorTag : TERROR_TAG} width={150 * scale} height={TAG_H * scale} /></View>}
     </>
   );
 }
