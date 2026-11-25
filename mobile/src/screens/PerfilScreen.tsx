@@ -27,7 +27,7 @@ function Row({ title, sub, danger, onPress }: { title: string; sub: string; dang
       style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1,
         backgroundColor: COLORS.background, borderColor: COLORS.outlineVariant }}>
       <View style={{ flex: 1, gap: 2 }}>
-        <Text style={{ color: danger ? FAIL : '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>{title}</Text>
+        <Text style={{ color: danger ? FAIL : COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>{title}</Text>
         <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{sub}</Text>
       </View>
       <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(22) }}>›</Text>
@@ -39,7 +39,7 @@ function Row({ title, sub, danger, onPress }: { title: string; sub: string; dang
 function Field({ label, hint, error, children }: { label: string; hint?: string; error?: string; children: React.ReactNode }) {
   return (
     <View style={{ gap: 6 }}>
-      <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>{label}</Text>
+      <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>{label}</Text>
       {children}
       {hint ? <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>{hint}</Text> : null}
       {error ? <Text accessibilityLiveRegion="polite" style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>{error}</Text> : null}
@@ -131,11 +131,11 @@ export default function PerfilScreen() {
         <View style={{ alignItems: 'center', gap: 4, paddingTop: 4 }}>
           <Pressable onPress={pickPhoto} accessibilityRole="button" accessibilityLabel="Alterar foto de perfil">
             {avatar
-              ? <Image source={{ uri: avatar }} accessibilityIgnoresInvertColors style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: 'rgba(112,181,150,0.55)' }} />
+              ? <Image source={{ uri: avatar }} accessibilityIgnoresInvertColors style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 2, borderColor: COLORS.ruleSoft }} />
               : (
                 <View style={{ width: 80, height: 80, borderRadius: 40, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary,
                   shadowColor: COLORS.primary, shadowOpacity: 0.3, shadowRadius: 10, shadowOffset: { width: 0, height: 0 }, elevation: 4 }}>
-                  <Text style={{ color: '#252525', fontFamily: SERIF, fontSize: appFontSize(30) }}>{(conta.apelido.charAt(0) || '?').toUpperCase()}</Text>
+                  <Text style={{ color: COLORS.btn, fontFamily: SERIF, fontSize: appFontSize(30) }}>{(conta.apelido.charAt(0) || '?').toUpperCase()}</Text>
                 </View>
               )}
           </Pressable>

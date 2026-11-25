@@ -11,7 +11,7 @@ export function Choice({ title, hint, on, disabled, onPress, width }: { title: s
     <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={hint ? `${title}. ${hint}` : title} accessibilityState={{ selected: !!on, disabled: !!disabled }}
       style={{ width, minHeight: 58, paddingVertical: 10, paddingHorizontal: 8, borderRadius: 10, alignItems: 'center', justifyContent: 'center', gap: 4, opacity: disabled ? 0.5 : 1,
         backgroundColor: COLORS.surfaceContainerHigh, borderWidth: on ? 2 : 1, borderColor: on ? COLORS.btnText : COLORS.outlineVariant }}>
-      <Text style={{ textAlign: 'center', color: on ? COLORS.btnText : '#FFFFFF', fontFamily: on ? BOLD : BODY, fontSize: appFontSize(13) }}>{title}</Text>
+      <Text style={{ textAlign: 'center', color: on ? COLORS.btnText : COLORS.onSurface, fontFamily: on ? BOLD : BODY, fontSize: appFontSize(13) }}>{title}</Text>
       {hint ? <Text style={{ textAlign: 'center', color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(11) }}>{hint}</Text> : null}
     </Pressable>
   );

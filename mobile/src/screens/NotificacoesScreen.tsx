@@ -55,7 +55,7 @@ export default function NotificacoesScreen() {
               return (
                 <Pressable key={t.id} onPress={() => setFilter(t.id)} accessibilityRole="tab" accessibilityState={{ selected: on }}
                   style={{ paddingVertical: 4, paddingHorizontal: 12, borderRadius: 999, borderWidth: on ? 0 : 1, borderColor: COLORS.outlineVariant, backgroundColor: on ? COLORS.sapphire : 'transparent' }}>
-                  <Text style={{ color: on ? '#0D1218' : COLORS.onSurfaceVariant, fontFamily: on ? BOLD : BODY, fontSize: appFontSize(12) }}>{t.label}</Text>
+                  <Text style={{ color: on ? COLORS.btn : COLORS.onSurfaceVariant, fontFamily: on ? BOLD : BODY, fontSize: appFontSize(12) }}>{t.label}</Text>
                 </Pressable>
               );
             })}
@@ -80,7 +80,7 @@ export default function NotificacoesScreen() {
                     <MaterialIcons name="notifications-none" size={18} color={COLORS.onSurfaceVariant} />
                   </View>
                   <View style={{ flex: 1, gap: 2 }}>
-                    <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14), lineHeight: appFontSize(19) }}>
+                    <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14), lineHeight: appFontSize(19) }}>
                       {notificationParts(n).map((p, i) => <NativeText key={i} style={p.bold ? { fontFamily: BOLD } : undefined}>{p.text}</NativeText>)}
                     </Text>
                     <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{relativeTime(n.createdAt)}</Text>
@@ -96,10 +96,10 @@ export default function NotificacoesScreen() {
           ))}
 
         <View accessibilityLabel="Resumo" style={{ padding: 14, borderRadius: 12, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-          <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(17), marginBottom: 8 }}>Resumo</Text>
-          <ProfileRow label="Não lidas"><Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>{unread}</Text></ProfileRow>
-          <ProfileRow label="Mesas"><Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>{items.filter((n) => !isEventNotification(n)).length}</Text></ProfileRow>
-          <ProfileRow label="Eventos"><Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>{items.filter(isEventNotification).length}</Text></ProfileRow>
+          <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(17), marginBottom: 8 }}>Resumo</Text>
+          <ProfileRow label="Não lidas"><Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{unread}</Text></ProfileRow>
+          <ProfileRow label="Mesas"><Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{items.filter((n) => !isEventNotification(n)).length}</Text></ProfileRow>
+          <ProfileRow label="Eventos"><Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{items.filter(isEventNotification).length}</Text></ProfileRow>
         </View>
       </ScrollView>
     </SafeAreaView>

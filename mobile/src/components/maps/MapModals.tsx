@@ -97,7 +97,7 @@ export function ManageMapModal({ map, onClose, onExport }: { map: MapItem; onClo
       {mode === 'rename' && <RenameForm name={map.name} onSave={rename} onCancel={() => setMode('menu')} />}
       {mode === 'delete' && (
         <>
-          <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14), lineHeight: appFontSize(21) }}>{`"${map.name}" será apagado da sua biblioteca. Isso não pode ser desfeito.`}</Text>
+          <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14), lineHeight: appFontSize(21) }}>{`"${map.name}" será apagado da sua biblioteca. Isso não pode ser desfeito.`}</Text>
           <View style={{ gap: 10 }}>
             <PillBtn block pill={false} label="Cancelar" onPress={() => setMode('menu')} />
             <DangerBtn label="Excluir" disabled={busy} onPress={del} />
@@ -106,7 +106,7 @@ export function ManageMapModal({ map, onClose, onExport }: { map: MapItem; onClo
       )}
       {mode === 'menu' && (
         <>
-          <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>{mapSummary(map)}{map.published ? ' · Publicado na Oficina' : ''}</Text>
+          <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>{mapSummary(map)}{map.published ? ' · Publicado na Oficina' : ''}</Text>
           <View style={{ gap: 8 }}>
             <PillBtn block pill={false} label="Renomear" disabled={busy} onPress={() => setMode('rename')} />
             <PillBtn block pill={false} label="Duplicar" disabled={busy} onPress={duplicate} />
@@ -125,7 +125,7 @@ export function MapPreviewModal({ map, width, onClose, children }: { map: MapIte
   const paint = usePaintOf(map);
   return (
     <Sheet title={map.name} onClose={onClose}>
-      <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>{mapSummary(map)} · por {map.authorName}</Text>
+      <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>{mapSummary(map)} · por {map.authorName}</Text>
       <View style={{ alignItems: 'center', borderRadius: 10, borderWidth: 1, borderColor: COLORS.outlineVariant, overflow: 'hidden' }}>
         <MapView grid={gridOf(map)} kind={map.kind} imageUrl={map.imageUrl} paint={paint} showGrid={map.gridVisible} fogEnabled={false} width={width} label={`Mapa ${map.name}`} />
       </View>

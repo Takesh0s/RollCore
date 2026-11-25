@@ -28,7 +28,7 @@ function IconBtn({ icon, label, onPress, on, disabled }: { icon: keyof typeof Ma
   return (
     <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={label} accessibilityState={{ selected: !!on, disabled: !!disabled }}
       style={{ width: 44, height: 44, borderRadius: 8, alignItems: 'center', justifyContent: 'center', opacity: disabled ? 0.4 : 1, backgroundColor: on ? COLORS.btnText : 'transparent' }}>
-      <MaterialIcons name={icon} size={22} color={on ? COLORS.btn : '#FFFFFF'} />
+      <MaterialIcons name={icon} size={22} color={on ? COLORS.btn : COLORS.onSurface} />
     </Pressable>
   );
 }
@@ -39,7 +39,7 @@ function Tab({ label, on, onPress, accessibilityLabel, flat }: { label: string; 
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} accessibilityState={{ selected: on }}
       style={{ minHeight: 34, paddingVertical: 5, paddingHorizontal: flat ? 8 : 12, borderRadius: flat ? 8 : 999, alignItems: 'center', justifyContent: 'center',
         backgroundColor: !flat && on ? COLORS.btnText : flat ? COLORS.surfaceContainerHigh : 'transparent', borderWidth: 1, borderColor: on ? (flat ? COLORS.btnText : 'transparent') : COLORS.outlineVariant }}>
-      <Text style={{ color: on ? (flat ? COLORS.btnText : COLORS.btn) : flat ? '#FFFFFF' : MUTED, fontFamily: on && !flat ? BOLD : BODY, fontSize: appFontSize(12) }}>{label}</Text>
+      <Text style={{ color: on ? (flat ? COLORS.btnText : COLORS.btn) : flat ? COLORS.onSurface : MUTED, fontFamily: on && !flat ? BOLD : BODY, fontSize: appFontSize(12) }}>{label}</Text>
     </Pressable>
   );
 }
@@ -256,7 +256,7 @@ function MapEditor({ initial }: { initial: MapItem }) {
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginHorizontal: 8, marginTop: 8, marginBottom: 8, paddingVertical: 5, paddingHorizontal: 8, borderRadius: 10,
         backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-        <Text numberOfLines={1} style={{ flex: 1, paddingHorizontal: 6, color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(15) }}>{name}{dirty ? ' •' : ''}</Text>
+        <Text numberOfLines={1} style={{ flex: 1, paddingHorizontal: 6, color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(15) }}>{name}{dirty ? ' •' : ''}</Text>
         <IconBtn icon="edit" label="Renomear mapa" onPress={() => setRenaming(true)} />
         <IconBtn icon="content-copy" label="Duplicar mapa" onPress={onDuplicate} />
         <IconBtn icon="visibility" label="Visualizar como jogador" on={preview} onPress={() => setPreview((p) => !p)} />
@@ -280,7 +280,7 @@ function MapEditor({ initial }: { initial: MapItem }) {
         <IconBtn icon="redo" label="Refazer" disabled={redo.current.length === 0} onPress={doRedo} />
         <IconBtn icon="remove" label="Diminuir zoom" disabled={zoom <= ZOOMS[0]} onPress={() => setZoom(ZOOMS[Math.max(0, zoomIdx - 1)])} />
         <Pressable onPress={() => setZoom(1)} accessibilityLabel="Ajustar à tela" style={{ minWidth: 52, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(12) }}>{Math.round(zoom * 100)}%</Text>
+          <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(12) }}>{Math.round(zoom * 100)}%</Text>
         </Pressable>
         <IconBtn icon="add" label="Aumentar zoom" disabled={zoom >= ZOOMS[ZOOMS.length - 1]} onPress={() => setZoom(ZOOMS[Math.min(ZOOMS.length - 1, zoomIdx + 1)])} />
         <IconBtn icon="pan-tool" label="Mover o mapa" on={pan && !preview} disabled={preview || zoom === 1} onPress={() => setPan((p) => !p)} />
@@ -292,20 +292,20 @@ function MapEditor({ initial }: { initial: MapItem }) {
           <View accessibilityRole="tablist" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
             {GROUPS.map((g) => <Tab key={g.id} label={g.label} on={group === g.id} onPress={() => setGroup(g.id)} />)}
           </View>
-          <Text accessibilityRole="header" style={{ marginTop: 6, color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(17) }}>{group === 'general' ? 'Peças' : GROUPS.find((g) => g.id === group)?.label}</Text>
+          <Text accessibilityRole="header" style={{ marginTop: 6, color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(17) }}>{group === 'general' ? 'Peças' : GROUPS.find((g) => g.id === group)?.label}</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {terrains.map((t: Terrain) => (
               <Pressable key={t.id} onPress={() => setTool({ kind: 'paint', id: t.id })} accessibilityRole="button" accessibilityLabel={t.label} accessibilityState={{ selected: paintId === t.id }}
                 style={{ width: '23%', alignItems: 'center', gap: 4, paddingTop: 5, paddingBottom: 4, paddingHorizontal: 3, borderRadius: 8, backgroundColor: COLORS.surfaceContainerHigh,
                   borderWidth: paintId === t.id ? 2 : 1, borderColor: paintId === t.id ? COLORS.btnText : COLORS.outlineVariant }}>
                 <TerrainSample t={t} size={48} />
-                <Text numberOfLines={2} style={{ textAlign: 'center', color: paintId === t.id ? '#FFFFFF' : MUTED, fontFamily: BODY, fontSize: appFontSize(10.5) }}>{t.label}</Text>
+                <Text numberOfLines={2} style={{ textAlign: 'center', color: paintId === t.id ? COLORS.onSurface : MUTED, fontFamily: BODY, fontSize: appFontSize(10.5) }}>{t.label}</Text>
               </Pressable>
             ))}
           </View>
           <View style={{ alignSelf: 'flex-start', marginTop: 2 }}>
             <Pressable onPress={() => setTool({ kind: 'erase' })} accessibilityRole="button" accessibilityLabel="Borracha" accessibilityState={{ selected: tool.kind === 'erase' }}
-              style={{ paddingVertical: 5, paddingHorizontal: 16, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: tool.kind === 'erase' ? COLORS.btnText : 'rgba(192,192,192,0.5)' }}>
+              style={{ paddingVertical: 5, paddingHorizontal: 16, borderRadius: 999, backgroundColor: COLORS.fill, borderWidth: 1, borderColor: tool.kind === 'erase' ? COLORS.btnText : COLORS.ruleSoft }}>
               <Text style={{ color: tool.kind === 'erase' ? COLORS.btnText : COLORS.sapphire, fontFamily: 'FugazOne_400Regular', fontSize: appFontSize(13) }}>Borracha</Text>
             </Pressable>
           </View>
@@ -317,11 +317,11 @@ function MapEditor({ initial }: { initial: MapItem }) {
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 10 }}>
-            <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Grade</Text>
+            <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>Grade</Text>
             <Switch value={gridVisible} onValueChange={setGridVisible} accessibilityLabel="Grade" trackColor={{ true: COLORS.btnText }} />
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 6 }}>
-            <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Névoa de guerra</Text>
+            <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>Névoa de guerra</Text>
             <Switch value={fogEnabled} onValueChange={toggleFog} accessibilityLabel="Névoa de guerra" trackColor={{ true: COLORS.btnText }} />
           </View>
           {fogEnabled && (
@@ -340,11 +340,11 @@ function MapEditor({ initial }: { initial: MapItem }) {
           <View style={{ height: 1, backgroundColor: COLORS.outlineVariant, marginVertical: 6 }} />
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <View style={{ flex: 1, gap: 6 }}>
-              <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Tipo</Text>
+              <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>Tipo</Text>
               <Select title="Tipo" value={kindLabelOf(kind)} options={KINDS.map((k) => k.label)} onChange={(v) => setKind(KINDS.find((k) => k.label === v)?.id ?? kind)} />
             </View>
             <View style={{ flex: 1, gap: 6 }}>
-              <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Formato</Text>
+              <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>Formato</Text>
               <Select title="Formato" value={gridLabelOf(gridType)} options={GRID_TYPES.map((g) => g.label)} onChange={(v) => setGridType(GRID_TYPES.find((g) => g.label === v)?.id ?? gridType)} />
             </View>
           </View>
