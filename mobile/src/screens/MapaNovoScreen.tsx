@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Image, ScrollView, View } from 'react-native';
 import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
-import { FAIL, MUTED, PillBtn } from '../components/tables/parts';
+import { FAIL, PillBtn } from '../components/tables/parts';
 import { Choice, ChoiceRow } from '../components/maps/Choice';
 import { BODY, SERIF } from '../components/maps/MapModals';
 import { COLORS, Header, appFontSize } from '../design/shared';
@@ -129,17 +129,17 @@ export default function MapaNovoScreen() {
                   <Image source={{ uri: image.uri }} accessibilityLabel="Prévia da imagem escolhida" resizeMode="cover" style={{ width: '100%', aspectRatio: 16 / 10, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant }} />
                   <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>Colunas da grade: {fit.cols}</Text>
                   <View style={{ flexDirection: 'row', gap: 8 }}>{step('−5', -5)}{step('−1', -1)}{step('+1', 1)}{step('+5', 5)}</View>
-                  <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>A grade ficará com {fit.cols} × {fit.rows} células. Ajuste até casar com o desenho da imagem.</Text>
+                  <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>A grade ficará com {fit.cols} × {fit.rows} células. Ajuste até casar com o desenho da imagem.</Text>
                 </View>
               )}
-              <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>Imagens grandes são reduzidas automaticamente para caber no limite de 2 MB.</Text>
+              <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Imagens grandes são reduzidas automaticamente para caber no limite de 2 MB.</Text>
             </View>
           )}
 
           {!!error && <Text accessibilityRole="alert" style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12), marginTop: 8 }}>{error}</Text>}
 
           <View style={{ height: 1, backgroundColor: COLORS.outlineVariant, marginVertical: 12 }} />
-          <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>Você pode trocar o tipo e o formato depois, dentro do editor.</Text>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Você pode trocar o tipo e o formato depois, dentro do editor.</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
             <PillBtn label="Pular" disabled={busy} onPress={skip} />
             <PillBtn kind="primary" label={busy ? '…' : 'Salvar'} disabled={busy} onPress={save} />

@@ -18,8 +18,6 @@ const BODY = 'Inter_400Regular';
 const BOLD = 'Inter_700Bold';
 const SERIF = 'SourceSerif4_700Bold';
 const BTN = 'FugazOne_400Regular';
-const MUTED = '#C0C0C0';
-const FAINT = '#9AA4A8';
 
 const ROLE_BADGE: Record<TableRole, string> = { MASTER: 'MESTRE', MODERATOR: 'MODERADOR', PLAYER: 'JOGADOR' };
 
@@ -28,7 +26,7 @@ function SectionTitle({ children }: { children: string }) {
   return (
     <View accessibilityRole="header" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 14, marginBottom: 8 }}>
       <View style={{ flex: 1, height: 1, backgroundColor: COLORS.ruleSoft }} />
-      <Text style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(15) }}>{children}</Text>
+      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: SERIF, fontSize: appFontSize(15) }}>{children}</Text>
       <View style={{ flex: 1, height: 1, backgroundColor: COLORS.ruleSoft }} />
     </View>
   );
@@ -47,7 +45,7 @@ function Card({ children, column, border }: { children: React.ReactNode; column?
 const Strong = ({ children, color = COLORS.onSurface, lines }: { children: string; color?: string; lines?: number }) => (
   <Text numberOfLines={lines} style={{ color, fontFamily: BOLD, fontSize: appFontSize(14) }}>{children}</Text>
 );
-const Small = ({ children, color = FAINT }: { children: string; color?: string }) => (
+const Small = ({ children, color = COLORS.outline }: { children: string; color?: string }) => (
   <Text style={{ color, fontFamily: BODY, fontSize: appFontSize(12) }}>{children}</Text>
 );
 
@@ -55,9 +53,9 @@ const Small = ({ children, color = FAINT }: { children: string; color?: string }
 function Enter({ label, onPress, a11y }: { label: string; onPress: () => void; a11y: string }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={a11y}
-      style={{ height: 28, paddingHorizontal: 18, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: '#252525', borderWidth: 1, borderColor: COLORS.sapphire,
+      style={{ height: 28, paddingHorizontal: 18, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.btn, borderWidth: 1, borderColor: COLORS.sapphire,
         shadowColor: COLORS.sapphire, shadowOpacity: 0.5, shadowRadius: 5, shadowOffset: { width: 0, height: 0 }, elevation: 4 }}>
-      <Text style={{ color: '#6A89A7', fontFamily: BTN, fontStyle: 'italic', fontSize: appFontSize(12) }}>{label}</Text>
+      <Text style={{ color: COLORS.btnText, fontFamily: BTN, fontStyle: 'italic', fontSize: appFontSize(12) }}>{label}</Text>
     </Pressable>
   );
 }
@@ -67,7 +65,7 @@ function Soon({ title, text }: { title: string; text: string }) {
     <>
       <SectionTitle>{title}</SectionTitle>
       <Card column>
-        <Strong color={MUTED}>Em breve</Strong>
+        <Strong color={COLORS.onSurfaceVariant}>Em breve</Strong>
         <Small>{text}</Small>
       </Card>
     </>
@@ -101,7 +99,7 @@ export default function InicioScreen() {
       <ScrollView contentContainerStyle={{ paddingTop: 10, paddingHorizontal: 14, paddingBottom: 16 }} keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={loading} onRefresh={loadTables} tintColor="#70B596" />}>
         <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(20), marginTop: 6 }}>{`Olá, ${conta?.apelido || 'aventureiro'}`}</Text>
-        <Text style={{ color: FAINT, fontFamily: BODY, fontSize: appFontSize(12), marginTop: 2, marginBottom: 8 }}>{date}</Text>
+        <Text style={{ color: COLORS.outline, fontFamily: BODY, fontSize: appFontSize(12), marginTop: 2, marginBottom: 8 }}>{date}</Text>
 
         <SectionTitle>Próxima sessão</SectionTitle>
         {next ? (
@@ -117,7 +115,7 @@ export default function InicioScreen() {
           </Card>
         ) : (
           <Card column>
-            <Strong color={MUTED}>Nenhuma mesa por aqui</Strong>
+            <Strong color={COLORS.onSurfaceVariant}>Nenhuma mesa por aqui</Strong>
             <View style={{ marginTop: 6 }}><Enter label="Criar mesa" onPress={() => router.push('/mesa' as any)} a11y="Criar mesa" /></View>
           </Card>
         )}
@@ -139,7 +137,7 @@ export default function InicioScreen() {
           </View>
         ) : (
           <Card column>
-            <Strong color={MUTED}>Sem mesa ativa</Strong>
+            <Strong color={COLORS.onSurfaceVariant}>Sem mesa ativa</Strong>
             <Small>Entre em uma mesa para ver a situação dela aqui.</Small>
           </Card>
         )}
@@ -151,14 +149,14 @@ export default function InicioScreen() {
             return (
               <Pressable key={c.id ?? 'all'} onPress={() => setRollTable(c.id)} accessibilityRole="button" accessibilityState={{ selected: on }}
                 style={{ height: 28, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: on ? COLORS.sapphire : COLORS.ruleSoft, backgroundColor: on ? COLORS.sapphire : 'transparent' }}>
-                <Text style={{ color: on ? '#10202e' : MUTED, fontFamily: on ? BOLD : BODY, fontSize: appFontSize(12) }}>{c.name}</Text>
+                <Text style={{ color: on ? '#10202e' : COLORS.onSurfaceVariant, fontFamily: on ? BOLD : BODY, fontSize: appFontSize(12) }}>{c.name}</Text>
               </Pressable>
             );
           })}
         </ScrollView>
         {shownRolls.length === 0 ? (
           <Card column>
-            <Strong color={MUTED}>Nenhuma rolagem ainda</Strong>
+            <Strong color={COLORS.onSurfaceVariant}>Nenhuma rolagem ainda</Strong>
             <View style={{ marginTop: 6 }}><Enter label="Rolar dados" onPress={() => router.push('/dados' as any)} a11y="Rolar dados" /></View>
           </Card>
         ) : shownRolls.map((h) => {
@@ -170,7 +168,7 @@ export default function InicioScreen() {
                 <Strong lines={1}>{h.formula ?? h.label ?? `d${h.result.sides}`}</Strong>
                 <Small>{`${stamp}${h.tableName ? ` · ${h.tableName}` : ''}`}</Small>
               </View>
-              <Text style={{ color: MUTED, fontFamily: BOLD, fontSize: appFontSize(24) }}>{h.result.total}</Text>
+              <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BOLD, fontSize: appFontSize(24) }}>{h.result.total}</Text>
             </Card>
           );
         })}

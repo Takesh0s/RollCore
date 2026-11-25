@@ -6,7 +6,7 @@ import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTex
 import { ChangeEmailModal, ChangePasswordModal, DeleteAccountModal } from '../components/AccountModals';
 import { Image } from 'react-native';
 import { ConfirmDialog } from '../components/Controls';
-import { FAIL, MUTED, PillBtn, RuleTitle } from '../components/tables/parts';
+import { FAIL, PillBtn, RuleTitle } from '../components/tables/parts';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import { pickAvatarDataUrl } from '../lib/mapImage';
 import { ApiError } from '../services/api';
@@ -41,7 +41,7 @@ function Field({ label, hint, error, children }: { label: string; hint?: string;
     <View style={{ gap: 6 }}>
       <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>{label}</Text>
       {children}
-      {hint ? <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>{hint}</Text> : null}
+      {hint ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{hint}</Text> : null}
       {error ? <Text accessibilityLiveRegion="polite" style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>{error}</Text> : null}
     </View>
   );
@@ -139,8 +139,8 @@ export default function PerfilScreen() {
                 </View>
               )}
           </Pressable>
-          <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(14), marginTop: 8 }}>{conta.apelido}</Text>
-          <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12), textAlign: 'center' }}>Toque na foto para alterar · Máx. 2 MB</Text>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14), marginTop: 8 }}>{conta.apelido}</Text>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12), textAlign: 'center' }}>Toque na foto para alterar · Máx. 2 MB</Text>
         </View>
 
         <RuleTitle>Informações</RuleTitle>

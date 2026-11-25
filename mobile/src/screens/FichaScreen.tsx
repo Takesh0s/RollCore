@@ -9,7 +9,7 @@ import { SpellDetail } from '../components/characters/SpellDetail';
 import { SpellSearchModal } from '../components/characters/SpellSearchModal';
 import { InventoryTab } from '../components/characters/InventoryTab';
 import { StateBlock, inputStyle } from '../components/Controls';
-import { BTN, FAIL, FAINT, MUTED, PillBtn, RuleTitle } from '../components/tables/parts';
+import { BTN, FAIL, PillBtn, RuleTitle } from '../components/tables/parts';
 import { imageSrc } from '../lib/mapImage';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import {
@@ -43,7 +43,7 @@ function StatBox({ label, value, sub, wide }: { label: string; value: string | n
   return (
     <View accessible accessibilityLabel={`${label}: ${value}${sub ? `, ${sub}` : ''}`}
       style={{ width: wide ? '100%' : '48%', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8, borderRadius: 10, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-      <Text style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(9), letterSpacing: 2, textTransform: 'uppercase' }}>{label}</Text>
+      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: SERIF, fontSize: appFontSize(9), letterSpacing: 2, textTransform: 'uppercase' }}>{label}</Text>
       <Text style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(26), marginTop: 6, marginBottom: 3 }}>{value}</Text>
       {sub ? <Text style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(13) }}>{sub}</Text> : null}
     </View>
@@ -218,14 +218,14 @@ export default function FichaScreen() {
         {/* Nome, classe · raça · nível e a pena de editar (.sheet-title-row) */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, marginHorizontal: 14 }}>
           <View style={{ flex: 1, minWidth: 0, alignItems: 'center', paddingLeft: 34 }}>
-            <Text numberOfLines={1} style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(20) }}>{c.name}</Text>
-            <Text style={{ color: FAINT, fontFamily: BODY, fontSize: appFontSize(12), textAlign: 'center' }}>
+            <Text numberOfLines={1} style={{ color: COLORS.onSurfaceVariant, fontFamily: SERIF, fontSize: appFontSize(20) }}>{c.name}</Text>
+            <Text style={{ color: COLORS.outline, fontFamily: BODY, fontSize: appFontSize(12), textAlign: 'center' }}>
               {c.class}{c.subclass ? ` · ${c.subclass}` : ''} · {c.race} · Nível {c.level}
             </Text>
           </View>
           <Pressable onPress={() => router.push(`/criar-personagem?id=${c.id}` as any)} accessibilityRole="button" accessibilityLabel="Editar ficha"
             style={{ width: 34, height: 34, alignItems: 'center', justifyContent: 'center' }}>
-            <Feather color={MUTED} />
+            <Feather color={COLORS.onSurfaceVariant} />
           </Pressable>
         </View>
 
@@ -236,8 +236,8 @@ export default function FichaScreen() {
             {portrait && <Image source={{ uri: portrait }} style={{ width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: 'rgba(112,181,150,0.55)' }} />}
             <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
               <Text style={{ color: hpColor, fontFamily: SERIF, fontSize: appFontSize(52) }}>{c.hp}</Text>
-              <Text style={{ color: FAINT, fontFamily: SERIF, fontSize: appFontSize(26) }}>/</Text>
-              <Text style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(24) }}>{maxHp}</Text>
+              <Text style={{ color: COLORS.outline, fontFamily: SERIF, fontSize: appFontSize(26) }}>/</Text>
+              <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: SERIF, fontSize: appFontSize(24) }}>{maxHp}</Text>
               {c.temp_hp > 0 && (
                 <Text style={{ marginLeft: 8, paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20, overflow: 'hidden', color: COLORS.sapphire, borderWidth: 1, borderColor: COLORS.sapphire, fontFamily: SERIF, fontSize: appFontSize(13) }}>+{c.temp_hp} temp</Text>
               )}
@@ -254,7 +254,7 @@ export default function FichaScreen() {
             <HpBtn label="− Dano" color={FAIL} border={FAIL} bg="rgba(255,138,128,0.06)" onPress={applyDamage} accessibilityLabel="Aplicar dano" />
             <HpBtn label="+ Cura" color={COLORS.primary} border="rgba(112,181,150,0.55)" bg="rgba(112,181,150,0.08)" onPress={applyHeal} accessibilityLabel="Aplicar cura" />
             <HpBtn label="⚡ Temp" color={COLORS.sapphire} border={COLORS.sapphire} bg="rgba(143,184,222,0.08)" onPress={addTemp} accessibilityLabel="Aplicar HP temporário" />
-            <HpBtn label="↺" color={MUTED} border="rgba(192,192,192,0.5)" bg="rgba(255,255,255,0.08)" onPress={resetHp} accessibilityLabel="Restaurar HP máximo" />
+            <HpBtn label="↺" color={COLORS.onSurfaceVariant} border="rgba(192,192,192,0.5)" bg="rgba(255,255,255,0.08)" onPress={resetHp} accessibilityLabel="Restaurar HP máximo" />
           </View>
         </View>
 
@@ -297,7 +297,7 @@ export default function FichaScreen() {
                 return (
                   <View key={skill.name} accessible accessibilityLabel={`${skill.name}, ${ATTR_LABELS[skill.attr]}, bônus ${formatMod(bonus)}`}
                     style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 10, paddingVertical: 8, borderRadius: 6, backgroundColor: COLORS.surfaceContainerHigh, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-                    <Text numberOfLines={1} style={{ width: 32, color: FAINT, fontFamily: SERIF, fontSize: appFontSize(8), letterSpacing: 1.5 }}>{ATTR_LABELS[skill.attr]}</Text>
+                    <Text numberOfLines={1} style={{ width: 32, color: COLORS.outline, fontFamily: SERIF, fontSize: appFontSize(8), letterSpacing: 1.5 }}>{ATTR_LABELS[skill.attr]}</Text>
                     <Text style={{ flex: 1, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(13) }}>{skill.name}</Text>
                     <Text style={{ minWidth: 28, textAlign: 'right', color: bonus >= 0 ? COLORS.primary : FAIL, fontFamily: SERIF, fontSize: appFontSize(13) }}>{formatMod(bonus)}</Text>
                   </View>
@@ -318,7 +318,7 @@ export default function FichaScreen() {
                             {t.type === 'stat_bonus' ? 'Bônus' : t.type === 'choice' ? 'Escolha' : 'Passivo'}
                           </Text>
                         </View>
-                        <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(13), lineHeight: 21 }}>{t.description}</Text>
+                        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13), lineHeight: 21 }}>{t.description}</Text>
                       </View>
                     );
                   })}

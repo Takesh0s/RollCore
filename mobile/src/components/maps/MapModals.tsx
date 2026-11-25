@@ -3,7 +3,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, ScrollView, View } from 'react-native';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../accessible-text';
 import { Btn, Sheet } from '../Controls';
-import { BTN, FAIL, MUTED, PillBtn } from '../tables/parts';
+import { BTN, FAIL, PillBtn } from '../tables/parts';
 import { COLORS, appFontSize } from '../../design/shared';
 import { decodeLayers, kindLabel, MAX_NAME, type Grid } from '../../lib/maps';
 import { showToast } from '../../store/useToast';
@@ -47,7 +47,7 @@ function RenameForm({ name, onSave, onCancel }: { name: string; onSave: (name: s
   const valid = trimmed.length >= 3 && trimmed.length <= MAX_NAME;
   return (
     <>
-      <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>Nome do mapa</Text>
+      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Nome do mapa</Text>
       <TextInput value={value} onChangeText={setValue} maxLength={MAX_NAME} autoFocus accessibilityLabel="Nome do mapa" style={field(false)}
         onSubmitEditing={() => valid && onSave(trimmed)} />
       {!valid && <Text style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>O nome deve ter de 3 a 100 caracteres.</Text>}

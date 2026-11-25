@@ -10,8 +10,6 @@ export const BOLD = 'Inter_700Bold';
 export const SERIF = 'SourceSerif4_700Bold';
 export const BTN = 'FugazOne_400Regular';
 export const FAIL = '#FF8A80';
-export const MUTED = '#C0C0C0';
-export const FAINT = '#9AA4A8';
 
 /** `.section-title` do web: serifa branca centralizada com um filete prateado de cada lado. */
 export function RuleTitle({ children }: { children: string }) {

@@ -44,7 +44,6 @@ const ALSO: Record<string, string[]> = {
 };
 const isActive = (path: string, route?: string) => !!route && [route, ...(ALSO[route] ?? [])].some((r) => path === r || path.startsWith(`${r}/`));
 
-const MUTED = '#C0C0C0';
 const SERIF = 'SourceSerif4_700Bold';
 
 /** Gaveta do menu, medida pelo CSS do web (mobile.css, `.side-menu.sheet`): cobre a tela inteira, da barra de status à de navegação. */
@@ -64,7 +63,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
 
   const row = (item: Item) => {
     const active = isActive(path, item.route);
-    const color = active ? COLORS.sapphire : MUTED;
+    const color = active ? COLORS.sapphire : COLORS.onSurfaceVariant;
     return (
       <Pressable key={item.label} onPress={() => go(item.route, item.label)} accessibilityRole="button" accessibilityState={{ selected: active }}
         style={{ flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 48, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 12, backgroundColor: active ? COLORS.fill : 'transparent' }}>
@@ -90,10 +89,10 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
               style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 8, paddingBottom: 16, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: COLORS.ruleSoft }}>
               {avatar
                 ? <Image source={{ uri: avatar }} style={{ width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: COLORS.rule }} />
-                : <NavIcon name="user" size={56} color={MUTED} />}
+                : <NavIcon name="user" size={56} color={COLORS.onSurfaceVariant} />}
               <View style={{ flex: 1 }}>
                 <Text numberOfLines={1} style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(17) }}>{name || 'Perfil'}</Text>
-                <Text numberOfLines={1} style={{ color: '#9AA4A8', fontFamily: 'Inter_400Regular', fontSize: appFontSize(12) }}>{`@${(name || 'perfil').toLowerCase().replace(/\s+/g, '')}`}</Text>
+                <Text numberOfLines={1} style={{ color: COLORS.outline, fontFamily: 'Inter_400Regular', fontSize: appFontSize(12) }}>{`@${(name || 'perfil').toLowerCase().replace(/\s+/g, '')}`}</Text>
               </View>
             </Pressable>
             <View style={{ gap: 2 }}>{ITEMS.map(row)}</View>

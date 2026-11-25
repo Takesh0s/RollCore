@@ -121,16 +121,16 @@ export default function DadosScreen() {
 
         <View style={{ ...box, padding: 14, paddingBottom: 16, marginTop: 12, marginBottom: 14, gap: 10 }}>
           <View style={{ gap: 4 }}>
-            <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>Fórmula</Text>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Fórmula</Text>
             <TextInput value={formula} onChangeText={setFormula} placeholder="1d20 + 5" placeholderTextColor={COLORS.placeholder} autoCapitalize="none" autoCorrect={false}
               accessibilityLabel="Fórmula de dados" onSubmitEditing={() => valid && doRoll(formula)} returnKeyType="go" style={fieldStyle(!!formula && !valid)} />
           </View>
           <View style={{ gap: 4 }}>
-            <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>Modo</Text>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Modo</Text>
             <ChipRow>{MODES.map((m) => <DiceChip key={m.id} label={m.label} on={mode === m.id} onPress={() => setMode(m.id)} />)}</ChipRow>
           </View>
           <View style={{ gap: 4 }}>
-            <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>Mesa</Text>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Mesa</Text>
             <ChipRow>
               <DiceChip label="Sem mesa" on={!tableId} onPress={() => setTableId('')} />
               {mesas.map((t) => <DiceChip key={t.id} label={t.name} on={tableId === t.id} onPress={() => setTableId(t.id)} />)}
@@ -145,7 +145,7 @@ export default function DadosScreen() {
         </View>
 
         <View accessibilityLiveRegion="polite" style={{ ...box, alignItems: 'center', gap: 8, padding: 16, marginBottom: 14 }}>
-          <Text style={{ alignSelf: 'stretch', textAlign: 'center', color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>
+          <Text style={{ alignSelf: 'stretch', textAlign: 'center', color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>
             Última rolagem{last?.tableName ? ` · ${last.tableName}` : ''}
           </Text>
           <DiceStage sides={sides ?? 20} rolling={rolling} edge={COLORS.sapphire}
@@ -162,7 +162,7 @@ export default function DadosScreen() {
           {tableNames.map((n) => <DiceChip key={n} label={n} on={filter === n} onPress={() => setFilter(n)} />)}
         </ChipRow>
         <View style={{ gap: 8, marginTop: 6 }}>
-          {visible.length === 0 && <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(14), paddingVertical: 12 }}>Nenhuma rolagem ainda.</Text>}
+          {visible.length === 0 && <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14), paddingVertical: 12 }}>Nenhuma rolagem ainda.</Text>}
           {visible.map((h, i) => {
             const c = critOf(h);
             const multi = h.result.rolls.length > 1 && h.result.mod === 0;
@@ -175,7 +175,7 @@ export default function DadosScreen() {
                   <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(13) }}>
                     {baseOf(h.formula)}{h.result.mod ? (h.result.mod > 0 ? `+${h.result.mod}` : h.result.mod) : ''} → {multi ? `[${h.result.rolls.join(', ')}]` : h.result.total}
                   </Text>
-                  <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(10), marginTop: 3 }}>{whenOf(h.timestamp)}{meta ? ` · ${meta}` : ''}</Text>
+                  <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(10), marginTop: 3 }}>{whenOf(h.timestamp)}{meta ? ` · ${meta}` : ''}</Text>
                 </View>
                 {c ? <DiceBadge kind={c} /> : null}
                 <Text style={{ color: c === 'fail' ? FAIL : COLORS.sapphire, fontFamily: SERIF, fontSize: appFontSize(24), minWidth: 36, textAlign: 'right' }}>{h.result.total}</Text>
