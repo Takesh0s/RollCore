@@ -5,7 +5,8 @@ import { ScrollView, Text as NativeText, View } from 'react-native';
 import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
 import { AppHeader } from '../components/AppHeader';
-import { Btn, Chip, StateBlock } from '../components/Controls';
+import { StateBlock } from '../components/Controls';
+import { PillBtn, ProfileRow, RuleTitle } from '../components/tables/parts';
 import { COLORS, appFontSize } from '../design/shared';
 import { canOpenNotification, dayGroup, isEventNotification, notificationParts, relativeTime } from '../lib/notifications';
 import { useAcessibilidade } from '../store/acessibilidade';
@@ -47,19 +48,22 @@ export default function NotificacoesScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <AppHeader title="Notificações" />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }}>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          {[['Não lidas', unread], ['Mesas', items.filter((n) => !isEventNotification(n)).length], ['Eventos', items.filter(isEventNotification).length]].map(([label, n]) => (
-            <View key={String(label)} style={{ flex: 1, alignItems: 'center', padding: 10, borderRadius: 12, backgroundColor: COLORS.surfaceContainerHigh }}>
-              <Text style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(22) }}>{n}</Text>
-              <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{label}</Text>
-            </View>
-          ))}
+        <View style={{ gap: 10 }}>
+          <View accessibilityRole="tablist" style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+            {TABS.map((t) => {
+              const on = filter === t.id;
+              return (
+                <Pressable key={t.id} onPress={() => setFilter(t.id)} accessibilityRole="tab" accessibilityState={{ selected: on }}
+                  style={{ paddingVertical: 4, paddingHorizontal: 12, borderRadius: 999, borderWidth: on ? 0 : 1, borderColor: COLORS.outlineVariant, backgroundColor: on ? COLORS.sapphire : 'transparent' }}>
+                  <Text style={{ color: on ? '#0D1218' : COLORS.onSurfaceVariant, fontFamily: on ? BOLD : BODY, fontSize: appFontSize(12) }}>{t.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <View style={{ alignSelf: 'flex-start' }}>
+            <PillBtn label="Marcar todas como lidas" disabled={unread === 0} onPress={() => void markAllRead()} />
+          </View>
         </View>
-
-        <View accessibilityRole="tablist" style={{ flexDirection: 'row', gap: 8 }}>
-          {TABS.map((t) => <Chip key={t.id} label={t.label} on={filter === t.id} onPress={() => setFilter(t.id)} />)}
-        </View>
-        <Btn label="Marcar todas como lidas" disabled={unread === 0} onPress={() => void markAllRead()} />
 
         {!loaded && loading ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>Carregando notificações…</Text>
           : groups.length === 0 ? (
@@ -68,31 +72,35 @@ export default function NotificacoesScreen() {
               : <StateBlock icon="search-off" title="Nada encontrado" text="Não há notificações dessa categoria." actionLabel="Limpar filtros" onAction={() => setFilter('all')} />
           ) : groups.map((g) => (
             <View key={g.label} style={{ gap: 8 }}>
-              <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(18) }}>{g.label}</Text>
+              <RuleTitle>{g.label}</RuleTitle>
               {g.items.map((n) => (
-                <View key={n.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 12, borderWidth: 1,
-                  borderColor: n.read ? COLORS.surfaceContainerHighest : COLORS.primary, backgroundColor: COLORS.surfaceContainerHigh }}>
-                  <MaterialIcons name={isEventNotification(n) ? 'event' : 'notifications'} size={22} color={n.read ? COLORS.onSurfaceVariant : COLORS.primary} />
+                <View key={n.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1,
+                  borderColor: n.read ? COLORS.outlineVariant : COLORS.sapphire, backgroundColor: COLORS.background }}>
+                  <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.surfaceContainerHigh }}>
+                    <MaterialIcons name="notifications-none" size={18} color={COLORS.onSurfaceVariant} />
+                  </View>
                   <View style={{ flex: 1, gap: 2 }}>
-                    <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>
+                    <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14), lineHeight: appFontSize(19) }}>
                       {notificationParts(n).map((p, i) => <NativeText key={i} style={p.bold ? { fontFamily: BOLD } : undefined}>{p.text}</NativeText>)}
                     </Text>
                     <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{relativeTime(n.createdAt)}</Text>
                   </View>
-                  {canOpenNotification(n) && (
-                    <Pressable onPress={() => open(n)} accessibilityRole="button" accessibilityLabel="Abrir notificação"
-                      style={{ minHeight: 36, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: COLORS.outlineVariant, alignItems: 'center', justifyContent: 'center' }}>
-                      <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(12) }}>Abrir</Text>
-                    </Pressable>
-                  )}
+                  {canOpenNotification(n) && <PillBtn label="Abrir" accessibilityLabel="Abrir notificação" onPress={() => open(n)} />}
                   {!n.read && (
                     <Pressable onPress={() => void markRead(n.id)} accessibilityRole="button" accessibilityLabel="Marcar como lida" hitSlop={10}
-                      style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: COLORS.primary }} />
+                      style={{ position: 'absolute', top: 8, right: 8, width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.sapphire }} />
                   )}
                 </View>
               ))}
             </View>
           ))}
+
+        <View accessibilityLabel="Resumo" style={{ padding: 14, borderRadius: 12, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+          <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(17), marginBottom: 8 }}>Resumo</Text>
+          <ProfileRow label="Não lidas"><Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>{unread}</Text></ProfileRow>
+          <ProfileRow label="Mesas"><Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>{items.filter((n) => !isEventNotification(n)).length}</Text></ProfileRow>
+          <ProfileRow label="Eventos"><Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>{items.filter(isEventNotification).length}</Text></ProfileRow>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
