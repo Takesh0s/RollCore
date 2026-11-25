@@ -1,15 +1,16 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { SafeArea as SafeAreaView } from '../components/SafeArea';
-import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
+import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
 import { AppHeader } from '../components/AppHeader';
-import { Select, StateBlock, inputStyle } from '../components/Controls';
-import { BODY, BOLD, Btn, ManageMapModal, SERIF, gridOf, mapSummary, usePaintOf } from '../components/maps/MapModals';
+import { Select, StateBlock } from '../components/Controls';
+import { PillBtn, RuleTitle } from '../components/tables/parts';
+import { MapCardFrame, SearchBox } from '../components/maps/MapParts';
+import { BODY, ManageMapModal, gridOf, mapSummary, usePaintOf } from '../components/maps/MapModals';
 import { useMapExport } from '../components/maps/exportMap';
 import { MapThumb } from '../components/maps/MapView';
-import { COLORS, Card, appFontSize } from '../design/shared';
+import { COLORS, appFontSize } from '../design/shared';
 import { decodeLayers, KINDS, type MapKind } from '../lib/maps';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { showToast } from '../store/useToast';
@@ -21,20 +22,14 @@ export const kindFromLabel = (label: string): MapKind | '' => KINDS.find((k) => 
 function MapCard({ map, width, onEdit, onManage, onExport }: { map: MapItem; width: number; onEdit: () => void; onManage: () => void; onExport: () => void }) {
   const paint = usePaintOf(map);
   return (
-    <Card>
-      <View accessibilityLabel={`Mapa ${map.name}`} style={{ gap: 10 }}>
-        <View style={{ alignItems: 'center', borderRadius: 10, overflow: 'hidden' }}>
-          <MapThumb grid={gridOf(map)} kind={map.kind} imageUrl={map.imageUrl} paint={paint} showGrid={false} fogEnabled={false} width={width} label={`Prévia de ${map.name}`} />
-        </View>
-        <Text numberOfLines={2} style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(18) }}>{map.name}</Text>
-        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{mapSummary(map)}{map.published ? ' · Na Oficina' : ''}</Text>
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          <View style={{ flex: 1 }}><Btn label="Editar mapa" kind="primary" onPress={onEdit} /></View>
-          <View style={{ flex: 1 }}><Btn label="Gerenciar" accessibilityLabel={`Gerenciar ${map.name}`} onPress={onManage} /></View>
-        </View>
-        <Btn label="Exportar PNG" onPress={onExport} />
+    <MapCardFrame label={`Mapa ${map.name}`} name={map.name} meta={[`${mapSummary(map)}${map.published ? ' · Na Oficina' : ''}`]}
+      thumb={<MapThumb grid={gridOf(map)} kind={map.kind} imageUrl={map.imageUrl} paint={paint} showGrid={false} fogEnabled={false} width={width} label={`Prévia de ${map.name}`} />}>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <View style={{ flex: 1 }}><PillBtn block kind="primary" label="Editar mapa" onPress={onEdit} /></View>
+        <View style={{ flex: 1 }}><PillBtn block label="Gerenciar" accessibilityLabel={`Gerenciar ${map.name}`} onPress={onManage} /></View>
       </View>
-    </Card>
+      <PillBtn block label="Exportar PNG" onPress={onExport} />
+    </MapCardFrame>
   );
 }
 
@@ -57,7 +52,7 @@ export default function MapasScreen() {
   const q = query.trim().toLowerCase();
   const shown = useMemo(() => maps.filter((m) => (!kind || m.kind === kind) && (!q || m.name.toLowerCase().includes(q))), [maps, q, kind]);
   const managed = maps.find((m) => m.id === managing) ?? null;
-  const thumbW = Math.min(screenW, 560) - 32 - 30;
+  const thumbW = Math.min(screenW, 560) - 32 - 22;
 
   const open = (id: string) => router.push(`/mapa-editor?id=${id}` as any);
   const exportMap = async (m: MapItem) => {
@@ -69,19 +64,17 @@ export default function MapasScreen() {
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
       <AppHeader title="Lista de mapas" />
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 14 }} keyboardShouldPersistTaps="handled">
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, ...inputStyle() }}>
-          <MaterialIcons name="search" size={20} color={COLORS.fieldText} />
-          <TextInput value={query} onChangeText={setQuery} placeholder="Buscar mapa" placeholderTextColor={COLORS.placeholder} accessibilityLabel="Buscar mapa"
-            style={{ flex: 1, color: COLORS.fieldText, fontFamily: BODY, fontSize: appFontSize(16) }} returnKeyType="search" />
-        </View>
-        <Select title="Filtrar por tipo" value={KINDS.find((k) => k.id === kind)?.label ?? ''} options={kindOptions} placeholder="Todos os tipos" allowClear
-          onChange={(v) => setKind(kindFromLabel(v))} />
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          <View style={{ flex: 1 }}><Btn label="Oficina da Comunidade" onPress={() => router.push('/oficina-mapas' as any)} /></View>
-          <View style={{ flex: 1 }}><Btn label="+ Adicionar mapa" kind="primary" onPress={() => router.push('/mapa-novo' as any)} /></View>
+        <View style={{ gap: 10 }}>
+          <SearchBox value={query} onChangeText={setQuery} placeholder="Buscar mapa" label="Buscar mapa" />
+          <Select title="Filtrar por tipo" value={KINDS.find((k) => k.id === kind)?.label ?? ''} options={kindOptions} placeholder="Todos os tipos" allowClear compact
+            onChange={(v) => setKind(kindFromLabel(v))} />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+            <PillBtn label="Oficina da Comunidade" onPress={() => router.push('/oficina-mapas' as any)} />
+            <PillBtn kind="primary" label="+ Adicionar mapa" onPress={() => router.push('/mapa-novo' as any)} />
+          </View>
         </View>
 
-        <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(20) }}>Biblioteca de mapas</Text>
+        <RuleTitle>Biblioteca de mapas</RuleTitle>
 
         {!loaded && loading && <StateBlock icon="hourglass-empty" title="Carregando seus mapas…" />}
         {failed && !loaded && <StateBlock icon="cloud-off" title="Não foi possível carregar os mapas" text="Tente novamente mais tarde." actionLabel="Tentar de novo" onAction={load} />}
@@ -97,9 +90,9 @@ export default function MapasScreen() {
         ))}
         {loaded && maps.length > 0 && (
           <Pressable onPress={() => router.push('/mapa-novo' as any)} accessibilityRole="button" accessibilityLabel="Criar novo mapa"
-            style={{ minHeight: 96, borderRadius: 14, borderWidth: 2, borderStyle: 'dashed', borderColor: COLORS.outlineVariant, alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-            <Text style={{ color: COLORS.primary, fontFamily: BOLD, fontSize: appFontSize(28) }}>+</Text>
-            <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Criar novo mapa</Text>
+            style={{ minHeight: 110, borderRadius: 12, borderWidth: 2, borderStyle: 'dashed', borderColor: COLORS.outlineVariant, alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(40), lineHeight: appFontSize(44) }}>+</Text>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14) }}>Criar novo mapa</Text>
           </Pressable>
         )}
       </ScrollView>

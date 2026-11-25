@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { Image, ScrollView, View } from 'react-native';
 import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
-import { FormGroup, inputStyle } from '../components/Controls';
+import { FAIL, MUTED, PillBtn } from '../components/tables/parts';
 import { Choice, ChoiceRow } from '../components/maps/Choice';
-import { BODY, BOLD, Btn, SERIF } from '../components/maps/MapModals';
+import { BODY, SERIF } from '../components/maps/MapModals';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import { pickMapImage, uploadImage, type PreparedImage } from '../lib/mapImage';
 import { DEFAULT_CELL, GRID_TYPES, gridForImage, KINDS, MAX_NAME, SIZES, type GridType, type MapKind } from '../lib/maps';
@@ -76,70 +76,74 @@ export default function MapaNovoScreen() {
     await build({ name: 'Novo mapa', kind: 'MEDIEVAL', gridType: 'SQUARE', cols: s.cols, rows: s.rows, cellSize: DEFAULT_CELL, layers: '{}', gridVisible: true, fogEnabled: false });
   }
 
-  const q = (text: string) => <Text accessibilityRole="header" style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(17), marginTop: 6 }}>{text}</Text>;
+  const q = (text: string) => <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(15), marginTop: 14, marginBottom: 2 }}>{text}</Text>;
   const step = (label: string, delta: number) => (
-    <Btn key={label} label={label} accessibilityLabel={`${delta > 0 ? 'Aumentar' : 'Diminuir'} colunas em ${Math.abs(delta)}`} onPress={() => setCols((c) => Math.min(100, Math.max(10, c + delta)))} />
+    <PillBtn key={label} label={label} accessibilityLabel={`${delta > 0 ? 'Aumentar' : 'Diminuir'} colunas em ${Math.abs(delta)}`} onPress={() => setCols((c) => Math.min(100, Math.max(10, c + delta)))} />
   );
 
   return (
     <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1, backgroundColor: COLORS.background }}>
       <Header title="Criar mapa" onBack={() => router.back()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40, gap: 12 }} keyboardShouldPersistTaps="handled">
-        <Text style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(22) }}>Vamos iniciar um mapa novo!</Text>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+        <View style={{ gap: 6, padding: 18, borderRadius: 14, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
+          <Text accessibilityRole="header" style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(24), marginBottom: 6 }}>Vamos iniciar um mapa novo!</Text>
 
-        <FormGroup label="Nome do mapa">
-          <TextInput value={name} onChangeText={setName} maxLength={MAX_NAME} accessibilityLabel="Nome do mapa" style={inputStyle()} />
-        </FormGroup>
+          <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Nome do mapa</Text>
+          <TextInput value={name} onChangeText={setName} maxLength={MAX_NAME} accessibilityLabel="Nome do mapa"
+            style={{ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.field, color: COLORS.fieldText, fontFamily: BODY, fontSize: appFontSize(15) }} />
 
-        {q('Que tipo de mapa você gostaria de criar?')}
-        <ChoiceRow>
-          {KINDS.map((k) => <Choice key={k.id} title={k.label} on={kind === k.id} onPress={() => setKind(k.id)} width="47%" />)}
-        </ChoiceRow>
+          {q('Que tipo de mapa você gostaria de criar?')}
+          <ChoiceRow>
+            {KINDS.map((k) => <Choice key={k.id} title={k.label} on={kind === k.id} onPress={() => setKind(k.id)} width="48%" />)}
+          </ChoiceRow>
 
-        {q('Qual será o formato do mapa?')}
-        <ChoiceRow>
-          {GRID_TYPES.map((g) => <Choice key={g.id} title={g.label} hint={g.hint} on={gridType === g.id} onPress={() => setGridType(g.id)} width="47%" />)}
-        </ChoiceRow>
+          {q('Qual será o formato do mapa?')}
+          <ChoiceRow>
+            {GRID_TYPES.map((g) => <Choice key={g.id} title={g.label} hint={g.hint} on={gridType === g.id} onPress={() => setGridType(g.id)} width="48%" />)}
+          </ChoiceRow>
 
-        {q('Você gostaria de um template?')}
-        <ChoiceRow>
-          <Choice title="Oficina da Comunidade" hint="Mapas criados por outros mestres" onPress={() => router.push('/oficina-mapas' as any)} width="47%" />
-          <Choice title="Fazer upload de mapa" hint="Do seu aparelho (PNG, JPG ou WebP)" on={template === 'upload'} onPress={() => setTemplate('upload')} width="47%" />
-          <Choice title="Continuar mapa" hint={last ? `Retomar "${last.name}"` : 'Você ainda não tem mapas'} disabled={!last} onPress={() => last && openEditor(last.id)} width="47%" />
-          <Choice title="Personalizado" hint="Começar do zero" on={template === 'custom'} onPress={() => setTemplate('custom')} width="47%" />
-        </ChoiceRow>
+          {q('Você gostaria de um template?')}
+          <ChoiceRow>
+            <Choice title="Oficina da Comunidade" hint="Mapas criados por outros mestres" onPress={() => router.push('/oficina-mapas' as any)} width="48%" />
+            <Choice title="Fazer upload de mapa" hint="Do seu aparelho (PNG, JPG ou WebP)" on={template === 'upload'} onPress={() => setTemplate('upload')} width="48%" />
+            <Choice title="Continuar mapa" hint={last ? `Retomar "${last.name}"` : 'Você ainda não tem mapas'} disabled={!last} onPress={() => last && openEditor(last.id)} width="48%" />
+            <Choice title="Personalizado" hint="Começar do zero" on={template === 'custom'} onPress={() => setTemplate('custom')} width="48%" />
+          </ChoiceRow>
 
-        {template === 'custom' && (
-          <>
-            <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Tamanho do mapa</Text>
-            <ChoiceRow>
-              {SIZES.map((s) => <Choice key={s.id} title={s.label} hint={`${s.cols} × ${s.rows} células`} on={size === s.id} onPress={() => setSize(s.id)} width="30%" />)}
-            </ChoiceRow>
-          </>
-        )}
+          {template === 'custom' && (
+            <View style={{ gap: 8, marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderStyle: 'dashed', borderColor: COLORS.outlineVariant }}>
+              <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Tamanho do mapa</Text>
+              <ChoiceRow>
+                {SIZES.map((s) => <Choice key={s.id} title={s.label} hint={`${s.cols} × ${s.rows} células`} on={size === s.id} onPress={() => setSize(s.id)} width="48%" />)}
+              </ChoiceRow>
+            </View>
+          )}
 
-        {template === 'upload' && (
-          <>
-            <Btn label={image ? 'Trocar imagem' : 'Escolher imagem'} accessibilityLabel="Imagem do mapa" onPress={pick} />
-            {image && fit && (
-              <View style={{ gap: 10 }}>
-                <Image source={{ uri: image.uri }} accessibilityLabel="Prévia da imagem escolhida" resizeMode="contain" style={{ width: '100%', height: 200, borderRadius: 10, backgroundColor: COLORS.surfaceContainerHigh }} />
-                <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Colunas da grade: {fit.cols}</Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>{step('−5', -5)}{step('−1', -1)}{step('+1', 1)}{step('+5', 5)}</View>
-                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>A grade ficará com {fit.cols} × {fit.rows} células. Ajuste até casar com o desenho da imagem.</Text>
+          {template === 'upload' && (
+            <View style={{ gap: 8, marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderStyle: 'dashed', borderColor: COLORS.outlineVariant }}>
+              <View style={{ alignSelf: 'flex-start' }}>
+                <PillBtn label={image ? 'Trocar imagem' : 'Escolher imagem'} accessibilityLabel="Imagem do mapa" onPress={pick} />
               </View>
-            )}
-            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Imagens grandes são reduzidas automaticamente para caber no limite de 2 MB.</Text>
-          </>
-        )}
+              {image && fit && (
+                <View style={{ gap: 10 }}>
+                  <Image source={{ uri: image.uri }} accessibilityLabel="Prévia da imagem escolhida" resizeMode="cover" style={{ width: '100%', aspectRatio: 16 / 10, borderRadius: 8, borderWidth: 1, borderColor: COLORS.outlineVariant }} />
+                  <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>Colunas da grade: {fit.cols}</Text>
+                  <View style={{ flexDirection: 'row', gap: 8 }}>{step('−5', -5)}{step('−1', -1)}{step('+1', 1)}{step('+5', 5)}</View>
+                  <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>A grade ficará com {fit.cols} × {fit.rows} células. Ajuste até casar com o desenho da imagem.</Text>
+                </View>
+              )}
+              <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>Imagens grandes são reduzidas automaticamente para caber no limite de 2 MB.</Text>
+            </View>
+          )}
 
-        {!!error && <Text accessibilityRole="alert" style={{ color: '#e57373', fontFamily: BODY, fontSize: appFontSize(13) }}>{error}</Text>}
+          {!!error && <Text accessibilityRole="alert" style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12), marginTop: 8 }}>{error}</Text>}
 
-        <View style={{ height: 1, backgroundColor: COLORS.outlineVariant, marginVertical: 6 }} />
-        <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13) }}>Você pode trocar o tipo e o formato depois, dentro do editor.</Text>
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          <View style={{ flex: 1 }}><Btn label="Pular" disabled={busy} onPress={skip} /></View>
-          <View style={{ flex: 1 }}><Btn label={busy ? '…' : 'Salvar'} kind="primary" disabled={busy} onPress={save} /></View>
+          <View style={{ height: 1, backgroundColor: COLORS.outlineVariant, marginVertical: 12 }} />
+          <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>Você pode trocar o tipo e o formato depois, dentro do editor.</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
+            <PillBtn label="Pular" disabled={busy} onPress={skip} />
+            <PillBtn kind="primary" label={busy ? '…' : 'Salvar'} disabled={busy} onPress={save} />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
