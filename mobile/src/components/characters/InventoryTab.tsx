@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Modal, Platform, ScrollView, View } from 'react-n
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../accessible-text';
 import { Chip, ConfirmDialog, FormGroup, StateBlock, inputStyle } from '../Controls';
 import { COLORS, appFontSize } from '../../design/shared';
-import { FAIL, MUTED, PillBtn } from '../tables/parts';
+import { FAIL, PillBtn } from '../tables/parts';
 import { addItem, capacityOf, fetchInventory, removeItem, saveCoins, saveItem } from '../../lib/inventory';
 import { mensagemDeErro } from '../../services/api';
 import { showToast } from '../../store/useToast';
@@ -148,7 +148,7 @@ export function InventoryTab({ char }: { char: Character }) {
         <View style={{ alignItems: 'center', marginBottom: 6 }}>
           <PillBtn label="+ Adicionar item" kind="primary" onPress={() => setDraft({ ...EMPTY })} accessibilityLabel="Adicionar item" />
         </View>
-        {items.length === 0 && <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(14), textAlign: 'center', paddingVertical: 12 }}>Nenhum item ainda. Adicione o primeiro.</Text>}
+        {items.length === 0 && <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14), textAlign: 'center', paddingVertical: 12 }}>Nenhum item ainda. Adicione o primeiro.</Text>}
         <View style={{ gap: 10 }}>
           {items.map((item) => (
             <View key={item.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 64, paddingVertical: 10, paddingLeft: 16, paddingRight: 8, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.07)' }}>
@@ -164,7 +164,7 @@ export function InventoryTab({ char }: { char: Character }) {
                 <Text style={{ color: '#10202E', fontFamily: BOLD, fontSize: appFontSize(20), lineHeight: 24 }}>+</Text>
               </Pressable>
               <Pressable onPress={() => setRemoving(item)} accessibilityLabel={`Remover ${item.name}`} style={{ padding: 4 }}>
-                <MaterialIcons name="delete-outline" size={22} color={MUTED} />
+                <MaterialIcons name="delete-outline" size={22} color={COLORS.onSurfaceVariant} />
               </Pressable>
             </View>
           ))}

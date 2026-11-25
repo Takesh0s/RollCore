@@ -8,7 +8,7 @@ import {
   DeleteTableModal, LeaveTableModal, MemberActionsModal, MyTableProfileModal, ROLE_LABEL, RemoveMemberModal, TransferHostModal,
 } from '../components/tables/TableModals';
 import { Pressable } from 'react-native';
-import { BODY, BOLD, MUTED, PillBtn, ProfileRow, RuleTitle, SERIF } from '../components/tables/parts';
+import { BODY, BOLD, PillBtn, ProfileRow, RuleTitle, SERIF } from '../components/tables/parts';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import { imageSrc } from '../lib/mapImage';
 import { useAcessibilidade } from '../store/acessibilidade';
@@ -101,11 +101,11 @@ export default function MesaScreen() {
           return (
             <ProfileRow key={m.userId} label={name}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>{ROLE_LABEL[m.role]}</Text>
+                <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{ROLE_LABEL[m.role]}</Text>
                 {(canRemove || canPromote || canTransfer) && (
                   <Pressable onPress={() => setDialog({ kind: 'actions', member: m })} accessibilityRole="button" accessibilityLabel={`Ações de ${name}`}
                     style={{ width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-                    <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(16), lineHeight: appFontSize(18) }}>…</Text>
+                    <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(16), lineHeight: appFontSize(18) }}>…</Text>
                   </Pressable>
                 )}
               </View>
@@ -115,7 +115,7 @@ export default function MesaScreen() {
 
         <View style={{ marginTop: 18, padding: 18, alignItems: 'center', gap: 4, borderWidth: 1, borderStyle: 'dashed', borderColor: COLORS.ruleSoft }}>
           <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>Sessão ao vivo</Text>
-          <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(13), textAlign: 'center' }}>As rolagens em tempo real e quem está online chegam em breve.</Text>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(13), textAlign: 'center' }}>As rolagens em tempo real e quem está online chegam em breve.</Text>
         </View>
 
         <View style={{ marginTop: 22, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 10 }}>

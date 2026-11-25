@@ -6,7 +6,7 @@ import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../components/accessible-text';
 import { ConfirmDialog, Select, StateBlock } from '../components/Controls';
 import { BODY, BOLD, RenameMapModal, SERIF, gridOf } from '../components/maps/MapModals';
-import { MUTED, PillBtn } from '../components/tables/parts';
+import { PillBtn } from '../components/tables/parts';
 import { MapView, TerrainSample, type StrokeEvent } from '../components/maps/MapView';
 import { useMapExport } from '../components/maps/exportMap';
 import { COLORS, Header, appFontSize } from '../design/shared';
@@ -39,7 +39,7 @@ function Tab({ label, on, onPress, accessibilityLabel, flat }: { label: string; 
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label} accessibilityState={{ selected: on }}
       style={{ minHeight: 34, paddingVertical: 5, paddingHorizontal: flat ? 8 : 12, borderRadius: flat ? 8 : 999, alignItems: 'center', justifyContent: 'center',
         backgroundColor: !flat && on ? COLORS.btnText : flat ? COLORS.surfaceContainerHigh : 'transparent', borderWidth: 1, borderColor: on ? (flat ? COLORS.btnText : 'transparent') : COLORS.outlineVariant }}>
-      <Text style={{ color: on ? (flat ? COLORS.btnText : COLORS.btn) : flat ? COLORS.onSurface : MUTED, fontFamily: on && !flat ? BOLD : BODY, fontSize: appFontSize(12) }}>{label}</Text>
+      <Text style={{ color: on ? (flat ? COLORS.btnText : COLORS.btn) : flat ? COLORS.onSurface : COLORS.onSurfaceVariant, fontFamily: on && !flat ? BOLD : BODY, fontSize: appFontSize(12) }}>{label}</Text>
     </Pressable>
   );
 }
@@ -284,7 +284,7 @@ function MapEditor({ initial }: { initial: MapItem }) {
         </Pressable>
         <IconBtn icon="add" label="Aumentar zoom" disabled={zoom >= ZOOMS[ZOOMS.length - 1]} onPress={() => setZoom(ZOOMS[Math.min(ZOOMS.length - 1, zoomIdx + 1)])} />
         <IconBtn icon="pan-tool" label="Mover o mapa" on={pan && !preview} disabled={preview || zoom === 1} onPress={() => setPan((p) => !p)} />
-        {preview && <Text style={{ flexBasis: '100%', color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>Visão do jogador · toque no olho para voltar a editar</Text>}
+        {preview && <Text style={{ flexBasis: '100%', color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Visão do jogador · toque no olho para voltar a editar</Text>}
       </View>
 
       <ScrollView style={{ maxHeight: screenH * 0.38 }} contentContainerStyle={{ padding: 8, paddingBottom: 12 }} keyboardShouldPersistTaps="handled">
@@ -299,7 +299,7 @@ function MapEditor({ initial }: { initial: MapItem }) {
                 style={{ width: '23%', alignItems: 'center', gap: 4, paddingTop: 5, paddingBottom: 4, paddingHorizontal: 3, borderRadius: 8, backgroundColor: COLORS.surfaceContainerHigh,
                   borderWidth: paintId === t.id ? 2 : 1, borderColor: paintId === t.id ? COLORS.btnText : COLORS.outlineVariant }}>
                 <TerrainSample t={t} size={48} />
-                <Text numberOfLines={2} style={{ textAlign: 'center', color: paintId === t.id ? COLORS.onSurface : MUTED, fontFamily: BODY, fontSize: appFontSize(10.5) }}>{t.label}</Text>
+                <Text numberOfLines={2} style={{ textAlign: 'center', color: paintId === t.id ? COLORS.onSurface : COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(10.5) }}>{t.label}</Text>
               </Pressable>
             ))}
           </View>
@@ -311,7 +311,7 @@ function MapEditor({ initial }: { initial: MapItem }) {
           </View>
 
           <View style={{ height: 1, backgroundColor: COLORS.outlineVariant, marginVertical: 6 }} />
-          <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>Tamanho do pincel: {brush}</Text>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Tamanho do pincel: {brush}</Text>
           <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
             {[1, 2, 3, 4, 5, 6].map((n) => <Tab key={n} label={String(n)} accessibilityLabel={`Pincel ${n}`} on={brush === n} onPress={() => setBrush(n)} />)}
           </View>
@@ -348,7 +348,7 @@ function MapEditor({ initial }: { initial: MapItem }) {
               <Select title="Formato" value={gridLabelOf(gridType)} options={GRID_TYPES.map((g) => g.label)} onChange={(v) => setGridType(GRID_TYPES.find((g) => g.label === v)?.id ?? gridType)} />
             </View>
           </View>
-          <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>{saved.cols} × {saved.rows} células</Text>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{saved.cols} × {saved.rows} células</Text>
 
           <View style={{ gap: 8, marginTop: 6 }}>
             <PillBtn block label={saved.published ? 'Remover da Oficina' : 'Publicar na Oficina'} disabled={saving} onPress={onPublish} />

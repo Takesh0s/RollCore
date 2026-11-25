@@ -6,7 +6,7 @@ import { StateBlock } from '../components/Controls';
 import { NavIcon } from '../components/NavIcon';
 import { TableBanner } from '../components/tables/TableBanner';
 import { JoinTableModal } from '../components/tables/TableModals';
-import { BODY, FAINT, MUTED, PillBtn } from '../components/tables/parts';
+import { BODY, PillBtn } from '../components/tables/parts';
 import { COLORS, appFontSize } from '../design/shared';
 import { useAcessibilidade } from '../store/acessibilidade';
 import { useTables } from '../store/useTables';
@@ -32,13 +32,13 @@ export default function MesasScreen() {
         refreshControl={<RefreshControl refreshing={loading && loaded} onRefresh={load} tintColor="#70B596" />}>
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 14 }}>
           <View style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 8, paddingHorizontal: 10, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.18)' }}>
-            <NavIcon name="search" size={22} color={MUTED} />
-            <TextInput value={query} onChangeText={setQuery} placeholder="Buscar mesa" placeholderTextColor={FAINT} accessibilityLabel="Buscar mesa" returnKeyType="search"
+            <NavIcon name="search" size={22} color={COLORS.onSurfaceVariant} />
+            <TextInput value={query} onChangeText={setQuery} placeholder="Buscar mesa" placeholderTextColor={COLORS.outline} accessibilityLabel="Buscar mesa" returnKeyType="search"
               style={{ flex: 1, minWidth: 0, paddingVertical: 8, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }} />
           </View>
           <PillBtn label="Entrar com código" onPress={() => setJoining(true)} />
           <Pressable onPress={create} accessibilityRole="button" accessibilityLabel="Criar mesa" style={{ width: 38, height: 34, marginLeft: 6, alignItems: 'center', justifyContent: 'center' }}>
-            <NavIcon name="plus" size={30} color={MUTED} />
+            <NavIcon name="plus" size={30} color={COLORS.onSurfaceVariant} />
           </Pressable>
         </View>
 

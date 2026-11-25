@@ -287,7 +287,7 @@ export function DiceStage({ sides, rolling, result, edge }: Props) {
       </View>
       {showTotal && result ? (
         <Text accessibilityLabel={`Total ${result.total}`} style={{ color: tone, fontFamily: 'SourceSerif4_700Bold', fontSize: appFontSize(38), lineHeight: appFontSize(42) }}>
-          <Text style={{ color: '#C0C0C0', fontFamily: 'Inter_400Regular', fontSize: appFontSize(14) }}>Total </Text>{result.total}
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: 'Inter_400Regular', fontSize: appFontSize(14) }}>Total </Text>{result.total}
         </Text>
       ) : null}
     </>

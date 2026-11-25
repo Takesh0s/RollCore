@@ -12,7 +12,6 @@ const BOLD = 'Inter_700Bold';
 const FAIL = '#e05555';
 const BTN = 'FugazOne_400Regular';
 const SERIF = 'SourceSerif4_700Bold';
-const FAINT = '#9AA4A8';
 
 /** Moldura das telas de acesso (Login, Cadastro, Recuperar senha), como no web: logo, nome, subtítulo e o formulário. */
 export function AuthShell({ subtitle, children }: { subtitle: string; children: ReactNode }) {
@@ -24,7 +23,7 @@ export function AuthShell({ subtitle, children }: { subtitle: string; children: 
             <View style={{ alignItems: 'center', marginBottom: 14 }}>
               <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={{ marginBottom: 4 }}><RollCoreLogo size={108} color={AUTH_COLORS.mint} /></View>
               <OutlineText size={appFontSize(50)} color={AUTH_COLORS.mint}>RollCore</OutlineText>
-              <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(16), marginTop: 4 }}>{subtitle}</Text>
+              <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(16), marginTop: 4 }}>{subtitle}</Text>
             </View>
             {children}
           </View>
@@ -47,7 +46,7 @@ export function AuthField({ label, error, valid, password, ...rest }: FieldProps
   const [hidden, setHidden] = useState(true);
   return (
     <View style={{ marginBottom: 14 }}>
-      <Text style={{ color: FAINT, fontFamily: BODY, fontSize: appFontSize(12), marginBottom: 6 }}>{label}</Text>
+      <Text style={{ color: COLORS.outline, fontFamily: BODY, fontSize: appFontSize(12), marginBottom: 6 }}>{label}</Text>
       <View>
         <TextInput
           accessibilityLabel={label}
@@ -86,7 +85,7 @@ export function AuthButton({ label, onPress, disabled, busy }: { label: string; 
 export function AuthLink({ label, onPress, hint, align = 'center' }: { label: string; onPress: () => void; hint?: string; align?: 'center' | 'start' }) {
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: align === 'center' ? 'center' : 'flex-start', gap: 5, marginTop: 22 }}>
-      {!!hint && <Text style={{ color: FAINT, fontFamily: BODY, fontSize: appFontSize(13) }}>{hint}</Text>}
+      {!!hint && <Text style={{ color: COLORS.outline, fontFamily: BODY, fontSize: appFontSize(13) }}>{hint}</Text>}
       <Pressable onPress={onPress} accessibilityRole="link" hitSlop={8}>
         <Text style={{ color: COLORS.sapphire, fontFamily: SERIF, fontSize: appFontSize(13) }}>{label}</Text>
       </Pressable>
@@ -99,7 +98,7 @@ export function AuthDivider() {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 14, marginBottom: 14 }}>
       <View style={{ flex: 1, height: 1, backgroundColor: COLORS.ruleSoft }} />
-      <Text style={{ color: FAINT, fontFamily: BODY, fontSize: appFontSize(11) }}>ou</Text>
+      <Text style={{ color: COLORS.outline, fontFamily: BODY, fontSize: appFontSize(11) }}>ou</Text>
       <View style={{ flex: 1, height: 1, backgroundColor: COLORS.ruleSoft }} />
     </View>
   );

@@ -5,7 +5,7 @@ import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTex
 import { ConfirmDialog, Select, StateBlock } from '../components/Controls';
 import { NavIcon } from '../components/NavIcon';
 import { TableLimitModal } from '../components/tables/TableModals';
-import { BODY, FAIL, MUTED, PillBtn, RuleTitle } from '../components/tables/parts';
+import { BODY, FAIL, PillBtn, RuleTitle } from '../components/tables/parts';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import { imageSrc, pickImage, type PreparedImage } from '../lib/mapImage';
 import { useAcessibilidade } from '../store/acessibilidade';
@@ -143,7 +143,7 @@ export default function MesaFormScreen() {
             {shownCover ? <Image source={{ uri: shownCover }} resizeMode="cover" style={{ position: 'absolute', width: '100%', height: '100%' }} /> : <NavIcon name="plus" size={44} color="#1b2226" />}
           </Pressable>
           {shownCover ? <View style={{ marginTop: 10, alignSelf: 'flex-start' }}><PillBtn label="Remover capa" onPress={() => { setCover(null); setRemoveCover(true); }} /></View> : null}
-          <Text style={{ marginTop: 4, color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>A capa fica salva na mesa e aparece para todos os jogadores. Máx. 2 MB.</Text>
+          <Text style={{ marginTop: 4, color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>A capa fica salva na mesa e aparece para todos os jogadores. Máx. 2 MB.</Text>
         </View>
 
         <View style={{ alignItems: 'center', marginTop: 8 }}>

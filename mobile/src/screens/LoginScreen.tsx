@@ -82,7 +82,7 @@ export default function LoginScreen() {
           <View style={{ width: 18, height: 18, borderRadius: 3, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: AUTH_COLORS.gray, backgroundColor: manter ? AUTH_COLORS.mint : 'transparent' }}>
             {manter && <Text style={{ color: AUTH_COLORS.typed, fontFamily: BOLD, fontSize: appFontSize(12) }}>✓</Text>}
           </View>
-          <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) }}>Mantenha conectado</Text>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Mantenha conectado</Text>
         </Pressable>
         <Pressable onPress={() => router.push('/recuperar-senha')} accessibilityRole="link" hitSlop={8}>
           <Text style={{ color: COLORS.sapphire, fontFamily: BOLD, fontSize: appFontSize(12) }}>Esqueci minha senha</Text>

@@ -33,7 +33,7 @@ function Card({ title, sub, tag, tagColor, children, onRemove, dashed, onPress }
       {children ? <View style={{ flexDirection: 'row', gap: 10, marginTop: 'auto' }}>{children}</View> : null}
       {onRemove ? (
         <Pressable onPress={onRemove} accessibilityLabel={`Remover atalho ${title}`} hitSlop={8} style={{ position: 'absolute', top: 4, right: 8 }}>
-          <Text style={{ color: '#C0C0C0', fontSize: appFontSize(18), lineHeight: 22 }}>×</Text>
+          <Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(18), lineHeight: 22 }}>×</Text>
         </Pressable>
       ) : null}
     </Wrap>
@@ -43,7 +43,7 @@ function Card({ title, sub, tag, tagColor, children, onRemove, dashed, onPress }
 function Go({ label, onPress, disabled, a11y }: { label: string; onPress: () => void; disabled: boolean; a11y: string }) {
   return (
     <Pressable onPress={onPress} disabled={disabled} accessibilityLabel={a11y} style={{ opacity: disabled ? 0.5 : 1 }}>
-      <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(11) }}>{label} ›</Text>
+      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(11) }}>{label} ›</Text>
     </Pressable>
   );
 }
@@ -95,7 +95,7 @@ export function ShortcutsSection({ characters, shortcuts, rolling, currentFormul
       </ScrollView>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
-        {loading && <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(14), width: '100%', textAlign: 'center', paddingVertical: 10 }}>Carregando…</Text>}
+        {loading && <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14), width: '100%', textAlign: 'center', paddingVertical: 10 }}>Carregando…</Text>}
 
         {sheet.map((r) => (
           <Card key={`${r.kind}-${r.id}`} title={r.name} sub={r.attack ? `Atq ${r.attack.replace('1d20', '')} · ${r.formula}` : fmt(r.formula)} tag={`● da ficha · ${r.detail}`} tagColor={CRIT}>
@@ -115,8 +115,8 @@ export function ShortcutsSection({ characters, shortcuts, rolling, currentFormul
         )}
       </View>
 
-      {nothing && !char && <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(14), textAlign: 'center', paddingVertical: 10 }}>Crie uma ficha para ver aqui as armas, magias e itens dela.</Text>}
-      <Text style={{ color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(11), marginTop: 8, marginBottom: 4 }}>
+      {nothing && !char && <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(14), textAlign: 'center', paddingVertical: 10 }}>Crie uma ficha para ver aqui as armas, magias e itens dela.</Text>}
+      <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(11), marginTop: 8, marginBottom: 4 }}>
         Itens “da ficha” aparecem sozinhos e usam o status atual do personagem. “Personalizado” rola a fórmula que você digitou.
       </Text>
 
@@ -142,7 +142,7 @@ function NewShortcutModal({ initialFormula, onClose, onSave }: { initialFormula:
     setBusy(true); await onSave(name.trim(), clean); setBusy(false);
   }
 
-  const label = { color: '#C0C0C0', fontFamily: BODY, fontSize: appFontSize(12) } as const;
+  const label = { color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) } as const;
   const btn = (fill: boolean, off?: boolean) => ({ flex: 1, height: 42, borderRadius: 999, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.sapphire, backgroundColor: fill ? COLORS.sapphire : 'transparent', opacity: off ? 0.5 : 1 } as const);
 
   return (
@@ -151,7 +151,7 @@ function NewShortcutModal({ initialFormula, onClose, onSave }: { initialFormula:
         <View accessibilityViewIsModal style={{ width: '100%', maxWidth: 380, alignSelf: 'center', gap: 12, padding: 20, borderRadius: 16, borderWidth: 1, borderColor: COLORS.outlineVariant, backgroundColor: COLORS.surfaceContainer }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <Text accessibilityRole="header" style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(20) }}>Novo atalho</Text>
-            <Pressable onPress={onClose} accessibilityLabel="Fechar"><Text style={{ color: '#C0C0C0', fontSize: appFontSize(18) }}>✕</Text></Pressable>
+            <Pressable onPress={onClose} accessibilityLabel="Fechar"><Text style={{ color: COLORS.onSurfaceVariant, fontSize: appFontSize(18) }}>✕</Text></Pressable>
           </View>
           <Text style={{ ...label }}>Armas, magias e itens que você já criou no site aparecem sozinhos na lista, com o bônus da ficha. Aqui você cria um atalho com uma fórmula exata.</Text>
           <View style={{ gap: 4 }}>

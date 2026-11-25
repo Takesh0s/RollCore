@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeArea as SafeAreaView } from '../components/SafeArea';
 import { AccessiblePressable as Pressable, AccessibleText as Text, AccessibleTextInput as TextInput } from '../components/accessible-text';
 import { Avatar, ConfirmDialog, Select, StateBlock } from '../components/Controls';
-import { BODY, BOLD, FAIL, MUTED, PillBtn, RuleTitle, SERIF } from '../components/tables/parts';
+import { BODY, BOLD, FAIL, PillBtn, RuleTitle, SERIF } from '../components/tables/parts';
 import { COLORS, Header, appFontSize } from '../design/shared';
 import { ATTR_KEYS, ATTR_LABELS, calcMod, formatMod, getRaceBonuses, profBonus } from '../lib/engine';
 import { ATTR_INPUT_MAX, ATTR_INPUT_MIN, calcMaxHp, calcUnarmoredAC } from '../lib/engine-hp';
@@ -203,7 +203,7 @@ export default function FichaFormScreen() {
   const lbl = { color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) } as const;
   const fld = (error?: boolean) => ({ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.field, color: COLORS.fieldText,
     fontFamily: BODY, fontSize: appFontSize(15), borderWidth: 1, borderColor: error ? FAIL : 'transparent' }) as const;
-  const hint = (t: string) => <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>{t}</Text>;
+  const hint = (t: string) => <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{t}</Text>;
   const err = (t?: string) => (t ? <Text accessibilityLiveRegion="polite" style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>{t}</Text> : null);
   const step = (icon: 'add' | 'remove', onPress: () => void, a11y: string) => (
     <Pressable onPress={onPress} accessibilityLabel={a11y} style={{ width: 44, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.fill, borderWidth: 1, borderColor: COLORS.ruleSoft }}>
@@ -223,7 +223,7 @@ export default function FichaFormScreen() {
                 <MaterialIcons name="photo-camera" size={16} color="#FFFFFF" />
               </View>
             </Pressable>
-            <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>Foto do personagem (opcional)</Text>
+            <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>Foto do personagem (opcional)</Text>
             {avatarUrl ? <PillBtn label="Remover foto" onPress={() => setAvatarUrl('')} /> : null}
           </View>
 
@@ -291,12 +291,12 @@ export default function FichaFormScreen() {
                 const bonus = raceBonuses[k];
                 return (
                   <View key={k} style={{ width: '30%', alignItems: 'center', gap: 4 }}>
-                    <Text style={{ color: MUTED, fontFamily: SERIF, fontSize: appFontSize(11), letterSpacing: 2 }}>{ATTR_LABELS[k]}</Text>
+                    <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: SERIF, fontSize: appFontSize(11), letterSpacing: 2 }}>{ATTR_LABELS[k]}</Text>
                     <TextInput value={attrs[k]} onChangeText={(t) => { setAttrs((p) => ({ ...p, [k]: t.replace(/\D/g, '') })); clearErr(k); }}
                       keyboardType="number-pad" maxLength={2} placeholder="1–20" placeholderTextColor={COLORS.placeholder} accessibilityLabel={`Atributo ${ATTR_LABELS[k]}`}
                       style={[fld(!!errors[k]), { width: '100%', textAlign: 'center' }]} />
                     <Text style={{ color: COLORS.primary, fontFamily: SERIF, fontSize: appFontSize(14) }}>{mod}</Text>
-                    {bonus ? <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(11) }}>+{bonus} racial</Text> : null}
+                    {bonus ? <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(11) }}>+{bonus} racial</Text> : null}
                     {errors[k] ? <Text style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(11) }}>{errors[k]}</Text> : null}
                   </View>
                 );
