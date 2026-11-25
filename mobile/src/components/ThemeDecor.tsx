@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, G, Path, Pattern, Rect, SvgXml } from 'react-native-svg';
 import { BAND, FRAME_SIDE, FRAME_TOP } from '../design/frame';
 import { resolvedThemeMode } from '../design/shared';
@@ -12,12 +13,19 @@ import { useAcessibilidade } from '../store/acessibilidade';
  */
 interface Box { w: number; h: number; left: number; right: number; top: number; bottom: number }
 
+const TAG_H = 20;
+/** Os botões do cabeçalho (menu, perfil) começam a ~48 dp; a etiqueta termina um pouco antes. */
+const TAG_BOTTOM = 46;
+
 /**
  * Terror (Figma "Terror Mobile"): etiqueta de dossiê, rastro de sangue no topo e respingos na base.
- * No Figma a etiqueta fica no topo, na área da barra de status; no aparelho a barra é mais alta e a etiqueta cobriria o relógio ou o
- * botão do menu, então ela vai para a faixa de baixo, no vão entre os dois respingos.
+ * A etiqueta fica no topo, à esquerda da moldura, como no Figma. Lá a faixa de cima (0 a 40) é livre; no aparelho ela divide espaço com a barra
+ * de status, então a etiqueta fica entre a base da barra e o topo dos botões do cabeçalho e encolhe se o vão for menor que ela.
  */
 function Terror({ box, light }: { box: Box; light: boolean }) {
+  const { top: statusBar } = useSafeAreaInsets();
+  const tagTop = statusBar + 2;
+  const scale = Math.min(1, (TAG_BOTTOM - tagTop) / TAG_H);
   // O mesmo desenho (401 x 850) vale para as duas pontas: o topo mostra só as gotas e a base só os respingos.
   const blood = light ? LIGHT_ART.terrorBlood : TERROR_BLOOD;
   const top = blood.replace('width="401" height="850" viewBox="0 0 401 850"', 'width="401" height="80" viewBox="0 0 401 80"');
@@ -26,7 +34,7 @@ function Terror({ box, light }: { box: Box; light: boolean }) {
     <>
       <View style={{ position: 'absolute', left: 10, top: 37 }}><SvgXml xml={top} width={box.w - 11} height={80} preserveAspectRatio="none" /></View>
       <View style={{ position: 'absolute', right: 1, bottom: 30 }}><SvgXml xml={bottom} width={341} height={115} /></View>
-      <View style={{ position: 'absolute', left: box.w - 299, bottom: 14 }}><SvgXml xml={light ? LIGHT_ART.terrorTag : TERROR_TAG} width={150} height={20} /></View>
+      {scale >= 0.7 && <View style={{ position: 'absolute', left: FRAME_SIDE, top: tagTop }}><SvgXml xml={light ? LIGHT_ART.terrorTag : TERROR_TAG} width={150 * scale} height={TAG_H * scale} /></View>}
     </>
   );
 }
