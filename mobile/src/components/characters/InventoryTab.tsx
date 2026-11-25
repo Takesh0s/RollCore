@@ -136,7 +136,7 @@ export function InventoryTab({ char }: { char: Character }) {
   const title = (label: string) => (
     <View accessibilityRole="header" style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8 }}>
       <View style={rule} />
-      <Text style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(14) }}>{label}</Text>
+      <Text style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(14) }}>{label}</Text>
       <View style={rule} />
     </View>
   );
@@ -153,13 +153,13 @@ export function InventoryTab({ char }: { char: Character }) {
           {items.map((item) => (
             <View key={item.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 64, paddingVertical: 10, paddingLeft: 16, paddingRight: 8, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.07)' }}>
               <Pressable onPress={() => setDraft(toDraft(item))} accessibilityLabel={`Editar ${item.name}`} style={{ flex: 1, minWidth: 0 }}>
-                <Text numberOfLines={2} style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(15) }}>{item.name}</Text>
+                <Text numberOfLines={2} style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(15) }}>{item.name}</Text>
                 <Text numberOfLines={1} style={{ color: COLORS.sapphire, fontFamily: BODY, fontSize: appFontSize(13) }}>{item.damage || '—'}</Text>
               </Pressable>
               <Pressable onPress={() => step(item, -1)} disabled={item.quantity <= 0} accessibilityLabel={`Diminuir ${item.name}`} style={[stepBtn, { opacity: item.quantity <= 0 ? 0.4 : 1 }]}>
                 <Text style={{ color: '#10202E', fontFamily: BOLD, fontSize: appFontSize(20), lineHeight: 24 }}>−</Text>
               </Pressable>
-              <Text accessibilityLabel={`Quantidade ${item.quantity}`} style={{ minWidth: 28, textAlign: 'center', color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(20) }}>{item.quantity}</Text>
+              <Text accessibilityLabel={`Quantidade ${item.quantity}`} style={{ minWidth: 28, textAlign: 'center', color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(20) }}>{item.quantity}</Text>
               <Pressable onPress={() => step(item, 1)} accessibilityLabel={`Aumentar ${item.name}`} style={stepBtn}>
                 <Text style={{ color: '#10202E', fontFamily: BOLD, fontSize: appFontSize(20), lineHeight: 24 }}>+</Text>
               </Pressable>
@@ -176,7 +176,7 @@ export function InventoryTab({ char }: { char: Character }) {
         {COIN_ROWS.map((c, i) => (
           <View key={c.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: i === COIN_ROWS.length - 1 ? 0 : 1, borderBottomColor: COLORS.outlineVariant }}>
             <View accessibilityElementsHidden style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: c.color }} />
-            <Text style={{ flex: 1, color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>{c.label}</Text>
+            <Text style={{ flex: 1, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>{c.label}</Text>
             <TextInput value={coinText[c.key]} onChangeText={(t) => setCoinText((s) => ({ ...s, [c.key]: t.replace(/\D/g, '').slice(0, 6) }))}
               onBlur={() => commitCoin(c.key)} onSubmitEditing={() => commitCoin(c.key)} keyboardType="number-pad" accessibilityLabel={`Moedas de ${c.label.toLowerCase()}`}
               selectTextOnFocus style={{ width: 110, textAlign: 'right', color: COLORS.sapphire, fontFamily: SERIF, fontSize: appFontSize(20), paddingVertical: 2, borderBottomWidth: 1, borderBottomColor: 'transparent' }} />
@@ -189,7 +189,7 @@ export function InventoryTab({ char }: { char: Character }) {
         <View style={{ gap: 14 }}>
           {([['Pontos de vida', `${char.hp} / ${char.max_hp}`, false], ['Classe de armadura', String(char.ac), false], ['Peso carregado', `${num(total)} / ${capacity} kg`, total > capacity]] as const).map(([k, v, over]) => (
             <View key={k} style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
-              <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(13) }}>{k}</Text>
+              <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(13) }}>{k}</Text>
               <Text style={{ color: over ? FAIL : COLORS.sapphire, fontFamily: SERIF, fontSize: appFontSize(20) }}>{v}</Text>
             </View>
           ))}
@@ -202,7 +202,7 @@ export function InventoryTab({ char }: { char: Character }) {
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.55)' }}>
             <View accessibilityViewIsModal style={{ maxHeight: '90%', padding: 18, borderTopLeftRadius: 18, borderTopRightRadius: 18, backgroundColor: COLORS.surfaceContainerHigh }}>
               <ScrollView contentContainerStyle={{ gap: 12 }} keyboardShouldPersistTaps="handled">
-                <Text style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(18) }}>{draft.id ? 'Editar item' : 'Novo item'}</Text>
+                <Text style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(18) }}>{draft.id ? 'Editar item' : 'Novo item'}</Text>
                 <FormGroup label="Nome">
                   <TextInput value={draft.name} onChangeText={(t) => setDraft({ ...draft, name: t })} maxLength={80} style={inputStyle()} placeholderTextColor={COLORS.placeholder} />
                 </FormGroup>

@@ -56,7 +56,7 @@ export function NewEventPopup() {
         {`${note.actorName ?? 'Alguém'} criou um novo evento: ${event.title}, na mesa ${event.tableName}${event.askRsvp ? ', e precisa que você confirme a presença.' : '.'}`}
       </Text>
       <View style={{ paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, gap: 2, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.outlineVariant }}>
-        <Text style={{ color: '#FFFFFF', fontFamily: BOLD, fontSize: appFontSize(14) }}>{`${dayLabel(event.date)} · ${rangeLabel(event)}`}</Text>
+        <Text style={{ color: COLORS.onSurface, fontFamily: BOLD, fontSize: appFontSize(14) }}>{`${dayLabel(event.date)} · ${rangeLabel(event)}`}</Text>
         <Text style={{ color: COLORS.onSurfaceVariant, fontFamily: BODY, fontSize: appFontSize(12) }}>{`${confirmedCount(event)}/${event.guests.length} confirmados`}</Text>
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>

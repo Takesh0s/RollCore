@@ -67,7 +67,7 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
     const color = active ? COLORS.sapphire : MUTED;
     return (
       <Pressable key={item.label} onPress={() => go(item.route, item.label)} accessibilityRole="button" accessibilityState={{ selected: active }}
-        style={{ flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 48, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 12, backgroundColor: active ? 'rgba(255,255,255,0.1)' : 'transparent' }}>
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 48, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 12, backgroundColor: active ? COLORS.fill : 'transparent' }}>
         {item.icon === 'dice'
           ? <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}><RollCoreLogo size={26} color={color} /></View>
           : <NavIcon name={item.icon} size={28} color={color} />}
@@ -84,20 +84,20 @@ export default function DrawerMenu({ visible, onClose }: DrawerMenuProps) {
   return (
     <Modal visible={visible} transparent animationType="fade" statusBarTranslucent navigationBarTranslucent onRequestClose={onClose}>
       <View style={{ flex: 1, flexDirection: 'row' }}>
-        <View accessibilityViewIsModal style={{ width: Math.min(300, width * 0.82), height: '100%', backgroundColor: medieval ? '#3a454b' : COLORS.surfaceContainerHigh, borderRightWidth: 1, borderRightColor: 'rgba(192,192,192,0.35)' }}>
+        <View accessibilityViewIsModal style={{ width: Math.min(300, width * 0.82), height: '100%', backgroundColor: medieval ? '#3a454b' : COLORS.surfaceContainerHigh, borderRightWidth: 1, borderRightColor: COLORS.ruleFaint }}>
           <ScrollView contentContainerStyle={{ flexGrow: 1, paddingTop: 38, paddingHorizontal: 12, paddingBottom: 18 }} showsVerticalScrollIndicator={false}>
             <Pressable onPress={() => go('/perfil')} accessibilityRole="button" accessibilityLabel="Meu perfil"
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 8, paddingBottom: 16, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(192,192,192,0.55)' }}>
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 8, paddingBottom: 16, marginBottom: 8, borderBottomWidth: 1, borderBottomColor: COLORS.ruleSoft }}>
               {avatar
-                ? <Image source={{ uri: avatar }} style={{ width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: 'rgba(192,192,192,0.85)' }} />
+                ? <Image source={{ uri: avatar }} style={{ width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: COLORS.rule }} />
                 : <NavIcon name="user" size={56} color={MUTED} />}
               <View style={{ flex: 1 }}>
-                <Text numberOfLines={1} style={{ color: '#fff', fontFamily: SERIF, fontSize: appFontSize(17) }}>{name || 'Perfil'}</Text>
+                <Text numberOfLines={1} style={{ color: COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(17) }}>{name || 'Perfil'}</Text>
                 <Text numberOfLines={1} style={{ color: '#9AA4A8', fontFamily: 'Inter_400Regular', fontSize: appFontSize(12) }}>{`@${(name || 'perfil').toLowerCase().replace(/\s+/g, '')}`}</Text>
               </View>
             </Pressable>
             <View style={{ gap: 2 }}>{ITEMS.map(row)}</View>
-            <View style={{ marginTop: 'auto', paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(192,192,192,0.55)' }}>
+            <View style={{ marginTop: 'auto', paddingTop: 14, borderTopWidth: 1, borderTopColor: COLORS.ruleSoft }}>
               {row(SETTINGS)}
               <Pressable onPress={logout} accessibilityRole="button" style={{ marginTop: 4, marginLeft: 64, paddingVertical: 8, alignSelf: 'flex-start' }}>
                 <Text style={{ color: '#e58a8a', fontFamily: SERIF, fontSize: appFontSize(13) }}>Sair da conta</Text>

@@ -200,13 +200,13 @@ export default function FichaFormScreen() {
     );
   }
 
-  const lbl = { color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) } as const;
+  const lbl = { color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) } as const;
   const fld = (error?: boolean) => ({ paddingVertical: 9, paddingHorizontal: 12, borderRadius: 10, backgroundColor: COLORS.field, color: COLORS.fieldText,
     fontFamily: BODY, fontSize: appFontSize(15), borderWidth: 1, borderColor: error ? FAIL : 'transparent' }) as const;
   const hint = (t: string) => <Text style={{ color: MUTED, fontFamily: BODY, fontSize: appFontSize(12) }}>{t}</Text>;
   const err = (t?: string) => (t ? <Text accessibilityLiveRegion="polite" style={{ color: FAIL, fontFamily: BODY, fontSize: appFontSize(12) }}>{t}</Text> : null);
   const step = (icon: 'add' | 'remove', onPress: () => void, a11y: string) => (
-    <Pressable onPress={onPress} accessibilityLabel={a11y} style={{ width: 44, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(192,192,192,0.5)' }}>
+    <Pressable onPress={onPress} accessibilityLabel={a11y} style={{ width: 44, height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.fill, borderWidth: 1, borderColor: COLORS.ruleSoft }}>
       <MaterialIcons name={icon} size={20} color="#FFFFFF" />
     </Pressable>
   );
@@ -261,8 +261,8 @@ export default function FichaFormScreen() {
             </View>
 
             {!!race && Object.keys(raceBonuses).length > 0 && (
-              <View style={{ padding: 12, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(192,192,192,0.5)' }}>
-                <Text style={{ color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(13) }}>
+              <View style={{ padding: 12, borderRadius: 10, backgroundColor: COLORS.fill, borderWidth: 1, borderColor: COLORS.ruleSoft }}>
+                <Text style={{ color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(13) }}>
                   <Text style={{ fontFamily: BOLD }}>{race}: </Text>
                   {Object.entries(raceBonuses).map(([k, v]) => `${ATTR_LABELS[k as AttrKey]} +${v}`).join(', ')} — aplicados automaticamente ao salvar.
                 </Text>

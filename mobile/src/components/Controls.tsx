@@ -189,13 +189,13 @@ export function Btn({ label, onPress, kind = 'outline', disabled, accessibilityL
 }) {
   // Primário: escuro com brilho claro, como no web; contorno: translúcido com borda prateada.
   const primary = kind === 'primary';
-  const bg = primary ? COLORS.btn : kind === 'outline' ? 'rgba(255,255,255,0.08)' : 'transparent';
+  const bg = primary ? COLORS.btn : kind === 'outline' ? COLORS.fill : 'transparent';
   const fg = primary ? COLORS.btnText : kind === 'danger' ? '#e57373' : COLORS.onSurfaceVariant;
   return (
     <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label}
       style={{ minHeight: 44, paddingHorizontal: 22, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: bg,
-        borderWidth: primary ? 0 : 1, borderColor: kind === 'danger' ? '#e57373' : 'rgba(192,192,192,0.5)', opacity: disabled ? 0.55 : 1,
-        ...(primary && !disabled ? { shadowColor: '#fff', shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 0 }, elevation: 0 } : null) }}>
+        borderWidth: primary ? 0 : 1, borderColor: kind === 'danger' ? '#e57373' : COLORS.ruleSoft, opacity: disabled ? 0.55 : 1,
+        ...(primary && !disabled ? { shadowColor: COLORS.glow, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 0 }, elevation: 0 } : null) }}>
       <Text style={{ color: fg, fontFamily: BODY, fontSize: appFontSize(15) }}>{label}</Text>
     </Pressable>
   );

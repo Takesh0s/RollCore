@@ -13,8 +13,16 @@ import {
 } from 'react-native';
 import { usePathname } from 'expo-router';
 import { fontMultiplier, useAcessibilidade } from '../store/acessibilidade';
+import { DISPLAY_FONT, type ThemeId } from '../lib/theme';
 import { feedbackDeAcao, nomeDoPapel } from '../utils/acessibilidadeAudio';
 import { registrarTextoDaTela } from '../utils/screenNarration';
+
+const SERIF_FONTS = ['SourceSerif4_700Bold', 'SourceSerif4_600SemiBold'];
+/** Títulos em serifa viram a fonte do tema (como o `--font-display` do web); Medieval e Modo Daltônico ficam como estão. */
+function themedFont(family: unknown, tema: ThemeId, daltonico: boolean) {
+  if (daltonico || typeof family !== 'string' || !SERIF_FONTS.includes(family)) return family;
+  return DISPLAY_FONT[tema] ?? family;
+}
 
 function scaleStyle(style: TextProps['style'] | TextInputProps['style'], multiplier: number, defaultSize: number) {
   const flattened = StyleSheet.flatten(style) ?? {};
@@ -43,13 +51,15 @@ function childText(node: unknown): string {
 export function AccessibleText(props: TextProps) {
   const pathname = usePathname();
   const id = useRef(`text-${Math.random().toString(36).slice(2)}`);
-  const { fonte } = useAcessibilidade();
+  const { fonte, tema, daltonico } = useAcessibilidade();
   const text = props.accessibilityLabel || childText(props.children);
   useEffect(() => {
     if (!text) return;
     return registrarTextoDaTela(pathname, id.current, text, 'text');
   }, [pathname, text]);
-  return <NativeText {...props} style={scaleStyle(props.style, fontMultiplier(fonte), 14)} />;
+  const scaled = scaleStyle(props.style, fontMultiplier(fonte), 14);
+  const family = themedFont(scaled.fontFamily, tema, daltonico);
+  return <NativeText {...props} style={family === scaled.fontFamily ? scaled : { ...scaled, fontFamily: family as string }} />;
 }
 
 export function AccessibleTextInput(props: TextInputProps) {

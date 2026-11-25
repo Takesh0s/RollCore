@@ -109,6 +109,39 @@ export const THEMES: ThemeDef[] = [
 ]
 
 
+/**
+ * Fonte dos títulos por tema (a `fontDisplay` do web). Medieval mantém a Source Serif 4 já usada nas telas;
+ * os nomes são os registrados em useAppFonts.
+ */
+export const DISPLAY_FONT: Partial<Record<ThemeId, string>> = {
+  neon: 'Orbitron_700Bold',
+  cyberpunk: 'ChakraPetch_700Bold',
+  terror: 'SpecialElite_400Regular',
+  steampunk: 'Rye_400Regular',
+  pergaminho: 'Cinzel_700Bold',
+};
+
+/**
+ * Cores da moldura, do filete do cabeçalho e do título por tema, lidas das páginas de tema do Figma mobile
+ * (frames Escuro e Claro). O Neon só tem telas escuras no Figma: no claro vale a moldura roxa do CSS do web com o título da paleta.
+ * Medieval e Cyberpunk seguem as cores da paleta.
+ */
+type Chrome = { frame: string; rule: string; title: string };
+export const THEME_CHROME: Record<ThemeMode, Partial<Record<ThemeId, Chrome>>> = {
+  dark: {
+    neon: { frame: '#9D5CFF', rule: 'rgba(157,92,255,0.8)', title: '#FF2E97' },
+    steampunk: { frame: '#5B6168', rule: 'rgba(207,198,180,0.8)', title: '#D9A441' },
+    pergaminho: { frame: '#6B5638', rule: 'rgba(217,199,160,0.8)', title: '#E0BB5A' },
+    terror: { frame: '#5D5C4C', rule: 'rgba(183,178,155,0.8)', title: '#CF2A33' },
+  },
+  light: {
+    neon: { frame: '#9D5CFF', rule: 'rgba(157,92,255,0.8)', title: '#C4166F' },
+    steampunk: { frame: '#8A7F6C', rule: 'rgba(59,50,40,0.8)', title: '#8A4A12' },
+    pergaminho: { frame: '#8C7650', rule: 'rgba(42,27,13,0.8)', title: '#6E2210' },
+    terror: { frame: '#6F6650', rule: 'rgba(58,52,42,0.8)', title: '#7D0D12' },
+  },
+};
+
 export const DEFAULT_THEME: ThemeId = 'medieval';
 export const THEME_IDS = THEMES.map((t) => t.id);
 
@@ -145,13 +178,15 @@ export function appColors(p: Palette, mode: ThemeMode) {
     onSurface: p.text2, onSurfaceVariant: p.text, outline: p.dim, outlineVariant: p.line,
     primary: p.accentTx, onPrimary: readableOn(p.accentTx), primaryContainer: p.card2, onPrimaryContainer: p.accentTx,
     primaryFixedDim: p.accentTx, secondary: p.text,
-    canvas: p.canvas, btn: mode === 'dark' ? p.btn : p.card2, btnText: p.btnText, // Medieval escuro mantém o safira original; os demais temas usam a própria cor de ação.
+    canvas: p.canvas, btn: p.btn, btnText: p.btnText, // igual ao web (--btn-dark): o botão escuro vale também nos temas claros.
     sapphire: p === THEMES[0].dark ? '#8FB8DE' : p.accentTx,
     field: p.field, fieldText: p.fieldText, placeholder: withAlpha(p.fieldText, 0.65), tile: mode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.05)',
+    rule: withAlpha(p.text, 0.7), ruleSoft: withAlpha(p.text, 0.5), ruleFaint: withAlpha(p.text, 0.3),
+    fill: mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)', glow: mode === 'dark' ? '#FFFFFF' : '#000000',
   };
   const auth = {
     canvas: p.body, panel: p.card, profilePanel: p.body, field: p.field, mint: p.accentTx, white: p.text2,
-    button: mode === 'dark' ? p.btn : p.card2, gray: p.text, typed: p.fieldText, placeholder: withAlpha(p.fieldText, 0.65),
+    button: p.btn, gray: p.text, typed: p.fieldText, placeholder: withAlpha(p.fieldText, 0.65),
   };
   return { colors, auth };
 }

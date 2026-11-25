@@ -2,7 +2,8 @@ import { useId, type ReactNode } from 'react';
 import { View } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { AccessiblePressable as Pressable, AccessibleText as Text } from '../accessible-text';
-import { COLORS, appFontSize } from '../../design/shared';
+import { COLORS, appFontSize, resolvedThemeMode } from '../../design/shared';
+import { useAcessibilidade } from '../../store/acessibilidade';
 
 export const BODY = 'Inter_400Regular';
 export const BOLD = 'Inter_700Bold';
@@ -14,11 +15,13 @@ export const FAINT = '#9AA4A8';
 
 /** `.section-title` do web: serifa branca centralizada com um filete prateado de cada lado. */
 export function RuleTitle({ children }: { children: string }) {
-  const line = { flex: 1, height: 1, backgroundColor: 'rgba(192,192,192,0.7)' } as const;
+  const { tema } = useAcessibilidade();
+  const cyber = tema === 'cyberpunk';
+  const line = { flex: 1, height: 1, backgroundColor: COLORS.rule } as const;
   return (
     <View accessibilityRole="header" style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14, marginBottom: 10 }}>
       <View style={line} />
-      <Text style={{ color: '#FFFFFF', fontFamily: SERIF, fontSize: appFontSize(14) }}>{children}</Text>
+      <Text style={{ color: cyber ? (resolvedThemeMode() === 'light' ? '#00717F' : '#02D7F2') : COLORS.onSurface, fontFamily: SERIF, fontSize: appFontSize(14), ...(cyber ? { textTransform: 'uppercase', letterSpacing: 2 } : null) }}>{children}</Text>
       <View style={line} />
     </View>
   );
@@ -33,17 +36,21 @@ export function PillBtn({ label, onPress, kind = 'outline', pill = true, block, 
 }) {
   const primary = kind === 'primary';
   const danger = kind === 'danger';
+  // Cyberpunk (cyberpunk.css): botões primários e em pílula ficam amarelos, com texto preto, cantos retos e caixa alta.
+  const cyber = useAcessibilidade().tema === 'cyberpunk' && !danger && (primary || pill);
+  // Neon (desktop.css): primário com borda rosa e brilho rosa/roxo.
+  const neon = useAcessibilidade().tema === 'neon' && primary;
   return (
     <Pressable onPress={onPress} disabled={disabled} accessibilityRole="button" accessibilityLabel={accessibilityLabel ?? label}
       style={{
         alignSelf: block ? 'stretch' : 'auto', alignItems: 'center', justifyContent: 'center', minWidth: pill ? 0 : 132,
-        paddingVertical: pill ? 5 : 10, paddingHorizontal: pill ? 16 : 26, borderRadius: pill ? 999 : 14,
-        backgroundColor: primary ? COLORS.btn : kind === 'outline' ? 'rgba(255,255,255,0.08)' : 'transparent',
-        borderWidth: primary ? 0 : 1, borderColor: danger ? FAIL : 'rgba(192,192,192,0.5)',
+        paddingVertical: pill ? 5 : 10, paddingHorizontal: pill ? 16 : 26, borderRadius: cyber ? 0 : pill ? 999 : 14,
+        backgroundColor: cyber ? '#FCEE0A' : primary ? COLORS.btn : kind === 'outline' ? COLORS.fill : 'transparent',
+        borderWidth: neon ? 1.5 : primary || cyber ? 0 : 1, borderColor: neon ? '#FF2E97' : danger ? FAIL : COLORS.ruleSoft,
         opacity: disabled ? 0.55 : 1,
-        ...(primary && !disabled ? { shadowColor: '#fff', shadowOpacity: pill ? 0.3 : 0.35, shadowRadius: pill ? 5 : 7, shadowOffset: { width: 0, height: 0 }, elevation: 4 } : null),
+        ...(primary && !disabled && !cyber ? { shadowColor: neon ? '#FF2E97' : COLORS.glow, shadowOpacity: neon ? 0.6 : pill ? 0.3 : 0.35, shadowRadius: pill ? 5 : 7, shadowOffset: { width: 0, height: 0 }, elevation: 4 } : null),
       }}>
-      <Text style={{ color: primary ? COLORS.btnText : danger ? FAIL : COLORS.sapphire, fontFamily: BTN, fontSize: appFontSize(pill ? 13 : 15) }}>{label}</Text>
+      <Text style={{ color: cyber ? '#050505' : primary ? COLORS.btnText : danger ? FAIL : COLORS.sapphire, fontFamily: BTN, fontSize: appFontSize(pill ? 13 : 15), ...(cyber ? { textTransform: 'uppercase', letterSpacing: 1 } : null) }}>{label}</Text>
     </Pressable>
   );
 }
@@ -52,7 +59,7 @@ export function PillBtn({ label, onPress, kind = 'outline', pill = true, block, 
 export function ProfileRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 6 }}>
-      <Text style={{ flexShrink: 1, color: '#FFFFFF', fontFamily: BODY, fontSize: appFontSize(14) }}>{label}</Text>
+      <Text style={{ flexShrink: 1, color: COLORS.onSurface, fontFamily: BODY, fontSize: appFontSize(14) }}>{label}</Text>
       {children}
     </View>
   );

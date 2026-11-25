@@ -2,7 +2,7 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider, usePathname, useRouter }
 import * as SplashScreen from 'expo-splash-screen';
 import { Fragment, useEffect } from 'react';
 import { AppState, View, useColorScheme, useWindowDimensions } from 'react-native';
-import { COLORS, applyAccessibilityPalette, resolvedThemeMode, useAppFonts } from '../design/shared';
+import { COLORS, applyAccessibilityPalette, resolvedThemeMode, themeChrome, useAppFonts } from '../design/shared';
 import { onSessionExpired } from '../services/api';
 import { QuickRollModal } from '../components/dice/QuickRollModal';
 import { QuickSearchModal } from '../components/QuickSearchModal';
@@ -12,6 +12,8 @@ import { useContaAtiva } from '../store/conta';
 import { useNotifications } from '../store/useNotifications';
 import { falar, pararLeitura } from '../utils/acessibilidadeAudio';
 import { textoNarracaoDaTela } from '../utils/screenNarration';
+import { ThemeDecor } from '../components/ThemeDecor';
+import { BAND, FRAME_SIDE, FRAME_TOP, NOTCH } from '../design/frame';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -46,23 +48,21 @@ function NotificationsPoller() {
 
 // Moldura do web no celular (Figma 412 x 917): filete prateado a 18 px dos lados e 40 px do topo, e embaixo a faixa de dentes
 // (5 dentes escuros, um em cada ponta e três entre os vãos, com 4 vãos azuis iguais; tudo escala com a largura) colada na borda da tela, atrás da barra de navegação.
-// Os outros temas não têm dentes: o filete fecha a 9 px da borda.
-const FRAME_TOP = 40;
-const FRAME_SIDE = 18;
-const NOTCH = 41;
+// Nos temas do Figma a faixa tem a mesma altura; só Medieval e Pergaminho têm os dentes (nos outros ela fica lisa ou leva as engrenagens).
 function Frame({ children }: { children: React.ReactNode }) {
   const { width } = useWindowDimensions();
   const { tema } = useAcessibilidade();
-  const teeth = tema === 'medieval';
-  const band = (teeth ? NOTCH : 0) + 9;
+  const teeth = tema === 'medieval' || tema === 'pergaminho';
+  const band = BAND;
+  const chrome = themeChrome();
   const tile = width * 0.2257;
   const gap = tile * 0.441;
   const count = Math.ceil(width / tile);
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       <View style={{ flex: 1, paddingTop: FRAME_TOP, paddingBottom: band, paddingHorizontal: FRAME_SIDE }}>{children}</View>
-      <View pointerEvents="none" style={{ position: 'absolute', top: FRAME_TOP, left: FRAME_SIDE, right: FRAME_SIDE, bottom: band, borderWidth: 1, borderColor: 'rgba(192,192,192,0.75)' }} />
-      <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: band, backgroundColor: COLORS.background, overflow: 'hidden' }}>
+      <View pointerEvents="none" style={{ position: 'absolute', top: FRAME_TOP, left: FRAME_SIDE, right: FRAME_SIDE, bottom: band, borderWidth: chrome ? 1.5 : 1, borderColor: tema === 'cyberpunk' ? (resolvedThemeMode() === 'light' ? 'rgba(122,113,0,0.75)' : 'rgba(252,238,10,0.75)') : chrome?.frame ?? COLORS.rule }} />
+      <View pointerEvents="none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: band, backgroundColor: tema === 'steampunk' || tema === 'terror' ? COLORS.canvas : COLORS.background, overflow: 'hidden' }}>
         {teeth && Array.from({ length: count }).map((_, i) => (
           <View key={i} style={{ position: 'absolute', bottom: 0, height: NOTCH, left: i * tile + gap, width: tile - gap, backgroundColor: COLORS.canvas }} />
         ))}
@@ -99,6 +99,7 @@ export default function RootLayout() {
     <ThemeProvider value={resolvedThemeMode() === 'dark' ? DarkTheme : DefaultTheme}>
       <Fragment key={paletteKey}>
         <Frame><Stack screenOptions={{ headerShown: false, animation: 'none', contentStyle: { backgroundColor: 'transparent' } }} /></Frame>
+        <ThemeDecor />
         <ScreenNarrator />
         <SessionWatcher />
         <NotificationsPoller />
