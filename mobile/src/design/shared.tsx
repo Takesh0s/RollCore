@@ -10,7 +10,7 @@ import { SourceSerif4_600SemiBold, SourceSerif4_700Bold } from '@expo-google-fon
 import { MaterialIcons } from '@expo/vector-icons';
 import { useFonts } from 'expo-font';
 import { useState } from 'react';
-import { Image, Pressable as NativePressable, StyleSheet, TextInputProps, View } from 'react-native';
+import { Image, Pressable as NativePressable, StyleSheet, TextInputProps, View, type ImageStyle, type TextStyle, type ViewStyle } from 'react-native';
 import { imageSrc } from '../lib/mapImage';
 import { useContaAtiva } from '../store/conta';
 import { AccessibleText as Text, AccessibleTextInput as TextInput, AccessiblePressable as Pressable } from '../components/accessible-text';
@@ -91,7 +91,9 @@ setPaletteApplier(() => { const a = getAcessibilidade(); applyAccessibilityPalet
 /** Estilos que usam cores do tema: recriados quando a paleta muda (StyleSheet.create congelaria as cores do primeiro render). */
 export const paletteKey = () => appliedPalette;
 
-export function themedStyles<T extends StyleSheet.NamedStyles<T>>(make: () => T, key: () => string): T {
+type NamedStyles<T> = { [K in keyof T]: ViewStyle | TextStyle | ImageStyle };
+
+export function themedStyles<T extends NamedStyles<T>>(make: () => T, key: () => string): T {
   let cached: T | null = null;
   let cachedKey = '';
   return new Proxy({} as T, {
