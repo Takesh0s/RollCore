@@ -1,0 +1,121 @@
+erDiagram
+    USERS {
+        UUID id PK
+        VARCHAR email UK
+        VARCHAR username UK
+        VARCHAR plan
+    }
+    REFRESH_TOKENS {
+        UUID id PK
+        UUID user_id FK
+        UUID family_id
+        VARCHAR token_hash UK
+        UUID replaced_by
+    }
+    CHARACTERS {
+        UUID id PK
+        UUID user_id FK
+        VARCHAR name
+        INTEGER level
+        JSONB attributes
+    }
+    CHARACTER_ITEMS {
+        UUID id PK
+        UUID character_id FK
+        VARCHAR name
+        INTEGER quantity
+    }
+    SPELLS {
+        UUID id PK
+        VARCHAR name UK
+        INTEGER level
+    }
+    CHARACTER_SPELLS {
+        UUID character_id PK, FK
+        UUID spell_id PK, FK
+        BOOLEAN is_prepared
+    }
+    SESSIONS {
+        UUID id PK
+        UUID master_user_id FK
+        VARCHAR code UK
+        VARCHAR status
+    }
+    DICE_ROLLS {
+        UUID id PK
+        UUID user_id FK
+        UUID session_id FK
+        UUID game_table_id FK
+        VARCHAR formula
+    }
+    DICE_SHORTCUTS {
+        UUID id PK
+        UUID user_id FK
+        VARCHAR name
+        VARCHAR formula
+    }
+    GAME_TABLES {
+        UUID id PK
+        UUID owner_id FK
+        UUID sponsor_id FK
+        VARCHAR invite_code UK
+        VARCHAR game_system
+    }
+    GAME_TABLE_MEMBERS {
+        UUID id PK
+        UUID game_table_id FK
+        UUID user_id FK
+        VARCHAR role
+    }
+    TABLE_EVENTS {
+        UUID id PK
+        UUID game_table_id FK
+        UUID created_by FK
+        DATE event_date
+    }
+    TABLE_EVENT_RSVPS {
+        UUID id PK
+        UUID event_id FK
+        UUID user_id FK
+        VARCHAR status
+    }
+    IMAGES {
+        UUID id PK
+        UUID owner_id FK
+        BYTEA data
+    }
+    NOTIFICATIONS {
+        UUID id PK
+        UUID user_id FK
+        UUID table_id
+        UUID event_id
+    }
+    GAME_MAPS {
+        UUID id PK
+        UUID owner_id FK
+        UUID image_id FK
+        TEXT layers
+    }
+
+    USERS ||--o{ REFRESH_TOKENS : owns
+    USERS ||--o{ CHARACTERS : owns
+    CHARACTERS ||--o{ CHARACTER_ITEMS : contains
+    CHARACTERS ||--o{ CHARACTER_SPELLS : learns
+    SPELLS ||--o{ CHARACTER_SPELLS : assigned
+    USERS ||--o{ SESSIONS : masters
+    USERS ||--o{ DICE_ROLLS : rolls
+    SESSIONS o|--o{ DICE_ROLLS : optional_session
+    GAME_TABLES o|--o{ DICE_ROLLS : optional_table
+    USERS ||--o{ DICE_SHORTCUTS : saves
+    USERS ||--o{ GAME_TABLES : owns
+    USERS o|--o{ GAME_TABLES : sponsors
+    GAME_TABLES ||--o{ GAME_TABLE_MEMBERS : has_members
+    USERS ||--o{ GAME_TABLE_MEMBERS : joins
+    GAME_TABLES ||--o{ TABLE_EVENTS : schedules
+    USERS ||--o{ TABLE_EVENTS : creates
+    TABLE_EVENTS ||--o{ TABLE_EVENT_RSVPS : receives
+    USERS ||--o{ TABLE_EVENT_RSVPS : responds
+    USERS ||--o{ IMAGES : owns
+    USERS ||--o{ NOTIFICATIONS : receives
+    USERS ||--o{ GAME_MAPS : owns
+    IMAGES o|--o{ GAME_MAPS : optional_background

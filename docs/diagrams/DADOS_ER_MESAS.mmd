@@ -1,0 +1,69 @@
+erDiagram
+    USERS {
+        UUID id PK
+        VARCHAR email UK
+        VARCHAR username UK
+    }
+    GAME_TABLES {
+        UUID id PK
+        UUID owner_id FK
+        UUID sponsor_id FK
+        VARCHAR invite_code UK
+        VARCHAR game_system
+    }
+    GAME_TABLE_MEMBERS {
+        UUID id PK
+        UUID game_table_id FK
+        UUID user_id FK
+        VARCHAR role
+    }
+    DICE_ROLLS {
+        UUID id PK
+        UUID user_id FK
+        UUID game_table_id FK
+        VARCHAR formula
+    }
+    TABLE_EVENTS {
+        UUID id PK
+        UUID game_table_id FK
+        UUID created_by FK
+        DATE event_date
+    }
+    TABLE_EVENT_RSVPS {
+        UUID id PK
+        UUID event_id FK
+        UUID user_id FK
+        VARCHAR status
+    }
+    NOTIFICATIONS {
+        UUID id PK
+        UUID user_id FK
+        UUID table_id
+        UUID event_id
+    }
+    IMAGES {
+        UUID id PK
+        UUID owner_id FK
+        BYTEA data
+    }
+    GAME_MAPS {
+        UUID id PK
+        UUID owner_id FK
+        UUID image_id FK
+        TEXT layers
+    }
+
+    USERS ||--o{ GAME_TABLES : owns
+    USERS o|--o{ GAME_TABLES : sponsors
+    GAME_TABLES ||--o{ GAME_TABLE_MEMBERS : has_members
+    USERS ||--o{ GAME_TABLE_MEMBERS : joins
+    USERS ||--o{ DICE_ROLLS : rolls
+    GAME_TABLES o|--o{ DICE_ROLLS : optional_table
+    GAME_TABLES ||--o{ TABLE_EVENTS : schedules
+    USERS ||--o{ TABLE_EVENTS : creates
+    TABLE_EVENTS ||--o{ TABLE_EVENT_RSVPS : receives
+    USERS ||--o{ TABLE_EVENT_RSVPS : responds
+    USERS ||--o{ NOTIFICATIONS : receives
+    USERS ||--o{ IMAGES : owns
+    USERS ||--o{ GAME_MAPS : owns
+    IMAGES o|--o{ GAME_MAPS : optional_background

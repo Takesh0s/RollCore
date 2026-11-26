@@ -1,7 +1,5 @@
 # Business Model Canvas — RollCore
 
-> Rascunho a revisar pelo grupo. Exportar para `BMC.pdf` na entrega.
-
 | Bloco | Conteúdo |
 |---|---|
 | Segmentos de clientes | Jogadores e mestres de RPG de mesa (foco em D&D 5e); grupos que jogam presencial e online |
