@@ -24,8 +24,12 @@ Link (YouTube, não listado): **A PREENCHER**
 |---|---|
 | `README.md` | Este documento |
 | `BMC.md` | Business Model Canvas |
-| `DADOS.md` | Modelo de dados do sistema |
+| `DADOS.pdf` | Modelo de dados do sistema (versão para leitura) |
+| `DADOS.md` | Mesmo conteúdo em formato editável |
+| `diagrams/` | Diagramas ER editáveis (`.mmd`, Mermaid) e imagens renderizadas |
 | `prints/` | Três prints da solução em execução |
+
+As demais pastas (`api/`, `architecture/`, `requirements/`, `testing/`, `ui-design/`, `deploy-render-supabase.md`) são a documentação técnica do repositório. Os materiais da proposta do semestre anterior são históricos e estão desatualizados: o que vale para esta entrega é o que está descrito neste README, no `BMC.md` e no `DADOS.pdf`.
 
 ## Estrutura do pacote entregue
 

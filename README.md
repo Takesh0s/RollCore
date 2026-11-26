@@ -85,7 +85,7 @@ Decisões principais:
 - **Camadas:** `controller` expõe HTTP e valida entrada; `service` concentra regras de negócio e transações; `repository` isola o acesso a dados. Entidades JPA não saem da API, que responde com DTOs.
 - **Stateless:** a API não mantém sessão. O access token dura 15 minutos e o refresh token 7 dias.
 - **Refresh tokens:** guardados apenas como hash SHA-256, com rotação a cada uso e detecção de reutilização por família de tokens (uma reutilização revoga a família inteira). Há uma janela curta de tolerância para requisições concorrentes.
-- **Esquema versionado:** o Hibernate roda em `ddl-auto: validate`; toda mudança de banco passa por uma migração Flyway (`V1` a `V10`).
+- **Esquema versionado:** o Hibernate roda em `ddl-auto: validate`; toda mudança de banco passa por uma migração Flyway (`V1` a `V20`).
 - **Isolamento de recursos:** quem não é membro de uma mesa recebe `404`, não `403`, para não revelar que ela existe. A entrada em mesas usa lock pessimista na linha para respeitar o limite de membros sob concorrência.
 - **Planos:** o limite de mesas é aplicado por patrocinador (`sponsor_id`), de forma que a hospedagem de uma mesa pode ser transferida sem burlar a cota.
 - **Rate limiting:** Bucket4j, com limite mais restrito nas rotas de autenticação.
