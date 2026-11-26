@@ -1,18 +1,18 @@
 # RollCore Mobile
 
-App Expo (React Native, SDK 57) para Android e iOS. Usa expo-router.
+App Expo (React Native, SDK 58) para Android e iOS. Usa expo-router.
 No pacote de entrega esta pasta se chama `app/`.
 
 ## Como rodar
 
 ### Pré-requisitos
-- Node.js 20 ou superior e npm
-- Android Studio com um emulador (ex.: Pixel 8 Pro) **ou** o app Expo Go no celular
+- Node.js 22.13 ou superior (ou 24.3+/26+) e npm
+- Android Studio com um emulador (ex.: Pixel 8 Pro) **ou** o app Expo Go instalado pela loja (Play Store/App Store), que já abre projetos SDK 58
 - A API acessível (veja `api/README.md`)
 
 ### Passos
 ```bash
-cd mobile
+cd mobile   # no pacote de entrega: cd app
 npm install
 cp .env.example .env           # no PowerShell: Copy-Item .env.example .env
 npx expo start
