@@ -198,7 +198,7 @@ export function InventoryTab({ char }: { char: Character }) {
       </View>
 
       {draft && (
-        <Modal visible transparent animationType="slide" onRequestClose={() => !saving && setDraft(null)}>
+        <Modal visible transparent animationType="slide" onRequestClose={() => { if (!saving) setDraft(null); }}>
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.55)' }}>
             <View accessibilityViewIsModal style={{ maxHeight: '90%', padding: 18, borderTopLeftRadius: 18, borderTopRightRadius: 18, backgroundColor: COLORS.surfaceContainerHigh }}>
               <ScrollView contentContainerStyle={{ gap: 12 }} keyboardShouldPersistTaps="handled">

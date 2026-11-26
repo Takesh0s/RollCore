@@ -27,9 +27,12 @@ function themedFont(family: unknown, tema: ThemeId, daltonico: boolean) {
 function scaleStyle(style: TextProps['style'] | TextInputProps['style'], multiplier: number, defaultSize: number) {
   const flattened = StyleSheet.flatten(style) ?? {};
   const baseSize = typeof flattened.fontSize === 'number' ? flattened.fontSize : defaultSize;
-  const scaled: TextStyle = { ...flattened, fontSize: Math.max(10, Math.round(baseSize * multiplier)) };
-  if (typeof flattened.lineHeight === 'number') scaled.lineHeight = Math.round(flattened.lineHeight * multiplier);
-  if (scaled.flexShrink === undefined) scaled.flexShrink = 1;
+  const scaled: TextStyle = {
+    ...flattened,
+    fontSize: Math.max(10, Math.round(baseSize * multiplier)),
+    ...(typeof flattened.lineHeight === 'number' ? { lineHeight: Math.round(flattened.lineHeight * multiplier) } : {}),
+    ...(flattened.flexShrink === undefined ? { flexShrink: 1 } : {}),
+  };
   return scaled;
 }
 

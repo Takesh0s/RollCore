@@ -1,6 +1,6 @@
 import * as Sharing from 'expo-sharing';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Image, View } from 'react-native';
+import { Image, View, type ViewInstance } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { imageSrc } from '../../lib/mapImage';
 import { mapSize, type Grid, type MapKind, type Painting } from '../../lib/maps';
@@ -17,7 +17,7 @@ const OUT_MAX = 2048; // lado maior (px) do PNG gerado
  */
 export function useMapExport(): { run: (job: ExportJob) => Promise<boolean>; busy: boolean; host: ReactNode } {
   const [job, setJob] = useState<ExportJob | null>(null);
-  const ref = useRef<View>(null);
+  const ref = useRef<ViewInstance>(null);
   const done = useRef<((ok: boolean) => void) | null>(null);
 
   const run = (j: ExportJob) => new Promise<boolean>((resolve) => { done.current = resolve; setJob(j); });
