@@ -1,0 +1,65 @@
+erDiagram
+    USERS {
+        UUID id PK
+        VARCHAR email UK
+        VARCHAR username UK
+        VARCHAR plan
+    }
+    REFRESH_TOKENS {
+        UUID id PK
+        UUID user_id FK
+        UUID family_id
+        VARCHAR token_hash UK
+        UUID replaced_by
+    }
+    CHARACTERS {
+        UUID id PK
+        UUID user_id FK
+        VARCHAR name
+        INTEGER level
+        JSONB attributes
+    }
+    CHARACTER_ITEMS {
+        UUID id PK
+        UUID character_id FK
+        VARCHAR name
+        INTEGER quantity
+    }
+    SPELLS {
+        UUID id PK
+        VARCHAR name UK
+        INTEGER level
+    }
+    CHARACTER_SPELLS {
+        UUID character_id PK, FK
+        UUID spell_id PK, FK
+        BOOLEAN is_prepared
+    }
+    SESSIONS {
+        UUID id PK
+        UUID master_user_id FK
+        VARCHAR code UK
+        VARCHAR status
+    }
+    DICE_ROLLS {
+        UUID id PK
+        UUID user_id FK
+        UUID session_id FK
+        VARCHAR formula
+    }
+    DICE_SHORTCUTS {
+        UUID id PK
+        UUID user_id FK
+        VARCHAR name
+        VARCHAR formula
+    }
+
+    USERS ||--o{ REFRESH_TOKENS : owns
+    USERS ||--o{ CHARACTERS : owns
+    CHARACTERS ||--o{ CHARACTER_ITEMS : contains
+    CHARACTERS ||--o{ CHARACTER_SPELLS : learns
+    SPELLS ||--o{ CHARACTER_SPELLS : assigned
+    USERS ||--o{ SESSIONS : masters
+    USERS ||--o{ DICE_ROLLS : rolls
+    SESSIONS o|--o{ DICE_ROLLS : optional_session
+    USERS ||--o{ DICE_SHORTCUTS : saves
